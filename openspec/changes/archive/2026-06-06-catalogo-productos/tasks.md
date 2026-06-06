@@ -71,7 +71,7 @@ Chain strategy: stacked-to-main
 
 ## Phase 5: Frontend Admin (PR #5)
 
-- [ ] 5.1 Create `frontend/src/app/features/admin/products/` — AdminProductsModule with CRUD table + soft-delete toggle
-- [ ] 5.2 Create `frontend/src/app/features/admin/product-form/` — AdminProductFormModule with mat-tab-group for ES/EN/SV translation fields
-- [ ] 5.3 Update `frontend/src/app/app-routing-module.ts` — add guarded route `/admin/productos` (AuthGuard + AdminGuard)
-- [ ] 5.4 Write frontend tests: admin CRUD table render, form validation, guarded route redirect
+- [x] 5.1 Create `frontend/src/app/features/admin/products/` — AdminProductsModule with CRUD table + soft-delete toggle
+- [x] 5.2 Create `frontend/src/app/features/admin/product-form/` — AdminProductFormModule with mat-tab-group for ES/EN/SV translation fields
+- [x] 5.3 Update `frontend/src/app/app-routing-module.ts` — add guarded route `/admin/productos` (AuthGuard + AdminGuard)
+- [x] 5.4 Write frontend tests: admin CRUD table render, form validation, guarded route redirect

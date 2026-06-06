@@ -51,7 +51,7 @@ The system MUST provide a `pyproject.toml` declaring dependencies: `litestar`, `
 
 ### Requirement: pydantic-settings Configuration
 
-`app/config.py` MUST define a `Settings` class (pydantic-settings `BaseSettings`) loading from `.env`. Fields MUST include: `DATABASE_URL` (async postgresql+asyncpg), `DEBUG` (bool, default false), `SECRET_KEY` (str), `CORS_ORIGINS` (list[str]), `JWT_ALGORITHM` (str, default "HS256"), `ACCESS_TOKEN_EXPIRE_MINUTES` (int, default 15), `REFRESH_TOKEN_EXPIRE_DAYS` (int, default 7), `GOOGLE_CLIENT_ID` (str, default ""), `GOOGLE_CLIENT_SECRET` (str, default ""), `RATE_LIMIT_REQUESTS` (int, default 5), and `RATE_LIMIT_WINDOW` (int, default 60).
+`app/config.py` MUST define a `Settings` class (pydantic-settings `BaseSettings`) loading from `.env`. Fields MUST include: `DATABASE_URL` (async postgresql+asyncpg), `DEBUG` (bool, default false), `SECRET_KEY` (str), `CORS_ORIGINS` (list[str]), `JWT_ALGORITHM` (str, default "HS256"), `ACCESS_TOKEN_EXPIRE_MINUTES` (int, default 15), `REFRESH_TOKEN_EXPIRE_DAYS` (int, default 7), `GOOGLE_CLIENT_ID` (str, default ""), `GOOGLE_CLIENT_SECRET` (str, default ""), `RATE_LIMIT_REQUESTS` (int, default 5), `RATE_LIMIT_WINDOW` (int, default 60), `UPLOAD_DIR` (str, default "uploads"), and `MAX_IMAGE_SIZE` (int, default 5242880).
 
 #### Scenario: Missing required variable raises error
 
@@ -83,6 +83,12 @@ The system MUST provide a `pyproject.toml` declaring dependencies: `litestar`, `
 - WHEN `Settings()` is instantiated
 - THEN `RATE_LIMIT_REQUESTS` defaults to 5, `RATE_LIMIT_WINDOW` defaults to 60
 
+#### Scenario: Upload config fields have sensible defaults
+
+- GIVEN `.env` omits `UPLOAD_DIR` and `MAX_IMAGE_SIZE`
+- WHEN `Settings()` is instantiated
+- THEN `UPLOAD_DIR` defaults to "uploads", `MAX_IMAGE_SIZE` defaults to 5242880 (5 MB)
+
 ### Requirement: Async SQLAlchemy Engine and Base
 
 `app/db/engine.py` MUST create an `AsyncEngine` via `create_async_engine` and export an `async_sessionmaker`. `app/db/base.py` MUST declare a `DeclarativeBase` class for model inheritance.
@@ -113,7 +119,7 @@ The system MUST run `alembic init migrations --async` to create the migrations d
 
 ### Requirement: Controller, Guard, and Middleware Registration
 
-`app/main.py` MUST register all application controllers, guards, and middleware during Litestar app creation. This SHALL include auth controllers, JWT/admin guards, and rate-limiting/i18n middleware.
+`app/main.py` MUST register all application controllers, guards, and middleware during Litestar app creation. This SHALL include auth controllers, product controllers (`ProductController`, `UploadController`), JWT/admin guards, and rate-limiting/i18n middleware.
 
 #### Scenario: Auth endpoints appear in OpenAPI
 
@@ -121,12 +127,25 @@ The system MUST run `alembic init migrations --async` to create the migrations d
 - WHEN the backend starts and `/schema` is accessed
 - THEN all `/auth/*` endpoints appear in the API documentation
 
+#### Scenario: Product endpoints appear in OpenAPI
+
+- GIVEN `ProductController` and `UploadController` are registered in `main.py`
+- WHEN the backend starts and `/schema` is accessed
+- THEN `/api/products`, `/api/admin/products`, `/api/categories`, `/api/upload` appear in the API documentation
+
 ### Requirement: Model Discovery for Autogenerate
 
-`migrations/env.py` MUST import all SQLAlchemy model modules so `Base.metadata` includes every table when `alembic revision --autogenerate` runs.
+`migrations/env.py` MUST import all SQLAlchemy model modules so `Base.metadata` includes every table when `alembic revision --autogenerate` runs. This SHALL include `app.models.product` and `app.models.category` modules.
 
 #### Scenario: Autogenerate detects auth models
 
 - GIVEN `User` and `RefreshToken` models are defined and `env.py` imports the model modules
 - WHEN `alembic revision --autogenerate -m "add auth tables"` is executed
 - THEN the generated migration includes `CREATE TABLE` for `users` and `refresh_tokens`
+
+#### Scenario: Autogenerate detects product and category models
+
+- GIVEN `Product`, `ProductTranslation`, `Category`, `CategoryTranslation` models are defined
+- AND `env.py` imports `app.models.product` and `app.models.category`
+- WHEN `alembic revision --autogenerate -m "add product tables"` is executed
+- THEN the generated migration includes `CREATE TABLE` for `products`, `product_translations`, `categories`, and `category_translations`
