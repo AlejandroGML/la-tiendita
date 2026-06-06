@@ -36,12 +36,12 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Admin Endpoints + Tests (PR 2)
 
-- [ ] 2.1 Implement `AdminController.get_dashboard` — aggregate COUNT users/products/orders, SUM(orders.total) for revenue
-- [ ] 2.2 Implement `AdminController.list_users` — paginated SELECT from users table, returns `UserAdminItem[]`
-- [ ] 2.3 Implement `AdminController.update_user_role` — validate role in UserRole enum, block self-demotion (check `request.user.id != user_id`), UPDATE role
-- [ ] 2.4 Implement `AdminController.list_orders` — paginated SELECT from orders JOIN users, filterable by `?status=`
-- [ ] 2.5 Implement `AdminController.update_order_status` — validate transition via `ALLOWED_TRANSITIONS` dict, UPDATE status
-- [ ] 2.6 Create `backend/tests/test_admin.py` — test: dashboard returns 200/403/401, user list paginates, role change works + self-demotion blocked, order status transitions (valid/invalid/cancelled-terminal), guard chain (401/403/200)
+- [x] 2.1 Implement `AdminController.get_dashboard` — aggregate COUNT users/products/orders, SUM(orders.total) for revenue
+- [x] 2.2 Implement `AdminController.list_users` — paginated SELECT from users table, returns `UserAdminItem[]`
+- [x] 2.3 Implement `AdminController.update_user_role` — validate role in UserRole enum, block self-demotion (check `request.user.id != user_id`), UPDATE role
+- [x] 2.4 Implement `AdminController.list_orders` — paginated SELECT from orders JOIN users, filterable by `?status=`
+- [x] 2.5 Implement `AdminController.update_order_status` — validate transition via `ALLOWED_TRANSITIONS` dict, UPDATE status
+- [x] 2.6 Create `backend/tests/test_admin.py` — test: dashboard returns 200/403/401, user list paginates, role change works + self-demotion blocked, order status transitions (valid/invalid/cancelled-terminal), guard chain (401/403/200)
 
 ## Phase 3: Frontend (PR 3)
 
