@@ -62,7 +62,7 @@ The system MUST install `tailwindcss@3` (explicitly pinned, NOT v4). MUST includ
 
 ### Requirement: ngx-translate Internationalization
 
-The system MUST install `@ngx-translate/core@17` and `@ngx-translate/http-loader`. MUST configure three languages: Spanish (`es`), English (`en`), and Swedish (`sv`). Translation JSON files SHALL be lazy-loaded from `assets/i18n/`. Translation keys for product catalog, product detail, admin CRUD, and image upload SHALL be added to all three language files.
+The system MUST install `@ngx-translate/core@17` and `@ngx-translate/http-loader`. MUST configure three languages: Spanish (`es`), English (`en`), and Swedish (`sv`). Translation JSON files SHALL be lazy-loaded from `assets/i18n/`. Translation keys for product catalog, product detail, admin CRUD, image upload, cart, checkout, and order history SHALL be added to all three language files.
 
 #### Scenario: Language switch updates UI text
 
@@ -83,9 +83,15 @@ The system MUST install `@ngx-translate/core@17` and `@ngx-translate/http-loader
 - WHEN the product catalog or detail page renders with any of the 3 languages
 - THEN all product-related labels display in the selected language
 
+#### Scenario: Cart and checkout translation keys resolve correctly
+
+- GIVEN translation keys like `CART.TITLE`, `CART.CHECKOUT`, `CHECKOUT.SHIPPING`, `ORDER.STATUS` exist in all 3 language files
+- WHEN the cart, checkout, or order pages render with any of the 3 languages
+- THEN all cart/checkout/order labels display in the selected language
+
 ### Requirement: Application Shell Layout and Routing
 
-The system MUST create `HeaderComponent` (with app title and navigation links), `FooterComponent`, and `HomeComponent`. `AppComponent` MUST use the header/footer shell wrapping a `<router-outlet>`. Routes MUST include: a lazy-loaded home route, lazy-loaded auth routes (`/login`, `/register`, `/recuperar`, `/reset-password`), lazy-loaded product routes (`/productos`, `/productos/:slug`, `/admin/productos`), and a wildcard redirect to `/`.
+The system MUST create `HeaderComponent` (with nav links), `FooterComponent`, and `HomeComponent`. `AppComponent` MUST wrap a `<router-outlet>` in the header/footer shell. Routes MUST include lazy-loaded: home, auth (`/login`, `/register`, `/recuperar`, `/reset-password`), product (`/productos`, `/productos/:slug`, `/admin/productos`), cart (`/carrito`, JWT-guarded), checkout (`/checkout`, JWT-guarded), orders (`/perfil/ordenes`, `/perfil/ordenes/:id`, JWT-guarded), and wildcard redirect to `/`.
 
 #### Scenario: Default route renders full layout
 
@@ -118,6 +124,30 @@ The system MUST create `HeaderComponent` (with app title and navigation links), 
 - GIVEN an unauthenticated user navigates to `/admin/productos`
 - WHEN the router activates the guarded route
 - THEN the user is redirected to `/login`
+
+#### Scenario: Cart route renders and requires auth guard
+
+- GIVEN an authenticated user navigates to `/carrito`
+- WHEN the router resolves the lazy-loaded CartModule
+- THEN the cart page with item table, totals, and checkout button renders
+
+#### Scenario: Checkout route requires auth guard
+
+- GIVEN an unauthenticated user navigates to `/checkout`
+- WHEN the router activates the guarded route
+- THEN the user is redirected to `/login`
+
+#### Scenario: Order routes render and require auth guard
+
+- GIVEN an authenticated user navigates to `/perfil/ordenes`
+- WHEN the router resolves the lazy-loaded OrderListModule
+- THEN the order history page with status badges renders
+
+#### Scenario: Order detail by ID renders
+
+- GIVEN an authenticated user navigates to `/perfil/ordenes/42`
+- WHEN the router resolves the lazy-loaded OrderDetailModule
+- THEN the order detail page with items and timeline renders
 
 ### Requirement: Auth HTTP Interceptors
 

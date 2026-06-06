@@ -119,7 +119,7 @@ The system MUST run `alembic init migrations --async` to create the migrations d
 
 ### Requirement: Controller, Guard, and Middleware Registration
 
-`app/main.py` MUST register all application controllers, guards, and middleware during Litestar app creation. This SHALL include auth controllers, product controllers (`ProductController`, `UploadController`), JWT/admin guards, and rate-limiting/i18n middleware.
+`app/main.py` MUST register all application controllers, guards, and middleware during Litestar app creation. This SHALL include auth controllers, product controllers (`ProductController`, `UploadController`), cart controller (`CartController`), order controller (`OrderController`), JWT/admin guards, and rate-limiting/i18n middleware.
 
 #### Scenario: Auth endpoints appear in OpenAPI
 
@@ -133,9 +133,15 @@ The system MUST run `alembic init migrations --async` to create the migrations d
 - WHEN the backend starts and `/schema` is accessed
 - THEN `/api/products`, `/api/admin/products`, `/api/categories`, `/api/upload` appear in the API documentation
 
+#### Scenario: Cart and checkout endpoints appear in OpenAPI
+
+- GIVEN `CartController` and `OrderController` are registered in `main.py`
+- WHEN the backend starts and `/schema` is accessed
+- THEN `/api/cart`, `/api/checkout`, `/api/orders`, `/api/orders/{id}` appear in the API documentation
+
 ### Requirement: Model Discovery for Autogenerate
 
-`migrations/env.py` MUST import all SQLAlchemy model modules so `Base.metadata` includes every table when `alembic revision --autogenerate` runs. This SHALL include `app.models.product` and `app.models.category` modules.
+`migrations/env.py` MUST import all SQLAlchemy model modules so `Base.metadata` includes every table when `alembic revision --autogenerate` runs. This SHALL include `app.models.product`, `app.models.category`, `app.models.cart`, and `app.models.order` modules.
 
 #### Scenario: Autogenerate detects auth models
 
@@ -149,3 +155,10 @@ The system MUST run `alembic init migrations --async` to create the migrations d
 - AND `env.py` imports `app.models.product` and `app.models.category`
 - WHEN `alembic revision --autogenerate -m "add product tables"` is executed
 - THEN the generated migration includes `CREATE TABLE` for `products`, `product_translations`, `categories`, and `category_translations`
+
+#### Scenario: Autogenerate detects cart and order models
+
+- GIVEN `CartItem`, `Order`, and `OrderItem` models are defined
+- AND `env.py` imports `app.models.cart` and `app.models.order`
+- WHEN `alembic revision --autogenerate -m "add cart and order tables"` is executed
+- THEN the generated migration includes `CREATE TABLE` for `cart_items`, `orders`, and `order_items`

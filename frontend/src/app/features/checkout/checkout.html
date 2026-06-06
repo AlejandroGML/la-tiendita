@@ -63,7 +63,7 @@
 
           <div class="divide-y divide-gray-200">
             <div
-              *ngFor="let item of items()"
+              *ngFor="let item of items"
               class="flex justify-between items-center py-2"
             >
               <div class="flex-1 min-w-0">
@@ -81,7 +81,7 @@
           <div class="border-t border-gray-200 mt-4 pt-4">
             <div class="flex justify-between items-center">
               <span class="text-lg font-bold">{{ 'checkout.total' | translate }}</span>
-              <span class="text-lg font-bold">{{ total() | currency }}</span>
+              <span class="text-lg font-bold">{{ total | currency }}</span>
             </div>
           </div>
 
@@ -89,7 +89,7 @@
             mat-flat-button
             color="primary"
             class="w-full mt-6 py-3 text-lg"
-            [disabled]="submitting() || shippingForm.invalid || items().length === 0"
+            [disabled]="submitting() || shippingForm.invalid || items.length === 0"
             (click)="submitOrder()"
             data-testid="confirm-button"
           >
