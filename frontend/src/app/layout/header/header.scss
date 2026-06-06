@@ -1,1 +1,16 @@
-/* Header styles */
+/* Desktop nav links — ensure proper spacing */
+nav a[mat-button] {
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Mobile menu icon */
+.mobile-menu-btn {
+  display: none;
+}
+
+@media (max-width: 767px) {
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+}

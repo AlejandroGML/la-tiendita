@@ -2,7 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Angular Material prebuilt theme */
+/* Angular Material light theme (default) */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
 
-/* You can add global styles to this file, and also import other style files */
+/* Angular Material dark theme (toggled via html.dark-theme class) */
+html.dark-theme {
+  @import '@angular/material/prebuilt-themes/pink-bluegrey.css';
+}
+
+/* Dark theme overrides for non-Material elements */
+html.dark-theme {
+  --bg-primary: #1e1e2e;
+  --bg-secondary: #2a2a3c;
+  --text-primary: #cdd6f4;
+  --text-secondary: #a0a0b0;
+
+  color-scheme: dark;
+
+  body {
+    background-color: #121212;
+    color: #e0e0e0;
+  }
+}

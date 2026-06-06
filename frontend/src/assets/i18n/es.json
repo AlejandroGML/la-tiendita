@@ -1,4 +1,8 @@
 {
+  "nav": {
+    "products": "Productos",
+    "cart": "Carrito"
+  },
   "header": {
     "title": "La Tiendita"
   },

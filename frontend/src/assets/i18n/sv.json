@@ -1,4 +1,8 @@
 {
+  "nav": {
+    "products": "Produkter",
+    "cart": "Varukorg"
+  },
   "header": {
     "title": "La Tiendita"
   },

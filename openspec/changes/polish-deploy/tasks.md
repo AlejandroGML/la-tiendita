@@ -111,44 +111,44 @@
 
 > **PR #3 → main** — Frontend-only changes. No backend changes.
 
-### Task 3.1: Theme Service
+### Task 3.1: Theme Service ✅
 - **File**: `frontend/src/app/core/services/theme.service.ts` (new, ~50 lines)
-- `BehaviorSubject<'light'|'dark'>`, toggle(), init from localStorage → prefers-color-scheme
-- Apply/remove `dark-theme` class on `document.body`
+- `signal<'light'|'dark'>`, toggle(), init from localStorage → prefers-color-scheme
+- Apply/remove `dark-theme` class on `document.documentElement`
 
-### Task 3.2: Dark Theme CSS
+### Task 3.2: Dark Theme CSS ✅
 - **File**: `frontend/src/styles.scss` (modify, ~25 lines)
-- Import `pink-bluegrey.css` prebuilt theme scoped to `body.dark-theme`
+- Import `pink-bluegrey.css` prebuilt theme scoped to `html.dark-theme` via nested `@import`
 - Add CSS custom properties for non-Material elements
 
-### Task 3.3: Theme Toggle in Header
+### Task 3.3: Theme Toggle in Header ✅
 - **File**: `frontend/src/app/layout/header/header.html`, `header.ts` (modify, ~12 lines)
 - Add `mat-icon-button` with `light_mode`/`dark_mode` icon
 - Call `themeService.toggle()` on click
 
-### Task 3.4: SEO Meta Tags — Static
+### Task 3.4: SEO Meta Tags — Static ✅
 - **File**: `frontend/src/index.html` (modify, ~15 lines)
 - Add: `description`, `og:title`, `og:description`, `og:type`, `og:locale`, `twitter:card`
 - Add `<html lang="es">` attribute
 
-### Task 3.5: SEO Meta Tags — Dynamic
+### Task 3.5: SEO Meta Tags — Dynamic ✅
 - **File**: `frontend/src/app/app.ts` (modify, ~25 lines)
 - Inject `Title` and `Meta` from `@angular/platform-browser`
 - On `NavigationEnd`, set title to "Route | La Tiendita"
 - ProductDetail and ProductList update `og:title` + `description` after data load
 
-### Task 3.6: Responsive Header — Hamburger Menu
+### Task 3.6: Responsive Header — Hamburger Menu ✅
 - **File**: `frontend/src/app/layout/header/header.html`, `header.ts` (modify, ~20 lines)
 - Collapse nav links into `mat-menu` or toggle visibility at <640px
 - Show hamburger icon, hide nav links at mobile
 
-### Task 3.7: Responsive Product Grid
-- **File**: `frontend/src/app/features/products/product-list.component.html` (modify, ~5 lines)
+### Task 3.7: Responsive Product Grid ✅
+- **File**: `frontend/src/app/features/products/product-list.html` (modify, ~5 lines)
 - Ensure `grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4`
 
-### Task 3.8: Responsive Cart Table
-- **File**: `frontend/src/app/features/cart/cart.html` (modify, ~3 lines)
-- Add `overflow-x-auto` on table wrapper
+### Task 3.8: Responsive Cart Table ✅
+- **File**: `frontend/src/app/features/cart/cart.html` (already had `overflow-x-auto`)
+- Already present — no change needed
 
 **Slice 3 verification**:
 - Dark mode toggle switches theme, persists across reload

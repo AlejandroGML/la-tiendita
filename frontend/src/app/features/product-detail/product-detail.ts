@@ -1,5 +1,6 @@
-import { Component, OnDestroy, signal } from '@angular/core';
+import { Component, OnDestroy, signal, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { Meta, Title } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
@@ -21,6 +22,9 @@ export class ProductDetail implements OnDestroy {
 
   private sub: Subscription;
 
+  private meta = inject(Meta);
+  private title = inject(Title);
+
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
@@ -41,6 +45,7 @@ export class ProductDetail implements OnDestroy {
         next: (product) => {
           this.product.set(product);
           this.loading.set(false);
+          this.updateSeo();
         },
         error: (err) => {
           this.loading.set(false);
@@ -51,6 +56,17 @@ export class ProductDetail implements OnDestroy {
           }
         },
       });
+  }
+
+  private updateSeo(): void {
+    const name = this.displayName;
+    this.title.setTitle(name ? `${name} | La Tiendita` : 'La Tiendita');
+    this.meta.updateTag({ property: 'og:title', content: name || 'La Tiendita' });
+    const desc = this.displayDescription;
+    if (desc) {
+      this.meta.updateTag({ name: 'description', content: desc.slice(0, 160) });
+      this.meta.updateTag({ property: 'og:description', content: desc.slice(0, 200) });
+    }
   }
 
   ngOnDestroy(): void {

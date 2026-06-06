@@ -1,3 +1,55 @@
-<mat-toolbar color="primary">
-  <span>{{ title }}</span>
+<mat-toolbar color="primary" class="flex items-center justify-between">
+  <!-- Brand / Logo -->
+  <a routerLink="/" class="text-white font-bold text-xl no-underline">{{ title }}</a>
+
+  <!-- Desktop Navigation -->
+  <nav class="hidden md:flex items-center gap-2">
+    <a mat-button routerLink="/productos" routerLinkActive="mat-accent">
+      {{ 'nav.products' | translate }}
+    </a>
+    <a mat-button routerLink="/carrito" routerLinkActive="mat-accent">
+      <mat-icon class="align-middle">shopping_cart</mat-icon>
+      {{ 'nav.cart' | translate }}
+    </a>
+
+    <!-- Theme Toggle -->
+    <button
+      mat-icon-button
+      (click)="toggleTheme()"
+      [attr.aria-label]="themeIcon === 'light_mode' ? 'Switch to dark mode' : 'Switch to light mode'"
+    >
+      <mat-icon>{{ themeIcon }}</mat-icon>
+    </button>
+  </nav>
+
+  <!-- Mobile: hamburger + theme toggle -->
+  <div class="flex md:hidden items-center gap-1">
+    <button
+      mat-icon-button
+      (click)="toggleTheme()"
+      [attr.aria-label]="themeIcon === 'light_mode' ? 'Switch to dark mode' : 'Switch to light mode'"
+    >
+      <mat-icon>{{ themeIcon }}</mat-icon>
+    </button>
+
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="mobileMenu"
+      (click)="toggleMenu()"
+      aria-label="Open navigation menu"
+    >
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <mat-menu #mobileMenu="matMenu" (closed)="closeMenu()">
+      <a mat-menu-item routerLink="/productos">
+        <mat-icon>storefront</mat-icon>
+        <span>{{ 'nav.products' | translate }}</span>
+      </a>
+      <a mat-menu-item routerLink="/carrito">
+        <mat-icon>shopping_cart</mat-icon>
+        <span>{{ 'nav.cart' | translate }}</span>
+      </a>
+    </mat-menu>
+  </div>
 </mat-toolbar>

@@ -1,5 +1,6 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Meta, Title } from '@angular/platform-browser';
 import { Subject, takeUntil } from 'rxjs';
 import type { Product } from '../../shared/models/product.model';
 import type { Category } from '../../shared/models/category.model';
@@ -44,6 +45,9 @@ export class ProductList implements OnInit, OnDestroy {
 
   readonly conditions = ['new', 'like_new', 'good', 'fair'] as const;
   readonly sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  private meta = inject(Meta);
+  private titleService = inject(Title);
 
   constructor(productService: ProductService, http: HttpClient) {
     this.productService = productService;
@@ -95,6 +99,7 @@ export class ProductList implements OnInit, OnDestroy {
           this.products.set(res.data);
           this.total.set(res.pagination.total);
           this.loading.set(false);
+          this.updateSeo();
         },
         error: () => {
           this.products.set([]);
@@ -158,5 +163,18 @@ export class ProductList implements OnInit, OnDestroy {
     if (!cat) return '';
     const t = cat.translations?.find((t) => t.lang === 'es');
     return t?.name ?? cat.translations?.[0]?.name ?? '';
+  }
+
+  private updateSeo(): void {
+    this.titleService.setTitle('Productos | La Tiendita');
+    this.meta.updateTag({ property: 'og:title', content: 'Productos | La Tiendita' });
+    this.meta.updateTag({
+      name: 'description',
+      content: 'Explora nuestro catálogo de ropa segunda mano. Encuentra chaquetas, pantalones, camisetas y más.',
+    });
+    this.meta.updateTag({
+      property: 'og:description',
+      content: 'Explora nuestro catálogo de ropa segunda mano.',
+    });
   }
 }
