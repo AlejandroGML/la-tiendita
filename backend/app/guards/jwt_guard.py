@@ -33,6 +33,9 @@ jwt_auth = JWTAuth[User](
     exclude=[
         "/health",
         "/schema",
+        "/api/products",
+        "/api/categories",
+        "/uploads/",
         "/auth/register",
         "/auth/login",
         "/auth/forgot-password",
