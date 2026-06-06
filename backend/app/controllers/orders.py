@@ -13,10 +13,11 @@ from litestar import Controller, get, post
 from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import (
-    ConflictException,
+    HTTPException,
     NotFoundException,
     ValidationException,
 )
+from litestar.status_codes import HTTP_409_CONFLICT
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -84,7 +85,9 @@ class OrderController(Controller):
         except CartEmptyError as exc:
             raise ValidationException(detail=str(exc)) from exc
         except StockInsufficientError as exc:
-            raise ConflictException(detail=str(exc)) from exc
+            raise HTTPException(
+                status_code=HTTP_409_CONFLICT, detail=str(exc)
+            ) from exc
 
     @get("/orders")
     async def list_orders(

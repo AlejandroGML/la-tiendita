@@ -45,8 +45,8 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Backend Tests
 
-- [ ] 3.1 Create `backend/tests/test_cart.py` — CRUD endpoints, quantity merge, user scoping, 401/404 edge cases
-- [ ] 3.2 Create `backend/tests/test_orders.py` — checkout success + stock fail rollback + empty cart + cross-user 404 + snapshot immutability
+- [x] 3.1 Create `backend/tests/test_cart.py` — CRUD endpoints, quantity merge, user scoping, 401/404 edge cases
+- [x] 3.2 Create `backend/tests/test_orders.py` — checkout success + stock fail rollback + empty cart + cross-user 404 + snapshot immutability
 
 ## Phase 4: Frontend
 

@@ -93,7 +93,7 @@ class CartController(Controller):
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc
 
-    @delete("/{item_id:uuid}")
+    @delete("/{item_id:uuid}", status_code=200)
     async def remove_cart_item(
         self,
         item_id: UUID,
@@ -107,7 +107,7 @@ class CartController(Controller):
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc
 
-    @delete("/")
+    @delete("/", status_code=200)
     async def clear_cart(
         self,
         request: ASGIConnection,
