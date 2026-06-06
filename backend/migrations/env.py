@@ -28,8 +28,10 @@ from app.db.base import Base  # noqa: E402
 # Import model modules so Alembic discovers them for autogenerate.
 # These imports trigger the ORM metaclass registration on Base.metadata.
 # noqa: F401 on all model imports — used indirectly by alembic.
-import app.models.user  # noqa: E402, F401
+import app.models.category  # noqa: E402, F401
+import app.models.product  # noqa: E402, F401
 import app.models.refresh_token  # noqa: E402, F401
+import app.models.user  # noqa: E402, F401
 
 target_metadata = Base.metadata
 

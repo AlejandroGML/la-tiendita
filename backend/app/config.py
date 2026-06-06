@@ -31,5 +31,10 @@ class Settings(BaseSettings):
     RATE_LIMIT_REQUESTS: int = Field(default=5)
     RATE_LIMIT_WINDOW: int = Field(default=60)
 
+    # Image Upload
+    UPLOAD_DIR: str = Field(default="./uploads")
+    MAX_IMAGE_SIZE: int = Field(default=5 * 1024 * 1024)  # 5 MB
+    MAX_IMAGE_DIMENSION: int = Field(default=1200)
+
 
 settings = Settings()
