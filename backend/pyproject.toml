@@ -1,0 +1,36 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "tiendita-backend"
+version = "0.1.0"
+description = "La Tiendita — second-hand clothing e-commerce API"
+readme = { content = "", content-type = "text/plain" }
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [
+    { name = "Alejandro Martínez", email = "hello@xoko.dev" }
+]
+dependencies = [
+    "litestar>=2.0",
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.30",
+    "alembic>=1.13",
+    "pydantic-settings>=2.0",
+    "uvicorn[standard]>=0.34",
+    "python-jose[cryptography]>=3.3",
+    "httpx-oauth>=0.16",
+    "Pillow>=10.0",
+    "bcrypt>=4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "httpx>=0.28",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
