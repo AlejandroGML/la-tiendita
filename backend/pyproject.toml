@@ -6,7 +6,7 @@ build-backend = "hatchling.build"
 name = "tiendita-backend"
 version = "0.1.0"
 description = "La Tiendita — second-hand clothing e-commerce API"
-readme = { content = "", content-type = "text/plain" }
+readme = { text = "", content-type = "text/plain" }
 requires-python = ">=3.12"
 license = { text = "MIT" }
 authors = [

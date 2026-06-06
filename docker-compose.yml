@@ -44,7 +44,7 @@ services:
     command: >
       sh -c "corepack enable &&
              pnpm install &&
-             pnpm dev"
+             pnpm start -- --host 0.0.0.0"
     depends_on:
       - backend
 
