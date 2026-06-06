@@ -32,22 +32,22 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Backend Core
 
-- [ ] 2.1 Create `backend/pyproject.toml` (PEP 621 deps: litestar, sqlalchemy[asyncio], asyncpg, alembic, pydantic-settings, uvicorn)
-- [ ] 2.2 Create `backend/app/__init__.py` (empty) + `backend/app/main.py` (Litestar app, CORS `localhost:4200`, OpenAPI `/schema`, `GET /health`)
-- [ ] 2.3 Create `backend/app/config.py` with `Settings(BaseSettings)` fields: DATABASE_URL, DEBUG, SECRET_KEY, CORS_ORIGINS
-- [ ] 2.4 Create `backend/app/db/` package with `__init__.py` (empty), `engine.py` (create_async_engine + async_sessionmaker), `base.py` (DeclarativeBase)
-- [ ] 2.5 Run `alembic init migrations --async`; edit `alembic.ini` + `migrations/env.py` to read URL from Settings
+- [x] 2.1 Create `backend/pyproject.toml` (PEP 621 deps: litestar, sqlalchemy[asyncio], asyncpg, alembic, pydantic-settings, uvicorn)
+- [x] 2.2 Create `backend/app/__init__.py` (empty) + `backend/app/main.py` (Litestar app, CORS `localhost:4200`, OpenAPI `/schema`, `GET /health`)
+- [x] 2.3 Create `backend/app/config.py` with `Settings(BaseSettings)` fields: DATABASE_URL, DEBUG, SECRET_KEY, CORS_ORIGINS
+- [x] 2.4 Create `backend/app/db/` package with `__init__.py` (empty), `engine.py` (create_async_engine + async_sessionmaker), `base.py` (DeclarativeBase)
+- [x] 2.5 Run `alembic init migrations --async`; edit `alembic.ini` + `migrations/env.py` to read URL from Settings
 
 ## Phase 3: Frontend Core
 
-- [ ] 3.1 Scaffold: `ng new frontend --routing --style=scss` with `@angular/build` builder; add `pnpm-workspace.yaml` if needed
-- [ ] 3.2 Install deps: `@angular/material@22` (indigo-pink theme), `tailwindcss@3`, `@ngx-translate/core@17` + http-loader, PostCSS
-- [ ] 3.3 Create `tailwind.config.js` with `./src/**/*.{html,ts}` content paths; add `@tailwind` directives to `styles.scss`
-- [ ] 3.4 Create `shared/shared.module.ts` re-exporting MatButtonModule, MatToolbarModule, MatIconModule, MatSidenavModule, MatListModule
-- [ ] 3.5 Create `layout/header/` (app title + ngx-translate language selector) and `layout/footer/` (copyright year text)
-- [ ] 3.6 Create `features/home/` placeholder; wire AppComponent shell: header → router-outlet → footer
-- [ ] 3.7 Create `assets/i18n/{es,en,sv}.json` with `header.title`, `footer.copyright`; register TranslateModule + provideHttpClient + provideAnimations
-- [ ] 3.8 Wire routes: lazy home route, wildcard `**` redirect to `/`; update `app.config.ts`
+- [x] 3.1 Scaffold: `ng new frontend --routing --style=scss --standalone=false` with `@angular/build` builder
+- [x] 3.2 Install deps: `@angular/material@22` (indigo-pink theme), `tailwindcss@3`, `@ngx-translate/core@17` + http-loader, PostCSS/autoprefixer
+- [x] 3.3 Create `tailwind.config.js` with `./src/**/*.{html,ts}` content paths; add `@tailwind` directives to `styles.scss` before Material theme
+- [x] 3.4 Create `shared/shared-module.ts` re-exporting MatButtonModule, MatToolbarModule, MatIconModule, MatSidenavModule, MatListModule (adapted to Angular 22 kebab-case naming convention)
+- [x] 3.5 Create `layout/header/` (app title "La Tiendita", Material toolbar) and `layout/footer/` (dynamic year © text) with LayoutModule
+- [x] 3.6 Create `features/home/` placeholder with HomeModule for lazy loading; wire AppComponent shell: header → router-outlet → footer
+- [x] 3.7 Create `assets/i18n/{es,en,sv}.json` with `header.title`; register TranslateModule.forRoot with HttpLoader + provideHttpClient + provideAnimations in AppModule
+- [x] 3.8 Wire routes: lazy home route via `loadChildren`, wildcard `**` redirect to `/`; angular.json assets config updated for `src/assets`
 
 ## Phase 4: Verification
 
