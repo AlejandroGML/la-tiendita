@@ -7,7 +7,9 @@ from litestar.static_files import create_static_files_router
 
 from app.config import settings
 from app.controllers.auth import AuthController
+from app.controllers.cart import CartController
 from app.controllers.categories import AdminCategoryController, CategoryController
+from app.controllers.orders import OrderController
 from app.controllers.products import AdminProductController, ProductController
 from app.controllers.upload import UploadController
 from app.guards.jwt_guard import jwt_auth
@@ -46,6 +48,8 @@ app = Litestar(
         health_check,
         protected_endpoint,
         AuthController,
+        CartController,
+        OrderController,
         ProductController,
         AdminProductController,
         CategoryController,

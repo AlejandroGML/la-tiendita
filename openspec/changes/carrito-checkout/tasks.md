@@ -35,13 +35,13 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Backend Business Logic
 
-- [ ] 2.1 Create `backend/app/schemas/cart.py` — CartItemResponse, CartResponse, AddToCartRequest, UpdateQuantityRequest
-- [ ] 2.2 Create `backend/app/schemas/order.py` — CheckoutRequest, OrderResponse, OrderItemResponse, OrderListResponse
-- [ ] 2.3 Create `backend/app/services/cart_service.py` — add(), update_qty(), remove(), clear(), get_cart()
-- [ ] 2.4 Create `backend/app/services/order_service.py` — checkout() with savepoint + atomic stock UPDATE + JSONB snapshot; get_orders(), get_order()
-- [ ] 2.5 Create `backend/app/controllers/cart.py` — CartController `/api/cart` JWT-guarded
-- [ ] 2.6 Create `backend/app/controllers/orders.py` — OrderController `/api/checkout`, `/api/orders`, `/api/orders/{id}` JWT-guarded
-- [ ] 2.7 Modify `backend/app/main.py` — register CartController + OrderController
+- [x] 2.1 Create `backend/app/schemas/cart.py` — CartItemResponse, CartResponse, AddToCartRequest, UpdateQuantityRequest
+- [x] 2.2 Create `backend/app/schemas/order.py` — CheckoutRequest, OrderResponse, OrderItemResponse, OrderListResponse
+- [x] 2.3 Create `backend/app/services/cart_service.py` — add(), update_qty(), remove(), clear(), get_cart()
+- [x] 2.4 Create `backend/app/services/order_service.py` — checkout() with savepoint + atomic stock UPDATE + JSONB snapshot; get_orders(), get_order()
+- [x] 2.5 Create `backend/app/controllers/cart.py` — CartController `/api/cart` JWT-guarded
+- [x] 2.6 Create `backend/app/controllers/orders.py` — OrderController `/api/checkout`, `/api/orders`, `/api/orders/{id}` JWT-guarded
+- [x] 2.7 Modify `backend/app/main.py` — register CartController + OrderController
 
 ## Phase 3: Backend Tests
 
