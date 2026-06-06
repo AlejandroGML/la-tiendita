@@ -8,13 +8,28 @@
     "size": "Talla",
     "brand": "Marca",
     "stock": "Stock",
-    "addToCart": "Agregar al carrito"
+    "addToCart": "Agregar al carrito",
+    "inStock": "En Stock",
+    "outOfStock": "Agotado"
   },
   "catalog": {
     "title": "Catálogo",
     "filters": "Filtros",
+    "clear": "Limpiar",
     "search": "Buscar productos...",
-    "noResults": "No se encontraron productos"
+    "noResults": "No se encontraron productos",
+    "notFound": "Producto no encontrado",
+    "notFoundDesc": "El producto que buscas no existe o ha sido eliminado.",
+    "backToCatalog": "Volver al catálogo",
+    "retry": "Reintentar",
+    "error": "Ocurrió un error al cargar",
+    "category": "Categoría",
+    "allCategories": "Todas las categorías",
+    "allConditions": "Todas las condiciones",
+    "allSizes": "Todas las tallas",
+    "priceRange": "Rango de precio",
+    "minPrice": "Mín",
+    "maxPrice": "Máx"
   },
   "admin": {
     "products": "Productos",

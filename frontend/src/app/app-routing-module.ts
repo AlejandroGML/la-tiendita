@@ -26,6 +26,25 @@ const routes: Routes = [
       import('./features/auth/auth-module').then((m) => m.AuthModule),
   },
   {
+    path: 'productos',
+    children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/products/product-list-module').then(
+            (m) => m.ProductListModule,
+          ),
+      },
+      {
+        path: ':slug',
+        loadChildren: () =>
+          import('./features/product-detail/product-detail-module').then(
+            (m) => m.ProductDetailModule,
+          ),
+      },
+    ],
+  },
+  {
     path: '',
     loadChildren: () =>
       import('./features/home/home-module').then((m) => m.HomeModule),

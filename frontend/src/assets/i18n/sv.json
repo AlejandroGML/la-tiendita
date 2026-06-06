@@ -8,13 +8,28 @@
     "size": "Storlek",
     "brand": "Märke",
     "stock": "Lager",
-    "addToCart": "Lägg i varukorg"
+    "addToCart": "Lägg i varukorg",
+    "inStock": "I lager",
+    "outOfStock": "Slut i lager"
   },
   "catalog": {
     "title": "Katalog",
     "filters": "Filter",
+    "clear": "Rensa",
     "search": "Sök produkter...",
-    "noResults": "Inga produkter hittades"
+    "noResults": "Inga produkter hittades",
+    "notFound": "Produkten hittades inte",
+    "notFoundDesc": "Produkten du letar efter finns inte eller har tagits bort.",
+    "backToCatalog": "Tillbaka till katalogen",
+    "retry": "Försök igen",
+    "error": "Ett fel uppstod vid laddning",
+    "category": "Kategori",
+    "allCategories": "Alla kategorier",
+    "allConditions": "Alla skick",
+    "allSizes": "Alla storlekar",
+    "priceRange": "Prisintervall",
+    "minPrice": "Min",
+    "maxPrice": "Max"
   },
   "admin": {
     "products": "Produkter",

@@ -1,0 +1,165 @@
+<div class="product-list-page min-h-screen">
+  <!-- Header -->
+  <div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">{{ 'catalog.title' | translate }}</h1>
+  </div>
+
+  <div class="flex flex-col lg:flex-row gap-6">
+    <!-- Sidebar Filters -->
+    <aside class="filters-sidebar w-full lg:w-64 shrink-0">
+      <div class="bg-white rounded-lg shadow p-4 sticky top-4">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-semibold">{{ 'catalog.filters' | translate }}</h2>
+          <button
+            *ngIf="hasActiveFilters()"
+            class="text-sm text-blue-600 hover:text-blue-800"
+            (click)="clearFilters()"
+          >
+            {{ 'catalog.clear' | translate }}
+          </button>
+        </div>
+
+        <!-- Category -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ 'catalog.category' | translate }}
+          </label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-select
+              [value]="filters().category_id"
+              (selectionChange)="onFilterChange('category_id', $event.value)"
+              placeholder="{{ 'catalog.allCategories' | translate }}"
+            >
+              <mat-option [value]="null">{{ 'catalog.allCategories' | translate }}</mat-option>
+              <mat-option *ngFor="let cat of categories()" [value]="cat.id">
+                {{ getCategoryName(cat.id) }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Condition -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ 'product.condition' | translate }}
+          </label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-select
+              [value]="filters().condition"
+              (selectionChange)="onFilterChange('condition', $event.value)"
+              placeholder="{{ 'catalog.allConditions' | translate }}"
+            >
+              <mat-option [value]="null">{{ 'catalog.allConditions' | translate }}</mat-option>
+              <mat-option *ngFor="let c of conditions" [value]="c">
+                {{ 'condition.' + c | translate }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Size -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ 'product.size' | translate }}
+          </label>
+          <mat-form-field appearance="outline" class="w-full">
+            <mat-select
+              [value]="filters().size"
+              (selectionChange)="onFilterChange('size', $event.value)"
+              placeholder="{{ 'catalog.allSizes' | translate }}"
+            >
+              <mat-option [value]="null">{{ 'catalog.allSizes' | translate }}</mat-option>
+              <mat-option *ngFor="let s of sizes" [value]="s">{{ s }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <!-- Price Range -->
+        <div class="mb-4">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            {{ 'catalog.priceRange' | translate }}
+          </label>
+          <div class="flex gap-2">
+            <mat-form-field appearance="outline" class="w-full">
+              <input
+                matInput
+                type="number"
+                min="0"
+                [placeholder]="'catalog.minPrice' | translate"
+                [value]="filters().min_price"
+                (blur)="onFilterChange('min_price', $any($event.target).value ? +$any($event.target).value : null)"
+              />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <input
+                matInput
+                type="number"
+                min="0"
+                [placeholder]="'catalog.maxPrice' | translate"
+                [value]="filters().max_price"
+                (blur)="onFilterChange('max_price', $any($event.target).value ? +$any($event.target).value : null)"
+              />
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 min-w-0">
+      <!-- Search -->
+      <div class="mb-4">
+        <app-search-bar (search)="onSearch($event)"></app-search-bar>
+      </div>
+
+      <!-- Loading state -->
+      <div *ngIf="loading()" class="flex justify-center py-16">
+        <mat-spinner diameter="48"></mat-spinner>
+      </div>
+
+      <!-- Error state -->
+      <div *ngIf="error()" class="text-center py-16">
+        <p class="text-red-600 text-lg">{{ error() | translate }}</p>
+        <button
+          class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          (click)="loadProducts()"
+        >
+          {{ 'catalog.retry' | translate }}
+        </button>
+      </div>
+
+      <!-- Product Grid -->
+      <div
+        *ngIf="!loading() && !error()"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+      >
+        <a
+          *ngFor="let product of products()"
+          [routerLink]="['/productos', product.slug]"
+          class="block"
+        >
+          <app-product-card [product]="product"></app-product-card>
+        </a>
+      </div>
+
+      <!-- Empty state -->
+      <div
+        *ngIf="!loading() && !error() && products().length === 0"
+        class="text-center py-16"
+      >
+        <p class="text-gray-500 text-lg">{{ 'catalog.noResults' | translate }}</p>
+      </div>
+
+      <!-- Pagination -->
+      <div *ngIf="total() > 0" class="mt-8">
+        <app-pagination
+          [page]="page()"
+          [perPage]="perPage()"
+          [total]="total()"
+          (pageChange)="onPageChange($event)"
+          (perPageChange)="onPerPageChange($event)"
+        ></app-pagination>
+      </div>
+    </div>
+  </div>
+</div>
