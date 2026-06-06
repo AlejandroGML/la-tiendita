@@ -1,5 +1,34 @@
 {
   "header": {
     "title": "La Tiendita"
+  },
+  "product": {
+    "price": "Precio",
+    "condition": "Estado",
+    "size": "Talla",
+    "brand": "Marca",
+    "stock": "Stock",
+    "addToCart": "Agregar al carrito"
+  },
+  "catalog": {
+    "title": "Catálogo",
+    "filters": "Filtros",
+    "search": "Buscar productos...",
+    "noResults": "No se encontraron productos"
+  },
+  "admin": {
+    "products": "Productos",
+    "newProduct": "Nuevo Producto"
+  },
+  "condition": {
+    "new": "Nuevo",
+    "like_new": "Como nuevo",
+    "good": "Bueno",
+    "fair": "Regular"
+  },
+  "pagination": {
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "perPage": "Por página"
   }
 }

@@ -44,23 +44,23 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Backend API (PR #2)
 
-- [ ] 2.1 Modify `backend/app/guards/jwt_guard.py` — add `/api/products`, `/api/categories`, `/uploads/` to JWT exclude list
-- [ ] 2.2 Create `backend/app/controllers/products.py` — ProductController (public GET list + detail) + AdminProductController (CRUD)
-- [ ] 2.3 Create `backend/app/controllers/categories.py` — CategoryController (public GET list) + AdminCategoryController (CRUD)
-- [ ] 2.4 Create `backend/app/controllers/upload.py` — UploadController: POST /api/upload with MIME validation, Pillow processing, file save
-- [ ] 2.5 Modify `backend/app/main.py` — register ProductController, CategoryController, UploadController
-- [ ] 2.6 Write integration tests: CRUD endpoints, pagination, search, translation fallback, upload, guard behavior
+- [x] 2.1 Modify `backend/app/guards/jwt_guard.py` — add `/api/products`, `/api/categories`, `/uploads/` to JWT exclude list
+- [x] 2.2 Create `backend/app/controllers/products.py` — ProductController (public GET list + detail) + AdminProductController (CRUD)
+- [x] 2.3 Create `backend/app/controllers/categories.py` — CategoryController (public GET list) + AdminCategoryController (CRUD)
+- [x] 2.4 Create `backend/app/controllers/upload.py` — UploadController: POST /api/upload with MIME validation, Pillow processing, file save
+- [x] 2.5 Modify `backend/app/main.py` — register ProductController, CategoryController, UploadController
+- [x] 2.6 Write integration tests: CRUD endpoints, pagination, search, translation fallback, upload, guard behavior
 
 ## Phase 3: Frontend Shared (PR #3)
 
-- [ ] 3.1 Create `frontend/src/app/shared/components/product-card/` — grid card with image, name, price, condition chip
-- [ ] 3.2 Create `frontend/src/app/shared/components/search-bar/` — debounced text input + filter icon
-- [ ] 3.3 Create `frontend/src/app/shared/components/pagination/` — page controls + per-page selector
-- [ ] 3.4 Update `frontend/src/app/shared/shared-module.ts` — add MatGridList, MatChips, MatSlider, MatTabs; export 3 new components
-- [ ] 3.5 Create `frontend/src/app/core/services/product.service.ts` — ProductService with HttpClient + BehaviorSubject for catalog state
-- [ ] 3.6 Create `frontend/src/app/core/services/admin.service.ts` — AdminService with authenticated CRUD calls
-- [ ] 3.7 Update `frontend/src/assets/i18n/{es,en,sv}.json` — add product, catalog, upload, condition translation keys
-- [ ] 3.8 Write frontend unit tests: ProductCard render, SearchBar debounce, Pagination logic
+- [x] 3.1 Create `frontend/src/app/shared/components/product-card/` — grid card with image, name, price, condition chip
+- [x] 3.2 Create `frontend/src/app/shared/components/search-bar/` — debounced text input + filter icon
+- [x] 3.3 Create `frontend/src/app/shared/components/pagination/` — page controls + per-page selector
+- [x] 3.4 Update `frontend/src/app/shared/shared-module.ts` — add MatGridList, MatChips, MatSelect, MatFormField, MatInput, MatIcon; export 3 new components + CurrencyPipe
+- [x] 3.5 Create `frontend/src/app/core/services/product.service.ts` — ProductService with HttpClient + BehaviorSubject for catalog state
+- [x] 3.6 Create `frontend/src/app/core/services/admin.service.ts` — AdminService with authenticated CRUD calls
+- [x] 3.7 Update `frontend/src/assets/i18n/{es,en,sv}.json` — add product, catalog, condition, pagination translation keys
+- [x] 3.8 Write frontend unit tests (24 tests): ProductCard render (8), SearchBar debounce (4), Pagination logic (12)
 
 ## Phase 4: Frontend Catalog Pages (PR #4)
 

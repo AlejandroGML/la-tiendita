@@ -1,5 +1,34 @@
 {
   "header": {
     "title": "La Tiendita"
+  },
+  "product": {
+    "price": "Price",
+    "condition": "Condition",
+    "size": "Size",
+    "brand": "Brand",
+    "stock": "Stock",
+    "addToCart": "Add to cart"
+  },
+  "catalog": {
+    "title": "Catalog",
+    "filters": "Filters",
+    "search": "Search products...",
+    "noResults": "No products found"
+  },
+  "admin": {
+    "products": "Products",
+    "newProduct": "New Product"
+  },
+  "condition": {
+    "new": "New",
+    "like_new": "Like new",
+    "good": "Good",
+    "fair": "Fair"
+  },
+  "pagination": {
+    "prev": "Previous",
+    "next": "Next",
+    "perPage": "Per page"
   }
 }

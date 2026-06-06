@@ -1,5 +1,34 @@
 {
   "header": {
     "title": "La Tiendita"
+  },
+  "product": {
+    "price": "Pris",
+    "condition": "Skick",
+    "size": "Storlek",
+    "brand": "Märke",
+    "stock": "Lager",
+    "addToCart": "Lägg i varukorg"
+  },
+  "catalog": {
+    "title": "Katalog",
+    "filters": "Filter",
+    "search": "Sök produkter...",
+    "noResults": "Inga produkter hittades"
+  },
+  "admin": {
+    "products": "Produkter",
+    "newProduct": "Ny Produkt"
+  },
+  "condition": {
+    "new": "Ny",
+    "like_new": "Som ny",
+    "good": "Bra",
+    "fair": "Okej"
+  },
+  "pagination": {
+    "prev": "Föregående",
+    "next": "Nästa",
+    "perPage": "Per sida"
   }
 }
