@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ messages.emails.order_confirmation.subject | default('Order Confirmation #') }}{{ order_id }}{% endblock %}
+{% block header %}{{ messages.emails.order_confirmation.subject | default('Order Confirmation') }} #{{ order_id }}{% endblock %}
+{% block content %}
+<p>{{ messages.emails.order_confirmation.thanks | default('Thank you for your purchase') }}, {{ user_name }}!</p>
+
+<p>{{ messages.emails.order_confirmation.summary | default('Here is a summary of your order:') }}</p>
+
+<table style="width: 100%; border-collapse: collapse; margin: 16px 0;">
+    <thead>
+        <tr style="background: #f5f5f5; text-align: left;">
+            <th style="padding: 8px;">{{ messages.emails.order_confirmation.product | default('Product') }}</th>
+            <th style="padding: 8px;">{{ messages.emails.order_confirmation.quantity | default('Qty') }}</th>
+            <th style="padding: 8px; text-align: right;">{{ messages.emails.order_confirmation.price | default('Price') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+{% for item in order_items %}
+        <tr>
+            <td style="padding: 8px;">{{ item.product_name }}</td>
+            <td style="padding: 8px;">{{ item.quantity }}</td>
+            <td style="padding: 8px; text-align: right;">${{ "%.2f" | format(item.price) }}</td>
+        </tr>
+{% endfor %}
+    </tbody>
+    <tfoot>
+        <tr style="border-top: 2px solid #ccc; font-weight: bold;">
+            <td colspan="2" style="padding: 8px; text-align: right;">{{ messages.emails.order_confirmation.total | default('Total') }}:</td>
+            <td style="padding: 8px; text-align: right;">${{ "%.2f" | format(total) }}</td>
+        </tr>
+    </tfoot>
+</table>
+
+{% if shipping_address %}
+<p style="margin-top: 16px;">
+    <strong>{{ messages.emails.order_confirmation.shipping | default('Shipping address') }}:</strong><br>
+    {{ shipping_address }}
+</p>
+{% endif %}
+{% endblock %}

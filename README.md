@@ -33,6 +33,26 @@ Servicios disponibles:
 - **API Litestar**: `http://localhost:8000` (OpenAPI docs en `/schema`)
 - **Frontend Angular**: `http://localhost:4200`
 
+## Despliegue en producción
+
+```bash
+# Construir y levantar el stack completo (4 servicios)
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+```
+
+El stack productivo incluye:
+- **nginx** (puerto 80) — reverse proxy, único servicio expuesto
+- **frontend** (nginx:alpine) — SPA Angular compilado servido por nginx
+- **backend** (python:3.14-slim) — API Litestar con uvicorn en puerto 8000
+- **db** (postgres:16-alpine) — PostgreSQL con volumen persistente `pgdata`
+
+Diferencias con el entorno de desarrollo:
+- Los servicios se construyen desde sus Dockerfiles multi-etapa (imágenes más livianas)
+- No hay hot-reload ni montaje de código fuente
+- Las imágenes subidas (`uploads`) se guardan en un volumen persistente
+- La base de datos usa `tiendita_prod` en vez de `tiendita_dev`
+- Los emails se loguean a consola (`EMAIL_MODE=log`)
+
 ## Desarrollo local
 
 Si querís correr los servicios por separado sin Docker:
