@@ -12,7 +12,10 @@ from app.controllers.cart import CartController
 from app.controllers.categories import AdminCategoryController, CategoryController
 from app.controllers.orders import OrderController
 from app.controllers.products import AdminProductController, ProductController
+from app.controllers.promotions import AdminPromotionController, PromotionController
+from app.controllers.reviews import ReviewController
 from app.controllers.upload import UploadController
+from app.controllers.wishlist import WishlistController
 from app.guards.jwt_guard import jwt_auth
 from app.middleware.i18n import I18nMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
@@ -49,14 +52,18 @@ app = Litestar(
         health_check,
         protected_endpoint,
         AdminController,
+        AdminPromotionController,
         AuthController,
         CartController,
+        CategoryController,
+        AdminCategoryController,
         OrderController,
         ProductController,
         AdminProductController,
-        CategoryController,
-        AdminCategoryController,
+        PromotionController,
+        ReviewController,
         UploadController,
+        WishlistController,
         uploads_router,
     ],
     on_app_init=[jwt_auth.on_app_init],

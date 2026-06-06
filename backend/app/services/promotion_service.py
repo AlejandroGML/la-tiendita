@@ -1,0 +1,269 @@
+"""PromotionService — admin CRUD + public active listing for discount codes.
+
+Stateless — session injected per-call.  Date-range validation is enforced
+at the service layer.  Translations are managed atomically with the parent
+promotion (cascade all, delete-orphan).
+"""
+
+import logging
+from datetime import datetime, timezone
+from uuid import UUID
+
+from sqlalchemy import delete, func, select, update
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
+from app.models.promotion import Promotion, PromotionTranslation
+from app.schemas.promotion import (
+    CreatePromotionRequest,
+    PromotionResponse,
+    PromotionTranslationResponse,
+    UpdatePromotionRequest,
+)
+
+logger = logging.getLogger(__name__)
+
+
+class PromotionService:
+    """Encapsulates promotion business logic (admin + public)."""
+
+    # ------------------------------------------------------------------
+    # Public — active promotions
+    # ------------------------------------------------------------------
+
+    async def list_active(
+        self, session: AsyncSession
+    ) -> list[PromotionResponse]:
+        """Return promotions that are currently active.
+
+        A promotion is active when ALL of these hold:
+        - ``is_active = True``
+        - ``start_date IS NULL OR start_date <= now()``
+        - ``end_date IS NULL OR end_date >= now()``
+        - ``max_uses IS NULL OR current_uses < max_uses``
+
+        Results include translations loaded eagerly.
+        """
+        now = datetime.now(timezone.utc)
+
+        stmt = (
+            select(Promotion)
+            .where(
+                Promotion.is_active.is_(True),
+                (Promotion.start_date.is_(None)) | (Promotion.start_date <= now),
+                (Promotion.end_date.is_(None)) | (Promotion.end_date >= now),
+                (Promotion.max_uses.is_(None))
+                | (Promotion.current_uses < Promotion.max_uses),
+            )
+            .options(selectinload(Promotion.translations))
+            .order_by(Promotion.created_at.desc())
+        )
+        result = await session.execute(stmt)
+        promotions = result.unique().scalars().all()
+
+        return [self._to_response(p) for p in promotions]
+
+    # ------------------------------------------------------------------
+    # Admin CRUD
+    # ------------------------------------------------------------------
+
+    async def get_all(
+        self, session: AsyncSession, page: int = 1, per_page: int = 20
+    ) -> tuple[list[PromotionResponse], int]:
+        """Paginated list of all promotions (including inactive/expired).
+
+        Returns ``(items, total)`` so the controller can build pagination.
+        """
+        total = await session.scalar(
+            select(func.count()).select_from(Promotion)
+        ) or 0
+
+        offset = (page - 1) * per_page
+        stmt = (
+            select(Promotion)
+            .options(selectinload(Promotion.translations))
+            .order_by(Promotion.created_at.desc())
+            .offset(offset)
+            .limit(per_page)
+        )
+        result = await session.execute(stmt)
+        promotions = result.unique().scalars().all()
+
+        return [self._to_response(p) for p in promotions], total
+
+    async def get_by_id(
+        self, session: AsyncSession, promotion_id: UUID
+    ) -> PromotionResponse:
+        """Fetch a single promotion by ID with translations.
+
+        Raises ``ValueError`` if not found.
+        """
+        stmt = (
+            select(Promotion)
+            .where(Promotion.id == promotion_id)
+            .options(selectinload(Promotion.translations))
+        )
+        result = await session.execute(stmt)
+        promotion = result.scalar_one_or_none()
+        if promotion is None:
+            raise ValueError(f"Promotion {promotion_id} not found")
+        return self._to_response(promotion)
+
+    async def create(
+        self, session: AsyncSession, data: CreatePromotionRequest
+    ) -> PromotionResponse:
+        """Create a promotion with translations.
+
+        Validates that ``start_date < end_date`` when both are provided.
+        """
+        self._validate_dates(data.start_date, data.end_date)
+
+        promotion = Promotion(
+            code=data.code,
+            discount_percent=data.discount_percent,
+            product_id=data.product_id,
+            max_uses=data.max_uses,
+            start_date=data.start_date,
+            end_date=data.end_date,
+            is_active=data.is_active,
+        )
+        session.add(promotion)
+
+        # Create translations
+        for t_data in data.translations:
+            tr = PromotionTranslation(
+                promotion=promotion,
+                language_code=t_data.language_code,  # type: ignore[arg-type]
+                title=t_data.title,
+                description=t_data.description,
+            )
+            session.add(tr)
+
+        await session.flush()
+        await session.refresh(promotion, ["translations"])
+
+        return self._to_response(promotion)
+
+    async def update(
+        self,
+        session: AsyncSession,
+        promotion_id: UUID,
+        data: UpdatePromotionRequest,
+    ) -> PromotionResponse:
+        """Update a promotion.  Only fields present in *data* are changed.
+
+        When ``translations`` are provided the old translations are deleted
+        first (cascade) and the new set is inserted.
+        """
+        promotion = await self._get_or_raise(session, promotion_id)
+
+        # Build the SET values dict from non-None fields
+        values: dict = {}
+        if data.code is not None:
+            values["code"] = data.code
+        if data.discount_percent is not None:
+            values["discount_percent"] = data.discount_percent
+        if data.product_id is not None:
+            values["product_id"] = data.product_id
+        if data.max_uses is not None:
+            values["max_uses"] = data.max_uses
+        if data.is_active is not None:
+            values["is_active"] = data.is_active
+
+        # Date validation — check combined state
+        new_start = data.start_date if data.start_date is not None else promotion.start_date
+        new_end = data.end_date if data.end_date is not None else promotion.end_date
+        self._validate_dates(new_start, new_end)
+        if data.start_date is not None:
+            values["start_date"] = data.start_date
+        if data.end_date is not None:
+            values["end_date"] = data.end_date
+
+        if values:
+            stmt = (
+                update(Promotion)
+                .where(Promotion.id == promotion_id)
+                .values(**values)
+            )
+            await session.execute(stmt)
+
+        # Replace translations if provided
+        if data.translations is not None:
+            # Delete old translations
+            await session.execute(
+                delete(PromotionTranslation).where(
+                    PromotionTranslation.promotion_id == promotion_id
+                )
+            )
+            for t_data in data.translations:
+                tr = PromotionTranslation(
+                    promotion_id=promotion_id,
+                    language_code=t_data.language_code,  # type: ignore[arg-type]
+                    title=t_data.title,
+                    description=t_data.description,
+                )
+                session.add(tr)
+
+        await session.flush()
+        # Reload from DB to get fresh translations
+        return await self.get_by_id(session, promotion_id)
+
+    async def delete(
+        self, session: AsyncSession, promotion_id: UUID
+    ) -> None:
+        """Delete a promotion (cascades to translations).
+
+        Raises ``ValueError`` if the promotion does not exist.
+        """
+        await self._get_or_raise(session, promotion_id)
+        await session.execute(
+            delete(Promotion).where(Promotion.id == promotion_id)
+        )
+        await session.flush()
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    async def _get_or_raise(
+        self, session: AsyncSession, promotion_id: UUID
+    ) -> Promotion:
+        """Fetch a promotion by ID or raise ``ValueError``."""
+        promotion = await session.get(Promotion, promotion_id)
+        if promotion is None:
+            raise ValueError(f"Promotion {promotion_id} not found")
+        return promotion
+
+    @staticmethod
+    def _validate_dates(
+        start_date: datetime | None, end_date: datetime | None
+    ) -> None:
+        """Ensure ``start_date < end_date`` when both are set."""
+        if start_date is not None and end_date is not None:
+            if start_date >= end_date:
+                raise ValueError("start_date must be before end_date")
+
+    @staticmethod
+    def _to_response(promotion: Promotion) -> PromotionResponse:
+        """Convert a Promotion ORM instance to a response DTO."""
+        return PromotionResponse(
+            id=promotion.id,
+            code=promotion.code,
+            discount_percent=promotion.discount_percent,
+            product_id=promotion.product_id,
+            max_uses=promotion.max_uses,
+            current_uses=promotion.current_uses,
+            is_active=promotion.is_active,
+            start_date=promotion.start_date,
+            end_date=promotion.end_date,
+            translations=[
+                PromotionTranslationResponse(
+                    lang=t.language_code,  # type: ignore[arg-type]
+                    title=t.title,
+                    description=t.description,
+                )
+                for t in promotion.translations
+            ],
+            created_at=promotion.created_at,
+            updated_at=promotion.updated_at,
+        )

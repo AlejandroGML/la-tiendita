@@ -35,6 +35,7 @@ jwt_auth = JWTAuth[User](
         "/schema",
         "/api/products",
         "/api/categories",
+        "/api/promotions",
         "/uploads/",
         "/auth/register",
         "/auth/login",

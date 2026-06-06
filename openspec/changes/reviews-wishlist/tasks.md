@@ -37,14 +37,14 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: Backend Services & Controllers (PR 2)
 
-- [ ] 2.1 Create `backend/app/services/review_service.py` — `can_review(user_id, product_id)` querying completed orders, `create_review()`, `list_reviews(product_id, page, per_page)` with AVG rating
-- [ ] 2.2 Create `backend/app/services/wishlist_service.py` — `get_wishlist(user_id, lang)`, `add_item(user_id, product_id)` idempotent, `remove_item(user_id, product_id)`
-- [ ] 2.3 Create `backend/app/services/promotion_service.py` — `list_active(lang)`, admin CRUD: `create()`, `update()`, `delete()`, `get_all()`, `get_by_id()`
-- [ ] 2.4 Create `backend/app/controllers/reviews.py` — `ReviewController`: POST `/api/products/{id}/reviews` (JWT, guards=[jwt_auth]), GET `/api/products/{slug}/reviews` (public)
-- [ ] 2.5 Create `backend/app/controllers/wishlist.py` — `WishlistController`: GET `/api/wishlist` (JWT), POST `/api/wishlist/{product_id}` (JWT), DELETE `/api/wishlist/{product_id}` (JWT)
-- [ ] 2.6 Create `backend/app/controllers/promotions.py` — `PromotionController` (GET `/api/promotions` public) + `AdminPromotionController` (CRUD under `/api/admin/promotions`, guards=[admin_guard])
-- [ ] 2.7 Modify `backend/app/main.py` — Register ReviewController, WishlistController, PromotionController, AdminPromotionController
-- [ ] 2.8 Modify `backend/migrations/env.py` — Add imports for `app.models.review`, `app.models.wishlist`, `app.models.promotion`
+- [x] 2.1 Create `backend/app/services/review_service.py` — `can_review(user_id, product_id)` querying completed orders, `create_review()`, `list_reviews(product_id, page, per_page)` with AVG rating
+- [x] 2.2 Create `backend/app/services/wishlist_service.py` — `get_wishlist(user_id, lang)`, `add_item(user_id, product_id)` idempotent, `remove_item(user_id, product_id)`
+- [x] 2.3 Create `backend/app/services/promotion_service.py` — `list_active(lang)`, admin CRUD: `create()`, `update()`, `delete()`, `get_all()`, `get_by_id()`
+- [x] 2.4 Create `backend/app/controllers/reviews.py` — `ReviewController`: POST `/api/products/{id}/reviews` (JWT, guards=[jwt_auth]), GET `/api/products/{slug}/reviews` (public)
+- [x] 2.5 Create `backend/app/controllers/wishlist.py` — `WishlistController`: GET `/api/wishlist` (JWT), POST `/api/wishlist/{product_id}` (JWT), DELETE `/api/wishlist/{product_id}` (JWT)
+- [x] 2.6 Create `backend/app/controllers/promotions.py` — `PromotionController` (GET `/api/promotions` public) + `AdminPromotionController` (CRUD under `/api/admin/promotions`, guards=[admin_guard])
+- [x] 2.7 Modify `backend/app/main.py` — Register ReviewController, WishlistController, PromotionController, AdminPromotionController
+- [x] 2.8 Modify `backend/migrations/env.py` — Add imports for `app.models.review`, `app.models.wishlist`, `app.models.promotion`
 
 ## Phase 3: Frontend Components & Routing (PR 3)
 
