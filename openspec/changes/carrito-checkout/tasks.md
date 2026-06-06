@@ -50,13 +50,14 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: Frontend
 
-- [ ] 4.1 Create `frontend/src/app/shared/models/cart.model.ts` — CartItem, CartResponse, AddToCartRequest interfaces
-- [ ] 4.2 Create `frontend/src/app/shared/models/order.model.ts` — OrderStatus, Order, OrderItem, CheckoutRequest, ShippingAddress
-- [ ] 4.3 Create `frontend/src/app/core/services/cart.service.ts` — HTTP client + BehaviorSubject<CartResponse> state
-- [ ] 4.4 Create `frontend/src/app/core/services/order.service.ts` — checkout(), getOrders(), getOrder()
-- [ ] 4.5 Create `frontend/src/app/features/cart/` — CartComponent (table + subtotals + checkout button) + CartModule
-- [ ] 4.6 Create `frontend/src/app/features/checkout/` — CheckoutComponent (shipping form + summary + confirm) + CheckoutModule
-- [ ] 4.7 Create `frontend/src/app/features/profile/order-list/` — OrderListComponent (status badges) + module
-- [ ] 4.8 Create `frontend/src/app/features/profile/order-detail/` — OrderDetailComponent (items + timeline) + module
-- [ ] 4.9 Modify `frontend/src/app/app-routing-module.ts` — add `/carrito`, `/checkout`, `/perfil/ordenes`, `/perfil/ordenes/:id` (all JWT-guarded, lazy-loaded)
-- [ ] 4.10 Modify `frontend/src/assets/i18n/{es,en,sv}.json` — add `cart`, `checkout`, `order` translation keys
+- [x] 4.1 Create `frontend/src/app/shared/models/cart.model.ts` — CartItem, CartResponse, AddToCartRequest interfaces
+- [x] 4.2 Create `frontend/src/app/shared/models/order.model.ts` — OrderStatus, Order, OrderItem, CheckoutRequest, ShippingAddress
+- [x] 4.3 Create `frontend/src/app/core/services/cart.service.ts` — HTTP client + BehaviorSubject<CartResponse> state
+- [x] 4.4 Create `frontend/src/app/core/services/order.service.ts` — checkout(), getOrders(), getOrder()
+- [x] 4.5 Create `frontend/src/app/features/cart/` — CartComponent (table + subtotals + checkout button) + CartModule
+- [x] 4.6 Create `frontend/src/app/features/checkout/` — CheckoutComponent (shipping form + summary + confirm) + CheckoutModule
+- [x] 4.7 Create `frontend/src/app/features/profile/order-list/` — OrderListComponent (status badges) + module
+- [x] 4.8 Create `frontend/src/app/features/profile/order-detail/` — OrderDetailComponent (items + timeline) + module
+- [x] 4.9 Modify `frontend/src/app/app-routing-module.ts` — add `/carrito`, `/checkout`, `/perfil/ordenes`, `/perfil/ordenes/:id` (all JWT-guarded, lazy-loaded)
+- [x] 4.10 Modify `frontend/src/assets/i18n/{es,en,sv}.json` — add `cart`, `checkout`, `order` translation keys
+- [x] 4.11 Write frontend tests — CartComponent (11), CheckoutComponent (10), OrderList (9), OrderDetail (8) = 38 Vitest tests

@@ -79,6 +79,45 @@ const routes: Routes = [
     ],
   },
   {
+    path: 'carrito',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/cart/cart-module').then((m) => m.CartModule),
+  },
+  {
+    path: 'checkout',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./features/checkout/checkout-module').then(
+        (m) => m.CheckoutModule,
+      ),
+  },
+  {
+    path: 'perfil',
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'ordenes',
+        children: [
+          {
+            path: ':id',
+            loadChildren: () =>
+              import('./features/profile/order-detail/order-detail-module').then(
+                (m) => m.OrderDetailModule,
+              ),
+          },
+          {
+            path: '',
+            loadChildren: () =>
+              import('./features/profile/order-list/order-list-module').then(
+                (m) => m.OrderListModule,
+              ),
+          },
+        ],
+      },
+    ],
+  },
+  {
     path: '',
     loadChildren: () =>
       import('./features/home/home-module').then((m) => m.HomeModule),

@@ -68,5 +68,62 @@
     "prev": "Previous",
     "next": "Next",
     "perPage": "Per page"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "product": "Product",
+    "quantity": "Quantity",
+    "price": "Price",
+    "subtotal": "Subtotal",
+    "remove": "Remove",
+    "increase": "Increase",
+    "decrease": "Decrease",
+    "checkout": "Proceed to Checkout",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue shopping",
+    "retry": "Retry",
+    "error": "Error loading cart"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shipping": "Shipping Address",
+    "name": "Full name",
+    "address": "Address",
+    "city": "City",
+    "phone": "Phone",
+    "nameRequired": "Name is required",
+    "addressRequired": "Address is required",
+    "cityRequired": "City is required",
+    "phoneRequired": "Valid phone is required",
+    "summary": "Order Summary",
+    "qty": "Qty",
+    "total": "Total",
+    "confirm": "Confirm Order",
+    "error": "Error processing order",
+    "stockError": "Insufficient stock for some products"
+  },
+  "order": {
+    "title": "My Orders",
+    "id": "Order",
+    "date": "Date",
+    "total": "Total",
+    "items": "Items",
+    "empty": "No orders yet",
+    "continueShopping": "Browse products",
+    "retry": "Retry",
+    "error": "Error loading orders",
+    "notFound": "Order not found",
+    "backToList": "Back to orders",
+    "status": {
+      "title": "Status",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "shipped": "Shipped",
+      "delivered": "Delivered",
+      "cancelled": "Cancelled"
+    },
+    "detail": {
+      "title": "Order"
+    }
   }
 }

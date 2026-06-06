@@ -1,0 +1,103 @@
+<div class="checkout-page min-h-screen" data-testid="checkout-page">
+  <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ 'checkout.title' | translate }}</h1>
+
+  <!-- Loading state -->
+  <div *ngIf="loading()" class="flex justify-center py-16">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error() && !loading()" class="text-center py-8">
+    <p class="text-red-600 text-lg">{{ error() | translate }}</p>
+  </div>
+
+  <ng-container *ngIf="!loading() && !success()">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+      <!-- Shipping form -->
+      <div class="lg:col-span-3">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold mb-4">{{ 'checkout.shipping' | translate }}</h2>
+
+          <form [formGroup]="shippingForm" (ngSubmit)="submitOrder()" data-testid="shipping-form">
+            <mat-form-field appearance="outline" class="w-full mb-4">
+              <mat-label>{{ 'checkout.name' | translate }}</mat-label>
+              <input matInput formControlName="name" data-testid="input-name" />
+              <mat-error *ngIf="shippingForm.get('name')?.invalid">
+                {{ 'checkout.nameRequired' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="w-full mb-4">
+              <mat-label>{{ 'checkout.address' | translate }}</mat-label>
+              <input matInput formControlName="address" data-testid="input-address" />
+              <mat-error *ngIf="shippingForm.get('address')?.invalid">
+                {{ 'checkout.addressRequired' | translate }}
+              </mat-error>
+            </mat-form-field>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'checkout.city' | translate }}</mat-label>
+                <input matInput formControlName="city" data-testid="input-city" />
+                <mat-error *ngIf="shippingForm.get('city')?.invalid">
+                  {{ 'checkout.cityRequired' | translate }}
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ 'checkout.phone' | translate }}</mat-label>
+                <input matInput formControlName="phone" data-testid="input-phone" />
+                <mat-error *ngIf="shippingForm.get('phone')?.invalid">
+                  {{ 'checkout.phoneRequired' | translate }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Order Summary -->
+      <div class="lg:col-span-2">
+        <div class="bg-white rounded-lg shadow p-6 sticky top-4">
+          <h2 class="text-xl font-semibold mb-4">{{ 'checkout.summary' | translate }}</h2>
+
+          <div class="divide-y divide-gray-200">
+            <div
+              *ngFor="let item of items()"
+              class="flex justify-between items-center py-2"
+            >
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-gray-900 truncate">
+                  {{ item.product_name }}
+                </p>
+                <p class="text-xs text-gray-500">
+                  {{ 'checkout.qty' | translate }}: {{ item.quantity }}
+                </p>
+              </div>
+              <span class="text-sm font-medium ml-4">{{ item.subtotal | currency }}</span>
+            </div>
+          </div>
+
+          <div class="border-t border-gray-200 mt-4 pt-4">
+            <div class="flex justify-between items-center">
+              <span class="text-lg font-bold">{{ 'checkout.total' | translate }}</span>
+              <span class="text-lg font-bold">{{ total() | currency }}</span>
+            </div>
+          </div>
+
+          <button
+            mat-flat-button
+            color="primary"
+            class="w-full mt-6 py-3 text-lg"
+            [disabled]="submitting() || shippingForm.invalid || items().length === 0"
+            (click)="submitOrder()"
+            data-testid="confirm-button"
+          >
+            <mat-spinner *ngIf="submitting()" diameter="20" class="inline-block mr-2"></mat-spinner>
+            {{ 'checkout.confirm' | translate }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

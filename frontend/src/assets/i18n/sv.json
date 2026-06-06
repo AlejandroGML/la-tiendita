@@ -68,5 +68,62 @@
     "prev": "Föregående",
     "next": "Nästa",
     "perPage": "Per sida"
+  },
+  "cart": {
+    "title": "Varukorg",
+    "product": "Produkt",
+    "quantity": "Antal",
+    "price": "Pris",
+    "subtotal": "Delsumma",
+    "remove": "Ta bort",
+    "increase": "Öka",
+    "decrease": "Minska",
+    "checkout": "Till kassan",
+    "empty": "Din varukorg är tom",
+    "continueShopping": "Fortsätt handla",
+    "retry": "Försök igen",
+    "error": "Fel vid laddning av varukorg"
+  },
+  "checkout": {
+    "title": "Kassa",
+    "shipping": "Leveransadress",
+    "name": "Fullständigt namn",
+    "address": "Adress",
+    "city": "Stad",
+    "phone": "Telefon",
+    "nameRequired": "Namn krävs",
+    "addressRequired": "Adress krävs",
+    "cityRequired": "Stad krävs",
+    "phoneRequired": "Giltigt telefonnummer krävs",
+    "summary": "Ordersammanfattning",
+    "qty": "Ant",
+    "total": "Totalt",
+    "confirm": "Bekräfta beställning",
+    "error": "Fel vid behandling av beställning",
+    "stockError": "Otillräckligt lager för vissa produkter"
+  },
+  "order": {
+    "title": "Mina Beställningar",
+    "id": "Beställning",
+    "date": "Datum",
+    "total": "Totalt",
+    "items": "Artiklar",
+    "empty": "Inga beställningar än",
+    "continueShopping": "Bläddra produkter",
+    "retry": "Försök igen",
+    "error": "Fel vid laddning av beställningar",
+    "notFound": "Beställning hittades inte",
+    "backToList": "Tillbaka till beställningar",
+    "status": {
+      "title": "Status",
+      "pending": "Väntande",
+      "confirmed": "Bekräftad",
+      "shipped": "Skickad",
+      "delivered": "Levererad",
+      "cancelled": "Avbruten"
+    },
+    "detail": {
+      "title": "Beställning"
+    }
   }
 }

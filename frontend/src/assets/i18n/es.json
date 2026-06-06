@@ -68,5 +68,62 @@
     "prev": "Anterior",
     "next": "Siguiente",
     "perPage": "Por página"
+  },
+  "cart": {
+    "title": "Carrito de Compras",
+    "product": "Producto",
+    "quantity": "Cantidad",
+    "price": "Precio",
+    "subtotal": "Subtotal",
+    "remove": "Eliminar",
+    "increase": "Aumentar",
+    "decrease": "Disminuir",
+    "checkout": "Ir a Pagar",
+    "empty": "Tu carrito está vacío",
+    "continueShopping": "Seguir comprando",
+    "retry": "Reintentar",
+    "error": "Error al cargar el carrito"
+  },
+  "checkout": {
+    "title": "Finalizar Compra",
+    "shipping": "Dirección de Envío",
+    "name": "Nombre completo",
+    "address": "Dirección",
+    "city": "Ciudad",
+    "phone": "Teléfono",
+    "nameRequired": "El nombre es obligatorio",
+    "addressRequired": "La dirección es obligatoria",
+    "cityRequired": "La ciudad es obligatoria",
+    "phoneRequired": "Teléfono válido obligatorio",
+    "summary": "Resumen del Pedido",
+    "qty": "Cant",
+    "total": "Total",
+    "confirm": "Confirmar Pedido",
+    "error": "Error al procesar el pedido",
+    "stockError": "Stock insuficiente para algunos productos"
+  },
+  "order": {
+    "title": "Mis Pedidos",
+    "id": "Pedido",
+    "date": "Fecha",
+    "total": "Total",
+    "items": "Productos",
+    "empty": "No tienes pedidos aún",
+    "continueShopping": "Ver productos",
+    "retry": "Reintentar",
+    "error": "Error al cargar pedidos",
+    "notFound": "Pedido no encontrado",
+    "backToList": "Volver a pedidos",
+    "status": {
+      "title": "Estado",
+      "pending": "Pendiente",
+      "confirmed": "Confirmado",
+      "shipped": "Enviado",
+      "delivered": "Entregado",
+      "cancelled": "Cancelado"
+    },
+    "detail": {
+      "title": "Pedido"
+    }
   }
 }

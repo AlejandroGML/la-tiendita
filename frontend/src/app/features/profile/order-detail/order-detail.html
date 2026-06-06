@@ -1,0 +1,159 @@
+<div class="order-detail-page min-h-screen" data-testid="order-detail-page">
+  <!-- Loading state -->
+  <div *ngIf="loading()" class="flex justify-center py-16">
+    <mat-spinner diameter="48"></mat-spinner>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error() && !loading()" class="text-center py-16">
+    <p class="text-red-600 text-lg">{{ error() | translate }}</p>
+    <button
+      mat-flat-button
+      color="primary"
+      class="mt-4"
+      [routerLink]="['/perfil/ordenes']"
+    >
+      {{ 'order.backToList' | translate }}
+    </button>
+  </div>
+
+  <!-- Order detail -->
+  <ng-container *ngIf="!loading() && !error() && order()">
+    <div class="mb-4">
+      <button
+        mat-button
+        color="primary"
+        [routerLink]="['/perfil/ordenes']"
+      >
+        <mat-icon>arrow_back</mat-icon>
+        {{ 'order.backToList' | translate }}
+      </button>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <!-- Left: Order info + items -->
+      <div class="lg:col-span-2 space-y-6">
+        <!-- Order info card -->
+        <div class="bg-white rounded-lg shadow p-6">
+          <h1 class="text-xl font-bold text-gray-900 mb-4">
+            {{ 'order.detail.title' | translate }} #{{ order()!.id.slice(0, 8) }}
+          </h1>
+
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-gray-500">{{ 'order.date' | translate }}:</span>
+              <span class="ml-2 font-medium">{{ formatDate(order()!.created_at) }}</span>
+            </div>
+            <div>
+              <span class="text-gray-500">{{ 'order.total' | translate }}:</span>
+              <span class="ml-2 font-bold">{{ order()!.total | currency }}</span>
+            </div>
+            <div class="col-span-2">
+              <span class="text-gray-500">{{ 'checkout.shipping' | translate }}:</span>
+              <span class="ml-2 font-medium">
+                {{ getShippingField('name') }},
+                {{ getShippingField('address') }},
+                {{ getShippingField('city') }}
+              </span>
+            </div>
+            <div class="col-span-2">
+              <span class="text-gray-500">{{ 'checkout.phone' | translate }}:</span>
+              <span class="ml-2">{{ getShippingField('phone') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Items table -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+          <h2 class="text-lg font-semibold p-4 pb-2">{{ 'order.items' | translate }}</h2>
+          <table mat-table [dataSource]="order()!.items" class="w-full">
+            <ng-container matColumnDef="product">
+              <th mat-header-cell *matHeaderCellDef>{{ 'cart.product' | translate }}</th>
+              <td mat-cell *matCellDef="let item">
+                <span class="font-medium">{{ getSnapshotField(item, 'name') }}</span>
+                <span
+                  *ngIf="getSnapshotField(item, 'size')"
+                  class="text-xs text-gray-500 ml-2"
+                >
+                  ({{ getSnapshotField(item, 'size') }})
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="quantity">
+              <th mat-header-cell *matHeaderCellDef class="text-center">
+                {{ 'cart.quantity' | translate }}
+              </th>
+              <td mat-cell *matCellDef="let item" class="text-center">
+                {{ item.quantity }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="price">
+              <th mat-header-cell *matHeaderCellDef>{{ 'cart.price' | translate }}</th>
+              <td mat-cell *matCellDef="let item" class="font-medium">
+                {{ item.price | currency }}
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: Status timeline -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow p-6">
+          <h2 class="text-lg font-semibold mb-4">{{ 'order.status.title' | translate }}</h2>
+
+          <!-- Cancelled badge -->
+          <div
+            *ngIf="isCancelled()"
+            class="bg-red-100 text-red-800 px-3 py-2 rounded-lg text-center font-medium mb-4"
+          >
+            {{ 'order.status.cancelled' | translate }}
+          </div>
+
+          <!-- Status timeline -->
+          <div *ngIf="!isCancelled()" class="space-y-4 status-timeline">
+            <div
+              *ngFor="let status of ['pending', 'confirmed', 'shipped', 'delivered']"
+              class="flex items-start gap-3"
+            >
+              <div class="flex flex-col items-center">
+                <div
+                  class="w-4 h-4 rounded-full border-2"
+                  [ngClass]="{
+                    'bg-green-500 border-green-500': isStatusReached(status),
+                    'bg-white border-gray-300': !isStatusReached(status)
+                  }"
+                ></div>
+                <div
+                  *ngIf="status !== 'delivered'"
+                  class="w-0.5 h-8"
+                  [ngClass]="{
+                    'bg-green-500': isStatusReached(status),
+                    'bg-gray-300': !isStatusReached(status)
+                  }"
+                ></div>
+              </div>
+              <div>
+                <p
+                  class="text-sm"
+                  [ngClass]="{
+                    'font-bold text-green-800': isCurrentStatus(status),
+                    'font-medium text-gray-700': isStatusReached(status) && !isCurrentStatus(status),
+                    'text-gray-400': !isStatusReached(status)
+                  }"
+                >
+                  {{ 'order.status.' + status | translate }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
