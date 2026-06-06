@@ -16,4 +16,5 @@ export interface Product {
   stock: number;
   translations: ProductTranslation[];
   created_at: string;
+  deleted_at?: string;
 }

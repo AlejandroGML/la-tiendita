@@ -64,10 +64,10 @@ Chain strategy: stacked-to-main
 
 ## Phase 4: Frontend Catalog Pages (PR #4)
 
-- [ ] 4.1 Create `frontend/src/app/features/products/` — ProductListModule with catalog grid + sidebar filters (category, size, condition, price range, search)
-- [ ] 4.2 Create `frontend/src/app/features/product-detail/` — ProductDetailModule with image gallery, translations, size/condition/price display
-- [ ] 4.3 Update `frontend/src/app/app-routing-module.ts` — add lazy-loaded routes: `/productos`, `/productos/:slug`
-- [ ] 4.4 Write frontend tests: catalog page renders with mock data, detail page navigation, filter interaction
+- [x] 4.1 Create `frontend/src/app/features/products/` — ProductListModule with catalog grid + sidebar filters (category, size, condition, price range, search)
+- [x] 4.2 Create `frontend/src/app/features/product-detail/` — ProductDetailModule with image gallery, translations, size/condition/price display
+- [x] 4.3 Update `frontend/src/app/app-routing-module.ts` — add lazy-loaded routes: `/productos`, `/productos/:slug`
+- [x] 4.4 Write frontend tests: catalog page renders with mock data, detail page navigation, filter interaction
 
 ## Phase 5: Frontend Admin (PR #5)
 

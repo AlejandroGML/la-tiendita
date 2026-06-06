@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { type CanMatchFn, RouterModule, Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
+import { adminGuard } from './core/guards/admin.guard';
 
 /** Only match auth-prefixed paths so the AuthModule is lazy-loaded on demand. */
 const authCanMatch: CanMatchFn = (_route, segments) => {
@@ -41,6 +43,38 @@ const routes: Routes = [
           import('./features/product-detail/product-detail-module').then(
             (m) => m.ProductDetailModule,
           ),
+      },
+    ],
+  },
+  {
+    path: 'admin',
+    children: [
+      {
+        path: 'productos',
+        canActivate: [authGuard, adminGuard],
+        children: [
+          {
+            path: 'nuevo',
+            loadChildren: () =>
+              import('./features/admin/product-form/admin-product-form-module').then(
+                (m) => m.AdminProductFormModule,
+              ),
+          },
+          {
+            path: ':slug',
+            loadChildren: () =>
+              import('./features/admin/product-form/admin-product-form-module').then(
+                (m) => m.AdminProductFormModule,
+              ),
+          },
+          {
+            path: '',
+            loadChildren: () =>
+              import('./features/admin/products/admin-products-module').then(
+                (m) => m.AdminProductsModule,
+              ),
+          },
+        ],
       },
     ],
   },

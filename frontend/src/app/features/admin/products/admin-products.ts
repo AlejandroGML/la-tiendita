@@ -1,0 +1,115 @@
+import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject, takeUntil } from 'rxjs';
+import type { Product } from '../../../shared/models/product.model';
+import { AdminService } from '../../../core/services/admin.service';
+
+@Component({
+  selector: 'app-admin-products',
+  templateUrl: './admin-products.html',
+  styleUrls: ['./admin-products.scss'],
+  standalone: false,
+})
+export class AdminProducts implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
+
+  readonly products = signal<Product[]>([]);
+  readonly loading = signal(false);
+  readonly displayedColumns: string[] = [
+    'image',
+    'name',
+    'price',
+    'category',
+    'condition',
+    'stock',
+    'status',
+    'actions',
+  ];
+
+  constructor(
+    private readonly adminService: AdminService,
+    private readonly router: Router,
+    private readonly snackBar: MatSnackBar,
+  ) {}
+
+  ngOnInit(): void {
+    this.loadProducts();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  loadProducts(): void {
+    this.loading.set(true);
+    this.adminService
+      .getAdminProducts({ per_page: 50 })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (res) => {
+          this.products.set(res.data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.products.set([]);
+          this.loading.set(false);
+        },
+      });
+  }
+
+  navigateToNew(): void {
+    this.router.navigate(['/admin/productos/nuevo']);
+  }
+
+  editProduct(slug: string): void {
+    this.router.navigate(['/admin/productos', slug]);
+  }
+
+  deleteProduct(product: Product): void {
+    const confirmed = confirm(
+      `¿Eliminar "${product.translations?.find((t) => t.lang === 'es')?.name ?? product.slug}"?`,
+    );
+    if (!confirmed) return;
+
+    this.adminService
+      .deleteProduct(product.slug)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.snackBar.open('admin.productDeleted', '', { duration: 3000 });
+          this.loadProducts();
+        },
+        error: () => {
+          this.snackBar.open('catalog.error', '', { duration: 3000 });
+        },
+      });
+  }
+
+  getProductName(product: Product): string {
+    return (
+      product.translations?.find((t) => t.lang === 'es')?.name ??
+      product.translations?.[0]?.name ??
+      product.slug
+    );
+  }
+
+  getMainImage(product: Product): string {
+    return product.image_urls?.length ? product.image_urls[0] : '';
+  }
+
+  isDeleted(product: Product): boolean {
+    return !!product.deleted_at;
+  }
+
+  getConditionClasses(condition: string): string {
+    const map: Record<string, string> = {
+      new: 'bg-green-100 text-green-800 border-green-300',
+      like_new: 'bg-blue-100 text-blue-800 border-blue-300',
+      good: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+      fair: 'bg-orange-100 text-orange-800 border-orange-300',
+    };
+    return map[condition] ?? '';
+  }
+}
