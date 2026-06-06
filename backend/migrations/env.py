@@ -32,8 +32,11 @@ import app.models.cart  # noqa: E402, F401
 import app.models.category  # noqa: E402, F401
 import app.models.order  # noqa: E402, F401
 import app.models.product  # noqa: E402, F401
+import app.models.promotion  # noqa: E402, F401
 import app.models.refresh_token  # noqa: E402, F401
+import app.models.review  # noqa: E402, F401
 import app.models.user  # noqa: E402, F401
+import app.models.wishlist  # noqa: E402, F401
 
 target_metadata = Base.metadata
 
