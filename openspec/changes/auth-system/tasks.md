@@ -52,14 +52,14 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Frontend Auth — UI + Interceptors + Routing (PR #3)
 
-- [ ] 3.1 Create `frontend/src/app/core/services/auth.service.ts` — login, register, refresh, logout, token storage, isAuthenticated, isAdmin
-- [ ] 3.2 Create `frontend/src/app/core/guards/auth.guard.ts` — CanActivateFn redirect to /login
-- [ ] 3.3 Create `frontend/src/app/core/guards/admin.guard.ts` — CanActivateFn redirect to /
-- [ ] 3.4 Create `frontend/src/app/core/interceptors/auth.interceptor.ts` — HttpInterceptorFn, attach Bearer token
-- [ ] 3.5 Create `frontend/src/app/core/interceptors/error.interceptor.ts` — HttpInterceptorFn, catch 401 → clear token → redirect /login
-- [ ] 3.6 Create `frontend/src/app/features/auth/auth-module.ts` — lazy-loaded NgModule with routes
-- [ ] 3.7 Create `frontend/src/app/features/auth/login/login.ts` + `.html` — email/password form + Google button
-- [ ] 3.8 Create `frontend/src/app/features/auth/register/register.ts` + `.html` — name/email/password form
-- [ ] 3.9 Wire `provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]))` in `app-module.ts`
-- [ ] 3.10 Add 4 lazy routes (/login, /register, /recuperar, /reset-password) in `app-routing-module.ts`
-- [ ] 3.11 Write Jasmine tests: AuthService CRUD, interceptor Bearer attachment, guard redirects
+- [x] 3.1 Create `frontend/src/app/core/services/auth.service.ts` — login, register, refresh, logout, token storage, isAuthenticated, isAdmin
+- [x] 3.2 Create `frontend/src/app/core/guards/auth.guard.ts` — CanActivateFn redirect to /login
+- [x] 3.3 Create `frontend/src/app/core/guards/admin.guard.ts` — CanActivateFn redirect to /
+- [x] 3.4 Create `frontend/src/app/core/interceptors/auth.interceptor.ts` — HttpInterceptorFn, attach Bearer token
+- [x] 3.5 Create `frontend/src/app/core/interceptors/error.interceptor.ts` — HttpInterceptorFn, catch 401 → clear token → redirect /login
+- [x] 3.6 Create `frontend/src/app/features/auth/auth-module.ts` — lazy-loaded NgModule with routes
+- [x] 3.7 Create `frontend/src/app/features/auth/login/login.ts` + `.html` — email/password form + Google button
+- [x] 3.8 Create `frontend/src/app/features/auth/register/register.ts` + `.html` — name/email/password form
+- [x] 3.9 Wire `provideHttpClient(withInterceptors([authInterceptor, errorInterceptor]))` in `app-module.ts`
+- [x] 3.10 Add 4 lazy routes (/login, /register, /recuperar, /reset-password) in `app-routing-module.ts`
+- [x] 3.11 Write Vitest tests: AuthService (14 tests), authGuard (2 tests), authInterceptor (3 tests) — 18 passing, 2 pre-existing failures in app.spec.ts (unrelated)

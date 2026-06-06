@@ -1,0 +1,39 @@
+<div class="flex justify-center items-center min-h-[60vh]">
+  <mat-card class="w-full max-w-sm p-4">
+    <mat-card-header>
+      <mat-card-title class="text-xl">Sign In</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-4">
+
+        <mat-form-field appearance="outline">
+          <mat-label>Email</mat-label>
+          <input matInput type="email" formControlName="email" placeholder="you@example.com" />
+          <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
+          <mat-error *ngIf="form.get('email')?.hasError('email')">Enter a valid email</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput type="password" formControlName="password" placeholder="••••••••" />
+          <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
+          <mat-error *ngIf="form.get('password')?.hasError('minlength')">At least 8 characters</mat-error>
+        </mat-form-field>
+
+        <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</div>
+
+        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || submitting">
+          Sign In
+        </button>
+      </form>
+
+      <div class="mt-4 flex flex-col gap-2">
+        <button mat-stroked-button disabled class="w-full">
+          <!-- Placeholder — Google OAuth not yet configured -->
+          Sign in with Google
+        </button>
+        <a mat-button routerLink="/register" class="text-sm">Don't have an account? Register</a>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
