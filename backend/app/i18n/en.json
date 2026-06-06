@@ -1,0 +1,29 @@
+{
+    "emails": {
+        "password_reset": {
+            "subject": "Password Reset — La Tiendita",
+            "greeting": "Hello",
+            "body": "Click the link below to reset your password:",
+            "button": "Reset Password",
+            "expiry": "This link expires in 1 hour. If you did not request a password reset, please ignore this email."
+        },
+        "order_confirmation": {
+            "subject": "Order Confirmation #",
+            "thanks": "Thank you for your purchase",
+            "summary": "Here is a summary of your order:",
+            "product": "Product",
+            "quantity": "Qty",
+            "price": "Price",
+            "total": "Total",
+            "shipping": "Shipping address"
+        }
+    },
+    "errors": {
+        "server_error": "Internal server error",
+        "not_found": "Resource not found",
+        "unauthorized": "Unauthorized"
+    },
+    "footer": {
+        "automated": "This is an automated message. Please do not reply to this email."
+    }
+}

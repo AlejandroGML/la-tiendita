@@ -1,0 +1,29 @@
+{
+    "emails": {
+        "password_reset": {
+            "subject": "Återställ Lösenord — La Tiendita",
+            "greeting": "Hej",
+            "body": "Klicka på länken nedan för att återställa ditt lösenord:",
+            "button": "Återställ Lösenord",
+            "expiry": "Denna länk upphör om 1 timme. Om du inte begärde en lösenordsåterställning, ignorera detta e-postmeddelande."
+        },
+        "order_confirmation": {
+            "subject": "Orderbekräftelse #",
+            "thanks": "Tack för ditt köp",
+            "summary": "Här är en sammanfattning av din order:",
+            "product": "Produkt",
+            "quantity": "Antal",
+            "price": "Pris",
+            "total": "Totalt",
+            "shipping": "Leveransadress"
+        }
+    },
+    "errors": {
+        "server_error": "Internt serverfel",
+        "not_found": "Resursen hittades inte",
+        "unauthorized": "Obehörig"
+    },
+    "footer": {
+        "automated": "Detta är ett automatiskt meddelande. Vänligen svara inte på detta e-postmeddelande."
+    }
+}

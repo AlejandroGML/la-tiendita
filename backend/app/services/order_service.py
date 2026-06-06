@@ -16,6 +16,7 @@ from sqlalchemy.orm import selectinload
 from app.models.cart import CartItem
 from app.models.order import Order, OrderItem
 from app.models.product import Product, ProductTranslation
+from app.models.user import User
 from app.schemas.order import CheckoutRequest, OrderItemResponse, OrderResponse
 
 logger = logging.getLogger(__name__)
@@ -101,6 +102,11 @@ class OrderService:
 
             # 7. Commit savepoint
             await savepoint.commit()
+
+            # 8. Send confirmation email (non-critical — order is saved)
+            await self._send_confirmation_email(
+                session, user_id, order, order_items_data
+            )
 
             # Reload order with items for the response
             return await self._build_order_response(session, order.id)
@@ -274,4 +280,70 @@ class OrderService:
             items=items,
             created_at=order.created_at,
             updated_at=order.updated_at,
+        )
+
+    async def _send_confirmation_email(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+        order: Order,
+        order_items_data: list[dict],
+    ) -> None:
+        """Render and send the order confirmation email.
+
+        Called *after* the checkout savepoint commits so that email
+        failures do not roll back the order.
+
+        Looks up the user's preferred language and name, builds a flat
+        item list from the product snapshots, and calls ``send_email()``
+        via the email utility.
+        """
+        # Look up user for language and name
+        result = await session.execute(
+            select(User).where(User.id == user_id)
+        )
+        user = result.scalar_one_or_none()
+        if user is None:
+            logger.warning(
+                "Cannot send confirmation email: user %s not found", user_id
+            )
+            return
+
+        # Build flat item list for the template
+        template_items: list[dict] = []
+        for oi in order_items_data:
+            snapshot = oi.get("product_snapshot", {})
+            template_items.append({
+                "product_name": snapshot.get("name", "Unknown product"),
+                "quantity": oi["quantity"],
+                "price": float(oi["price"]),
+            })
+
+        # Format shipping address as a readable string
+        shipping_parts: list[str] = []
+        addr = order.shipping_address or {}
+        if isinstance(addr, dict):
+            shipping_parts.append(
+                addr.get("full_name", addr.get("name", ""))
+            )
+            shipping_parts.append(addr.get("street", ""))
+            shipping_parts.append(addr.get("city", ""))
+            shipping_parts.append(addr.get("country", ""))
+        shipping_str = ", ".join(p for p in shipping_parts if p) or "-"
+
+        from app.utils.email import render_template, send_email
+
+        html_body = render_template(
+            "emails/order_confirmation.html",
+            user_name=user.name,
+            order_id=str(order.id),
+            total=float(order.total),
+            order_items=template_items,
+            shipping_address=shipping_str,
+            lang=user.preferred_lang.value,
+        )
+        send_email(
+            to=user.email,
+            subject=f"Order Confirmation #{order.id} — La Tiendita",
+            html_body=html_body,
         )

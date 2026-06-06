@@ -59,42 +59,45 @@
 
 > **PR #2 → main** — Backend-only changes. No frontend changes. Depends on Slice 1 for production verification.
 
-### Task 2.1: Email Config Fields
-- **File**: `backend/app/config.py` (modify, ~25 lines added)
+### Task 2.1: Email Config Fields ✅
+- **File**: `backend/app/config.py` (modify, ~8 lines added)
 - Add: `EMAIL_MODE`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`, `EMAIL_FROM`
 - All have safe defaults (`log` mode, empty SMTP creds)
 
-### Task 2.2: Email Utility
-- **File**: `backend/app/utils/email.py` (new, ~70 lines)
+### Task 2.2: Email Utility ✅
+- **File**: `backend/app/utils/email.py` (new, ~110 lines)
 - `send_email(to, subject, html_body)` — log or SMTP based on `EMAIL_MODE`
-- `render_template(name, **ctx)` — Jinja2 `FileSystemLoader("app/templates/emails")`
+- `render_template(name, **ctx)` — Jinja2 `FileSystemLoader` rooted at `app/templates/`, templates referenced as `"emails/name.html"`
 - Use `logging` module for console output
-- Lang-aware: template receives `lang` in context, loads i18n JSON for translations
+- Lang-aware: loads i18n JSON from `app/i18n/{lang}.json`, injects as `messages`
 
-### Task 2.3: Server-Side i18n JSONs
-- **Files**: `backend/app/i18n/es.json`, `en.json`, `sv.json` (new, ~40 lines each)
-- Keys: `emails.password_reset.*`, `emails.order_confirmation.*`, `errors.*`
+### Task 2.3: Server-Side i18n JSONs ✅
+- **Files**: `backend/app/i18n/es.json`, `en.json`, `sv.json` (new, ~35 lines each)
+- Keys: `emails.password_reset.*`, `emails.order_confirmation.*`, `errors.*`, `footer.*`
 - Each language file mirrors the same keys with translated values
 
-### Task 2.4: Jinja2 Email Templates
-- **Files**: `backend/app/templates/emails/password_reset.html`, `order_confirmation.html` (new, ~30 lines each)
+### Task 2.4: Jinja2 Email Templates ✅
+- **Files**: `backend/app/templates/emails/password_reset.html`, `order_confirmation.html` (created in Phase 1)
 - `password_reset.html`: greeting, reset link button, expiry notice
 - `order_confirmation.html`: order ID, item list, total, shipping address
-- Templates reference `{{ messages.email.password_reset.subject }}` etc. from context
+- Templates reference `{{ messages.emails.password_reset.subject }}` etc. from context
 
-### Task 2.5: Auth Service — Password Reset Email
-- **File**: `backend/app/services/auth_service.py` (modify, ~20 lines)
-- In `forgot_password()`: after generating reset token, call `send_email()` with rendered template
-- Pass `user.preferred_lang` and `user.name` to template context
+### Task 2.5: Auth Service — Password Reset Email ✅
+- **File**: `backend/app/services/auth_service.py` (modify, ~25 lines)
+- **File**: `backend/app/controllers/auth.py` (modify, +1 parameter — session injection)
+- In `forgot_password()`: looks up user, generates reset token, renders template, calls `send_email()`
+- Pass `user.preferred_lang.value` and `user.name` to template context
+- Returns silently if email not found (prevents user enumeration)
 
-### Task 2.6: Order Service — Confirmation Email
-- **File**: `backend/app/services/order_service.py` (modify, ~15 lines)
-- In `create_order()` (checkout): after order creation, call `send_email()` with order confirmation template
-- Pass `user.preferred_lang`, `user.name`, `order.id`, `order.total`, `order_items` to context
+### Task 2.6: Order Service — Confirmation Email ✅
+- **File**: `backend/app/services/order_service.py` (modify, ~65 lines)
+- In `checkout()`: after savepoint commit, calls `_send_confirmation_email()` helper
+- New `_send_confirmation_email()`: looks up user, builds item list from snapshots, formats shipping address, renders template, calls `send_email()`
+- Pass `user.preferred_lang.value`, `user.name`, `order.id`, `order.total`, `order_items`, `shipping_address` to context
 
-### Task 2.7: Jinja2 Dependency
-- **File**: `backend/pyproject.toml` (modify, ~3 lines)
-- Add `jinja2` to dependencies
+### Task 2.7: Jinja2 Dependency ✅
+- **File**: `backend/pyproject.toml` (modify, +1 line)
+- Add `"jinja2>=3.1"` to dependencies
 
 **Slice 2 verification**:
 - `POST /auth/forgot-password` → console shows rendered email with reset link

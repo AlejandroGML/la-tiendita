@@ -179,15 +179,45 @@ class AuthService:
                 await session.flush()
                 return
 
-    async def forgot_password(self, email: str) -> None:
-        """Generate a reset token for the given email (if it exists).
-        For MVP, the reset link is logged to console instead of emailed.
-        Always returns success to prevent user enumeration."""
+    async def forgot_password(
+        self, session: AsyncSession, email: str
+    ) -> None:
+        """Generate a reset token for the given email (if it exists) and
+        send a password-reset email via the email utility.
+
+        The user is looked up to determine their preferred language and name
+        for template rendering. If the email is not registered the method
+        returns silently — the caller always receives a 202 to prevent
+        user enumeration.
+
+        The reset token is ephemeral (not stored in the DB); a full
+        implementation would persist it with an expiry and validate it
+        in ``reset_password()``.
+        """
+        result = await session.execute(
+            select(User).where(User.email == email)
+        )
+        user = result.scalar_one_or_none()
+
+        if user is None:
+            # Return silently — don't reveal whether the email exists
+            return
+
         reset_token = secrets.token_urlsafe(32)
-        logger.info(
-            "PASSWORD RESET for %s — token: %s",
-            email,
-            reset_token,
+        reset_link = f"http://localhost:4200/reset-password?token={reset_token}"
+
+        from app.utils.email import render_template, send_email
+
+        html_body = render_template(
+            "emails/password_reset.html",
+            user_name=user.name,
+            reset_link=reset_link,
+            lang=user.preferred_lang.value,
+        )
+        send_email(
+            to=user.email,
+            subject="Password Reset — La Tiendita",
+            html_body=html_body,
         )
 
     async def reset_password(

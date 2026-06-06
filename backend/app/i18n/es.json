@@ -1,0 +1,29 @@
+{
+    "emails": {
+        "password_reset": {
+            "subject": "Restablecer Contraseña — La Tiendita",
+            "greeting": "Hola",
+            "body": "Haz clic en el enlace de abajo para restablecer tu contraseña:",
+            "button": "Restablecer Contraseña",
+            "expiry": "Este enlace expira en 1 hora. Si no solicitaste un restablecimiento de contraseña, por favor ignora este correo."
+        },
+        "order_confirmation": {
+            "subject": "Confirmación de Pedido #",
+            "thanks": "¡Gracias por tu compra",
+            "summary": "Aquí tienes un resumen de tu pedido:",
+            "product": "Producto",
+            "quantity": "Cant.",
+            "price": "Precio",
+            "total": "Total",
+            "shipping": "Dirección de envío"
+        }
+    },
+    "errors": {
+        "server_error": "Error interno del servidor",
+        "not_found": "Recurso no encontrado",
+        "unauthorized": "No autorizado"
+    },
+    "footer": {
+        "automated": "Este es un mensaje automático. Por favor no respondas a este correo."
+    }
+}

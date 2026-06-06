@@ -108,10 +108,11 @@ class AuthController(Controller):
         self,
         data: ForgotPasswordRequest,
         auth_service: AuthService,
+        session: AsyncSession,
     ) -> MessageResponse:
         """Request a password reset link. Always returns 202 to prevent
         user enumeration."""
-        await auth_service.forgot_password(data.email)
+        await auth_service.forgot_password(session, data.email)
         return MessageResponse(
             message="if the email exists, a reset link was sent"
         )
