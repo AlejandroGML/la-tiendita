@@ -26,3 +26,10 @@ class UserUpdate(BaseModel):
     name: str | None = None
     phone: str | None = None
     preferred_lang: str | None = None
+
+
+class UserAdminUpdate(BaseModel):
+    """Fields an admin can modify on any user account."""
+
+    role: str | None = None
+    is_verified: bool | None = None

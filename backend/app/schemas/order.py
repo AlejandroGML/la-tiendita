@@ -47,3 +47,16 @@ class OrderResponse(BaseModel):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class OrderAdminListItem(BaseModel):
+    """A compact order row for the admin order list — includes the owner name
+    resolved via a JOIN on the users table."""
+
+    id: UUID
+    status: str
+    total: Decimal
+    user_name: str
+    created_at: datetime
+
+    model_config = ConfigDict(from_attributes=True)

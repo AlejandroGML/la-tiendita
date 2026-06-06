@@ -6,6 +6,7 @@ from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
 
 from app.config import settings
+from app.controllers.admin import AdminController
 from app.controllers.auth import AuthController
 from app.controllers.cart import CartController
 from app.controllers.categories import AdminCategoryController, CategoryController
@@ -47,6 +48,7 @@ app = Litestar(
     route_handlers=[
         health_check,
         protected_endpoint,
+        AdminController,
         AuthController,
         CartController,
         OrderController,
