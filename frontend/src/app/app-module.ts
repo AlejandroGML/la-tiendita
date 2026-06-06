@@ -7,6 +7,7 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 
 import { AppRoutingModule } from './app-routing-module';
 import { LayoutModule } from './layout/layout-module';
+import { AdminLayoutModule } from './layout/admin-layout/admin-layout-module';
 import { App } from './app';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
@@ -17,6 +18,7 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
     BrowserModule,
     AppRoutingModule,
     LayoutModule,
+    AdminLayoutModule,
     TranslateModule.forRoot({ defaultLanguage: 'es' }),
   ],
   providers: [

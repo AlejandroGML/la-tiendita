@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { type CanMatchFn, RouterModule, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { AdminLayoutComponent } from './layout/admin-layout/admin-layout';
 
 /** Only match auth-prefixed paths so the AuthModule is lazy-loaded on demand. */
 const authCanMatch: CanMatchFn = (_route, segments) => {
@@ -48,10 +49,18 @@ const routes: Routes = [
   },
   {
     path: 'admin',
+    canActivate: [authGuard, adminGuard],
+    component: AdminLayoutComponent,
     children: [
       {
+        path: '',
+        loadChildren: () =>
+          import('./features/admin/dashboard/admin-dashboard-module').then(
+            (m) => m.AdminDashboardModule,
+          ),
+      },
+      {
         path: 'productos',
-        canActivate: [authGuard, adminGuard],
         children: [
           {
             path: 'nuevo',
@@ -75,6 +84,27 @@ const routes: Routes = [
               ),
           },
         ],
+      },
+      {
+        path: 'usuarios',
+        loadChildren: () =>
+          import('./features/admin/users/admin-users-module').then(
+            (m) => m.AdminUsersModule,
+          ),
+      },
+      {
+        path: 'ordenes',
+        loadChildren: () =>
+          import('./features/admin/orders/admin-orders-module').then(
+            (m) => m.AdminOrdersModule,
+          ),
+      },
+      {
+        path: 'categorias',
+        loadChildren: () =>
+          import('./features/admin/dashboard/admin-dashboard-module').then(
+            (m) => m.AdminDashboardModule,
+          ),
       },
     ],
   },

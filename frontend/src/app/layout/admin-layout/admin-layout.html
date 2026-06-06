@@ -1,0 +1,53 @@
+<mat-sidenav-container class="admin-sidenav-container">
+  <mat-sidenav
+    mode="side"
+    opened
+    class="admin-sidenav"
+    data-testid="admin-sidenav"
+  >
+    <div class="sidenav-header">
+      <h2 class="text-lg font-bold px-4 py-3">{{ 'header.title' | translate }}</h2>
+      <span class="text-xs text-gray-500 px-4 pb-3 block">{{ 'admin.panel' | translate }}</span>
+    </div>
+
+    <mat-nav-list>
+      <a
+        *ngFor="let item of navItems"
+        mat-list-item
+        [routerLink]="item.route"
+        routerLinkActive="active-nav-item"
+        [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
+        [attr.data-testid]="'nav-' + item.icon"
+      >
+        <mat-icon matListItemIcon>{{ item.icon }}</mat-icon>
+        <span matListItemTitle>{{ item.label | translate }}</span>
+      </a>
+    </mat-nav-list>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="admin-content">
+    <mat-toolbar color="primary" class="admin-toolbar">
+      <span class="flex-1">{{ 'admin.panel' | translate }}</span>
+
+      <div class="flex items-center gap-3" data-testid="user-info">
+        <mat-icon>account_circle</mat-icon>
+        <div class="hidden sm:flex flex-col text-sm leading-tight">
+          <span class="font-medium">{{ userName }}</span>
+          <span class="text-xs opacity-75">{{ userEmail }}</span>
+        </div>
+        <button
+          mat-icon-button
+          [attr.aria-label]="'admin.logout' | translate"
+          (click)="logout()"
+          data-testid="btn-logout"
+        >
+          <mat-icon>logout</mat-icon>
+        </button>
+      </div>
+    </mat-toolbar>
+
+    <div class="admin-page-content">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
