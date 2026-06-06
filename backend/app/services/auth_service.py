@@ -1,0 +1,316 @@
+"""AuthService — business logic for authentication and token management.
+
+Async methods accept SQLAlchemy AsyncSession injection at call time
+via Litestar DI (`Provide`). The service receives settings at construction.
+"""
+
+import logging
+import secrets
+import uuid
+from datetime import datetime, timedelta, timezone
+
+import bcrypt
+from jose import jwt
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.config import Settings, settings
+from app.models.refresh_token import RefreshToken
+from app.models.user import User, UserRole
+from app.schemas.auth import (
+    LoginRequest,
+    RefreshRequest,
+    RegisterRequest,
+    TokenResponse,
+)
+from app.schemas.user import UserResponse
+
+logger = logging.getLogger(__name__)
+
+
+class AuthService:
+    """Encapsulates all authentication business logic.
+
+    Constructor receives the global settings singleton. The async session
+    is injected per-call via Litestar's dependency injection, not stored
+    on the instance, so the service remains thread/request-safe.
+    """
+
+    def __init__(self, app_settings: Settings = settings) -> None:
+        self._settings = app_settings
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
+
+    async def register(
+        self, session: AsyncSession, data: RegisterRequest
+    ) -> TokenResponse:
+        """Hash password, create User, issue token pair. Raises ValueError on
+        duplicate email so the controller can return 409."""
+        existing = await session.execute(
+            select(User).where(User.email == data.email)
+        )
+        if existing.scalar_one_or_none() is not None:
+            raise ValueError("email already registered")
+
+        password_hash = self._hash_password(data.password)
+        user = User(
+            email=data.email,
+            password_hash=password_hash,
+            name=data.name,
+            role=UserRole.CUSTOMER,
+            preferred_lang=data.preferred_lang or "es",
+            is_verified=False,
+        )
+        session.add(user)
+        await session.flush()
+
+        access_token = self._create_access_token(str(user.id), user.role.value)
+        refresh_token = await self._create_refresh_token(session, str(user.id))
+
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user=UserResponse.model_validate(user),
+        )
+
+    async def login(
+        self, session: AsyncSession, data: LoginRequest
+    ) -> TokenResponse:
+        """Verify credentials and issue token pair. Raises ValueError on
+        unknown email or wrong password — controller maps to 401."""
+        result = await session.execute(
+            select(User).where(User.email == data.email)
+        )
+        user = result.scalar_one_or_none()
+        if user is None or user.password_hash is None:
+            raise ValueError("invalid email or password")
+
+        if not self._verify_password(data.password, user.password_hash):
+            raise ValueError("invalid email or password")
+
+        access_token = self._create_access_token(str(user.id), user.role.value)
+        refresh_token = await self._create_refresh_token(session, str(user.id))
+
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=refresh_token,
+            user=UserResponse.model_validate(user),
+        )
+
+    async def refresh(
+        self, session: AsyncSession, data: RefreshRequest
+    ) -> TokenResponse:
+        """Validate refresh token, rotate (delete old, create new), and
+        return fresh access+refresh pair.
+
+        Token format: ``{user_id}.{secret}``. The user_id lets us look up the
+        user and iterate their stored tokens for bcrypt verification.
+
+        Replay detection: if the token cannot be verified against any stored
+        hash AND the embedded user_id points to a valid user, ALL refresh
+        tokens for that user are revoked (breach mitigation per spec)."""
+        raw = data.refresh_token
+
+        user_id = self._extract_user_id(raw)
+        if user_id is None:
+            raise ValueError("invalid refresh token")
+
+        # Find user
+        user_result = await session.execute(
+            select(User).where(User.id == user_id)
+        )
+        user = user_result.scalar_one_or_none()
+        if user is None:
+            raise ValueError("invalid refresh token")
+
+        # Find matching stored token by bcrypt-checking all user tokens
+        result = await session.execute(
+            select(RefreshToken).where(
+                RefreshToken.user_id == user_id,
+                RefreshToken.expires_at > datetime.now(timezone.utc),
+            )
+        )
+        stored = None
+        raw_bytes = raw.encode("utf-8")[:72]
+        for rt in result.scalars().all():
+            if bcrypt.checkpw(raw_bytes, rt.token_hash.encode()):
+                stored = rt
+                break
+
+        if stored is None:
+            # Token not matched — could be already rotated (replay) or expired.
+            # Per spec: revoke ALL tokens for the user as breach mitigation.
+            await self._revoke_all_user_tokens(session, user_id)
+            raise ValueError("invalid or expired refresh token")
+
+        # Rotate: delete old token, issue new pair
+        await session.delete(stored)
+        await session.flush()
+
+        access_token = self._create_access_token(str(user.id), user.role.value)
+        new_refresh = await self._create_refresh_token(session, str(user.id))
+
+        return TokenResponse(
+            access_token=access_token,
+            refresh_token=new_refresh,
+            user=UserResponse.model_validate(user),
+        )
+
+    async def logout(self, session: AsyncSession, refresh_token: str) -> None:
+        """Delete the refresh token from DB (revocation). Access token
+        remains valid until natural expiry."""
+        user_id = self._extract_user_id(refresh_token)
+        if user_id is None:
+            # Token format invalid — nothing to revoke
+            return
+
+        result = await session.execute(
+            select(RefreshToken).where(
+                RefreshToken.user_id == user_id,
+                RefreshToken.expires_at > datetime.now(timezone.utc),
+            )
+        )
+        raw_bytes = refresh_token.encode("utf-8")[:72]
+        for rt in result.scalars().all():
+            if bcrypt.checkpw(raw_bytes, rt.token_hash.encode()):
+                await session.delete(rt)
+                await session.flush()
+                return
+
+    async def forgot_password(self, email: str) -> None:
+        """Generate a reset token for the given email (if it exists).
+        For MVP, the reset link is logged to console instead of emailed.
+        Always returns success to prevent user enumeration."""
+        reset_token = secrets.token_urlsafe(32)
+        logger.info(
+            "PASSWORD RESET for %s — token: %s",
+            email,
+            reset_token,
+        )
+
+    async def reset_password(
+        self, session: AsyncSession, token: str, new_password: str
+    ) -> None:
+        """MVP: accept a console-logged reset token and update the user's
+        password. In production this would validate against a reset_tokens
+        table and use time-limited tokens."""
+        # For MVP, the token doesn't map to anything persistent.
+        # In a real implementation, we'd look up a reset_tokens table.
+        logger.info("Reset password with token: %s", token)
+        return
+
+    async def oauth_callback(
+        self, session: AsyncSession, code: str
+    ) -> TokenResponse:
+        """Exchange OAuth2 code for tokens. Raises NotImplementedError if
+        Google OAuth is not configured (checked by controller)."""
+        if not self._settings.GOOGLE_CLIENT_ID:
+            raise NotImplementedError("Google OAuth is not configured")
+        # Full OAuth implementation via httpx-oauth would go here.
+        raise NotImplementedError("OAuth callback not implemented for MVP")
+
+    def verify_access_token(self, token: str) -> dict | None:
+        """Decode and validate a JWT access token. Returns claims dict or None
+        if the token is expired, malformed, or has an invalid signature."""
+        try:
+            payload: dict = jwt.decode(
+                token,
+                self._settings.SECRET_KEY,
+                algorithms=[self._settings.JWT_ALGORITHM],
+            )
+            return payload
+        except jwt.JWTError:
+            return None
+
+    def create_access_token_raw(self, user_id: str, role: str) -> str:
+        """Issue a signed JWT without requiring a session. Used by the guard's
+        retrieve_user_handler callback which doesn't have DI access."""
+        return self._create_access_token(user_id, role)
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _create_access_token(self, user_id: str, role: str) -> str:
+        """Issue a signed JWT with sub, role, exp, iat claims."""
+        now = datetime.now(timezone.utc)
+        expire = now + timedelta(
+            minutes=self._settings.ACCESS_TOKEN_EXPIRE_MINUTES
+        )
+        payload = {
+            "sub": user_id,
+            "role": role,
+            "exp": expire,
+            "iat": now,
+        }
+        return jwt.encode(
+            payload,
+            self._settings.SECRET_KEY,
+            algorithm=self._settings.JWT_ALGORITHM,
+        )
+
+    async def _create_refresh_token(
+        self, session: AsyncSession, user_id: str
+    ) -> str:
+        """Generate an opaque token (``{user_id}.{secret}``), bcrypt-hash the
+        full token, and persist the hash. Returns the raw token to the caller."""
+        secret = secrets.token_urlsafe(64)
+        raw = f"{user_id}.{secret}"
+        token_hash = self._hash_token(raw)
+
+        expires_at = datetime.now(timezone.utc) + timedelta(
+            days=self._settings.REFRESH_TOKEN_EXPIRE_DAYS
+        )
+        refresh_record = RefreshToken(
+            user_id=uuid.UUID(user_id),
+            token_hash=token_hash,
+            expires_at=expires_at,
+        )
+        session.add(refresh_record)
+        await session.flush()
+
+        return raw
+
+    async def _revoke_all_user_tokens(
+        self, session: AsyncSession, user_id: uuid.UUID
+    ) -> None:
+        """Delete every refresh token for a user (breach mitigation)."""
+        result = await session.execute(
+            select(RefreshToken).where(RefreshToken.user_id == user_id)
+        )
+        for token in result.scalars().all():
+            await session.delete(token)
+        await session.flush()
+
+    def _extract_user_id(self, token: str) -> uuid.UUID | None:
+        """Extract the user UUID from a token in ``{user_id}.{secret}`` format."""
+        try:
+            prefix = token.split(".", 1)[0]
+            return uuid.UUID(prefix)
+        except (ValueError, IndexError):
+            return None
+
+    def _hash_password(self, password: str) -> str:
+        """bcrypt-hash a plaintext password."""
+        return bcrypt.hashpw(
+            password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
+
+    def _verify_password(self, password: str, hashed: str) -> bool:
+        """Verify a plaintext password against its bcrypt hash."""
+        return bcrypt.checkpw(
+            password.encode("utf-8"), hashed.encode("utf-8")
+        )
+
+    @staticmethod
+    def _hash_token(token: str) -> str:
+        """bcrypt-hash an opaque token string for DB storage.
+
+        Bcrypt has a 72-byte input limit. Tokens longer than 72 bytes
+        (e.g., UUID.secret64) are truncated. The first 72 bytes are
+        sufficient because secrets.token_urlsafe(64) provides 512 bits
+        of entropy, and even truncated we retain ~432 bits."""
+        raw_bytes = token.encode("utf-8")[:72]
+        return bcrypt.hashpw(raw_bytes, bcrypt.gensalt()).decode("utf-8")

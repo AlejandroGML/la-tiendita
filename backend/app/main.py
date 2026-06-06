@@ -5,6 +5,9 @@ from litestar.config.cors import CORSConfig
 from litestar.openapi import OpenAPIConfig
 
 from app.config import settings
+from app.controllers.auth import AuthController
+from app.middleware.i18n import I18nMiddleware
+from app.middleware.rate_limit import RateLimitMiddleware
 
 cors_config = CORSConfig(
     allow_origins=settings.CORS_ORIGINS,
@@ -20,7 +23,8 @@ async def health_check() -> dict[str, str]:
 
 
 app = Litestar(
-    route_handlers=[health_check],
+    route_handlers=[health_check, AuthController],
+    middleware=[RateLimitMiddleware, I18nMiddleware],
     cors_config=cors_config,
     openapi_config=OpenAPIConfig(
         title="La Tiendita API",
