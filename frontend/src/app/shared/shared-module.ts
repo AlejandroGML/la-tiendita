@@ -1,3 +1,4 @@
+import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -25,6 +26,7 @@ import { CurrencyPipe } from './pipes/currency.pipe';
 import { ProductCardComponent } from './components/product-card/product-card';
 import { SearchBarComponent } from './components/search-bar/search-bar';
 import { PaginationComponent } from './components/pagination/pagination';
+import { StarRatingComponent } from './components/star-rating/star-rating';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -54,11 +56,12 @@ const SHARED_COMPONENTS = [
   ProductCardComponent,
   SearchBarComponent,
   PaginationComponent,
+  StarRatingComponent,
 ];
 
 @NgModule({
   declarations: SHARED_COMPONENTS,
-  imports: [...MATERIAL_MODULES, TranslateModule],
-  exports: [...MATERIAL_MODULES, TranslateModule, ...SHARED_COMPONENTS],
+  imports: [CommonModule, ...MATERIAL_MODULES, TranslateModule],
+  exports: [CommonModule, ...MATERIAL_MODULES, TranslateModule, ...SHARED_COMPONENTS],
 })
 export class SharedModule {}

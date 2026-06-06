@@ -1,0 +1,247 @@
+<div class="admin-promotions-container max-w-6xl mx-auto p-6">
+  <header class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">{{ 'promotions.title' | translate }}</h1>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="openCreateForm()"
+      *ngIf="!showForm()"
+      data-testid="btn-new-promotion"
+    >
+      <mat-icon>add</mat-icon>
+      {{ 'promotions.new' | translate }}
+    </button>
+  </header>
+
+  <mat-progress-bar
+    *ngIf="loading()"
+    mode="indeterminate"
+    class="mb-4"
+  ></mat-progress-bar>
+
+  <!-- Promotion Form -->
+  <div
+    *ngIf="showForm()"
+    class="bg-white rounded-lg shadow border border-gray-200 p-6 mb-6"
+    data-testid="promotion-form"
+  >
+    <h2 class="text-lg font-semibold mb-4">
+      {{ (editingId() ? 'promotions.editTitle' : 'promotions.newTitle') | translate }}
+    </h2>
+    <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-4">
+      <!-- Code + Discount Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'promotions.code' | translate }}</mat-label>
+          <input matInput formControlName="code" maxlength="50" />
+          <mat-error *ngIf="form.get('code')?.hasError('required')">
+            {{ 'promotions.codeRequired' | translate }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'promotions.discount' | translate }}</mat-label>
+          <input matInput type="number" formControlName="discount_percent" min="1" max="100" />
+          <span matTextSuffix>%</span>
+          <mat-error *ngIf="form.get('discount_percent')?.hasError('required')">
+            {{ 'promotions.discountRequired' | translate }}
+          </mat-error>
+          <mat-error *ngIf="form.get('discount_percent')?.hasError('min') || form.get('discount_percent')?.hasError('max')">
+            {{ 'promotions.discountRange' | translate }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <!-- Product ID + Max Uses Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'promotions.productId' | translate }}</mat-label>
+          <input matInput formControlName="product_id" placeholder="UUID (optional)" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'promotions.maxUses' | translate }}</mat-label>
+          <input matInput type="number" formControlName="max_uses" min="1" />
+        </mat-form-field>
+      </div>
+
+      <!-- Date Range Row -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'promotions.startDate' | translate }}</mat-label>
+          <input matInput type="datetime-local" formControlName="start_date" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="w-full">
+          <mat-label>{{ 'promotions.endDate' | translate }}</mat-label>
+          <input matInput type="datetime-local" formControlName="end_date" />
+        </mat-form-field>
+      </div>
+
+      <!-- Is Active Toggle -->
+      <div class="flex items-center gap-3">
+        <mat-slide-toggle formControlName="is_active">
+          {{ 'promotions.isActive' | translate }}
+        </mat-slide-toggle>
+      </div>
+
+      <!-- Translations -->
+      <div class="border-t pt-4">
+        <h3 class="text-sm font-semibold mb-3">{{ 'promotions.translations' | translate }}</h3>
+        <div formArrayName="translations">
+          <div
+            *ngFor="let t of translationsArray.controls; let i = index"
+            [formGroupName]="i"
+            class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 p-3 bg-gray-50 rounded"
+          >
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>Lang</mat-label>
+              <mat-select formControlName="lang">
+                <mat-option value="es">ES</mat-option>
+                <mat-option value="en">EN</mat-option>
+                <mat-option value="sv">SV</mat-option>
+              </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>{{ 'promotions.translationTitle' | translate }}</mat-label>
+              <input matInput formControlName="title" maxlength="255" />
+            </mat-form-field>
+            <mat-form-field appearance="outline" class="w-full">
+              <mat-label>{{ 'promotions.translationDesc' | translate }}</mat-label>
+              <input matInput formControlName="description" />
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Form Actions -->
+      <div class="flex justify-end gap-3 pt-4 border-t">
+        <button
+          mat-stroked-button
+          type="button"
+          (click)="cancelForm()"
+          data-testid="btn-cancel-form"
+        >
+          {{ 'admin.cancel' | translate }}
+        </button>
+        <button
+          mat-flat-button
+          color="primary"
+          type="submit"
+          [disabled]="saving() || form.invalid"
+          data-testid="btn-save-form"
+        >
+          <mat-spinner *ngIf="saving()" diameter="18" class="inline-block mr-2"></mat-spinner>
+          {{ (editingId() ? 'admin.save' : 'promotions.create') | translate }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!loading() && promotions().length === 0 && !showForm()"
+    class="text-center text-gray-500 py-16"
+    data-testid="no-promotions"
+  >
+    <mat-icon class="text-6xl mb-4">sell</mat-icon>
+    <p class="text-lg">{{ 'promotions.empty' | translate }}</p>
+  </div>
+
+  <!-- Table -->
+  <div
+    *ngIf="promotions().length > 0 && !showForm()"
+    class="overflow-x-auto"
+    data-testid="promotions-table"
+  >
+    <table mat-table [dataSource]="promotions()" class="w-full">
+      <!-- Code Column -->
+      <ng-container matColumnDef="code">
+        <th mat-header-cell *matHeaderCellDef>{{ 'promotions.code' | translate }}</th>
+        <td mat-cell *matCellDef="let promotion">
+          <span class="font-mono font-semibold">{{ promotion.code }}</span>
+        </td>
+      </ng-container>
+
+      <!-- Discount Column -->
+      <ng-container matColumnDef="discount">
+        <th mat-header-cell *matHeaderCellDef>{{ 'promotions.discount' | translate }}</th>
+        <td mat-cell *matCellDef="let promotion">
+          <span class="promotion-discount-chip">
+            {{ promotion.discount_percent }}%
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Product Column -->
+      <ng-container matColumnDef="product">
+        <th mat-header-cell *matHeaderCellDef>{{ 'promotions.product' | translate }}</th>
+        <td mat-cell *matCellDef="let promotion">
+          <span *ngIf="promotion.product_id" class="text-xs font-mono">{{ promotion.product_id }}</span>
+          <span *ngIf="!promotion.product_id" class="text-gray-400 text-sm">—</span>
+        </td>
+      </ng-container>
+
+      <!-- Dates Column -->
+      <ng-container matColumnDef="dates">
+        <th mat-header-cell *matHeaderCellDef>{{ 'promotions.dates' | translate }}</th>
+        <td mat-cell *matCellDef="let promotion">
+          <div class="text-xs">
+            <div *ngIf="promotion.start_date">
+              <span class="text-gray-500">{{ 'promotions.from' | translate }}:</span>
+              {{ promotion.start_date | date: 'short' }}
+            </div>
+            <div *ngIf="promotion.end_date">
+              <span class="text-gray-500">{{ 'promotions.to' | translate }}:</span>
+              {{ promotion.end_date | date: 'short' }}
+            </div>
+            <div class="text-gray-400 mt-1">
+              {{ getUsageInfo(promotion) }}
+            </div>
+          </div>
+        </td>
+      </ng-container>
+
+      <!-- Status Column -->
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>{{ 'promotions.status' | translate }}</th>
+        <td mat-cell *matCellDef="let promotion">
+          <span
+            class="status-chip"
+            [class]="isActive(promotion) ? 'status-active' : 'status-inactive'"
+          >
+            {{ 'promotions.' + (isActive(promotion) ? 'active' : 'inactive') | translate }}
+          </span>
+        </td>
+      </ng-container>
+
+      <!-- Actions Column -->
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>{{ 'admin.actions' | translate }}</th>
+        <td mat-cell *matCellDef="let promotion">
+          <button
+            mat-icon-button
+            color="primary"
+            [attr.aria-label]="'admin.edit' | translate"
+            (click)="openEditForm(promotion)"
+            data-testid="btn-edit"
+          >
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            color="warn"
+            [attr.aria-label]="'admin.delete' | translate"
+            (click)="deletePromotion(promotion)"
+            data-testid="btn-delete"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </div>
+</div>

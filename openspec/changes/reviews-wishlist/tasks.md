@@ -48,12 +48,12 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Frontend Components & Routing (PR 3)
 
-- [ ] 3.1 Create `frontend/src/app/shared/models/review.model.ts` — Review, CreateReviewPayload, ReviewListResponse interfaces
-- [ ] 3.2 Create `frontend/src/app/shared/models/wishlist.model.ts` — WishlistItem interface
-- [ ] 3.3 Create `frontend/src/app/shared/models/promotion.model.ts` — Promotion, CreatePromotionPayload interfaces
-- [ ] 3.4 Create `frontend/src/app/shared/components/star-rating/` — StarRatingComponent with @Input rating/readonly/size, @Output ratingChange, Material icons for stars
-- [ ] 3.5 Create `frontend/src/app/core/services/wishlist.service.ts` — getWishlist(lang), addToWishlist(id), removeFromWishlist(id)
-- [ ] 3.6 Create `frontend/src/app/core/services/promotion.service.ts` — getActivePromotions(lang), admin CRUD methods
-- [ ] 3.7 Create `frontend/src/app/features/profile/wishlist/` — WishlistComponent (grid of product cards with remove button) + WishlistModule (lazy-loaded, authGuard)
-- [ ] 3.8 Create `frontend/src/app/features/admin/promotions/` — AdminPromotionsComponent (table CRUD with dialog form) + AdminPromotionsModule (lazy-loaded, authGuard+adminGuard)
-- [ ] 3.9 Modify `frontend/src/app/app-routing-module.ts` — Add `/perfil/wishlist` route (authGuard), `/admin/promociones` route (authGuard+adminGuard, AdminLayoutComponent)
+- [x] 3.1 Create `frontend/src/app/shared/models/review.model.ts` — Review, CreateReviewPayload, ReviewListResponse interfaces
+- [x] 3.2 Create `frontend/src/app/shared/models/wishlist.model.ts` — WishlistItem interface
+- [x] 3.3 Create `frontend/src/app/shared/models/promotion.model.ts` — Promotion, CreatePromotionPayload interfaces
+- [x] 3.4 Create `frontend/src/app/shared/components/star-rating/` — StarRatingComponent with @Input rating/readonly/size, @Output ratingChange, Material icons for stars
+- [x] 3.5 Create `frontend/src/app/core/services/wishlist.service.ts` — getWishlist(lang), addToWishlist(id), removeFromWishlist(id)
+- [x] 3.6 Create `frontend/src/app/core/services/promotion.service.ts` — getActivePromotions(lang), admin CRUD methods
+- [x] 3.7 Create `frontend/src/app/features/profile/wishlist/` — WishlistComponent (grid of product cards with remove button) + WishlistModule (lazy-loaded, authGuard)
+- [x] 3.8 Create `frontend/src/app/features/admin/promotions/` — AdminPromotionsComponent (table CRUD with dialog form) + AdminPromotionsModule (lazy-loaded, authGuard+adminGuard)
+- [x] 3.9 Modify `frontend/src/app/app-routing-module.ts` — Add `/perfil/wishlist` route (authGuard), `/admin/promociones` route (authGuard+adminGuard, AdminLayoutComponent)

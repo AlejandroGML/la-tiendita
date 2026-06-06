@@ -1,0 +1,95 @@
+<div class="wishlist-container max-w-6xl mx-auto p-6">
+  <header class="mb-6">
+    <h1 class="text-2xl font-bold">{{ 'wishlist.title' | translate }}</h1>
+  </header>
+
+  <mat-progress-bar
+    *ngIf="loading()"
+    mode="indeterminate"
+    class="mb-4"
+  ></mat-progress-bar>
+
+  <!-- Empty State -->
+  <div
+    *ngIf="!loading() && !error() && items().length === 0"
+    class="text-center text-gray-500 py-16"
+    data-testid="wishlist-empty"
+  >
+    <mat-icon class="text-6xl mb-4">favorite_border</mat-icon>
+    <p class="text-lg mb-4">{{ 'wishlist.empty' | translate }}</p>
+    <button
+      mat-flat-button
+      color="primary"
+      [routerLink]="'/productos'"
+      data-testid="btn-browse"
+    >
+      {{ 'wishlist.browse' | translate }}
+    </button>
+  </div>
+
+  <!-- Error State -->
+  <div
+    *ngIf="!loading() && error()"
+    class="text-center text-gray-500 py-16"
+    data-testid="wishlist-error"
+  >
+    <mat-icon class="text-6xl mb-4">error_outline</mat-icon>
+    <p class="text-lg mb-4">{{ 'wishlist.error' | translate }}</p>
+    <button
+      mat-flat-button
+      color="primary"
+      (click)="loadWishlist()"
+      data-testid="btn-retry"
+    >
+      {{ 'catalog.retry' | translate }}
+    </button>
+  </div>
+
+  <!-- Grid -->
+  <div
+    *ngIf="items().length > 0"
+    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+    data-testid="wishlist-grid"
+  >
+    <div
+      *ngFor="let item of items(); trackBy: trackByProductId"
+      class="wishlist-card bg-white rounded-lg shadow border border-gray-200 overflow-hidden"
+    >
+      <div
+        class="cursor-pointer"
+        (click)="navigateToProduct(item.slug)"
+      >
+        <img
+          *ngIf="item.image_url"
+          [src]="item.image_url"
+          [alt]="item.name"
+          class="w-full h-48 object-cover"
+          loading="lazy"
+        />
+        <div
+          *ngIf="!item.image_url"
+          class="w-full h-48 bg-gray-100 flex items-center justify-center"
+        >
+          <mat-icon class="text-gray-300 text-6xl">image</mat-icon>
+        </div>
+        <div class="p-3">
+          <h3 class="text-sm font-semibold line-clamp-2 mb-1">{{ item.name }}</h3>
+          <p class="text-lg font-bold text-gray-900">{{ item.price }}</p>
+        </div>
+      </div>
+      <div class="px-3 pb-3">
+        <button
+          mat-stroked-button
+          color="warn"
+          class="w-full"
+          [attr.aria-label]="'wishlist.removeAria' | translate: { name: item.name }"
+          (click)="removeItem(item)"
+          data-testid="btn-remove"
+        >
+          <mat-icon>delete_outline</mat-icon>
+          {{ 'wishlist.remove' | translate }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

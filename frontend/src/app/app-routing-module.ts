@@ -106,6 +106,13 @@ const routes: Routes = [
             (m) => m.AdminDashboardModule,
           ),
       },
+      {
+        path: 'promociones',
+        loadChildren: () =>
+          import('./features/admin/promotions/admin-promotions-module').then(
+            (m) => m.AdminPromotionsModule,
+          ),
+      },
     ],
   },
   {
@@ -126,6 +133,13 @@ const routes: Routes = [
     path: 'perfil',
     canActivate: [authGuard],
     children: [
+      {
+        path: 'wishlist',
+        loadChildren: () =>
+          import('./features/profile/wishlist/wishlist-module').then(
+            (m) => m.WishlistModule,
+          ),
+      },
       {
         path: 'ordenes',
         children: [
