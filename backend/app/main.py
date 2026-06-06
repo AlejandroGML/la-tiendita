@@ -6,6 +6,7 @@ from litestar.openapi import OpenAPIConfig
 
 from app.config import settings
 from app.controllers.auth import AuthController
+from app.guards.jwt_guard import jwt_auth
 from app.middleware.i18n import I18nMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
 
@@ -22,8 +23,17 @@ async def health_check() -> dict[str, str]:
     return {"status": "ok"}
 
 
+@get("/protected", sync_to_thread=False)
+async def protected_endpoint() -> dict[str, str]:
+    """Test-only protected endpoint — requires valid JWT.
+    JWT validation is handled by the JWTAuth middleware registered via
+    ``jwt_auth.on_app_init``. No per-route guard needed."""
+    return {"message": "authenticated"}
+
+
 app = Litestar(
-    route_handlers=[health_check, AuthController],
+    route_handlers=[health_check, protected_endpoint, AuthController],
+    on_app_init=[jwt_auth.on_app_init],
     middleware=[RateLimitMiddleware, I18nMiddleware],
     cors_config=cors_config,
     openapi_config=OpenAPIConfig(

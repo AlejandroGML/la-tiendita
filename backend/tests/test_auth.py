@@ -25,6 +25,15 @@ from app.schemas.auth import TokenResponse
 from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService as _RealAuthService
 
+from datetime import datetime, timedelta, timezone
+
+from jose import jwt as jose_jwt
+from litestar import Request
+from litestar.connection import ASGIConnection
+from litestar.contrib.jwt import JWTAuth, Token
+
+from app.guards.admin_guard import admin_guard
+
 
 # ---------------------------------------------------------------------------
 # Subclass mocks — pass isinstance checks for msgspec validation
@@ -67,6 +76,12 @@ def _make_token_response():
         refresh_token="refreshtoken.secret123",
         user=_make_user_response(),
     )
+
+
+@get("/lang-echo", sync_to_thread=False)
+async def lang_echo(request: Request) -> dict[str, str]:
+    """Echoes request.state.lang for i18n middleware tests."""
+    return {"lang": request.state.lang}
 
 
 @get("/health", sync_to_thread=False)
@@ -365,15 +380,269 @@ class TestOAuth:
 
 
 # ---------------------------------------------------------------------------
-# Guard contract placeholders
+# Guard chain integration tests — dedicated test apps with JWT protection
 # ---------------------------------------------------------------------------
 
-class TestGuardContract:
-    def test_unauthenticated_users_get_401(self, client):
-        pass
 
-    def test_admin_guard_returns_403_for_non_admin(self, client):
-        pass
+class _TestUser:
+    """Minimal user-like object for JWTAuth guard tests."""
+
+    def __init__(self, id: str, role: str) -> None:
+        self.id = id
+        self.role = role
+
+
+async def _test_retrieve_user(
+    token: Token, connection: ASGIConnection
+) -> _TestUser | None:
+    """Test-only retrieve_user_handler — returns a lightweight user
+    with the role extracted from token extras (no DB hit)."""
+    return _TestUser(
+        id=token.sub,
+        role=token.extras.get("role", "customer"),
+    )
+
+
+def _make_jwt_token(
+    secret: str, sub: str, role: str, algorithm: str = "HS256"
+) -> str:
+    """Create a signed JWT access token for testing."""
+    now = datetime.now(timezone.utc)
+    payload = {
+        "sub": sub,
+        "role": role,
+        "iat": now,
+        "exp": now + timedelta(minutes=5),
+    }
+    return jose_jwt.encode(payload, secret, algorithm=algorithm)
+
+
+class TestGuardContract:
+    """Integration tests for JWTAuth and admin_guard using dedicated
+    test apps (NOT the shared ``client`` fixture — that app lacks
+    ``jwt_auth.on_app_init`` so guards are never activated).
+
+    In Litestar 2.23, JWTAuth middleware is registered via ``on_app_init``
+    and handles JWT validation (401 for missing/invalid tokens). Per-route
+    ``guards=[]`` only need to include the admin_guard for role checks —
+    NEVER the JWTAuth instance itself (it is not callable as a guard)."""
+
+    def test_unauthenticated_users_get_401(self) -> None:
+        """A protected endpoint without a token MUST return 401.
+        The JWTAuth middleware (on_app_init) handles this — no per-route
+        guard needed."""
+        test_jwt_auth = JWTAuth[_TestUser](
+            retrieve_user_handler=_test_retrieve_user,
+            token_secret="this-is-a-32-character-minimum-secret-key!!",
+            algorithm="HS256",
+            exclude=["/health", "/schema"],
+        )
+
+        @get("/test-protected", sync_to_thread=False)
+        async def test_protected() -> dict[str, str]:
+            return {"message": "authenticated"}
+
+        app = Litestar(
+            route_handlers=[test_protected],
+            on_app_init=[test_jwt_auth.on_app_init],
+        )
+
+        with TestClient(app=app) as tc:
+            response = tc.get("/test-protected")
+            assert response.status_code == 401, response.text
+
+    def test_valid_token_accesses_protected(self) -> None:
+        """A valid JWT token MUST grant access (200) to a protected
+        endpoint without any per-route guard."""
+        secret = "this-is-a-32-character-minimum-secret-key!!"
+        test_jwt_auth = JWTAuth[_TestUser](
+            retrieve_user_handler=_test_retrieve_user,
+            token_secret=secret,
+            algorithm="HS256",
+            exclude=["/health", "/schema"],
+        )
+
+        @get("/test-protected", sync_to_thread=False)
+        async def test_protected() -> dict[str, str]:
+            return {"message": "authenticated"}
+
+        app = Litestar(
+            route_handlers=[test_protected],
+            on_app_init=[test_jwt_auth.on_app_init],
+        )
+
+        token = _make_jwt_token(
+            secret=secret, sub="user-abc", role="customer"
+        )
+
+        with TestClient(app=app) as tc:
+            response = tc.get(
+                "/test-protected",
+                headers={"Authorization": f"Bearer {token}"},
+            )
+            assert response.status_code == 200, response.text
+            assert response.json()["message"] == "authenticated"
+
+    def test_admin_guard_returns_403_for_non_admin(self) -> None:
+        """admin_guard MUST return 403 when the authenticated user is a
+        customer (non-admin). Only admin_guard goes in ``guards=[]`` —
+        JWT validation is handled by the middleware."""
+        secret = "this-is-a-32-character-admin-secret-key!!"
+        test_jwt_auth = JWTAuth[_TestUser](
+            retrieve_user_handler=_test_retrieve_user,
+            token_secret=secret,
+            algorithm="HS256",
+        )
+
+        @get(
+            "/test-admin",
+            guards=[admin_guard],
+            sync_to_thread=False,
+        )
+        async def test_admin_endpoint() -> dict[str, str]:
+            return {"message": "admin only"}
+
+        app = Litestar(
+            route_handlers=[test_admin_endpoint],
+            on_app_init=[test_jwt_auth.on_app_init],
+        )
+
+        customer_token = _make_jwt_token(
+            secret=secret, sub="customer-1", role="customer"
+        )
+
+        with TestClient(app=app) as tc:
+            response = tc.get(
+                "/test-admin",
+                headers={"Authorization": f"Bearer {customer_token}"},
+            )
+            assert response.status_code == 403, response.text
+
+    def test_admin_guard_allows_admin_role(self) -> None:
+        """admin_guard MUST allow access (200) when the authenticated
+        user has the 'admin' role."""
+        secret = "this-is-a-32-character-admin-secret-key!!"
+        test_jwt_auth = JWTAuth[_TestUser](
+            retrieve_user_handler=_test_retrieve_user,
+            token_secret=secret,
+            algorithm="HS256",
+        )
+
+        @get(
+            "/test-admin",
+            guards=[admin_guard],
+            sync_to_thread=False,
+        )
+        async def test_admin_endpoint() -> dict[str, str]:
+            return {"message": "admin only"}
+
+        app = Litestar(
+            route_handlers=[test_admin_endpoint],
+            on_app_init=[test_jwt_auth.on_app_init],
+        )
+
+        admin_token = _make_jwt_token(
+            secret=secret, sub="admin-1", role="admin"
+        )
+
+        with TestClient(app=app) as tc:
+            response = tc.get(
+                "/test-admin",
+                headers={"Authorization": f"Bearer {admin_token}"},
+            )
+            assert response.status_code == 200, response.text
+            assert response.json()["message"] == "admin only"
+
+
+# ---------------------------------------------------------------------------
+# Rate limit e2e
+# ---------------------------------------------------------------------------
+
+
+class TestRateLimit:
+    """End-to-end rate-limit tests using the full test app with middleware."""
+
+    def test_rate_limit_returns_429_on_sixth_request(self, client) -> None:
+        """The 6th request to a rate-limited endpoint within the window
+        MUST return 429 with a ``Retry-After`` header."""
+        _buckets.clear()
+        client.mock_svc.login.return_value = _make_token_response()
+
+        body = {"email": "test@example.com", "password": "password123"}
+
+        # First 5 requests succeed (200)
+        for i in range(5):
+            response = client.post("/auth/login", json=body)
+            assert response.status_code == 200, (
+                f"Request {i + 1}: expected 200, got {response.status_code}"
+            )
+
+        # 6th request is rate-limited (429)
+        response = client.post("/auth/login", json=body)
+        assert response.status_code == 429, response.text
+        assert response.headers.get("retry-after") is not None, (
+            "429 response must include Retry-After header"
+        )
+
+
+# ---------------------------------------------------------------------------
+# i18n middleware integration
+# ---------------------------------------------------------------------------
+
+
+class TestI18n:
+    """Integration tests for I18nMiddleware language detection."""
+
+    def test_query_param_overrides_header(self) -> None:
+        """``?lang=en`` overrides ``Accept-Language: sv``."""
+        app = Litestar(
+            route_handlers=[lang_echo],
+            middleware=[I18nMiddleware],
+        )
+        with TestClient(app=app) as tc:
+            response = tc.get(
+                "/lang-echo?lang=en",
+                headers={"Accept-Language": "sv"},
+            )
+            assert response.status_code == 200
+            assert response.json()["lang"] == "en"
+
+    def test_fallback_when_unsupported(self) -> None:
+        """Unsupported language (``?lang=fr``) defaults to ``"es"``."""
+        app = Litestar(
+            route_handlers=[lang_echo],
+            middleware=[I18nMiddleware],
+        )
+        with TestClient(app=app) as tc:
+            response = tc.get("/lang-echo?lang=fr")
+            assert response.status_code == 200
+            assert response.json()["lang"] == "es"
+
+    def test_accept_language_header(self) -> None:
+        """Language from ``Accept-Language: sv`` when no ``?lang=``."""
+        app = Litestar(
+            route_handlers=[lang_echo],
+            middleware=[I18nMiddleware],
+        )
+        with TestClient(app=app) as tc:
+            response = tc.get(
+                "/lang-echo",
+                headers={"Accept-Language": "sv"},
+            )
+            assert response.status_code == 200
+            assert response.json()["lang"] == "sv"
+
+    def test_default_when_nothing_provided(self) -> None:
+        """When neither ``?lang=`` nor ``Accept-Language`` is present,
+        defaults to ``"es"``."""
+        app = Litestar(
+            route_handlers=[lang_echo],
+            middleware=[I18nMiddleware],
+        )
+        with TestClient(app=app) as tc:
+            response = tc.get("/lang-echo")
+            assert response.status_code == 200
+            assert response.json()["lang"] == "es"
 
 
 # ---------------------------------------------------------------------------
