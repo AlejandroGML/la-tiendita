@@ -7,7 +7,7 @@ export interface UserResponse {
   id: string;
   email: string;
   name: string;
-  role: 'user' | 'admin';
+  role: 'customer' | 'admin';
   preferred_lang: string;
   is_verified: boolean;
   created_at: string;

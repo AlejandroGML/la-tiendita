@@ -204,7 +204,7 @@ class OrderService:
             # Build snapshot from the product relationship (already loaded)
             product: Product = item.product
             snapshot = self._build_product_snapshot(product)
-            price = cart_item.unit_price
+            price = item.unit_price
             item_total = price * item.quantity
             total += item_total
 

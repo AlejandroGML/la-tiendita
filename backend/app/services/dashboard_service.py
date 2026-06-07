@@ -40,7 +40,9 @@ class DashboardService:
             )
         )
         revenue = await session.scalar(
-            select(func.coalesce(func.sum(Order.total), 0)).select_from(Order)
+            select(func.coalesce(func.sum(Order.total), 0))
+            .select_from(Order)
+            .where(Order.status != OrderStatus.CANCELLED)
         )
 
         return DashboardStatsResponse(
