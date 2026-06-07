@@ -76,7 +76,7 @@ class ReviewController(Controller):
         self,
         product_id: UUID,
         data: CreateReviewRequest,
-        request: ASGIConnection[None, None, None],
+        request: ASGIConnection,
         service: ReviewService,
         session: AsyncSession,
     ) -> ReviewResponse:
