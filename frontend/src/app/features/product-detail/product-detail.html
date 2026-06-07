@@ -155,12 +155,13 @@
           </div>
         </div>
 
-        <!-- Add to Cart (placeholder — disabled for now) -->
+        <!-- Add to Cart -->
         <button
           mat-raised-button
           color="primary"
           class="w-full md:w-auto"
-          [disabled]="true"
+          [disabled]="addingToCart() || (product()?.stock ?? 0) === 0"
+          (click)="addToCart()"
         >
           {{ 'product.addToCart' | translate }}
         </button>

@@ -4,12 +4,14 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { ProductDetail } from './product-detail';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { ProductService } from '../../core/services/product.service';
+import { CartService } from '../../core/services/cart.service';
 import type { Product } from '../../shared/models/product.model';
 
 const mockProduct: Product = {
@@ -47,14 +49,22 @@ function createProductServiceMock() {
   };
 }
 
+function createCartServiceMock() {
+  return {
+    addItem: vi.fn().mockReturnValue(of({ items: [], subtotal: '0' })),
+  };
+}
+
 describe('ProductDetail', () => {
   let fixture: ComponentFixture<ProductDetail>;
   let component: ProductDetail;
   let productService: ReturnType<typeof createProductServiceMock>;
+  let cartService: ReturnType<typeof createCartServiceMock>;
   let translate: TranslateService;
 
   beforeEach(async () => {
     productService = createProductServiceMock();
+    cartService = createCartServiceMock();
 
     await TestBed.configureTestingModule({
       declarations: [ProductDetail, CurrencyPipe],
@@ -63,12 +73,14 @@ describe('ProductDetail', () => {
         MatCardModule,
         MatChipsModule,
         MatProgressSpinnerModule,
+        MatSnackBarModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
         { provide: ProductService, useValue: productService },
+        { provide: CartService, useValue: cartService },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -170,9 +182,64 @@ describe('ProductDetail', () => {
     expect(backLink).toBeTruthy();
   });
 
-  it('should show add to cart button as disabled', () => {
-    const button = fixture.nativeElement.querySelector('button[mat-raised-button]');
+  it('should enable add to cart button when product in stock', () => {
+    const button = fixture.nativeElement.querySelector(
+      'button[mat-raised-button]',
+    ) as HTMLButtonElement;
     expect(button).toBeTruthy();
-    expect((button as HTMLButtonElement).disabled).toBe(true);
+    expect(button.disabled).toBe(false);
+  });
+
+  it('should call addItem on button click', () => {
+    const button = fixture.nativeElement.querySelector(
+      'button[mat-raised-button]',
+    ) as HTMLButtonElement;
+    button.click();
+    fixture.detectChanges();
+
+    expect(cartService.addItem).toHaveBeenCalledWith('uuid-1', 1);
+  });
+
+  it('should disable button while addingToCart', () => {
+    component.addingToCart.set(true);
+    fixture.detectChanges();
+
+    const button = fixture.nativeElement.querySelector(
+      'button[mat-raised-button]',
+    ) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+  });
+
+  it('should disable button when stock is 0', async () => {
+    const route = TestBed.inject(ActivatedRoute);
+    const outOfStockProduct = { ...mockProduct, stock: 0 };
+    productService.getProductBySlug = vi
+      .fn()
+      .mockReturnValue(of(outOfStockProduct));
+
+    const newFixture = TestBed.createComponent(ProductDetail);
+    newFixture.detectChanges();
+    await newFixture.whenStable();
+    newFixture.detectChanges();
+
+    const button = newFixture.nativeElement.querySelector(
+      'button[mat-raised-button]',
+    ) as HTMLButtonElement;
+    expect(button.disabled).toBe(true);
+  });
+
+  it('should show error when addItem fails', () => {
+    cartService.addItem = vi
+      .fn()
+      .mockReturnValue(throwError(() => new Error('fail')));
+
+    const button = fixture.nativeElement.querySelector(
+      'button[mat-raised-button]',
+    ) as HTMLButtonElement;
+    button.click();
+    fixture.detectChanges();
+
+    expect(component.error()).toBe('catalog.error');
+    expect(component.addingToCart()).toBe(false);
   });
 });

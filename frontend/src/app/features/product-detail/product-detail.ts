@@ -1,11 +1,13 @@
 import { Component, OnDestroy, signal, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import type { Product } from '../../shared/models/product.model';
 import { ProductService } from '../../core/services/product.service';
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -18,6 +20,7 @@ export class ProductDetail implements OnDestroy {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly notFound = signal(false);
+  readonly addingToCart = signal(false);
   readonly activeImageIndex = signal(0);
 
   private sub: Subscription;
@@ -29,6 +32,9 @@ export class ProductDetail implements OnDestroy {
     private route: ActivatedRoute,
     private productService: ProductService,
     private translate: TranslateService,
+    private cartService: CartService,
+    private snackBar: MatSnackBar,
+    private router: Router,
   ) {
     this.sub = this.route.params
       .pipe(
@@ -104,6 +110,28 @@ export class ProductDetail implements OnDestroy {
 
   selectImage(index: number): void {
     this.activeImageIndex.set(index);
+  }
+
+  addToCart(): void {
+    const p = this.product();
+    if (!p || p.stock === 0 || this.addingToCart()) return;
+
+    this.addingToCart.set(true);
+    this.error.set(null);
+
+    this.cartService.addItem(p.id, 1).subscribe({
+      next: () => {
+        this.addingToCart.set(false);
+        this.snackBar
+          .open('product.addedToCart', 'cart.view', { duration: 5000 })
+          .onAction()
+          .subscribe(() => this.router.navigate(['/carrito']));
+      },
+      error: () => {
+        this.addingToCart.set(false);
+        this.error.set('catalog.error');
+      },
+    });
   }
 
   get conditionClasses(): string {
