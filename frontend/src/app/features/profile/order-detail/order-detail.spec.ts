@@ -33,7 +33,7 @@ const mockOrder: Order = {
         product_id: 'prod-uuid-1',
       },
       quantity: 2,
-      price: 29990,
+      price: '29990',
     },
   ],
   created_at: '2026-06-06T00:00:00Z',

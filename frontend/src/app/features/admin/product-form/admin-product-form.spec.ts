@@ -23,6 +23,7 @@ const mockCategories: Category[] = [
   {
     id: 1,
     slug: 'pantalones',
+    image_url: null,
     translations: [
       { lang: 'es', name: 'Pantalones' },
       { lang: 'en', name: 'Pants' },
@@ -31,6 +32,7 @@ const mockCategories: Category[] = [
   {
     id: 2,
     slug: 'chaquetas',
+    image_url: null,
     translations: [
       { lang: 'es', name: 'Chaquetas' },
       { lang: 'en', name: 'Jackets' },

@@ -69,7 +69,7 @@ describe('AuthService', () => {
   });
 
   it('should return true from isAdmin when user role is admin', () => {
-    const user = { id: 1, email: 'a@b.com', name: 'A', role: 'admin' as const, preferred_lang: 'en' };
+    const user = { id: '1', email: 'a@b.com', name: 'A', role: 'admin' as const, preferred_lang: 'en', is_verified: true, created_at: '2026-01-01T00:00:00Z' };
     store.set('user', JSON.stringify(user));
     expect(service.isAdmin()).toBe(true);
   });
@@ -78,7 +78,8 @@ describe('AuthService', () => {
     const mockResponse: TokenResponse = {
       access_token: 'at',
       refresh_token: 'rt',
-      user: { id: 1, email: 'a@b.com', name: 'A', role: 'user', preferred_lang: 'en' },
+      token_type: 'bearer',
+      user: { id: '1', email: 'a@b.com', name: 'A', role: 'user', preferred_lang: 'en', is_verified: false, created_at: '2026-01-01T00:00:00Z' },
     };
 
     service.login('a@b.com', 'password').subscribe((res) => {
@@ -99,7 +100,8 @@ describe('AuthService', () => {
     const mockResponse: TokenResponse = {
       access_token: 'at2',
       refresh_token: 'rt2',
-      user: { id: 2, email: 'b@c.com', name: 'B', role: 'user', preferred_lang: 'es' },
+      token_type: 'bearer',
+      user: { id: '2', email: 'b@c.com', name: 'B', role: 'user', preferred_lang: 'es', is_verified: true, created_at: '2026-01-01T00:00:00Z' },
     };
 
     service.register({ name: 'B', email: 'b@c.com', password: 'pwd' }).subscribe((res) => {
@@ -117,7 +119,8 @@ describe('AuthService', () => {
     const mockResponse: TokenResponse = {
       access_token: 'new-at',
       refresh_token: 'new-rt',
-      user: { id: 1, email: 'a@b.com', name: 'A', role: 'user', preferred_lang: 'en' },
+      token_type: 'bearer',
+      user: { id: '1', email: 'a@b.com', name: 'A', role: 'user', preferred_lang: 'en', is_verified: false, created_at: '2026-01-01T00:00:00Z' },
     };
 
     service.refresh().subscribe((res) => {

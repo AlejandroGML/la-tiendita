@@ -24,7 +24,7 @@ const mockProducts: Product[] = [
   {
     id: 'uuid-1',
     slug: 'jeans-levis',
-    price: 29990,
+    price: '29990',
     category_id: 1,
     size: 'M',
     brand: 'Levis',
@@ -51,7 +51,7 @@ const mockProducts: Product[] = [
   {
     id: 'uuid-2',
     slug: 'chaqueta-north',
-    price: 49990,
+    price: '49990',
     category_id: 2,
     size: 'L',
     brand: 'North Face',

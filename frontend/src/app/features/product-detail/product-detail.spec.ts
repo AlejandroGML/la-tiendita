@@ -15,7 +15,7 @@ import type { Product } from '../../shared/models/product.model';
 const mockProduct: Product = {
   id: 'uuid-1',
   slug: 'jeans-levis',
-  price: 29990,
+  price: '29990',
   category_id: 1,
   size: 'M',
   brand: 'Levis',

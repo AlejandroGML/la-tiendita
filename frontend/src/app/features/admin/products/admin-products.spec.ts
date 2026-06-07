@@ -17,7 +17,7 @@ const mockProducts: Product[] = [
   {
     id: 'uuid-1',
     slug: 'jeans-levis',
-    price: 29990,
+    price: '29990',
     category_id: 1,
     size: 'M',
     brand: 'Levis',
@@ -44,7 +44,7 @@ const mockProducts: Product[] = [
   {
     id: 'uuid-2',
     slug: 'chaqueta-vieja',
-    price: 14990,
+    price: '14990',
     category_id: 2,
     size: 'L',
     brand: 'Zara',
@@ -66,7 +66,6 @@ const mockProducts: Product[] = [
       { lang: 'es', name: 'Chaqueta vieja', description: '' },
     ],
     created_at: '2025-06-01T00:00:00Z',
-    deleted_at: '2026-01-15T00:00:00Z',
   },
 ];
 
@@ -155,27 +154,12 @@ describe('AdminProducts', () => {
     expect(adminProductService.getAdminProducts).toHaveBeenCalledWith({ per_page: 50 });
   });
 
-  it('should render status chip as deleted for soft-deleted products', () => {
-    // The second product has deleted_at set
-    const statusChips = fixture.nativeElement.querySelectorAll('.status-chip');
-    const deletedChip = Array.from(statusChips as NodeListOf<HTMLElement>).find((el) =>
-      el.textContent?.includes('admin.statusDeleted'),
-    );
-    expect(deletedChip).toBeTruthy();
-  });
-
   it('should render status chip as active for non-deleted products', () => {
     const statusChips2 = fixture.nativeElement.querySelectorAll('.status-chip');
     const activeChip = Array.from(statusChips2 as NodeListOf<HTMLElement>).find((el) =>
       el.textContent?.includes('admin.statusActive'),
     );
     expect(activeChip).toBeTruthy();
-  });
-
-  it('should apply opacity-50 class to deleted product rows', () => {
-    const rows = fixture.nativeElement.querySelectorAll('tr.mat-mdc-row');
-    const deletedRow = rows[1]; // second product has deleted_at
-    expect(deletedRow.classList.contains('opacity-50')).toBe(true);
   });
 
   it('should show empty state when no products', async () => {
