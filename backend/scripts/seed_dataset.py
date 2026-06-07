@@ -18,6 +18,7 @@ import ast
 import asyncio
 import logging
 import sys
+import uuid
 from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
@@ -26,6 +27,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.db.engine import async_session
 from app.models.category import Category, CategoryTranslation
@@ -126,8 +128,10 @@ async def create_categories(session: AsyncSession, types: set[str]) -> dict[str,
 
     Returns a mapping of type_name → category_id.
     """
-    # Load existing categories
-    result = await session.execute(select(Category))
+    # Load existing categories with eager-loaded translations
+    result = await session.execute(
+        select(Category).options(selectinload(Category.translations))
+    )
     existing = {ct.name: cat for cat in result.scalars() for ct in cat.translations if ct.language_code == "en"}
 
     mapping: dict[str, int] = {}
@@ -162,21 +166,32 @@ async def seed(
     """Download the dataset and insert rows into the products table."""
     from datasets import load_dataset
 
-    logger.info("Loading dataset fnauman/fashion-second-hand-front-only-rgb …")
-    ds = load_dataset("fnauman/fashion-second-hand-front-only-rgb", split="train")
-    total = len(ds)
-    if limit:
-        ds = ds.select(range(min(limit, total)))
-        total = min(limit, total)
+    logger.info("Loading dataset fnauman/fashion-second-hand-front-only-rgb (streaming) …")
+    ds = load_dataset(
+        "fnauman/fashion-second-hand-front-only-rgb",
+        split="train",
+        streaming=True,
+    )
 
-    logger.info("Dataset loaded: %d rows", total)
+    # Known types from the dataset (avoids full iteration for category creation)
+    KNOWN_TYPES: set[str] = {
+        "Top", "T-shirt", "Dress", "Sweater", "Shirt", "Blouse",
+        "Blazer", "Tank Top", "Skirt", "Pants", "Jeans", "Jacket",
+        "Coat", "Vest", "Shorts", "Jumpsuit", "Playsuit", "Cardigan",
+        "Tunic", "Poncho", "Scarf", "Hat", "Belt", "Bag", "Shoes",
+        "Boots", "Sandals", "Sneakers", "Heels", "Accessories",
+    }
+    all_types: set[str] = KNOWN_TYPES
 
-    # Collect unique types for category creation
-    all_types: set[str] = set()
-    for row in ds:
-        t = row.get("type")
-        if t:
-            all_types.add(str(t))
+    # Stream first N rows
+    rows: list[dict] = []
+    for i, row in enumerate(ds):
+        rows.append(row)
+        if limit and len(rows) >= limit:
+            break
+
+    total = len(rows)
+    logger.info("Streamed %d rows", total)
 
     async with async_session() as session:
         # Phase 1 — create categories
@@ -184,13 +199,12 @@ async def seed(
         cat_map = await create_categories(session, all_types)
         await session.commit()
 
-        # Phase 2 — insert products in batches
+        # Phase 2 — insert products
         svc = ProductService()
         inserted = 0
         errors = 0
-        batch: list[Product] = []
 
-        for i, row in enumerate(ds):
+        for i, row in enumerate(rows):
             try:
                 type_name = str(row.get("type") or "Unknown")
                 brand = str(row.get("brand") or "Unknown Brand")[:100]
@@ -225,10 +239,12 @@ async def seed(
                 name_for_slug = f"{brand} {type_name}"
                 slug = svc.slugify(name_for_slug)
 
-                # Ensure slug uniqueness within the batch
-                existing_slug_count = sum(1 for p in batch if p.slug and p.slug.startswith(slug))
-                if existing_slug_count > 0:
-                    slug = f"{slug}-{existing_slug_count + 1}"
+                # Ensure slug uniqueness
+                existing = await session.execute(
+                    select(Product.id).where(Product.slug == slug)
+                )
+                if existing.scalar_one_or_none() is not None:
+                    slug = f"{slug}-{uuid.uuid4().hex[:6]}"
 
                 product = Product(
                     slug=slug,
@@ -249,14 +265,23 @@ async def seed(
                     source_dataset="fnauman/fashion-second-hand-front-only-rgb",
                     stock=1,
                 )
-                batch.append(product)
+                session.add(product)
+                await session.flush()
 
-                if len(batch) >= batch_size:
-                    session.add_all(batch)
+                # Add English translation from dataset text
+                if text:
+                    session.add(ProductTranslation(
+                        product_id=product.id,
+                        language_code="en",
+                        name=f"{brand} {type_name}",
+                        description=text[:2000],
+                    ))
                     await session.flush()
-                    inserted += len(batch)
+
+                inserted += 1
+                if inserted % 20 == 0:
+                    await session.commit()
                     logger.info("Inserted %d/%d products …", inserted, total)
-                    batch = []
 
             except Exception:
                 errors += 1
@@ -265,12 +290,7 @@ async def seed(
                     logger.error("Too many errors, aborting.")
                     raise
 
-        # Flush remaining
-        if batch:
-            session.add_all(batch)
-            await session.flush()
-            inserted += len(batch)
-
+        # Final commit
         await session.commit()
         logger.info("Done! Inserted %d products (%d errors).", inserted, errors)
 
