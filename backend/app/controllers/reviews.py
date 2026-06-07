@@ -10,7 +10,7 @@ from litestar import Controller, get, post
 from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import (
-    ConflictException,
+    HTTPException,
     NotFoundException,
     ValidationException,
 )
@@ -89,5 +89,5 @@ class ReviewController(Controller):
         except ValueError as exc:
             detail = str(exc)
             if "already reviewed" in detail:
-                raise ConflictException(detail=detail) from exc
+                raise HTTPException(detail=detail, status_code=409) from exc
             raise ValidationException(detail=detail) from exc
