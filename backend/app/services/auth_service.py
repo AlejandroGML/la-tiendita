@@ -16,6 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, settings
+from app.models.password_reset import PasswordResetToken
 from app.models.refresh_token import RefreshToken
 from app.models.user import User, UserRole
 from app.schemas.auth import (
@@ -183,29 +184,32 @@ class AuthService:
     async def forgot_password(
         self, session: AsyncSession, email: str
     ) -> None:
-        """Generate a reset token for the given email (if it exists) and
-        send a password-reset email via the email utility.
-
-        The user is looked up to determine their preferred language and name
-        for template rendering. If the email is not registered the method
-        returns silently — the caller always receives a 202 to prevent
-        user enumeration.
-
-        The reset token is ephemeral (not stored in the DB); a full
-        implementation would persist it with an expiry and validate it
-        in ``reset_password()``.
-        """
+        """Generate a reset token, persist its bcrypt hash, and send the
+        raw token via email.  Returns silently if the email is not
+        registered (prevents user enumeration)."""
         result = await session.execute(
             select(User).where(User.email == email)
         )
         user = result.scalar_one_or_none()
 
         if user is None:
-            # Return silently — don't reveal whether the email exists
             return
 
         reset_token = secrets.token_urlsafe(32)
-        reset_link = f"http://localhost:4200/reset-password?token={reset_token}"
+        token_hash = self._hash_token(reset_token)
+
+        expiry = datetime.now(timezone.utc) + timedelta(hours=1)
+        prt = PasswordResetToken(
+            user_id=user.id,
+            token_hash=token_hash,
+            expires_at=expiry,
+        )
+        session.add(prt)
+        await session.flush()
+
+        reset_link = (
+            f"http://localhost:4200/reset-password?token={reset_token}"
+        )
 
         from app.utils.email import render_template, send_email
 
@@ -225,8 +229,40 @@ class AuthService:
     async def reset_password(
         self, session: AsyncSession, token: str, new_password: str
     ) -> None:
-        """MVP placeholder — password reset via email token."""
-        raise NotImplementedError("Password reset not yet implemented")
+        """Verify the reset token, bcrypt-hash the new password, mark the
+        token as used, and persist the new password hash.
+
+        Raises ``ValueError`` if the token is expired, already used, or
+        does not match any stored hash.
+        """
+        # Find all valid (unused, not expired) tokens and try to match
+        result = await session.execute(
+            select(PasswordResetToken).where(
+                PasswordResetToken.used.is_(False),
+                PasswordResetToken.expires_at > datetime.now(timezone.utc),
+            )
+        )
+        raw_bytes = token.encode("utf-8")[:72]
+        matched: PasswordResetToken | None = None
+        for prt in result.scalars().all():
+            if bcrypt.checkpw(raw_bytes, prt.token_hash.encode()):
+                matched = prt
+                break
+
+        if matched is None:
+            raise ValueError("invalid or expired reset token")
+
+        # Hash the new password and update the user
+        new_hash = self._hash_password(new_password)
+        await session.execute(
+            __import__("sqlalchemy").update(User)
+            .where(User.id == matched.user_id)
+            .values(password_hash=new_hash)
+        )
+
+        # Mark token used (one-time use)
+        matched.used = True
+        await session.flush()
 
     async def oauth_callback(
         self, session: AsyncSession, code: str
