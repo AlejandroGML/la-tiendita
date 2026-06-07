@@ -99,6 +99,60 @@
               {{ stockLabel | translate }}
             </span>
           </div>
+
+          <!-- Condition Details -->
+          <div *ngIf="p.condition_rating || p.condition_details" class="pt-2 border-t border-gray-100">
+            <span class="font-semibold text-gray-700 text-sm block mb-2">{{ 'product.conditionDetails' | translate }}</span>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.condition_rating">
+              <span class="text-gray-500 min-w-16">{{ 'product.rating' | translate }}:</span>
+              <span class="text-yellow-600">{{ '★'.repeat(p.condition_rating) }}{{ '☆'.repeat(5 - p.condition_rating) }}</span>
+            </div>
+            <div *ngIf="p.condition_details?.pilling" class="flex items-center gap-2 text-sm">
+              <span class="text-gray-500 min-w-16">{{ 'product.pilling' | translate }}:</span>
+              <span class="text-yellow-600">{{ '★'.repeat(p.condition_details.pilling) }}</span>
+            </div>
+            <div *ngIf="p.condition_details?.damage" class="flex items-center gap-2 text-sm">
+              <span class="text-gray-500 min-w-16">{{ 'product.damage' | translate }}:</span>
+              <span class="text-red-600">{{ p.condition_details.damage }}</span>
+            </div>
+          </div>
+
+          <!-- Product Details -->
+          <div *ngIf="p.material || p.colors || p.pattern || p.cut || p.trend || p.season || p.target_gender || p.usage" class="pt-2 border-t border-gray-100">
+            <span class="font-semibold text-gray-700 text-sm block mb-2">{{ 'product.details' | translate }}</span>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.material">
+              <span class="text-gray-500 min-w-16">{{ 'product.material' | translate }}:</span>
+              <span class="text-gray-600">{{ p.material }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.colors?.length">
+              <span class="text-gray-500 min-w-16">{{ 'product.colors' | translate }}:</span>
+              <span class="text-gray-600">{{ p.colors.join(', ') }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.pattern">
+              <span class="text-gray-500 min-w-16">{{ 'product.pattern' | translate }}:</span>
+              <span class="text-gray-600">{{ p.pattern }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.cut?.length">
+              <span class="text-gray-500 min-w-16">{{ 'product.cut' | translate }}:</span>
+              <span class="text-gray-600">{{ p.cut.join(', ') }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.trend">
+              <span class="text-gray-500 min-w-16">{{ 'product.trend' | translate }}:</span>
+              <span class="text-gray-600">{{ p.trend }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.season">
+              <span class="text-gray-500 min-w-16">{{ 'product.season' | translate }}:</span>
+              <span class="text-gray-600">{{ p.season }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.target_gender">
+              <span class="text-gray-500 min-w-16">{{ 'product.gender' | translate }}:</span>
+              <span class="text-gray-600">{{ p.target_gender }}</span>
+            </div>
+            <div class="flex items-center gap-2 text-sm" *ngIf="p.usage">
+              <span class="text-gray-500 min-w-16">{{ 'product.usage' | translate }}:</span>
+              <span class="text-gray-600">{{ p.usage }}</span>
+            </div>
+          </div>
         </div>
 
         <!-- Add to Cart (placeholder — disabled for now) -->

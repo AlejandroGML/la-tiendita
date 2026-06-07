@@ -14,7 +14,20 @@
     "stock": "Stock",
     "addToCart": "Add to cart",
     "inStock": "In Stock",
-    "outOfStock": "Out of Stock"
+    "outOfStock": "Out of Stock",
+    "details": "Details",
+    "conditionDetails": "Condition",
+    "rating": "Rating",
+    "pilling": "Pilling",
+    "damage": "Damage",
+    "material": "Material",
+    "colors": "Colors",
+    "pattern": "Pattern",
+    "cut": "Cut",
+    "trend": "Trend",
+    "season": "Season",
+    "gender": "Gender",
+    "usage": "Usage"
   },
   "catalog": {
     "title": "Catalog",

@@ -14,7 +14,20 @@
     "stock": "Stock",
     "addToCart": "Agregar al carrito",
     "inStock": "En Stock",
-    "outOfStock": "Agotado"
+    "outOfStock": "Agotado",
+    "details": "Detalles",
+    "conditionDetails": "Estado",
+    "rating": "Valoración",
+    "pilling": "Bolitas",
+    "damage": "Daños",
+    "material": "Material",
+    "colors": "Colores",
+    "pattern": "Patrón",
+    "cut": "Corte",
+    "trend": "Tendencia",
+    "season": "Temporada",
+    "gender": "Género",
+    "usage": "Uso"
   },
   "catalog": {
     "title": "Catálogo",

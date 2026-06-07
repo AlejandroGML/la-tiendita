@@ -14,7 +14,20 @@
     "stock": "Lager",
     "addToCart": "Lägg i varukorg",
     "inStock": "I lager",
-    "outOfStock": "Slut i lager"
+    "outOfStock": "Slut i lager",
+    "details": "Detaljer",
+    "conditionDetails": "Skick",
+    "rating": "Betyg",
+    "pilling": "Noppor",
+    "damage": "Skador",
+    "material": "Material",
+    "colors": "Färger",
+    "pattern": "Mönster",
+    "cut": "Skärning",
+    "trend": "Trend",
+    "season": "Säsong",
+    "gender": "Kön",
+    "usage": "Användning"
   },
   "catalog": {
     "title": "Katalog",
