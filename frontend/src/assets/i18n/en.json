@@ -13,6 +13,7 @@
     "brand": "Brand",
     "stock": "Stock",
     "addToCart": "Add to cart",
+    "addedToCart": "Added to cart",
     "inStock": "In Stock",
     "outOfStock": "Out of Stock",
     "details": "Details",
@@ -98,6 +99,8 @@
     "allOrders": "All",
     "noOrders": "No orders",
     "ordersError": "Error loading orders",
+    "productsError": "Error loading products",
+    "promotionsError": "Error loading promotions",
     "statusUpdated": "Status updated",
     "statusUpdateError": "Error updating status",
     "categories": "Categories",
@@ -127,7 +130,8 @@
     "empty": "Your cart is empty",
     "continueShopping": "Continue shopping",
     "retry": "Retry",
-    "error": "Error loading cart"
+    "error": "Error loading cart",
+    "view": "View cart"
   },
   "checkout": {
     "title": "Checkout",
@@ -145,7 +149,9 @@
     "total": "Total",
     "confirm": "Confirm Order",
     "error": "Error processing order",
-    "stockError": "Insufficient stock for some products"
+    "stockError": "Insufficient stock for some products",
+    "orderPlaced": "Order placed successfully",
+    "viewOrder": "View order"
   },
   "reviews": {
     "title": "Reviews",

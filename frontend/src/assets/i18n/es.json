@@ -13,6 +13,7 @@
     "brand": "Marca",
     "stock": "Stock",
     "addToCart": "Agregar al carrito",
+    "addedToCart": "Agregado al carrito",
     "inStock": "En Stock",
     "outOfStock": "Agotado",
     "details": "Detalles",
@@ -98,6 +99,8 @@
     "allOrders": "Todas",
     "noOrders": "No hay órdenes",
     "ordersError": "Error al cargar órdenes",
+    "productsError": "Error al cargar productos",
+    "promotionsError": "Error al cargar promociones",
     "statusUpdated": "Estado actualizado",
     "statusUpdateError": "Error al actualizar estado",
     "categories": "Categorías",
@@ -127,7 +130,8 @@
     "empty": "Tu carrito está vacío",
     "continueShopping": "Seguir comprando",
     "retry": "Reintentar",
-    "error": "Error al cargar el carrito"
+    "error": "Error al cargar el carrito",
+    "view": "Ver carrito"
   },
   "checkout": {
     "title": "Finalizar Compra",
@@ -145,7 +149,9 @@
     "total": "Total",
     "confirm": "Confirmar Pedido",
     "error": "Error al procesar el pedido",
-    "stockError": "Stock insuficiente para algunos productos"
+    "stockError": "Stock insuficiente para algunos productos",
+    "orderPlaced": "Pedido realizado con éxito",
+    "viewOrder": "Ver pedido"
   },
   "reviews": {
     "title": "Reseñas",

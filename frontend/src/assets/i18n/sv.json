@@ -13,6 +13,7 @@
     "brand": "Märke",
     "stock": "Lager",
     "addToCart": "Lägg i varukorg",
+    "addedToCart": "Tillagd i varukorgen",
     "inStock": "I lager",
     "outOfStock": "Slut i lager",
     "details": "Detaljer",
@@ -98,6 +99,8 @@
     "allOrders": "Alla",
     "noOrders": "Inga beställningar",
     "ordersError": "Fel vid laddning av beställningar",
+    "productsError": "Fel vid laddning av produkter",
+    "promotionsError": "Fel vid laddning av kampanjer",
     "statusUpdated": "Status uppdaterad",
     "statusUpdateError": "Fel vid uppdatering av status",
     "categories": "Kategorier",
@@ -127,7 +130,8 @@
     "empty": "Din varukorg är tom",
     "continueShopping": "Fortsätt handla",
     "retry": "Försök igen",
-    "error": "Fel vid laddning av varukorg"
+    "error": "Fel vid laddning av varukorg",
+    "view": "Visa varukorg"
   },
   "checkout": {
     "title": "Kassa",
@@ -145,7 +149,9 @@
     "total": "Totalt",
     "confirm": "Bekräfta beställning",
     "error": "Fel vid behandling av beställning",
-    "stockError": "Otillräckligt lager för vissa produkter"
+    "stockError": "Otillräckligt lager för vissa produkter",
+    "orderPlaced": "Beställning genomförd",
+    "viewOrder": "Visa beställning"
   },
   "reviews": {
     "title": "Recensioner",
