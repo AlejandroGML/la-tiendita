@@ -1,3 +1,7 @@
 .product-card {
   transition: box-shadow 0.2s ease;
+
+  img[mat-card-image] {
+    aspect-ratio: 3 / 4;
+  }
 }
