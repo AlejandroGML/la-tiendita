@@ -41,6 +41,8 @@ jwt_auth = JWTAuth[User](
         "/auth/login",
         "/auth/forgot-password",
         "/auth/reset-password",
+        "/auth/refresh",
+        "/auth/logout",
         "/auth/oauth/google",
         "/auth/oauth/google/callback",
     ],

@@ -192,7 +192,10 @@ class AdminController(Controller):
                 new_status=data.status,
             )
         except InvalidTransitionError as exc:
-            raise ValidationException(detail=str(exc)) from exc
+            detail = str(exc)
+            if "already been transitioned" in detail:
+                raise HTTPException(detail=detail, status_code=409) from exc
+            raise ValidationException(detail=detail) from exc
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc
 

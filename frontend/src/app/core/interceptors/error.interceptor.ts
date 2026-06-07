@@ -4,7 +4,13 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import { catchError, switchMap, throwError } from 'rxjs';
+import {
+  type Observable,
+  catchError,
+  share,
+  switchMap,
+  throwError,
+} from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 /**
@@ -13,6 +19,8 @@ import { AuthService } from '../services/auth.service';
  * new access token.  If refresh fails, stored tokens are cleared
  * and the user is redirected to `/login`.
  */
+let refreshInProgress: Observable<unknown> | null = null;
+
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -32,8 +40,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
-      return auth.refresh().pipe(
+      if (!refreshInProgress) {
+        refreshInProgress = auth.refresh().pipe(share());
+      }
+
+      return refreshInProgress.pipe(
         switchMap(() => {
+          refreshInProgress = null;
           const newToken = auth.getAccessToken();
           const retryReq = req.clone({
             setHeaders: { Authorization: `Bearer ${newToken}` },
@@ -41,6 +54,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           return next(retryReq);
         }),
         catchError((refreshError: unknown) => {
+          refreshInProgress = null;
           auth.clearTokens();
           router.navigate(['/login']);
           return throwError(() => refreshError);

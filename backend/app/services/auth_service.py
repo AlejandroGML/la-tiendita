@@ -4,6 +4,7 @@ Async methods accept SQLAlchemy AsyncSession injection at call time
 via Litestar DI (`Provide`). The service receives settings at construction.
 """
 
+import asyncio
 import logging
 import secrets
 import uuid
@@ -130,7 +131,7 @@ class AuthService:
             select(RefreshToken).where(
                 RefreshToken.user_id == user_id,
                 RefreshToken.expires_at > datetime.now(timezone.utc),
-            )
+            ).with_for_update()
         )
         stored = None
         raw_bytes = raw.encode("utf-8")[:72]
@@ -214,7 +215,8 @@ class AuthService:
             reset_link=reset_link,
             lang=user.preferred_lang.value,
         )
-        send_email(
+        await asyncio.to_thread(
+            send_email,
             to=user.email,
             subject="Password Reset — La Tiendita",
             html_body=html_body,
@@ -223,13 +225,8 @@ class AuthService:
     async def reset_password(
         self, session: AsyncSession, token: str, new_password: str
     ) -> None:
-        """MVP: accept a console-logged reset token and update the user's
-        password. In production this would validate against a reset_tokens
-        table and use time-limited tokens."""
-        # For MVP, the token doesn't map to anything persistent.
-        # In a real implementation, we'd look up a reset_tokens table.
-        logger.info("Reset password with token: %s", token)
-        return
+        """MVP placeholder — password reset via email token."""
+        raise NotImplementedError("Password reset not yet implemented")
 
     async def oauth_callback(
         self, session: AsyncSession, code: str

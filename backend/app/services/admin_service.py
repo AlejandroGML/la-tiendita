@@ -318,13 +318,18 @@ class AdminService:
                 f"from '{current.value}' to '{target.value}'"
             )
 
-        # Atomic UPDATE
+        # Atomic UPDATE — include current status to prevent TOCTOU races
         stmt = (
             update(Order)
             .where(Order.id == order_id)
+            .where(Order.status == current)
             .values(status=target)
         )
-        await session.execute(stmt)
+        result = await session.execute(stmt)
+        if result.rowcount == 0:
+            raise InvalidTransitionError(
+                f"order {order_id} has already been transitioned by another admin"
+            )
         await session.flush()
 
         # Reload to get fresh state

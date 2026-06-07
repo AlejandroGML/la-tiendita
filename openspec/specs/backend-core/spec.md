@@ -51,7 +51,7 @@ The system MUST provide a `pyproject.toml` declaring dependencies: `litestar`, `
 
 ### Requirement: pydantic-settings Configuration
 
-`app/config.py` MUST define a `Settings` class (pydantic-settings `BaseSettings`) loading from `.env`. Fields MUST include: `DATABASE_URL` (async postgresql+asyncpg), `DEBUG` (bool, default false), `SECRET_KEY` (str), `CORS_ORIGINS` (list[str]), `JWT_ALGORITHM` (str, default "HS256"), `ACCESS_TOKEN_EXPIRE_MINUTES` (int, default 15), `REFRESH_TOKEN_EXPIRE_DAYS` (int, default 7), `GOOGLE_CLIENT_ID` (str, default ""), `GOOGLE_CLIENT_SECRET` (str, default ""), `RATE_LIMIT_REQUESTS` (int, default 5), `RATE_LIMIT_WINDOW` (int, default 60), `UPLOAD_DIR` (str, default "uploads"), and `MAX_IMAGE_SIZE` (int, default 5242880).
+`app/config.py` MUST define a `Settings` class (pydantic-settings `BaseSettings`) loading from `.env`. Fields MUST include: `DATABASE_URL` (async postgresql+asyncpg), `DEBUG` (bool, default false), `SECRET_KEY` (str), `CORS_ORIGINS` (list[str]), `JWT_ALGORITHM` (str, default "HS256"), `ACCESS_TOKEN_EXPIRE_MINUTES` (int, default 15), `REFRESH_TOKEN_EXPIRE_DAYS` (int, default 7), `GOOGLE_CLIENT_ID` (str, default ""), `GOOGLE_CLIENT_SECRET` (str, default ""), `RATE_LIMIT_REQUESTS` (int, default 5), `RATE_LIMIT_WINDOW` (int, default 60), `UPLOAD_DIR` (str, default "uploads"), `MAX_IMAGE_SIZE` (int, default 5242880), `EMAIL_MODE` (str, default "log", values: log|smtp), `SMTP_HOST` (str, default ""), `SMTP_PORT` (int, default 587), `SMTP_USER` (str, default ""), `SMTP_PASSWORD` (str, default ""), and `EMAIL_FROM` (str, default "noreply@latiendita.local").
 
 #### Scenario: Missing required variable raises error
 
@@ -89,6 +89,12 @@ The system MUST provide a `pyproject.toml` declaring dependencies: `litestar`, `
 - WHEN `Settings()` is instantiated
 - THEN `UPLOAD_DIR` defaults to "uploads", `MAX_IMAGE_SIZE` defaults to 5242880 (5 MB)
 
+#### Scenario: Email mode defaults to log
+
+- GIVEN `.env` omits `EMAIL_MODE`
+- WHEN `Settings()` is instantiated
+- THEN `EMAIL_MODE` defaults to `"log"` and SMTP fields default to empty
+
 ### Requirement: Async SQLAlchemy Engine and Base
 
 `app/db/engine.py` MUST create an `AsyncEngine` via `create_async_engine` and export an `async_sessionmaker`. `app/db/base.py` MUST declare a `DeclarativeBase` class for model inheritance.
@@ -119,7 +125,7 @@ The system MUST run `alembic init migrations --async` to create the migrations d
 
 ### Requirement: Controller, Guard, and Middleware Registration
 
-`app/main.py` MUST register all application controllers, guards, and middleware during Litestar app creation. This SHALL include auth controllers, product controllers (`ProductController`, `UploadController`), cart controller (`CartController`), order controller (`OrderController`), JWT/admin guards, and rate-limiting/i18n middleware.
+`app/main.py` MUST register all application controllers, guards, and middleware during Litestar app creation. This SHALL include auth controllers, product controllers (`ProductController`, `UploadController`), cart controller (`CartController`), order controller (`OrderController`), review controller (`ReviewController`), wishlist controller (`WishlistController`), promotion controllers (`PromotionController`, `AdminPromotionController`), admin controllers (`AdminProductController`, `AdminCategoryController`, `AdminController`), JWT/admin guards, and rate-limiting/i18n middleware.
 
 #### Scenario: Auth endpoints appear in OpenAPI
 
@@ -139,9 +145,33 @@ The system MUST run `alembic init migrations --async` to create the migrations d
 - WHEN the backend starts and `/schema` is accessed
 - THEN `/api/cart`, `/api/checkout`, `/api/orders`, `/api/orders/{id}` appear in the API documentation
 
+#### Scenario: Admin dashboard endpoints appear in OpenAPI
+
+- GIVEN `AdminController` is registered in `main.py`
+- WHEN the backend starts and `/schema` is accessed
+- THEN `/api/admin/dashboard`, `/api/admin/users`, `/api/admin/users/{id}/role`, `/api/admin/orders`, `/api/admin/orders/{id}/status` appear in the API documentation
+
+#### Scenario: Review and wishlist endpoints appear in OpenAPI
+
+- GIVEN `ReviewController` and `WishlistController` are registered in `main.py`
+- WHEN the backend starts and `/schema` is accessed
+- THEN `POST /api/products/{id}/reviews`, `GET /api/products/{slug}/reviews`, `GET /api/wishlist`, `POST /api/wishlist/{product_id}`, `DELETE /api/wishlist/{product_id}` appear in the API documentation
+
+#### Scenario: Promotion endpoints appear in OpenAPI
+
+- GIVEN `PromotionController` and `AdminPromotionController` are registered in `main.py`
+- WHEN the backend starts and `/schema` is accessed
+- THEN `GET /api/promotions` and admin CRUD under `/api/admin/promotions` appear in the API documentation
+
+#### Scenario: Email utility importable
+
+- GIVEN `app/utils/email.py` exists with `send_email()` function
+- WHEN `from app.utils.email import send_email` is executed
+- THEN the import succeeds without errors
+
 ### Requirement: Model Discovery for Autogenerate
 
-`migrations/env.py` MUST import all SQLAlchemy model modules so `Base.metadata` includes every table when `alembic revision --autogenerate` runs. This SHALL include `app.models.product`, `app.models.category`, `app.models.cart`, and `app.models.order` modules.
+`migrations/env.py` MUST import all SQLAlchemy model modules so `Base.metadata` includes every table when `alembic revision --autogenerate` runs. This SHALL include `app.models.product`, `app.models.category`, `app.models.cart`, `app.models.order`, `app.models.review`, `app.models.wishlist`, and `app.models.promotion` modules.
 
 #### Scenario: Autogenerate detects auth models
 
@@ -162,3 +192,10 @@ The system MUST run `alembic init migrations --async` to create the migrations d
 - AND `env.py` imports `app.models.cart` and `app.models.order`
 - WHEN `alembic revision --autogenerate -m "add cart and order tables"` is executed
 - THEN the generated migration includes `CREATE TABLE` for `cart_items`, `orders`, and `order_items`
+
+#### Scenario: Autogenerate detects review, wishlist, and promotion tables
+
+- GIVEN `Review`, `Wishlist`, `Promotion`, `PromotionTranslation` models are defined
+- AND `env.py` imports `app.models.review`, `app.models.wishlist`, `app.models.promotion`
+- WHEN `alembic revision --autogenerate` runs
+- THEN migration includes `CREATE TABLE` for `reviews`, `wishlist`, `promotions`, `promotion_translations`

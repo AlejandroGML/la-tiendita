@@ -278,7 +278,8 @@ class ProductService:
 
         # Full-text search on translations (name OR description)
         if filters.q:
-            search_term = f"%{filters.q}%"
+            escaped = filters.q.replace("%", r"\%").replace("_", r"\_")
+            search_term = f"%{escaped}%"
             stmt = stmt.join(
                 ProductTranslation,
                 and_(
@@ -288,8 +289,8 @@ class ProductService:
                 isouter=True,
             ).where(
                 or_(
-                    ProductTranslation.name.ilike(search_term),
-                    ProductTranslation.description.ilike(search_term),
+                    ProductTranslation.name.ilike(search_term, escape="\\"),
+                    ProductTranslation.description.ilike(search_term, escape="\\"),
                 )
             )
 

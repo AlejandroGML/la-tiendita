@@ -69,8 +69,8 @@ class CartService:
         else:
             # Fetch current product price
             product = await session.get(Product, data.product_id)
-            if product is None:
-                raise ValueError(f"Product {data.product_id} not found")
+            if product is None or product.deleted_at is not None:
+                raise ValueError("product not available")
 
             cart_item = CartItem(
                 user_id=user_id,

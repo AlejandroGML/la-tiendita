@@ -6,7 +6,7 @@ Request bodies are parsed from JSON automatically (no ``Dependency()`` needed).
 
 from litestar import Controller, get, post
 from litestar.di import Provide
-from litestar.exceptions import NotAuthorizedException
+from litestar.exceptions import HTTPException, NotAuthorizedException
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -124,10 +124,15 @@ class AuthController(Controller):
         auth_service: AuthService,
         session: AsyncSession,
     ) -> MessageResponse:
-        """Reset password using a valid reset token (MVP: console-logged token)."""
-        await auth_service.reset_password(
-            session, data.token, data.new_password
-        )
+        """Reset password using a valid reset token (MVP stub)."""
+        try:
+            await auth_service.reset_password(
+                session, data.token, data.new_password
+            )
+        except NotImplementedError as exc:
+            raise HTTPException(
+                detail=str(exc), status_code=501
+            ) from exc
         return MessageResponse(message="password reset successful")
 
     @get("/oauth/google")

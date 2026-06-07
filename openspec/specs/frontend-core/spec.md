@@ -16,6 +16,10 @@ Angular 22 frontend shell: SPA scaffold with Material Design components, Tailwin
 | R6 | Auth HTTP interceptors | MUST |
 | R7 | Auth guards | SHOULD |
 | R8 | Login and register components | MUST |
+| R9 | Star-rating shared component | MUST |
+| R10 | Dark mode theme toggle | MUST |
+| R11 | SEO meta tags | MUST |
+| R12 | Responsive layout coverage | MUST |
 
 ### Requirement: Angular 22 Project Scaffold
 
@@ -91,7 +95,7 @@ The system MUST install `@ngx-translate/core@17` and `@ngx-translate/http-loader
 
 ### Requirement: Application Shell Layout and Routing
 
-The system MUST create `HeaderComponent` (with nav links), `FooterComponent`, and `HomeComponent`. `AppComponent` MUST wrap a `<router-outlet>` in the header/footer shell. Routes MUST include lazy-loaded: home, auth (`/login`, `/register`, `/recuperar`, `/reset-password`), product (`/productos`, `/productos/:slug`, `/admin/productos`), cart (`/carrito`, JWT-guarded), checkout (`/checkout`, JWT-guarded), orders (`/perfil/ordenes`, `/perfil/ordenes/:id`, JWT-guarded), and wildcard redirect to `/`.
+The system MUST create `HeaderComponent` (with nav links), `FooterComponent`, and `HomeComponent`. `AppComponent` MUST wrap a `<router-outlet>` in the header/footer shell. Routes MUST include lazy-loaded: home, auth (`/login`, `/register`, `/recuperar`, `/reset-password`), product (`/productos`, `/productos/:slug`, `/admin/productos`), cart (`/carrito`, JWT-guarded), checkout (`/checkout`, JWT-guarded), orders (`/perfil/ordenes`, `/perfil/ordenes/:id`, JWT-guarded), profile wishlist (`/perfil/wishlist`, JWT-guarded), admin promotions (`/admin/promociones`, JWT-guarded + admin-guarded), and wildcard redirect to `/`.
 
 #### Scenario: Default route renders full layout
 
@@ -148,6 +152,117 @@ The system MUST create `HeaderComponent` (with nav links), `FooterComponent`, an
 - GIVEN an authenticated user navigates to `/perfil/ordenes/42`
 - WHEN the router resolves the lazy-loaded OrderDetailModule
 - THEN the order detail page with items and timeline renders
+
+#### Scenario: Wishlist route renders and requires auth
+
+- GIVEN authenticated user navigates to `/perfil/wishlist`
+- WHEN the router resolves the lazy-loaded WishlistModule
+- THEN the wishlist grid page with product cards renders
+
+#### Scenario: Admin promotions route requires admin guard
+
+- GIVEN non-admin user navigates to `/admin/promociones`
+- WHEN the router activates the guarded route
+- THEN user is redirected to `/`
+
+### Requirement: Star-Rating Shared Component
+
+The system SHALL provide a `StarRatingComponent` in `shared/components/star-rating/`. It MUST accept `@Input() rating: number` (0-5) and `@Input() readonly: boolean` (default true). In read-only mode it renders filled/empty Material Icon stars. In editable mode it emits `@Output() ratingChange = new EventEmitter<number>()` on click.
+
+#### Scenario: Read-only star display
+
+- GIVEN rating=4, readonly=true
+- WHEN component renders
+- THEN 4 filled stars (★) and 1 empty star (☆) display
+
+#### Scenario: Editable star selection
+
+- GIVEN readonly=false, current rating=3
+- WHEN user clicks 5th star
+- THEN ratingChange emits 5, display updates to 5 filled stars
+
+#### Scenario: Zero rating renders all empty
+
+- GIVEN rating=0
+- WHEN component renders
+- THEN 5 empty stars display
+
+### Requirement: Dark Mode Theme Toggle
+
+The system MUST provide a `ThemeService` in `core/services/` that toggles between light and dark Angular Material themes. The toggle SHALL add/remove a `dark-theme` CSS class on `document.documentElement` (the `<html>` element). State SHALL persist to `localStorage`. A theme toggle button (icon: light_mode/dark_mode) SHALL be placed in the `HeaderComponent`. When no stored preference exists, the system SHALL check `prefers-color-scheme` media query.
+
+#### Scenario: Toggle switches to dark theme
+
+- GIVEN current theme is light
+- WHEN user clicks the theme toggle button in the header
+- THEN `dark-theme` class is added to `<html>`
+- AND Angular Material components render with dark colors
+- AND `localStorage` stores `theme=dark`
+
+#### Scenario: Dark theme persists across reload
+
+- GIVEN `localStorage` has `theme=dark`
+- WHEN the application loads
+- THEN `ThemeService` applies the dark theme on init
+- AND the theme toggle icon shows `light_mode` (switch to light)
+
+#### Scenario: System preference default
+
+- GIVEN no `theme` in `localStorage`
+- WHEN the application loads
+- THEN `ThemeService` checks `prefers-color-scheme` media query
+- AND sets theme to match system preference
+
+### Requirement: SEO Meta Tags
+
+The system MUST use Angular's `Meta` and `Title` services from `@angular/platform-browser` to set SEO tags. `index.html` MUST include default Open Graph and description meta tags. `AppComponent` SHALL update the title dynamically based on the active route. Feature route components SHALL set page-specific meta descriptions.
+
+#### Scenario: Default meta tags in index.html
+
+- GIVEN the production build is deployed
+- WHEN a search engine crawler fetches `http://localhost/`
+- THEN `<meta property="og:title" content="La Tiendita">` is present
+- AND `<meta name="description" content="...">` is present
+- AND `<meta property="og:type" content="website">` is present
+
+#### Scenario: Dynamic title per route
+
+- GIVEN user navigates to `/productos`
+- WHEN `ProductListComponent` initializes
+- THEN document title updates to "Productos | La Tiendita"
+
+#### Scenario: Product detail has SEO tags
+
+- GIVEN user navigates to `/productos/chaqueta-denim`
+- WHEN `ProductDetailComponent` loads product data
+- THEN `og:title` is set to product name
+- AND `description` meta tag is set to product description
+
+### Requirement: Responsive Layout Coverage
+
+The system SHALL ensure all views render correctly at mobile (≤640px), tablet (641–1024px), and desktop (≥1025px) breakpoints. The header navigation SHALL collapse to a hamburger menu on mobile. The product grid SHALL render 1 column at mobile, 2 at tablet, 3–4 at desktop. The cart table SHALL scroll horizontally on small screens.
+
+#### Scenario: Mobile hamburger menu
+
+- GIVEN viewport width is 375px
+- WHEN the application renders
+- THEN the header shows a hamburger icon instead of nav links
+- AND clicking the hamburger opens a slide-out or dropdown menu
+
+#### Scenario: Product grid responsive columns
+
+- GIVEN viewport is 375px
+- WHEN `/productos` renders
+- THEN products display in a single column
+- AND at 768px they display in 2 columns
+- AND at 1280px they display in 3+ columns
+
+#### Scenario: Cart table horizontal scroll
+
+- GIVEN viewport is 375px
+- WHEN `/carrito` renders with products in cart
+- THEN the cart table is horizontally scrollable
+- AND no content is clipped or overflowing outside the viewport
 
 ### Requirement: Auth HTTP Interceptors
 

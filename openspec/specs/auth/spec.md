@@ -125,14 +125,21 @@ The system MUST issue access tokens (15min, HS256, claims: `sub`, `role`, `exp`,
 
 ### Requirement: Password Reset Flow
 
-`POST /auth/forgot-password` MUST accept an email and generate a reset token. For MVP, the reset link SHALL be logged to console. `POST /auth/reset-password` MUST accept the token and new password, update the password hash, and invalidate the token.
+`POST /auth/forgot-password` MUST accept an email and generate a reset token. The system SHALL call `send_email()` from `app/utils/email.py` with a Jinja2-rendered `password_reset.html` template containing the reset link. The email SHALL be rendered in the user's preferred language. `POST /auth/reset-password` MUST accept the token and new password, update the password hash, and invalidate the token.
 
-#### Scenario: Forgot password request
+#### Scenario: Forgot password sends email via utility
 
 - GIVEN a registered user with email "user@test.com"
 - WHEN `POST /auth/forgot-password` with that email
-- THEN 200 (regardless of whether email exists — no user enumeration)
-- AND reset token is logged to console for MVP
+- THEN `send_email()` from `app.utils.email` is called with rendered password reset template
+- AND the email body contains the reset link in HTML
+- AND a 202 response is returned (no user enumeration — "if the email exists" message)
+
+#### Scenario: Email respects user language preference
+
+- GIVEN user has `preferred_lang="sv"`
+- WHEN `POST /auth/forgot-password` sends the reset email
+- THEN the email subject and body are rendered in Swedish
 
 #### Scenario: Reset password with valid token
 

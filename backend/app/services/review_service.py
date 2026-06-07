@@ -8,6 +8,7 @@ import logging
 from uuid import UUID
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -71,22 +72,27 @@ class ReviewService:
         if not await self.can_review(session, user_id, product_id):
             raise ValueError("You can only review products you have purchased")
 
-        existing = await session.scalar(
-            select(Review).where(
-                Review.user_id == user_id,
-                Review.product_id == product_id,
-            )
-        )
-        if existing is not None:
+        try:
+            async with session.begin_nested():
+                existing = await session.scalar(
+                    select(Review).where(
+                        Review.user_id == user_id,
+                        Review.product_id == product_id,
+                    )
+                )
+                if existing is not None:
+                    raise ValueError("You have already reviewed this product")
+
+                review = Review(
+                    user_id=user_id,
+                    product_id=product_id,
+                    rating=data.rating,
+                    comment=data.comment,
+                )
+                session.add(review)
+        except IntegrityError:
             raise ValueError("You have already reviewed this product")
 
-        review = Review(
-            user_id=user_id,
-            product_id=product_id,
-            rating=data.rating,
-            comment=data.comment,
-        )
-        session.add(review)
         await session.flush()
         # Reload with user relationship for the response
         await session.refresh(review, ["user"])
