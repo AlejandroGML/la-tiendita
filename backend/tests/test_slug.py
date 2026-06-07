@@ -52,6 +52,31 @@ class TestSlugify:
         result = self.service.slugify("Model 3000")
         assert result == "model-3000"
 
+    def test_emoji_only_fallback(self):
+        """Emoji-only input falls back to 'producto'."""
+        result = self.service.slugify("😀🎉💯")
+        assert result == "producto"
+
+    def test_special_chars_only_fallback(self):
+        """Input composed entirely of special characters falls back to 'producto'."""
+        result = self.service.slugify("!@#$%^&*()")
+        assert result == "producto"
+
+    def test_300_char_input_truncated(self):
+        """A 300-char ASCII input produces slug ≤ 200 chars."""
+        name = "a" * 300
+        result = self.service.slugify(name)
+        # slugify does NOT truncate — the 200-char limit is applied in
+        # generate_slug().  Here we just verify slugify() handles long
+        # input without crashing.
+        assert len(result) == 300
+        assert result == "a" * 300
+
+    def test_chinese_characters(self):
+        """Chinese characters are stripped (not transliterable to ascii)."""
+        result = self.service.slugify("牛仔裤")
+        assert result == "producto"
+
 
 class TestGenerateSlugCollision:
     """Integration-style tests for slug collision resolution.
@@ -121,3 +146,61 @@ class TestGenerateSlugCollision:
         slug = await svc.generate_slug(mock_session, "Chaqueta Denim")
         assert slug == "chaqueta-denim-3"
         assert call_count[0] == 3
+
+    @pytest.mark.asyncio
+    async def test_truncation_long_base(self, svc, mock_session):
+        """A 500-char unicode name produces a truncated slug ≤ 200 chars."""
+        name = "café " * 125  # ~500 chars, "café" → "cafe" after slugify
+        mock_session.execute.return_value = self._make_result(None)
+
+        slug = await svc.generate_slug(mock_session, name)
+        assert len(slug) <= 200
+        assert slug.startswith("cafe-cafe")
+
+    @pytest.mark.asyncio
+    async def test_truncation_boundary_at_200(self, svc, mock_session):
+        """A slug exactly 200 chars is not truncated."""
+        name = "a" * 200
+        mock_session.execute.return_value = self._make_result(None)
+
+        slug = await svc.generate_slug(mock_session, name)
+        assert len(slug) == 200
+        assert slug == "a" * 200
+
+    @pytest.mark.asyncio
+    async def test_truncation_with_collision(self, svc, mock_session):
+        """Long name where truncated slug collides — suffix appended after truncation."""
+        name = "x" * 300  # slugify produces 'x' * 300, truncated to 200
+        call_count = [0]
+
+        async def side_effect(*args, **kwargs):
+            call_count[0] += 1
+            # First call: collision.  Second: no collision.
+            val = "some-id" if call_count[0] == 1 else None
+            return TestGenerateSlugCollision._make_result(val)
+
+        mock_session.execute.side_effect = side_effect
+
+        slug = await svc.generate_slug(mock_session, name)
+        assert len(slug) <= 200
+        assert slug.endswith("-2")
+        assert call_count[0] == 2
+
+    @pytest.mark.asyncio
+    async def test_truncation_deep_collision(self, svc, mock_session):
+        """Long name with deep collision — suffix '-999' still fits within 200."""
+        name = "y" * 400  # slugify produces 'y' * 400, truncated to 200
+        # Collide 998 times so attempt reaches 999 (suffix "-999" is 4 chars)
+        call_count = [0]
+
+        async def side_effect(*args, **kwargs):
+            call_count[0] += 1
+            val = "some-id" if call_count[0] <= 998 else None
+            return TestGenerateSlugCollision._make_result(val)
+
+        mock_session.execute.side_effect = side_effect
+
+        slug = await svc.generate_slug(mock_session, name)
+        assert len(slug) <= 200
+        assert slug.endswith("-999")
+        assert call_count[0] == 999

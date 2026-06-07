@@ -253,16 +253,24 @@ class ProductService:
         slug = re.sub(r"[^a-z0-9]+", "-", ascii_text.lower()).strip("-")
         return slug or "producto"
 
+    MAX_SLUG_LEN = 200
+
     async def generate_slug(
         self, session: AsyncSession, name: str
     ) -> str:
         """Generate a unique slug from *name*, resolving collisions by
         appending a numeric suffix (``-2``, ``-3``, …).
 
+        Slugs are truncated to ``MAX_SLUG_LEN`` (200) to prevent
+        database insertion failures on the ``String(200)`` column.
+        Collision suffixes fit within the limit by shrinking the base.
+
         Example: "Chaqueta Denim" → "chaqueta-denim". If that slug is
         taken, tries "chaqueta-denim-2", and so on.
         """
         base = self.slugify(name)
+        if len(base) > self.MAX_SLUG_LEN:
+            base = base[: self.MAX_SLUG_LEN]
         slug = base
         attempt = 1
 
@@ -273,7 +281,10 @@ class ProductService:
             if existing.scalar_one_or_none() is None:
                 return slug
             attempt += 1
-            slug = f"{base}-{attempt}"
+            suffix = f"-{attempt}"
+            # Shrink base so base + suffix ≤ MAX_SLUG_LEN
+            available = self.MAX_SLUG_LEN - len(suffix)
+            slug = f"{base[:available]}{suffix}"
 
     # ------------------------------------------------------------------
     # Internal helpers
