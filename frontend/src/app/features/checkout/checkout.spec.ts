@@ -7,6 +7,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -99,6 +100,7 @@ describe('CheckoutComponent', () => {
         MatIconModule,
         MatInputModule,
         MatProgressSpinnerModule,
+        MatSnackBarModule,
         NoopAnimationsModule,
         ReactiveFormsModule,
         RouterModule.forRoot([]),
@@ -252,6 +254,7 @@ describe('CheckoutComponent', () => {
         MatIconModule,
         MatInputModule,
         MatProgressSpinnerModule,
+        MatSnackBarModule,
         NoopAnimationsModule,
         ReactiveFormsModule,
         RouterModule.forRoot([]),
