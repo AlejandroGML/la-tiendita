@@ -2,9 +2,9 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import {
-  AdminService,
+  AdminUserService,
   type UserAdminItem,
-} from '../../../core/services/admin.service';
+} from '../../../core/services/admin-user.service';
 
 const VALID_ROLES = ['customer', 'admin'] as const;
 
@@ -33,7 +33,7 @@ export class AdminUsers implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private readonly adminService: AdminService,
+    private readonly adminUserService: AdminUserService,
     private readonly snackBar: MatSnackBar,
   ) {}
 
@@ -49,7 +49,7 @@ export class AdminUsers implements OnInit, OnDestroy {
   loadUsers(page = 1): void {
     this.loading.set(true);
     this.error.set(false);
-    this.adminService
+    this.adminUserService
       .getUsers({ page, per_page: 20 })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -72,7 +72,7 @@ export class AdminUsers implements OnInit, OnDestroy {
     if (!VALID_ROLES.includes(newRole as (typeof VALID_ROLES)[number])) return;
     if (newRole === user.role) return;
 
-    this.adminService
+    this.adminUserService
       .updateUserRole(user.id, newRole)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

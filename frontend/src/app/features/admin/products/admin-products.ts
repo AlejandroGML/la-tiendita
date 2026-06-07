@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import type { Product } from '../../../shared/models/product.model';
-import { AdminService } from '../../../core/services/admin.service';
+import { AdminProductService } from '../../../core/services/admin-product.service';
 
 @Component({
   selector: 'app-admin-products',
@@ -28,7 +28,7 @@ export class AdminProducts implements OnInit, OnDestroy {
   ];
 
   constructor(
-    private readonly adminService: AdminService,
+    private readonly adminProductService: AdminProductService,
     private readonly router: Router,
     private readonly snackBar: MatSnackBar,
   ) {}
@@ -44,7 +44,7 @@ export class AdminProducts implements OnInit, OnDestroy {
 
   loadProducts(): void {
     this.loading.set(true);
-    this.adminService
+    this.adminProductService
       .getAdminProducts({ per_page: 50 })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -73,7 +73,7 @@ export class AdminProducts implements OnInit, OnDestroy {
     );
     if (!confirmed) return;
 
-    this.adminService
+    this.adminProductService
       .deleteProduct(product.slug)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

@@ -16,7 +16,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of } from 'rxjs';
 import { AdminProductForm } from './admin-product-form';
-import { AdminService } from '../../../core/services/admin.service';
+import { AdminProductService } from '../../../core/services/admin-product.service';
 import type { Category } from '../../../shared/models/category.model';
 
 const mockCategories: Category[] = [
@@ -38,7 +38,7 @@ const mockCategories: Category[] = [
   },
 ];
 
-function createAdminServiceMock() {
+function createAdminProductServiceMock() {
   return {
     getAdminProducts: vi.fn().mockReturnValue(of({ data: [], pagination: { page: 1, per_page: 50, total: 0, pages: 0 } })),
     createProduct: vi.fn().mockReturnValue(of({})),
@@ -56,11 +56,11 @@ function createHttpMock() {
 describe('AdminProductForm', () => {
   let fixture: ComponentFixture<AdminProductForm>;
   let component: AdminProductForm;
-  let adminService: ReturnType<typeof createAdminServiceMock>;
+  let adminProductService: ReturnType<typeof createAdminProductServiceMock>;
   let router: Router;
 
   beforeEach(async () => {
-    adminService = createAdminServiceMock();
+    adminProductService = createAdminProductServiceMock();
     const http = createHttpMock();
 
     await TestBed.configureTestingModule({
@@ -80,7 +80,7 @@ describe('AdminProductForm', () => {
         TranslateModule.forRoot(),
       ],
       providers: [
-        { provide: AdminService, useValue: adminService },
+        { provide: AdminProductService, useValue: adminProductService },
         { provide: HttpClient, useValue: http },
         {
           provide: ActivatedRoute,

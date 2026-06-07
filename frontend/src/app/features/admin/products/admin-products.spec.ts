@@ -8,10 +8,10 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AdminProducts } from './admin-products';
-import { AdminService } from '../../../core/services/admin.service';
+import { AdminProductService } from '../../../core/services/admin-product.service';
 import { CurrencyPipe } from '../../../shared/pipes/currency.pipe';
 import type { Product } from '../../../shared/models/product.model';
-import type { AdminProductListResponse } from '../../../core/services/admin.service';
+import type { AdminProductListResponse } from '../../../core/services/admin-product.service';
 
 const mockProducts: Product[] = [
   {
@@ -75,7 +75,7 @@ const mockResponse: AdminProductListResponse = {
   pagination: { page: 1, per_page: 50, total: 2, pages: 1 },
 };
 
-function createAdminServiceMock() {
+function createAdminProductServiceMock() {
   return {
     getAdminProducts: vi.fn().mockReturnValue(of(mockResponse)),
     deleteProduct: vi.fn().mockReturnValue(of(void 0)),
@@ -85,11 +85,11 @@ function createAdminServiceMock() {
 describe('AdminProducts', () => {
   let fixture: ComponentFixture<AdminProducts>;
   let component: AdminProducts;
-  let adminService: ReturnType<typeof createAdminServiceMock>;
+  let adminProductService: ReturnType<typeof createAdminProductServiceMock>;
   let router: Router;
 
   beforeEach(async () => {
-    adminService = createAdminServiceMock();
+    adminProductService = createAdminProductServiceMock();
 
     await TestBed.configureTestingModule({
       declarations: [AdminProducts, CurrencyPipe],
@@ -102,7 +102,7 @@ describe('AdminProducts', () => {
         TranslateModule.forRoot(),
       ],
       providers: [
-        { provide: AdminService, useValue: adminService },
+        { provide: AdminProductService, useValue: adminProductService },
       ],
     }).compileComponents();
 
@@ -152,7 +152,7 @@ describe('AdminProducts', () => {
   });
 
   it('should call AdminService.getAdminProducts on init', () => {
-    expect(adminService.getAdminProducts).toHaveBeenCalledWith({ per_page: 50 });
+    expect(adminProductService.getAdminProducts).toHaveBeenCalledWith({ per_page: 50 });
   });
 
   it('should render status chip as deleted for soft-deleted products', () => {
@@ -179,7 +179,7 @@ describe('AdminProducts', () => {
   });
 
   it('should show empty state when no products', async () => {
-    adminService.getAdminProducts = vi.fn().mockReturnValue(
+    adminProductService.getAdminProducts = vi.fn().mockReturnValue(
       of({ data: [], pagination: { page: 1, per_page: 50, total: 0, pages: 0 } }),
     );
     component.loadProducts();
@@ -195,12 +195,12 @@ describe('AdminProducts', () => {
 
     component.deleteProduct(mockProducts[0]);
 
-    expect(adminService.deleteProduct).toHaveBeenCalledWith('jeans-levis');
+    expect(adminProductService.deleteProduct).toHaveBeenCalledWith('jeans-levis');
     (window.confirm as ReturnType<typeof vi.fn>).mockRestore();
   });
 
   it('should handle API error gracefully', async () => {
-    adminService.getAdminProducts = vi.fn().mockReturnValue(
+    adminProductService.getAdminProducts = vi.fn().mockReturnValue(
       throwError(() => new Error('Network error')),
     );
     component.loadProducts();

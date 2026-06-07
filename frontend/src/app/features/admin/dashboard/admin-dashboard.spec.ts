@@ -7,7 +7,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AdminDashboard } from './admin-dashboard';
-import { AdminService, type DashboardStats } from '../../../core/services/admin.service';
+import { AdminDashboardService, type DashboardStats } from '../../../core/services/admin-dashboard.service';
 
 const mockStats: DashboardStats = {
   total_products: 42,
@@ -16,7 +16,7 @@ const mockStats: DashboardStats = {
   total_revenue: 125000,
 };
 
-function createAdminServiceMock(override?: { getDashboardStats?: ReturnType<typeof vi.fn> }) {
+function createAdminDashboardServiceMock(override?: { getDashboardStats?: ReturnType<typeof vi.fn> }) {
   return {
     getDashboardStats: vi.fn().mockReturnValue(of(mockStats)),
     ...override,
@@ -26,10 +26,10 @@ function createAdminServiceMock(override?: { getDashboardStats?: ReturnType<type
 describe('AdminDashboard', () => {
   let fixture: ComponentFixture<AdminDashboard>;
   let component: AdminDashboard;
-  let adminService: ReturnType<typeof createAdminServiceMock>;
+  let adminDashboardService: ReturnType<typeof createAdminDashboardServiceMock>;
 
   beforeEach(async () => {
-    adminService = createAdminServiceMock();
+    adminDashboardService = createAdminDashboardServiceMock();
 
     await TestBed.configureTestingModule({
       declarations: [AdminDashboard],
@@ -42,7 +42,7 @@ describe('AdminDashboard', () => {
         TranslateModule.forRoot(),
       ],
       providers: [
-        { provide: AdminService, useValue: adminService },
+        { provide: AdminDashboardService, useValue: adminDashboardService },
       ],
     }).compileComponents();
 
@@ -107,7 +107,7 @@ describe('AdminDashboard', () => {
   });
 
   it('should show error state on API failure', async () => {
-    adminService.getDashboardStats = vi.fn().mockReturnValue(
+    adminDashboardService.getDashboardStats = vi.fn().mockReturnValue(
       throwError(() => new Error('Network error')),
     );
 
@@ -120,7 +120,7 @@ describe('AdminDashboard', () => {
   });
 
   it('should have retry button on error', async () => {
-    adminService.getDashboardStats = vi.fn().mockReturnValue(
+    adminDashboardService.getDashboardStats = vi.fn().mockReturnValue(
       throwError(() => new Error('Network error')),
     );
 
@@ -133,7 +133,7 @@ describe('AdminDashboard', () => {
   });
 
   it('should call loadStats again on retry click', async () => {
-    adminService.getDashboardStats = vi.fn()
+    adminDashboardService.getDashboardStats = vi.fn()
       .mockReturnValueOnce(throwError(() => new Error('fail')))
       .mockReturnValueOnce(of(mockStats));
 
@@ -146,7 +146,7 @@ describe('AdminDashboard', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    expect(adminService.getDashboardStats).toHaveBeenCalledTimes(2);
+    expect(adminDashboardService.getDashboardStats).toHaveBeenCalledTimes(2);
     const statsEl = fixture.nativeElement.querySelector('[data-testid="dashboard-stats"]');
     expect(statsEl).toBeTruthy();
   });

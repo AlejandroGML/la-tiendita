@@ -10,7 +10,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AdminOrders } from './admin-orders';
-import { AdminService, type OrderAdminItem, type OrderAdminListResponse } from '../../../core/services/admin.service';
+import { AdminOrderService, type OrderAdminItem, type OrderAdminListResponse } from '../../../core/services/admin-order.service';
 
 const mockOrders: OrderAdminItem[] = [
   {
@@ -48,7 +48,7 @@ const mockResponse: OrderAdminListResponse = {
   pagination: { page: 1, per_page: 20, total: 4, pages: 1 },
 };
 
-function createAdminServiceMock() {
+function createAdminOrderServiceMock() {
   return {
     getOrders: vi.fn().mockReturnValue(of(mockResponse)),
     updateOrderStatus: vi.fn().mockImplementation((_id: string, status: string) =>
@@ -60,10 +60,10 @@ function createAdminServiceMock() {
 describe('AdminOrders', () => {
   let fixture: ComponentFixture<AdminOrders>;
   let component: AdminOrders;
-  let adminService: ReturnType<typeof createAdminServiceMock>;
+  let adminOrderService: ReturnType<typeof createAdminOrderServiceMock>;
 
   beforeEach(async () => {
-    adminService = createAdminServiceMock();
+    adminOrderService = createAdminOrderServiceMock();
 
     await TestBed.configureTestingModule({
       declarations: [AdminOrders],
@@ -79,7 +79,7 @@ describe('AdminOrders', () => {
         TranslateModule.forRoot(),
       ],
       providers: [
-        { provide: AdminService, useValue: adminService },
+        { provide: AdminOrderService, useValue: adminOrderService },
       ],
     }).compileComponents();
 
@@ -113,7 +113,7 @@ describe('AdminOrders', () => {
   });
 
   it('should call AdminService.getOrders on init', () => {
-    expect(adminService.getOrders).toHaveBeenCalledWith({ page: 1, per_page: 20 });
+    expect(adminOrderService.getOrders).toHaveBeenCalledWith({ page: 1, per_page: 20 });
   });
 
   it('should show status filter buttons', () => {
@@ -133,7 +133,7 @@ describe('AdminOrders', () => {
     await fixture.whenStable();
 
     // Called again with status filter
-    expect(adminService.getOrders).toHaveBeenCalledWith({
+    expect(adminOrderService.getOrders).toHaveBeenCalledWith({
       page: 1,
       per_page: 20,
       status: 'pending',
@@ -145,7 +145,7 @@ describe('AdminOrders', () => {
   it('should allow valid transition: pending → confirmed', () => {
     component.onStatusChange(mockOrders[0], 'confirmed');
 
-    expect(adminService.updateOrderStatus).toHaveBeenCalledWith(
+    expect(adminOrderService.updateOrderStatus).toHaveBeenCalledWith(
       'order-pending',
       'confirmed',
     );
@@ -154,7 +154,7 @@ describe('AdminOrders', () => {
   it('should allow valid transition: pending → cancelled', () => {
     component.onStatusChange(mockOrders[0], 'cancelled');
 
-    expect(adminService.updateOrderStatus).toHaveBeenCalledWith(
+    expect(adminOrderService.updateOrderStatus).toHaveBeenCalledWith(
       'order-pending',
       'cancelled',
     );
@@ -163,7 +163,7 @@ describe('AdminOrders', () => {
   it('should allow valid transition: confirmed → shipped', () => {
     component.onStatusChange(mockOrders[1], 'shipped');
 
-    expect(adminService.updateOrderStatus).toHaveBeenCalledWith(
+    expect(adminOrderService.updateOrderStatus).toHaveBeenCalledWith(
       'order-confirmed',
       'shipped',
     );
@@ -172,7 +172,7 @@ describe('AdminOrders', () => {
   it('should allow valid transition: confirmed → cancelled', () => {
     component.onStatusChange(mockOrders[1], 'cancelled');
 
-    expect(adminService.updateOrderStatus).toHaveBeenCalledWith(
+    expect(adminOrderService.updateOrderStatus).toHaveBeenCalledWith(
       'order-confirmed',
       'cancelled',
     );
@@ -181,7 +181,7 @@ describe('AdminOrders', () => {
   it('should allow valid transition: shipped → delivered', () => {
     component.onStatusChange(mockOrders[2], 'delivered');
 
-    expect(adminService.updateOrderStatus).toHaveBeenCalledWith(
+    expect(adminOrderService.updateOrderStatus).toHaveBeenCalledWith(
       'order-shipped',
       'delivered',
     );
@@ -190,25 +190,25 @@ describe('AdminOrders', () => {
   it('should block invalid transition: delivered → pending', () => {
     component.onStatusChange(mockOrders[3], 'pending');
 
-    expect(adminService.updateOrderStatus).not.toHaveBeenCalled();
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
   });
 
   it('should block invalid transition: delivered → shipped', () => {
     component.onStatusChange(mockOrders[3], 'shipped');
 
-    expect(adminService.updateOrderStatus).not.toHaveBeenCalled();
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
   });
 
   it('should block invalid transition: pending → delivered', () => {
     component.onStatusChange(mockOrders[0], 'delivered');
 
-    expect(adminService.updateOrderStatus).not.toHaveBeenCalled();
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
   });
 
   it('should block invalid transition: confirmed → pending', () => {
     component.onStatusChange(mockOrders[1], 'pending');
 
-    expect(adminService.updateOrderStatus).not.toHaveBeenCalled();
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
   });
 
   it('should update local state on successful status change', () => {
@@ -219,7 +219,7 @@ describe('AdminOrders', () => {
   });
 
   it('should show error state on API failure', async () => {
-    adminService.getOrders = vi.fn().mockReturnValue(
+    adminOrderService.getOrders = vi.fn().mockReturnValue(
       throwError(() => new Error('Network error')),
     );
     component.loadOrders();
@@ -231,7 +231,7 @@ describe('AdminOrders', () => {
   });
 
   it('should show empty state when no orders', async () => {
-    adminService.getOrders = vi.fn().mockReturnValue(
+    adminOrderService.getOrders = vi.fn().mockReturnValue(
       of({ data: [], pagination: { page: 1, per_page: 20, total: 0, pages: 0 } }),
     );
     component.loadOrders();

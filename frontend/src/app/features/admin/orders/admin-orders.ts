@@ -2,9 +2,9 @@ import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
 import {
-  AdminService,
+  AdminOrderService,
   type OrderAdminItem,
-} from '../../../core/services/admin.service';
+} from '../../../core/services/admin-order.service';
 
 const ALLOWED_TRANSITIONS: Record<string, string[]> = {
   pending: ['confirmed', 'cancelled'],
@@ -43,7 +43,7 @@ export class AdminOrders implements OnInit, OnDestroy {
   readonly statuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
   constructor(
-    private readonly adminService: AdminService,
+    private readonly adminOrderService: AdminOrderService,
     private readonly snackBar: MatSnackBar,
   ) {}
 
@@ -66,7 +66,7 @@ export class AdminOrders implements OnInit, OnDestroy {
     const filter = this.statusFilter();
     if (filter) params.status = filter;
 
-    this.adminService
+    this.adminOrderService
       .getOrders(params)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -89,7 +89,7 @@ export class AdminOrders implements OnInit, OnDestroy {
     const allowed = ALLOWED_TRANSITIONS[order.status] ?? [];
     if (!allowed.includes(newStatus)) return;
 
-    this.adminService
+    this.adminOrderService
       .updateOrderStatus(order.id, newStatus)
       .pipe(takeUntil(this.destroy$))
       .subscribe({

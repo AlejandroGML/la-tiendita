@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Subject, takeUntil } from 'rxjs';
-import { AdminService, type DashboardStats } from '../../../core/services/admin.service';
+import { AdminDashboardService, type DashboardStats } from '../../../core/services/admin-dashboard.service';
 
 interface StatCard {
   labelKey: string;
@@ -21,7 +21,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
   readonly loading = signal(true);
   readonly error = signal(false);
 
-  constructor(private readonly adminService: AdminService) {}
+  constructor(private readonly adminDashboardService: AdminDashboardService) {}
 
   ngOnInit(): void {
     this.loadStats();
@@ -35,7 +35,7 @@ export class AdminDashboard implements OnInit, OnDestroy {
   loadStats(): void {
     this.loading.set(true);
     this.error.set(false);
-    this.adminService
+    this.adminDashboardService
       .getDashboardStats()
       .pipe(takeUntil(this.destroy$))
       .subscribe({

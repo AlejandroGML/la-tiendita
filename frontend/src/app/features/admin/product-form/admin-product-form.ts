@@ -13,8 +13,8 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
 import type { Product } from '../../../shared/models/product.model';
 import type { Category } from '../../../shared/models/category.model';
-import { AdminService } from '../../../core/services/admin.service';
-import type { CreateProductPayload } from '../../../core/services/admin.service';
+import { AdminProductService } from '../../../core/services/admin-product.service';
+import type { CreateProductPayload } from '../../../core/services/admin-product.service';
 
 function esNameRequired(group: AbstractControl): ValidationErrors | null {
   const translations = group.get('translations') as FormArray;
@@ -60,7 +60,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
     private readonly fb: FormBuilder,
     private readonly route: ActivatedRoute,
     private readonly router: Router,
-    private readonly adminService: AdminService,
+    private readonly adminProductService: AdminProductService,
     private readonly http: HttpClient,
     private readonly snackBar: MatSnackBar,
   ) {
@@ -132,7 +132,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
 
   private loadProduct(slug: string): void {
     this.loading.set(true);
-    this.adminService
+    this.adminProductService
       .getAdminProducts({ per_page: 1, search: slug })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
@@ -248,8 +248,8 @@ export class AdminProductForm implements OnInit, OnDestroy {
     };
 
     if (this.editSlug) {
-      this.adminService
-        .updateProduct(this.editSlug, payload)
+        this.adminProductService
+          .updateProduct(this.editSlug, payload)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
@@ -262,8 +262,8 @@ export class AdminProductForm implements OnInit, OnDestroy {
           },
         });
     } else {
-      this.adminService
-        .createProduct(payload)
+        this.adminProductService
+          .createProduct(payload)
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {

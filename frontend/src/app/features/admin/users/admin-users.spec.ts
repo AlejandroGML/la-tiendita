@@ -9,7 +9,7 @@ import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { AdminUsers } from './admin-users';
-import { AdminService, type UserAdminItem, type UserAdminListResponse } from '../../../core/services/admin.service';
+import { AdminUserService, type UserAdminItem, type UserAdminListResponse } from '../../../core/services/admin-user.service';
 
 const mockUsers: UserAdminItem[] = [
   {
@@ -46,7 +46,7 @@ const mockResponse: UserAdminListResponse = {
   pagination: { page: 1, per_page: 20, total: 3, pages: 1 },
 };
 
-function createAdminServiceMock() {
+function createAdminUserServiceMock() {
   return {
     getUsers: vi.fn().mockReturnValue(of(mockResponse)),
     updateUserRole: vi.fn().mockReturnValue(of({ ...mockUsers[0], role: 'admin' })),
@@ -56,10 +56,10 @@ function createAdminServiceMock() {
 describe('AdminUsers', () => {
   let fixture: ComponentFixture<AdminUsers>;
   let component: AdminUsers;
-  let adminService: ReturnType<typeof createAdminServiceMock>;
+  let adminUserService: ReturnType<typeof createAdminUserServiceMock>;
 
   beforeEach(async () => {
-    adminService = createAdminServiceMock();
+    adminUserService = createAdminUserServiceMock();
 
     await TestBed.configureTestingModule({
       declarations: [AdminUsers],
@@ -74,7 +74,7 @@ describe('AdminUsers', () => {
         TranslateModule.forRoot(),
       ],
       providers: [
-        { provide: AdminService, useValue: adminService },
+        { provide: AdminUserService, useValue: adminUserService },
       ],
     }).compileComponents();
 
@@ -118,7 +118,7 @@ describe('AdminUsers', () => {
   });
 
   it('should call AdminService.getUsers on init', () => {
-    expect(adminService.getUsers).toHaveBeenCalledWith({ page: 1, per_page: 20 });
+    expect(adminUserService.getUsers).toHaveBeenCalledWith({ page: 1, per_page: 20 });
   });
 
   it('should display orders count', () => {
@@ -134,19 +134,19 @@ describe('AdminUsers', () => {
   it('should call updateUserRole on role change', () => {
     component.onRoleChange(mockUsers[0], 'admin');
 
-    expect(adminService.updateUserRole).toHaveBeenCalledWith('uuid-1', 'admin');
+    expect(adminUserService.updateUserRole).toHaveBeenCalledWith('uuid-1', 'admin');
   });
 
   it('should not call updateUserRole when role unchanged', () => {
     component.onRoleChange(mockUsers[0], 'customer'); // already customer
 
-    expect(adminService.updateUserRole).not.toHaveBeenCalled();
+    expect(adminUserService.updateUserRole).not.toHaveBeenCalled();
   });
 
   it('should not call API for invalid role', () => {
     component.onRoleChange(mockUsers[0], 'superadmin');
 
-    expect(adminService.updateUserRole).not.toHaveBeenCalled();
+    expect(adminUserService.updateUserRole).not.toHaveBeenCalled();
   });
 
   it('should update local state on successful role change', () => {
@@ -157,7 +157,7 @@ describe('AdminUsers', () => {
   });
 
   it('should show error state on API failure', async () => {
-    adminService.getUsers = vi.fn().mockReturnValue(
+    adminUserService.getUsers = vi.fn().mockReturnValue(
       throwError(() => new Error('Network error')),
     );
     component.loadUsers();
@@ -169,7 +169,7 @@ describe('AdminUsers', () => {
   });
 
   it('should show empty state when no users', async () => {
-    adminService.getUsers = vi.fn().mockReturnValue(
+    adminUserService.getUsers = vi.fn().mockReturnValue(
       of({ data: [], pagination: { page: 1, per_page: 20, total: 0, pages: 0 } }),
     );
     component.loadUsers();
