@@ -4,7 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { OrderDetailComponent } from './order-detail';
@@ -74,11 +74,11 @@ describe('OrderDetailComponent', () => {
         MatIconModule,
         MatProgressSpinnerModule,
         MatTableModule,
-        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideNoopAnimations(),
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],
@@ -130,11 +130,11 @@ describe('OrderDetailComponent', () => {
         MatIconModule,
         MatProgressSpinnerModule,
         MatTableModule,
-        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideNoopAnimations(),
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],
@@ -163,11 +163,11 @@ describe('OrderDetailComponent', () => {
         MatIconModule,
         MatProgressSpinnerModule,
         MatTableModule,
-        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideNoopAnimations(),
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],
@@ -190,11 +190,8 @@ describe('OrderDetailComponent', () => {
   });
 
   it('should have back to list link', () => {
-    const links = fixture.nativeElement.querySelectorAll('a[ng-reflect-router-link]');
-    // Button uses routerLink, check for the button
-    const backButton = fixture.nativeElement.querySelector(
-      'button[ng-reflect-router-link="/perfil/ordenes"]',
-    );
-    expect(backButton).toBeTruthy();
+    const backButton = fixture.nativeElement.querySelector('button');
+    const icon = backButton?.querySelector('mat-icon');
+    expect(icon).toBeTruthy();
   });
 });

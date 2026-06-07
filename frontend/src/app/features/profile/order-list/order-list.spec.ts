@@ -5,7 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { OrderListComponent } from './order-list';
@@ -68,11 +68,11 @@ describe('OrderListComponent', () => {
         MatIconModule,
         MatProgressSpinnerModule,
         MatTableModule,
-        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideNoopAnimations(),
         { provide: OrderService, useValue: orderService },
       ],
     }).compileComponents();
@@ -91,7 +91,7 @@ describe('OrderListComponent', () => {
   });
 
   it('should display order rows', () => {
-    const rows = fixture.nativeElement.querySelectorAll('mat-row');
+    const rows = fixture.nativeElement.querySelectorAll('.mat-mdc-row, .mat-mdc-header-row');
     // 1 header + 2 data rows
     expect(rows.length).toBe(3);
   });
@@ -140,7 +140,7 @@ describe('OrderListComponent', () => {
 
   it('should navigate to order detail on row click', () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
-    const rows = fixture.nativeElement.querySelectorAll('mat-row');
+    const rows = fixture.nativeElement.querySelectorAll('.mat-mdc-row, .mat-mdc-header-row');
     // Click first data row (index 1 is header)
     (rows[1] as HTMLElement).click();
 

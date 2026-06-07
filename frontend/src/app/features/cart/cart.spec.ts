@@ -5,7 +5,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { CartComponent } from './cart';
@@ -71,11 +72,12 @@ describe('CartComponent', () => {
         MatIconModule,
         MatProgressSpinnerModule,
         MatTableModule,
-        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideNoopAnimations(),
+        provideHttpClient(),
         { provide: CartService, useValue: cartService },
       ],
     }).compileComponents();
@@ -94,7 +96,7 @@ describe('CartComponent', () => {
   });
 
   it('should render table with cart items', () => {
-    const rows = fixture.nativeElement.querySelectorAll('mat-row');
+    const rows = fixture.nativeElement.querySelectorAll('.mat-mdc-row, .mat-mdc-header-row');
     // 1 header + 2 data rows
     expect(rows.length).toBe(3);
   });
