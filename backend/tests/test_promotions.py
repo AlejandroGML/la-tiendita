@@ -9,12 +9,11 @@ from unittest.mock import AsyncMock
 
 import pytest
 from litestar import Litestar
-from litestar.contrib.jwt import JWTAuth, Token
-from litestar.connection import ASGIConnection
+from litestar.contrib.jwt import JWTAuth
 from litestar.di import Provide
 from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession as _RealAsyncSession
 
+from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user, make_jwt_token, TOKEN_SECRET
 from app.controllers.promotions import AdminPromotionController, PromotionController
 from app.schemas.promotion import (
     PromotionResponse,
@@ -24,51 +23,18 @@ from app.services.promotion_service import PromotionService as _RealPromotionSer
 
 from datetime import datetime, timedelta, timezone
 
-from jose import jwt as jose_jwt
-
-JWT_SECRET = "test-promo-secret-key-min-32-chars!!"
-JWT_ALGORITHM = "HS256"
-
 
 class MockPromotionService(_RealPromotionService):
     def __init__(self) -> None:
         pass
 
 
-class MockAsyncSession(_RealAsyncSession):
-    def __init__(self) -> None:
-        pass
-
-
-class _TestUser:
-    def __init__(self, id: str, role: str = "customer") -> None:
-        self.id = id
-        self.role = role
-
-
-async def _retrieve_user(
-    token: Token, connection: ASGIConnection
-) -> _TestUser | None:
-    return _TestUser(id=token.sub, role=token.extras.get("role", "customer"))
-
-
-test_jwt_auth = JWTAuth[_TestUser](
-    retrieve_user_handler=_retrieve_user,
-    token_secret=JWT_SECRET,
-    algorithm=JWT_ALGORITHM,
+test_jwt_auth = JWTAuth[TestUser](
+    retrieve_user_handler=_test_retrieve_user,
+    token_secret=TOKEN_SECRET,
+    algorithm="HS256",
     exclude=["/health", "/schema", "/api/promotions"],
 )
-
-
-def _make_jwt(sub: str, role: str = "customer") -> str:
-    now = datetime.now(timezone.utc)
-    payload = {
-        "sub": sub,
-        "role": role,
-        "iat": now,
-        "exp": now + timedelta(minutes=5),
-    }
-    return jose_jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
 def _make_promotion_response() -> PromotionResponse:
@@ -165,7 +131,7 @@ class TestAdminCreatePromotion:
     def test_create_returns_201(self, client):
         mock_resp = _make_promotion_response()
         client.mock_svc.create.return_value = mock_resp
-        token = _make_jwt(sub="admin-1", role="admin")
+        token = make_jwt_token(sub="admin-1", role="admin")
 
         response = client.post(
             "/api/admin/promotions/",
@@ -197,7 +163,7 @@ class TestAdminCreatePromotion:
         assert response.status_code == 401, response.text
 
     def test_non_admin_returns_403(self, client):
-        token = _make_jwt(sub="user-1", role="customer")
+        token = make_jwt_token(sub="user-1", role="customer")
         client.mock_svc.create.return_value = _make_promotion_response()
 
         response = client.post(
@@ -217,7 +183,7 @@ class TestAdminCreatePromotion:
 class TestAdminListPromotions:
     def test_list_all_returns_200(self, client):
         client.mock_svc.get_all.return_value = ([_make_promotion_response()], 1)
-        token = _make_jwt(sub="admin-1", role="admin")
+        token = make_jwt_token(sub="admin-1", role="admin")
 
         response = client.get(
             "/api/admin/promotions/",
@@ -234,7 +200,7 @@ class TestAdminDeletePromotion:
     def test_delete_returns_204(self, client):
         client.mock_svc.delete.return_value = None
         pid = uuid.uuid4()
-        token = _make_jwt(sub="admin-1", role="admin")
+        token = make_jwt_token(sub="admin-1", role="admin")
 
         response = client.delete(
             f"/api/admin/promotions/{pid}",

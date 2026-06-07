@@ -6,19 +6,17 @@ as test_auth.py and test_catalog.py). No PostgreSQL needed.
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 from unittest.mock import AsyncMock
 
 import pytest
-from jose import jwt as jose_jwt
 from litestar import Litestar
-from litestar.connection import ASGIConnection
-from litestar.contrib.jwt import JWTAuth, Token
+from litestar.contrib.jwt import JWTAuth
 from litestar.di import Provide
 from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession as _RealAsyncSession
 
+from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user, make_jwt_token, TOKEN_SECRET
 from app.controllers.orders import OrderController
 from app.middleware.i18n import I18nMiddleware
 from app.schemas.order import OrderItemResponse, OrderResponse
@@ -41,39 +39,13 @@ class MockOrderService(_RealOrderService):
         pass
 
 
-class MockAsyncSession(_RealAsyncSession):
-    """AsyncSession subclass for test DI. Skips real __init__."""
-
-    def __init__(self) -> None:
-        pass
-
-
 # ---------------------------------------------------------------------------
 # JWT helpers
 # ---------------------------------------------------------------------------
 
-TOKEN_SECRET = "this-is-a-32-character-test-secret!!"
-
-
-class _TestUser:
-    """Minimal user-like object for JWTAuth guard tests."""
-
-    def __init__(self, id: str, role: str) -> None:
-        self.id = id
-        self.role = role
-
-
-async def _test_retrieve_user(
-    token: Token, connection: ASGIConnection
-) -> _TestUser | None:
-    return _TestUser(
-        id=token.sub,
-        role=token.extras.get("role", "customer"),
-    )
-
 
 def _make_test_jwt_auth(exclude: list | None = None) -> JWTAuth:
-    return JWTAuth[_TestUser](
+    return JWTAuth[TestUser](
         retrieve_user_handler=_test_retrieve_user,
         token_secret=TOKEN_SECRET,
         algorithm="HS256",
@@ -81,19 +53,8 @@ def _make_test_jwt_auth(exclude: list | None = None) -> JWTAuth:
     )
 
 
-def _make_jwt_token(sub: str, role: str) -> str:
-    now = datetime.now(timezone.utc)
-    payload = {
-        "sub": sub,
-        "role": role,
-        "iat": now,
-        "exp": now + timedelta(minutes=5),
-    }
-    return jose_jwt.encode(payload, TOKEN_SECRET, algorithm="HS256")
-
-
 def _customer_headers():
-    return {"Authorization": f"Bearer {_make_jwt_token('customer-1', 'customer')}"}
+    return {"Authorization": f"Bearer {make_jwt_token('customer-1', 'customer')}"}
 
 
 # ---------------------------------------------------------------------------
@@ -407,7 +368,7 @@ class TestOrderIsolation:
 
         r = client.get(
             "/api/orders",
-            headers={"Authorization": f"Bearer {_make_jwt_token('user-b', 'customer')}"},
+            headers={"Authorization": f"Bearer {make_jwt_token('user-b', 'customer')}"},
         )
         assert r.status_code == 200, r.text
         body = r.json()
@@ -420,7 +381,7 @@ class TestOrderIsolation:
 
         r = client.get(
             f"/api/orders/{uuid.uuid4()}",
-            headers={"Authorization": f"Bearer {_make_jwt_token('user-b', 'customer')}"},
+            headers={"Authorization": f"Bearer {make_jwt_token('user-b', 'customer')}"},
         )
         assert r.status_code == 404, r.text
         assert "not found" in r.json()["detail"].lower()

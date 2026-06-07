@@ -11,21 +11,20 @@ from unittest.mock import AsyncMock
 
 import pytest
 from litestar import Litestar
-from litestar.contrib.jwt import JWTAuth, Token
 from litestar.connection import ASGIConnection
+from litestar.contrib.jwt import JWTAuth
 from litestar.di import Provide
 from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession as _RealAsyncSession
 
+from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user, make_jwt_token, TOKEN_SECRET
 from app.controllers import reviews as reviews_module
 from app.schemas.review import ReviewListResponse, ReviewResponse
 from app.services.review_service import ReviewService as _RealReviewService
 
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 
 from jose import jwt as jose_jwt
 
-JWT_SECRET = "test-secret-key-for-reviews-min-32-chars!!"
 JWT_ALGORITHM = "HS256"
 
 
@@ -42,9 +41,9 @@ async def _jwt_guard(connection: ASGIConnection, handler) -> None:
     token_str = auth.split(" ", 1)[1]
     try:
         payload = jose_jwt.decode(
-            token_str, JWT_SECRET, algorithms=[JWT_ALGORITHM]
+            token_str, TOKEN_SECRET, algorithms=["HS256"]
         )
-        connection.scope["user"] = _TestUser(
+        connection.scope["user"] = TestUser(
             id=payload["sub"],
             role=payload.get("role", "customer"),
         )
@@ -60,42 +59,14 @@ class MockReviewService(_RealReviewService):
         pass
 
 
-class MockAsyncSession(_RealAsyncSession):
-    def __init__(self) -> None:
-        pass
-
-
-class _TestUser:
-    def __init__(self, id: str, role: str = "customer") -> None:
-        self.id = id
-        self.role = role
-
-
-async def _retrieve_user(
-    token: Token, connection: ASGIConnection
-) -> _TestUser | None:
-    return _TestUser(id=token.sub, role=token.extras.get("role", "customer"))
-
-
 # Define test JWT auth instance. Will also be used to patch the controller's
 # guard reference so JWT validation uses our test secret.
-test_jwt_auth = JWTAuth[_TestUser](
-    retrieve_user_handler=_retrieve_user,
-    token_secret=JWT_SECRET,
-    algorithm=JWT_ALGORITHM,
+test_jwt_auth = JWTAuth[TestUser](
+    retrieve_user_handler=_test_retrieve_user,
+    token_secret=TOKEN_SECRET,
+    algorithm="HS256",
     exclude=["/health", "/schema", "/api/products"],
 )
-
-
-def _make_jwt(sub: str, role: str = "customer") -> str:
-    now = datetime.now(timezone.utc)
-    payload = {
-        "sub": sub,
-        "role": role,
-        "iat": now,
-        "exp": now + timedelta(minutes=5),
-    }
-    return jose_jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
 def _make_review_response(
@@ -169,7 +140,7 @@ class TestCreateReview:
     def test_create_review_success(self, client):
         mock_resp = _make_review_response()
         client.mock_svc.create_review.return_value = mock_resp
-        token = _make_jwt(sub="user-abc")
+        token = make_jwt_token(sub="user-abc")
 
         response = client.post(
             f"/api/products/{mock_resp.product_id}/reviews",
@@ -186,7 +157,7 @@ class TestCreateReview:
         client.mock_svc.create_review.side_effect = ValueError(
             "You have already reviewed this product"
         )
-        token = _make_jwt(sub="user-abc")
+        token = make_jwt_token(sub="user-abc")
         pid = uuid.uuid4()
 
         response = client.post(
@@ -202,7 +173,7 @@ class TestCreateReview:
         client.mock_svc.create_review.side_effect = ValueError(
             "You can only review products you have purchased"
         )
-        token = _make_jwt(sub="user-abc")
+        token = make_jwt_token(sub="user-abc")
         pid = uuid.uuid4()
 
         response = client.post(

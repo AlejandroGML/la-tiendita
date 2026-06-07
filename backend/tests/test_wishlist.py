@@ -9,22 +9,16 @@ from unittest.mock import AsyncMock
 
 import pytest
 from litestar import Litestar
-from litestar.contrib.jwt import JWTAuth, Token
-from litestar.connection import ASGIConnection
+from litestar.contrib.jwt import JWTAuth
 from litestar.di import Provide
 from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession as _RealAsyncSession
 
+from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user, make_jwt_token, TOKEN_SECRET
 from app.controllers.wishlist import WishlistController
 from app.schemas.wishlist import WishlistItemResponse, WishlistResponse
 from app.services.wishlist_service import WishlistService as _RealWishlistService
 
-from datetime import datetime, timedelta, timezone
-
-from jose import jwt as jose_jwt
-
-JWT_SECRET = "test-wishlist-secret-key-min-32-chars!!"
-JWT_ALGORITHM = "HS256"
+from datetime import datetime, timezone
 
 
 class MockWishlistService(_RealWishlistService):
@@ -32,40 +26,12 @@ class MockWishlistService(_RealWishlistService):
         pass
 
 
-class MockAsyncSession(_RealAsyncSession):
-    def __init__(self) -> None:
-        pass
-
-
-class _TestUser:
-    def __init__(self, id: str, role: str = "customer") -> None:
-        self.id = id
-        self.role = role
-
-
-async def _retrieve_user(
-    token: Token, connection: ASGIConnection
-) -> _TestUser | None:
-    return _TestUser(id=token.sub, role=token.extras.get("role", "customer"))
-
-
-test_jwt_auth = JWTAuth[_TestUser](
-    retrieve_user_handler=_retrieve_user,
-    token_secret=JWT_SECRET,
-    algorithm=JWT_ALGORITHM,
+test_jwt_auth = JWTAuth[TestUser](
+    retrieve_user_handler=_test_retrieve_user,
+    token_secret=TOKEN_SECRET,
+    algorithm="HS256",
     exclude=["/health", "/schema"],
 )
-
-
-def _make_jwt(sub: str, role: str = "customer") -> str:
-    now = datetime.now(timezone.utc)
-    payload = {
-        "sub": sub,
-        "role": role,
-        "iat": now,
-        "exp": now + timedelta(minutes=5),
-    }
-    return jose_jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
 
 def _make_item(product_id: uuid.UUID | None = None) -> WishlistItemResponse:
@@ -126,7 +92,7 @@ class TestAddToWishlist:
         mock_resp = _make_wishlist()
         client.mock_svc.add_item.return_value = mock_resp
         pid = uuid.uuid4()
-        token = _make_jwt(sub="user-abc")
+        token = make_jwt_token(sub="user-abc")
 
         response = client.post(
             f"/api/wishlist/{pid}",
@@ -140,7 +106,7 @@ class TestAddToWishlist:
         mock_resp = _make_wishlist()
         client.mock_svc.add_item.return_value = mock_resp
         pid = uuid.uuid4()
-        token = _make_jwt(sub="user-abc")
+        token = make_jwt_token(sub="user-abc")
 
         resp1 = client.post(
             f"/api/wishlist/{pid}",
@@ -164,7 +130,7 @@ class TestRemoveFromWishlist:
     def test_remove_product_returns_204(self, client):
         client.mock_svc.remove_item.return_value = None
         pid = uuid.uuid4()
-        token = _make_jwt(sub="user-abc")
+        token = make_jwt_token(sub="user-abc")
 
         response = client.delete(
             f"/api/wishlist/{pid}",
@@ -183,7 +149,7 @@ class TestListWishlist:
     def test_list_returns_200_with_items(self, client):
         mock_resp = _make_wishlist(items=[_make_item(), _make_item()])
         client.mock_svc.get_wishlist.return_value = mock_resp
-        token = _make_jwt(sub="user-abc")
+        token = make_jwt_token(sub="user-abc")
 
         response = client.get(
             "/api/wishlist/",

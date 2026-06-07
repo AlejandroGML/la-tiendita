@@ -16,8 +16,8 @@ from litestar.config.cors import CORSConfig
 from litestar.di import Provide
 from litestar.openapi import OpenAPIConfig
 from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession as _RealAsyncSession
 
+from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user
 from app.controllers.auth import AuthController
 from app.middleware.i18n import I18nMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware, _buckets
@@ -42,13 +42,6 @@ from app.guards.admin_guard import admin_guard
 class MockAuthService(_RealAuthService):
     """AuthService subclass for test DI. Skips real __init__ so we don't
     need a valid Settings object."""
-
-    def __init__(self) -> None:
-        pass
-
-
-class MockAsyncSession(_RealAsyncSession):
-    """AsyncSession subclass for test DI. Skips real __init__."""
 
     def __init__(self) -> None:
         pass
@@ -384,25 +377,6 @@ class TestOAuth:
 # ---------------------------------------------------------------------------
 
 
-class _TestUser:
-    """Minimal user-like object for JWTAuth guard tests."""
-
-    def __init__(self, id: str, role: str) -> None:
-        self.id = id
-        self.role = role
-
-
-async def _test_retrieve_user(
-    token: Token, connection: ASGIConnection
-) -> _TestUser | None:
-    """Test-only retrieve_user_handler — returns a lightweight user
-    with the role extracted from token extras (no DB hit)."""
-    return _TestUser(
-        id=token.sub,
-        role=token.extras.get("role", "customer"),
-    )
-
-
 def _make_jwt_token(
     secret: str, sub: str, role: str, algorithm: str = "HS256"
 ) -> str:
@@ -431,7 +405,7 @@ class TestGuardContract:
         """A protected endpoint without a token MUST return 401.
         The JWTAuth middleware (on_app_init) handles this — no per-route
         guard needed."""
-        test_jwt_auth = JWTAuth[_TestUser](
+        test_jwt_auth = JWTAuth[TestUser](
             retrieve_user_handler=_test_retrieve_user,
             token_secret="this-is-a-32-character-minimum-secret-key!!",
             algorithm="HS256",
@@ -455,7 +429,7 @@ class TestGuardContract:
         """A valid JWT token MUST grant access (200) to a protected
         endpoint without any per-route guard."""
         secret = "this-is-a-32-character-minimum-secret-key!!"
-        test_jwt_auth = JWTAuth[_TestUser](
+        test_jwt_auth = JWTAuth[TestUser](
             retrieve_user_handler=_test_retrieve_user,
             token_secret=secret,
             algorithm="HS256",
@@ -488,7 +462,7 @@ class TestGuardContract:
         customer (non-admin). Only admin_guard goes in ``guards=[]`` —
         JWT validation is handled by the middleware."""
         secret = "this-is-a-32-character-admin-secret-key!!"
-        test_jwt_auth = JWTAuth[_TestUser](
+        test_jwt_auth = JWTAuth[TestUser](
             retrieve_user_handler=_test_retrieve_user,
             token_secret=secret,
             algorithm="HS256",
@@ -522,7 +496,7 @@ class TestGuardContract:
         """admin_guard MUST allow access (200) when the authenticated
         user has the 'admin' role."""
         secret = "this-is-a-32-character-admin-secret-key!!"
-        test_jwt_auth = JWTAuth[_TestUser](
+        test_jwt_auth = JWTAuth[TestUser](
             retrieve_user_handler=_test_retrieve_user,
             token_secret=secret,
             algorithm="HS256",

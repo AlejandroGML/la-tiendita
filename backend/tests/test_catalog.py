@@ -4,17 +4,17 @@ Uses Litestar TestClient with subclass mocks and dedicated test apps.
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from jose import jwt as jose_jwt
 from litestar import Litestar, get
-from litestar.connection import ASGIConnection
-from litestar.contrib.jwt import JWTAuth, Token
+from litestar.contrib.jwt import JWTAuth
 from litestar.di import Provide
 from litestar.testing import TestClient
+
+from tests.conftest import TestUser, _test_retrieve_user, make_jwt_token, TOKEN_SECRET
 
 from app.controllers.categories import AdminCategoryController, CategoryController
 from app.controllers.products import AdminProductController, ProductController
@@ -173,21 +173,9 @@ def _make_mock_session():
 # JWT helpers
 # ---------------------------------------------------------------------------
 
-TOKEN_SECRET = "this-is-a-32-character-test-secret!"
-
-
-class _TestUser:
-    def __init__(self, id: str, role: str) -> None:
-        self.id = id
-        self.role = role
-
-
-async def _test_retrieve_user(token: Token, connection: ASGIConnection) -> _TestUser | None:
-    return _TestUser(id=token.sub, role=token.extras.get("role", "customer"))
-
 
 def _make_test_jwt_auth(exclude: list | None = None) -> JWTAuth:
-    return JWTAuth[_TestUser](
+    return JWTAuth[TestUser](
         retrieve_user_handler=_test_retrieve_user,
         token_secret=TOKEN_SECRET,
         algorithm="HS256",
@@ -195,18 +183,12 @@ def _make_test_jwt_auth(exclude: list | None = None) -> JWTAuth:
     )
 
 
-def _make_jwt_token(sub: str, role: str) -> str:
-    now = datetime.now(timezone.utc)
-    payload = {"sub": sub, "role": role, "iat": now, "exp": now + timedelta(minutes=5)}
-    return jose_jwt.encode(payload, TOKEN_SECRET, algorithm="HS256")
-
-
 def _admin_headers() -> dict:
-    return {"Authorization": f"Bearer {_make_jwt_token('admin-1', 'admin')}"}
+    return {"Authorization": f"Bearer {make_jwt_token('admin-1', 'admin')}"}
 
 
 def _customer_headers() -> dict:
-    return {"Authorization": f"Bearer {_make_jwt_token('customer-1', 'customer')}"}
+    return {"Authorization": f"Bearer {make_jwt_token('customer-1', 'customer')}"}
 
 
 # ---------------------------------------------------------------------------
@@ -718,7 +700,7 @@ class TestGuardContract:
         async def guarded() -> dict:
             return {"ok": True}
         app = Litestar(route_handlers=[guarded], on_app_init=[ta.on_app_init])
-        tok = _make_jwt_token("c1", "customer")
+        tok = make_jwt_token("c1", "customer")
         with TestClient(app=app, raise_server_exceptions=False) as tc:
             r = tc.get("/test-guarded", headers={"Authorization": f"Bearer {tok}"})
             assert r.status_code == 403, r.text
@@ -729,7 +711,7 @@ class TestGuardContract:
         async def guarded() -> dict:
             return {"ok": True}
         app = Litestar(route_handlers=[guarded], on_app_init=[ta.on_app_init])
-        tok = _make_jwt_token("admin-1", "admin")
+        tok = make_jwt_token("admin-1", "admin")
         with TestClient(app=app, raise_server_exceptions=False) as tc:
             r = tc.get("/test-guarded", headers={"Authorization": f"Bearer {tok}"})
             assert r.status_code == 200, r.text

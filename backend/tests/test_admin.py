@@ -11,21 +11,19 @@ per-controller via ``guards=[admin_guard]``.
 """
 
 import uuid
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timezone
 from decimal import Decimal
 from unittest.mock import AsyncMock
 
 import pytest
-from jose import jwt as jose_jwt
 from litestar import Litestar
 from litestar.config.cors import CORSConfig
-from litestar.connection import ASGIConnection
-from litestar.contrib.jwt import JWTAuth, Token
+from litestar.contrib.jwt import JWTAuth
 from litestar.di import Provide
 from litestar.openapi import OpenAPIConfig
 from litestar.testing import TestClient
-from sqlalchemy.ext.asyncio import AsyncSession as _RealAsyncSession
 
+from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user, make_jwt_token, TOKEN_SECRET
 from app.controllers.admin import AdminController
 from app.middleware.i18n import I18nMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware, _buckets
@@ -70,57 +68,19 @@ class MockAdminOrderService(_RealAdminOrderService):
         pass
 
 
-class MockAsyncSession(_RealAsyncSession):
-    """AsyncSession subclass for test DI. Skips real __init__."""
-
-    def __init__(self) -> None:
-        pass
-
-
 # ---------------------------------------------------------------------------
 # JWT helpers — same pattern as test_auth.py and test_orders.py
 # ---------------------------------------------------------------------------
 
-TOKEN_SECRET = "this-is-a-32-character-test-secret!!"
-
-
-class _TestUser:
-    """Minimal user-like object for JWTAuth guard tests."""
-
-    def __init__(self, id: str, role: str) -> None:
-        self.id = id
-        self.role = role
-
-
-async def _test_retrieve_user(
-    token: Token, connection: ASGIConnection
-) -> _TestUser | None:
-    return _TestUser(
-        id=token.sub,
-        role=token.extras.get("role", "customer"),
-    )
-
-
-def _make_jwt_token(sub: str, role: str) -> str:
-    """Create a signed JWT access token for testing."""
-    now = datetime.now(timezone.utc)
-    payload = {
-        "sub": sub,
-        "role": role,
-        "iat": now,
-        "exp": now + timedelta(minutes=5),
-    }
-    return jose_jwt.encode(payload, TOKEN_SECRET, algorithm="HS256")
-
 
 def _admin_headers() -> dict:
     """Authorization header with admin-role JWT."""
-    return {"Authorization": f"Bearer {_make_jwt_token('admin-1', 'admin')}"}
+    return {"Authorization": f"Bearer {make_jwt_token('admin-1', 'admin')}"}
 
 
 def _customer_headers() -> dict:
     """Authorization header with customer-role JWT."""
-    return {"Authorization": f"Bearer {_make_jwt_token('customer-1', 'customer')}"}
+    return {"Authorization": f"Bearer {make_jwt_token('customer-1', 'customer')}"}
 
 
 # ---------------------------------------------------------------------------
@@ -231,7 +191,7 @@ def client(mock_dashboard_svc, mock_user_svc, mock_order_svc, mock_session):
         "session": Provide(lambda: mock_session, sync_to_thread=False),
     }
 
-    jwt_auth = JWTAuth[_TestUser](
+    jwt_auth = JWTAuth[TestUser](
         retrieve_user_handler=_test_retrieve_user,
         token_secret=TOKEN_SECRET,
         algorithm="HS256",
