@@ -8,7 +8,7 @@ import type { Product } from '../../models/product.model';
 const mockProduct: Product = {
   id: 'abc-123',
   slug: 'jeans-levis-501',
-  price: 29990,
+  price: '29990',
   category_id: 1,
   size: 'M',
   brand: 'Levis',

@@ -17,7 +17,7 @@ const mockOrders: Order[] = [
   {
     id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
     status: 'confirmed',
-    total: 59980,
+    total: '59980',
     shipping_address: {
       name: 'Test User',
       address: 'Calle 123',
@@ -31,7 +31,7 @@ const mockOrders: Order[] = [
   {
     id: '11111111-2222-3333-4444-555555555555',
     status: 'shipped',
-    total: 89990,
+    total: '89990',
     shipping_address: {
       name: 'Test User',
       address: 'Av. Siempre Viva 742',

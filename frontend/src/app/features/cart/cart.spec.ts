@@ -19,8 +19,8 @@ const mockCartItem: CartItem = {
   product_id: 'prod-uuid-1',
   product_name: 'Jeans Levis',
   quantity: 2,
-  unit_price: 29990,
-  subtotal: 59980,
+  unit_price: '29990',
+  subtotal: '59980',
   added_at: '2026-06-01T00:00:00Z',
 };
 
@@ -29,19 +29,19 @@ const mockCartItem2: CartItem = {
   product_id: 'prod-uuid-2',
   product_name: 'Chaqueta North Face',
   quantity: 1,
-  unit_price: 49990,
-  subtotal: 49990,
+  unit_price: '49990',
+  subtotal: '49990',
   added_at: '2026-06-02T00:00:00Z',
 };
 
 const mockCart: CartResponse = {
   items: [mockCartItem, mockCartItem2],
-  subtotal: 109970,
+  subtotal: '109970',
 };
 
 const mockEmptyCart: CartResponse = {
   items: [],
-  subtotal: 0,
+  subtotal: '0',
 };
 
 function createCartServiceMock() {
@@ -160,7 +160,7 @@ describe('CartComponent', () => {
     // Use single-item cart to test delete
     const singleItemCart: CartResponse = {
       items: [{ ...mockCartItem, quantity: 1 }],
-      subtotal: 29990,
+      subtotal: '29990',
     };
     cartService.getCart = vi.fn().mockReturnValue(of(singleItemCart));
     component.loadCart();

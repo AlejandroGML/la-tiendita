@@ -15,7 +15,7 @@ import type { Order } from '../../../shared/models/order.model';
 const mockOrder: Order = {
   id: 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee',
   status: 'shipped',
-  total: 59980,
+  total: '59980',
   shipping_address: {
     name: 'Test User',
     address: 'Calle 123',
@@ -28,7 +28,7 @@ const mockOrder: Order = {
       product_id: 'prod-uuid-1',
       product_snapshot: {
         name: 'Jeans Levis',
-        price: 29990,
+        price: '29990',
         size: 'M',
         product_id: 'prod-uuid-1',
       },

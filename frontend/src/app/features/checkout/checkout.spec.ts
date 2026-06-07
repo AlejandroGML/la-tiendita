@@ -22,25 +22,25 @@ const mockCartItem: CartItem = {
   product_id: 'prod-uuid-1',
   product_name: 'Jeans Levis',
   quantity: 2,
-  unit_price: 29990,
-  subtotal: 59980,
+  unit_price: '29990',
+  subtotal: '59980',
   added_at: '2026-06-01T00:00:00Z',
 };
 
 const mockCart: CartResponse = {
   items: [mockCartItem],
-  subtotal: 59980,
+  subtotal: '59980',
 };
 
 const mockEmptyCart: CartResponse = {
   items: [],
-  subtotal: 0,
+  subtotal: '0',
 };
 
 const mockOrder: Order = {
   id: 'order-uuid-1',
   status: 'confirmed',
-  total: 59980,
+  total: '59980',
   shipping_address: {
     name: 'Test User',
     address: 'Calle 123',
@@ -53,12 +53,12 @@ const mockOrder: Order = {
       product_id: 'prod-uuid-1',
       product_snapshot: {
         name: 'Jeans Levis',
-        price: 29990,
+        price: '29990',
         size: 'M',
         product_id: 'prod-uuid-1',
       },
       quantity: 2,
-      price: 29990,
+      price: '29990',
     },
   ],
   created_at: '2026-06-06T00:00:00Z',

@@ -95,7 +95,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     return this.cart()?.items ?? [];
   }
 
-  get total(): number {
-    return this.cart()?.subtotal ?? 0;
+  get total(): string {
+    return this.cart()?.subtotal ?? '0';
   }
 }

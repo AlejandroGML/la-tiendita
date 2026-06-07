@@ -99,8 +99,10 @@ export class AdminProducts implements OnInit, OnDestroy {
     return product.image_urls?.length ? product.image_urls[0] : '';
   }
 
-  isDeleted(product: Product): boolean {
-    return !!product.deleted_at;
+  isDeleted(_product: Product): boolean {
+    // Backend ProductResponse never includes deleted_at — soft-deleted
+    // products are filtered at the query layer and never reach the frontend.
+    return false;
   }
 
   getConditionClasses(condition: string): string {
