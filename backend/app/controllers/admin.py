@@ -30,11 +30,15 @@ from app.schemas.admin import (
     UserRoleUpdate,
 )
 from app.schemas.order import OrderAdminListItem
-from app.services.admin_service import (
-    AdminService,
+from app.services.admin_order_service import (
+    AdminOrderService,
     InvalidTransitionError,
+)
+from app.services.admin_user_service import (
+    AdminUserService,
     SelfDemotionError,
 )
+from app.services.dashboard_service import DashboardService
 
 
 # ---------------------------------------------------------------------------
@@ -42,9 +46,19 @@ from app.services.admin_service import (
 # ---------------------------------------------------------------------------
 
 
-async def provide_admin_service() -> AdminService:
-    """Construct a stateless AdminService."""
-    return AdminService()
+async def provide_dashboard_service() -> DashboardService:
+    """Construct a stateless DashboardService."""
+    return DashboardService()
+
+
+async def provide_admin_user_service() -> AdminUserService:
+    """Construct a stateless AdminUserService."""
+    return AdminUserService()
+
+
+async def provide_admin_order_service() -> AdminOrderService:
+    """Construct a stateless AdminOrderService."""
+    return AdminOrderService()
 
 
 async def provide_session() -> AsyncSession:
@@ -74,7 +88,9 @@ class AdminController(Controller):
     tags = ["admin"]
     guards = [admin_guard]
     dependencies = {
-        "admin_service": Provide(provide_admin_service, sync_to_thread=False),
+        "dashboard_svc": Provide(provide_dashboard_service, sync_to_thread=False),
+        "user_svc": Provide(provide_admin_user_service, sync_to_thread=False),
+        "order_svc": Provide(provide_admin_order_service, sync_to_thread=False),
         "session": Provide(provide_session, sync_to_thread=False),
     }
 
@@ -85,11 +101,11 @@ class AdminController(Controller):
     @get("/stats")
     async def get_stats(
         self,
-        admin_service: AdminService,
+        dashboard_svc: DashboardService,
         session: AsyncSession,
     ) -> DashboardStatsResponse:
         """Return aggregate counters for the admin dashboard."""
-        return await admin_service.get_dashboard_stats(session)
+        return await dashboard_svc.get_dashboard_stats(session)
 
     # ------------------------------------------------------------------
     # Users
@@ -98,13 +114,13 @@ class AdminController(Controller):
     @get("/users")
     async def list_users(
         self,
-        admin_service: AdminService,
+        user_svc: AdminUserService,
         session: AsyncSession,
         page: int = 1,
         per_page: int = 20,
     ) -> dict:
         """Paginated list of all users with order counts (admin-only)."""
-        items, total = await admin_service.list_users(
+        items, total = await user_svc.list_users(
             session, page=page, per_page=per_page
         )
 
@@ -124,12 +140,12 @@ class AdminController(Controller):
         user_id: UUID,
         data: UserRoleUpdate,
         request: ASGIConnection,
-        admin_service: AdminService,
+        user_svc: AdminUserService,
         session: AsyncSession,
     ) -> dict:
         """Change a user's role (admin-only). Self-demotion is blocked."""
         try:
-            item = await admin_service.update_user_role(
+            item = await user_svc.update_user_role(
                 session,
                 user_id=user_id,
                 new_role=data.role,
@@ -149,7 +165,7 @@ class AdminController(Controller):
     @get("/orders")
     async def list_orders(
         self,
-        admin_service: AdminService,
+        order_svc: AdminOrderService,
         session: AsyncSession,
         page: int = 1,
         per_page: int = 20,
@@ -161,7 +177,7 @@ class AdminController(Controller):
         ``delivered``, or ``cancelled``.
         """
         try:
-            items, total = await admin_service.list_all_orders(
+            items, total = await order_svc.list_all_orders(
                 session, page=page, per_page=per_page, status=status
             )
         except ValueError as exc:
@@ -182,7 +198,7 @@ class AdminController(Controller):
         self,
         order_id: UUID,
         data: OrderStatusUpdate,
-        admin_service: AdminService,
+        order_svc: AdminOrderService,
         session: AsyncSession,
     ) -> dict:
         """Transition an order to a new status (admin-only).
@@ -191,7 +207,7 @@ class AdminController(Controller):
         Returns 400 for invalid transitions (e.g., ``delivered→pending``).
         """
         try:
-            item = await admin_service.update_order_status(
+            item = await order_svc.update_order_status(
                 session,
                 order_id=order_id,
                 new_status=data.status,

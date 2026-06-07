@@ -33,9 +33,9 @@ Chain strategy: stacked-to-main
 
 ## Phase 2: PR1 — Backend Wiring & Test Updates
 
-- [ ] 2.1 Modify `backend/app/controllers/admin.py` — replace `provide_admin_service` with 3 providers (`provide_dashboard_service`, `provide_admin_user_service`, `provide_admin_order_service`); update 3 dependency params
-- [ ] 2.2 Delete `backend/app/services/admin_service.py` — all code moved to 3 services; also remove orphaned `pagination_meta`
-- [ ] 2.3 Update `backend/tests/test_admin.py` — delete `MockAdminService`, add `MockDashboardService`, `MockAdminUserService`, `MockAdminOrderService` per endpoint; update controller deps
+- [x] 2.1 Modify `backend/app/controllers/admin.py` — replace `provide_admin_service` with 3 providers (`provide_dashboard_service`, `provide_admin_user_service`, `provide_admin_order_service`); update 3 dependency params
+- [x] 2.2 Delete `backend/app/services/admin_service.py` — all code moved to 3 services; also remove orphaned `pagination_meta`
+- [x] 2.3 Update `backend/tests/test_admin.py` — delete `MockAdminService`, add `MockDashboardService`, `MockAdminUserService`, `MockAdminOrderService` per endpoint; update controller deps
 
 ## Phase 3: PR2 — Frontend Service Extraction
 

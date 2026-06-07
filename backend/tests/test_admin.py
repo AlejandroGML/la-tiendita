@@ -5,9 +5,9 @@ Uses subclass-based mocks that pass ``isinstance`` checks (required by
 Litestar's msgspec parameter validation in 2.23+). No PostgreSQL needed.
 
 Strategy: replace ``AdminController.dependencies`` before app construction
-with providers that return subclass mocks. JWTAuth is configured via
-``on_app_init`` for token validation; ``admin_guard`` is applied per-controller
-via ``guards=[admin_guard]``.
+with providers that return per-domain subclass mocks. JWTAuth is configured
+via ``on_app_init`` for token validation; ``admin_guard`` is applied
+per-controller via ``guards=[admin_guard]``.
 """
 
 import uuid
@@ -31,10 +31,16 @@ from app.middleware.i18n import I18nMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware, _buckets
 from app.schemas.admin import DashboardStatsResponse, UserAdminItem
 from app.schemas.order import OrderAdminListItem
-from app.services.admin_service import (
-    AdminService as _RealAdminService,
+from app.services.admin_order_service import (
+    AdminOrderService as _RealAdminOrderService,
     InvalidTransitionError,
+)
+from app.services.admin_user_service import (
+    AdminUserService as _RealAdminUserService,
     SelfDemotionError,
+)
+from app.services.dashboard_service import (
+    DashboardService as _RealDashboardService,
 )
 
 
@@ -43,8 +49,22 @@ from app.services.admin_service import (
 # ---------------------------------------------------------------------------
 
 
-class MockAdminService(_RealAdminService):
-    """AdminService subclass for test DI. Skips real __init__."""
+class MockDashboardService(_RealDashboardService):
+    """DashboardService subclass for test DI. Skips real __init__."""
+
+    def __init__(self) -> None:
+        pass
+
+
+class MockAdminUserService(_RealAdminUserService):
+    """AdminUserService subclass for test DI. Skips real __init__."""
+
+    def __init__(self) -> None:
+        pass
+
+
+class MockAdminOrderService(_RealAdminOrderService):
+    """AdminOrderService subclass for test DI. Skips real __init__."""
 
     def __init__(self) -> None:
         pass
@@ -162,16 +182,28 @@ def _make_order_admin_list_item(
 
 
 @pytest.fixture
-def mock_svc():
-    """AdminService subclass with mocked async methods."""
-    svc = MockAdminService()
-
+def mock_dashboard_svc():
+    """DashboardService subclass with mocked async methods."""
+    svc = MockDashboardService()
     svc.get_dashboard_stats = AsyncMock()
+    return svc
+
+
+@pytest.fixture
+def mock_user_svc():
+    """AdminUserService subclass with mocked async methods."""
+    svc = MockAdminUserService()
     svc.list_users = AsyncMock()
     svc.update_user_role = AsyncMock()
+    return svc
+
+
+@pytest.fixture
+def mock_order_svc():
+    """AdminOrderService subclass with mocked async methods."""
+    svc = MockAdminOrderService()
     svc.list_all_orders = AsyncMock()
     svc.update_order_status = AsyncMock()
-
     return svc
 
 
@@ -182,8 +214,8 @@ def mock_session():
 
 
 @pytest.fixture
-def client(mock_svc, mock_session):
-    """Litestar TestClient with mocked AdminService + AsyncSession via DI override.
+def client(mock_dashboard_svc, mock_user_svc, mock_order_svc, mock_session):
+    """Litestar TestClient with per-domain mocked services + AsyncSession via DI override.
 
     JWTAuth is activated via ``on_app_init`` so JWT validation (401)
     and ``admin_guard`` (403) both fire as in production.
@@ -193,7 +225,9 @@ def client(mock_svc, mock_session):
     # Override controller dependencies BEFORE app construction.
     _original_deps = AdminController.dependencies
     AdminController.dependencies = {
-        "admin_service": Provide(lambda: mock_svc, sync_to_thread=False),
+        "dashboard_svc": Provide(lambda: mock_dashboard_svc, sync_to_thread=False),
+        "user_svc": Provide(lambda: mock_user_svc, sync_to_thread=False),
+        "order_svc": Provide(lambda: mock_order_svc, sync_to_thread=False),
         "session": Provide(lambda: mock_session, sync_to_thread=False),
     }
 
@@ -224,7 +258,9 @@ def client(mock_svc, mock_session):
 
     try:
         with TestClient(app=test_app, raise_server_exceptions=False) as tc:
-            tc.mock_svc = mock_svc
+            tc.mock_dashboard_svc = mock_dashboard_svc
+            tc.mock_user_svc = mock_user_svc
+            tc.mock_order_svc = mock_order_svc
             tc.mock_session = mock_session
             yield tc
     finally:
@@ -241,7 +277,7 @@ class TestDashboardStats:
 
     def test_dashboard_stats_returns_200(self, client):
         """Admin receives dashboard stats with all four aggregate values."""
-        client.mock_svc.get_dashboard_stats.return_value = _make_dashboard_stats()
+        client.mock_dashboard_svc.get_dashboard_stats.return_value = _make_dashboard_stats()
 
         response = client.get("/api/admin/stats", headers=_admin_headers())
 
@@ -277,8 +313,8 @@ class TestListUsers:
             role="admin",
             orders_count=12,
         )
-        # AdminService.list_users returns (items, total)
-        client.mock_svc.list_users.return_value = ([user1, user2], 2)
+        # AdminUserService.list_users returns (items, total)
+        client.mock_user_svc.list_users.return_value = ([user1, user2], 2)
 
         response = client.get("/api/admin/users", headers=_admin_headers())
 
@@ -313,7 +349,7 @@ class TestUpdateUserRole:
             role="admin",
             orders_count=0,
         )
-        client.mock_svc.update_user_role.return_value = updated_user
+        client.mock_user_svc.update_user_role.return_value = updated_user
 
         response = client.patch(
             f"/api/admin/users/{target_id}/role",
@@ -328,7 +364,7 @@ class TestUpdateUserRole:
 
     def test_update_own_role_blocked(self, client):
         """Admin attempts to change their own role — returns 400."""
-        client.mock_svc.update_user_role.side_effect = SelfDemotionError(
+        client.mock_user_svc.update_user_role.side_effect = SelfDemotionError(
             "cannot change your own role"
         )
 
@@ -355,7 +391,7 @@ class TestListOrders:
         """Admin filters orders by status=pending — returns only matching orders."""
         order1 = _make_order_admin_list_item(status="pending")
         order2 = _make_order_admin_list_item(status="pending")
-        client.mock_svc.list_all_orders.return_value = ([order1, order2], 2)
+        client.mock_order_svc.list_all_orders.return_value = ([order1, order2], 2)
 
         response = client.get(
             "/api/admin/orders?status=pending",
@@ -386,7 +422,7 @@ class TestUpdateOrderStatus:
             status="confirmed",
             total=Decimal("99.99"),
         )
-        client.mock_svc.update_order_status.return_value = updated_order
+        client.mock_order_svc.update_order_status.return_value = updated_order
 
         response = client.patch(
             f"/api/admin/orders/{order_id}/status",
@@ -401,7 +437,7 @@ class TestUpdateOrderStatus:
 
     def test_invalid_transition_blocked(self, client):
         """Invalid transition delivered→pending returns 400."""
-        client.mock_svc.update_order_status.side_effect = InvalidTransitionError(
+        client.mock_order_svc.update_order_status.side_effect = InvalidTransitionError(
             "cannot transition order abc-123 from 'delivered' to 'pending'"
         )
 
