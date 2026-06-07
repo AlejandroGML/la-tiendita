@@ -164,7 +164,7 @@ describe('AdminProducts', () => {
 
   it('should show empty state when no products', async () => {
     adminProductService.getAdminProducts = vi.fn().mockReturnValue(
-      of({ data: [], pagination: { page: 1, per_page: 50, total: 0, pages: 0 } }),
+      of({ data: [], pagination: { page: 1, per_page: 50, total: 0, pages: 0 } } satisfies AdminProductListResponse),
     );
     component.loadProducts();
     await fixture.whenStable();

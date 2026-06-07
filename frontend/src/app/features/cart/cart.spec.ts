@@ -158,10 +158,10 @@ describe('CartComponent', () => {
 
   it('should call removeItem on delete button when quantity is 1', () => {
     // Use single-item cart to test delete
-    const singleItemCart: CartResponse = {
+    const singleItemCart = {
       items: [{ ...mockCartItem, quantity: 1 }],
       subtotal: '29990',
-    };
+    } satisfies CartResponse;
     cartService.getCart = vi.fn().mockReturnValue(of(singleItemCart));
     component.loadCart();
     fixture.detectChanges();

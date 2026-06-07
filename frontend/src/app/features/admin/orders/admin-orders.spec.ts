@@ -54,7 +54,7 @@ function createAdminOrderServiceMock() {
     updateOrderStatus: vi.fn().mockImplementation((_id: string, status: string) =>
       of({ ...mockOrders[0], status }),
     ),
-  };
+  } satisfies Partial<AdminOrderService>;
 }
 
 describe('AdminOrders', () => {
@@ -207,6 +207,56 @@ describe('AdminOrders', () => {
 
   it('should block invalid transition: confirmed → pending', () => {
     component.onStatusChange(mockOrders[1], 'pending');
+
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
+  });
+
+  it('should block invalid transition: delivered → confirmed', () => {
+    component.onStatusChange(mockOrders[3], 'confirmed');
+
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
+  });
+
+  it('should block invalid transition: shipped → pending', () => {
+    component.onStatusChange(mockOrders[2], 'pending');
+
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
+  });
+
+  it('should block invalid transition: shipped → confirmed', () => {
+    component.onStatusChange(mockOrders[2], 'confirmed');
+
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
+  });
+
+  it('should block invalid transition: shipped → cancelled', () => {
+    component.onStatusChange(mockOrders[2], 'cancelled');
+
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
+  });
+
+  it('should block invalid transition: cancelled → delivered', () => {
+    const cancelledOrder: OrderAdminItem = {
+      id: 'order-cancelled',
+      status: 'cancelled',
+      total: '5000',
+      user_name: 'Test User',
+      created_at: '2026-06-01T00:00:00Z',
+    };
+    component.onStatusChange(cancelledOrder, 'delivered');
+
+    expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
+  });
+
+  it('should block any transition from cancelled status', () => {
+    const cancelledOrder: OrderAdminItem = {
+      id: 'order-cancelled-2',
+      status: 'cancelled',
+      total: '7500',
+      user_name: 'Another User',
+      created_at: '2026-06-01T00:00:00Z',
+    };
+    component.onStatusChange(cancelledOrder, 'pending');
 
     expect(adminOrderService.updateOrderStatus).not.toHaveBeenCalled();
   });

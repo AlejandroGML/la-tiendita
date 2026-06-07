@@ -46,13 +46,13 @@ function createAdminProductServiceMock() {
     createProduct: vi.fn().mockReturnValue(of({})),
     updateProduct: vi.fn().mockReturnValue(of({})),
     deleteProduct: vi.fn().mockReturnValue(of(void 0)),
-  };
+  } satisfies Partial<AdminProductService>;
 }
 
 function createHttpMock() {
   return {
     get: vi.fn().mockReturnValue(of(mockCategories)),
-  };
+  } satisfies { get: HttpClient['get'] };
 }
 
 describe('AdminProductForm', () => {

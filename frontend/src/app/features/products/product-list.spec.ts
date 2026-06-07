@@ -19,6 +19,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { ProductService } from '../../core/services/product.service';
 import type { ProductListResponse } from '../../core/services/product.service';
 import type { Product } from '../../shared/models/product.model';
+import type { Category } from '../../shared/models/category.model';
 
 const mockProducts: Product[] = [
   {
@@ -87,6 +88,7 @@ const mockCategories = [
   {
     id: 1,
     slug: 'pantalones',
+    image_url: null,
     translations: [
       { lang: 'es', name: 'Pantalones' },
       { lang: 'en', name: 'Pants' },
@@ -95,12 +97,13 @@ const mockCategories = [
   {
     id: 2,
     slug: 'chaquetas',
+    image_url: null,
     translations: [
       { lang: 'es', name: 'Chaquetas' },
       { lang: 'en', name: 'Jackets' },
     ],
   },
-];
+] satisfies Category[];
 
 function createProductServiceMock() {
   return {
@@ -111,7 +114,7 @@ function createProductServiceMock() {
 function createHttpMock() {
   return {
     get: vi.fn().mockReturnValue(of(mockCategories)),
-  };
+  } satisfies { get: HttpClient['get'] };
 }
 
 describe('ProductList', () => {
@@ -256,7 +259,7 @@ describe('ProductList', () => {
 
   it('should show no results message when products array is empty', async () => {
     productService.getProducts = vi.fn().mockReturnValue(
-      of({ data: [], pagination: { page: 1, per_page: 12, total: 0, pages: 0 }, meta: {} }),
+      of({ data: [], pagination: { page: 1, per_page: 12, total: 0, pages: 0 }, meta: {} } satisfies ProductListResponse),
     );
     component.onFilterChange('condition', 'new');
 
