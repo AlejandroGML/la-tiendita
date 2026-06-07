@@ -7,5 +7,6 @@ export interface CategoryTranslation {
 export interface Category {
   id: number;
   slug: string;
+  image_url: string | null;
   translations: CategoryTranslation[];
 }

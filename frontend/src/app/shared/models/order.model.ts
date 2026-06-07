@@ -17,18 +17,18 @@ export interface OrderItem {
   product_id: string;
   product_snapshot: {
     name: string;
-    price: number;
+    price: string;
     size?: string;
     product_id: string;
   };
   quantity: number;
-  price: number;
+  price: string;
 }
 
 export interface Order {
   id: string;
   status: OrderStatus;
-  total: number;
+  total: string;
   shipping_address: ShippingAddress;
   items: OrderItem[];
   created_at: string;

@@ -7,7 +7,7 @@ export interface ProductTranslation {
 export interface Product {
   id: string;
   slug: string;
-  price: number;
+  price: string;
   category_id: number;
   size: string;
   brand: string;
@@ -27,7 +27,6 @@ export interface Product {
   stock: number;
   translations: ProductTranslation[];
   created_at: string;
-  deleted_at?: string;
 }
 
 export interface ConditionDetails {

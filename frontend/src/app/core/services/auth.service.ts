@@ -4,16 +4,19 @@ import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 
 export interface UserResponse {
-  id: number;
+  id: string;
   email: string;
   name: string;
   role: 'user' | 'admin';
   preferred_lang: string;
+  is_verified: boolean;
+  created_at: string;
 }
 
 export interface TokenResponse {
   access_token: string;
   refresh_token: string;
+  token_type: string;
   user: UserResponse;
 }
 

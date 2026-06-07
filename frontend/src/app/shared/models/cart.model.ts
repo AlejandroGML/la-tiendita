@@ -3,14 +3,14 @@ export interface CartItem {
   product_id: string;
   product_name: string;
   quantity: number;
-  unit_price: number;
-  subtotal: number;
+  unit_price: string;
+  subtotal: string;
   added_at: string;
 }
 
 export interface CartResponse {
   items: CartItem[];
-  subtotal: number;
+  subtotal: string;
 }
 
 export interface AddToCartRequest {
