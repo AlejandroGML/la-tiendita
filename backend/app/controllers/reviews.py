@@ -11,14 +11,15 @@ from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import (
     HTTPException,
+    NotAuthorizedException,
     NotFoundException,
     ValidationException,
 )
+from litestar.handlers.base import BaseRouteHandler
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.engine import async_session as _async_session_fn
-from app.guards.jwt_guard import jwt_auth
 from app.schemas.review import CreateReviewRequest, ReviewListResponse, ReviewResponse
 from app.services.review_service import ReviewService
 
@@ -40,6 +41,22 @@ async def provide_session() -> AsyncSession:
         except Exception:
             await session.rollback()
             raise
+
+
+# ---------------------------------------------------------------------------
+# Guard
+# ---------------------------------------------------------------------------
+
+
+def review_auth_guard(
+    connection: ASGIConnection, route_handler: BaseRouteHandler
+) -> None:
+    """Litestar before-request guard. Checks ``request.user`` is set by JWT middleware.
+
+    Returns **401** (NotAuthorizedException) when the user is not authenticated."""
+    user = getattr(connection, "user", None)
+    if user is None:
+        raise NotAuthorizedException(detail="authentication required")
 
 
 # ---------------------------------------------------------------------------
@@ -76,7 +93,7 @@ class ReviewController(Controller):
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc
 
-    @post("/{product_id:uuid}/reviews", status_code=201, guards=[jwt_auth])
+    @post("/{product_id:uuid}/reviews", status_code=201, guards=[review_auth_guard])
     async def create_review(
         self,
         product_id: UUID,

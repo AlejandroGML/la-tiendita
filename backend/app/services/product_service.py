@@ -12,6 +12,7 @@ from uuid import UUID
 
 from sqlalchemy import and_, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload, selectinload
 
 from app.models.category import Category, CategoryTranslation
@@ -122,7 +123,15 @@ class ProductService:
             source_dataset=data.source_dataset,
         )
         session.add(product)
-        await session.flush()
+
+        try:
+            await session.flush()
+        except IntegrityError as exc:
+            if "slug" not in str(exc.orig).lower():
+                raise
+            slug = await self.generate_slug(session, name_for_slug)
+            product.slug = slug
+            await session.flush()
 
         # Persist translations
         for t in data.translations:

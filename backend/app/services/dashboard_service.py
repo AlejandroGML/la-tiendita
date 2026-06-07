@@ -7,7 +7,7 @@ session — no coupling to other services.
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.order import Order
+from app.models.order import Order, OrderStatus
 from app.models.product import Product
 from app.models.user import User
 from app.schemas.admin import DashboardStatsResponse
@@ -35,7 +35,9 @@ class DashboardService:
             select(func.count()).select_from(User)
         )
         orders = await session.scalar(
-            select(func.count()).select_from(Order)
+            select(func.count()).select_from(Order).where(
+                Order.status != OrderStatus.CANCELLED
+            )
         )
         revenue = await session.scalar(
             select(func.coalesce(func.sum(Order.total), 0)).select_from(Order)

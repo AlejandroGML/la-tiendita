@@ -5,6 +5,7 @@ stock validation, deduction, product snapshot, order creation,
 and cart clearing all succeed or roll back together.
 """
 
+import asyncio
 import logging
 from decimal import Decimal
 from uuid import UUID
@@ -342,8 +343,14 @@ class OrderService:
             shipping_address=shipping_str,
             lang=user.preferred_lang.value,
         )
-        send_email(
-            to=user.email,
-            subject=f"Order Confirmation #{order.id} — La Tiendita",
-            html_body=html_body,
-        )
+        try:
+            await asyncio.to_thread(
+                send_email,
+                to=user.email,
+                subject=f"Order Confirmation #{order.id} — La Tiendita",
+                html_body=html_body,
+            )
+        except Exception:
+            logger.exception(
+                "Failed to send confirmation email for order %s", order.id
+            )
