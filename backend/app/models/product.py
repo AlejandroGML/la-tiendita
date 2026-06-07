@@ -60,11 +60,11 @@ class Product(Base):
         ForeignKey("categories.id", ondelete="SET NULL"), nullable=True
     )
     size: Mapped[ProductSize | None] = mapped_column(
-        Enum(ProductSize), nullable=True
+        Enum(ProductSize, values_callable=lambda x: [e.value for e in x]), nullable=True
     )
     brand: Mapped[str | None] = mapped_column(String(100), nullable=True)
     condition: Mapped[ProductCondition | None] = mapped_column(
-        Enum(ProductCondition), nullable=True
+        Enum(ProductCondition, values_callable=lambda x: [e.value for e in x]), nullable=True
     )
     image_urls: Mapped[list] = mapped_column(
         JSONB, nullable=False, default=list

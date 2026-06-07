@@ -16,19 +16,21 @@ services:
       retries: 5
 
   backend:
-    image: python:3.14-slim
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./backend:/app
-    working_dir: /app
+      - ./backend/app:/app/app
+      - ./backend/alembic.ini:/app/alembic.ini
+      - ./backend/migrations:/app/migrations
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/tiendita_dev
     env_file:
       - .env
     command: >
-      sh -c "pip install -e . &&
-             uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
+      sh -c "uvicorn app.main:app --reload --host 0.0.0.0 --port 8000"
     depends_on:
       db:
         condition: service_healthy
@@ -43,8 +45,9 @@ services:
     working_dir: /app
     command: >
       sh -c "corepack enable &&
+             pnpm approve-builds --all &&
              pnpm install &&
-             pnpm start -- --host 0.0.0.0"
+             pnpm exec ng serve --host 0.0.0.0"
     depends_on:
       - backend
 

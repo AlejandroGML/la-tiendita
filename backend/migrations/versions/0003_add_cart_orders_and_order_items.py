@@ -25,7 +25,6 @@ def upgrade() -> None:
         "pending", "confirmed", "shipped", "delivered", "cancelled",
         name="orderstatus",
     )
-    orderstatus_enum.create(op.get_bind(), checkfirst=True)
 
     # --- cart_items ---
     op.create_table(

@@ -44,7 +44,7 @@ class Order(Base):
         ForeignKey("users.id"), nullable=False, index=True
     )
     status: Mapped[OrderStatus] = mapped_column(
-        Enum(OrderStatus), default=OrderStatus.PENDING, nullable=False
+        Enum(OrderStatus, values_callable=lambda x: [e.value for e in x]), default=OrderStatus.PENDING, nullable=False
     )
     total: Mapped[Decimal] = mapped_column(
         Numeric(10, 2), nullable=False

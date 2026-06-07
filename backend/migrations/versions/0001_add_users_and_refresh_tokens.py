@@ -24,9 +24,6 @@ def upgrade() -> None:
     userrole_enum = sa.Enum("customer", "admin", name="userrole")
     preferredlang_enum = sa.Enum("es", "en", "sv", name="preferredlang")
 
-    userrole_enum.create(op.get_bind(), checkfirst=True)
-    preferredlang_enum.create(op.get_bind(), checkfirst=True)
-
     op.create_table(
         "users",
         sa.Column("id", sa.Uuid(), nullable=False),

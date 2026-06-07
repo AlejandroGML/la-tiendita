@@ -29,7 +29,12 @@ async def provide_wishlist_service() -> WishlistService:
 
 async def provide_session() -> AsyncSession:
     async with _async_session_fn() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
 
 
 # ---------------------------------------------------------------------------

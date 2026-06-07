@@ -28,9 +28,6 @@ def upgrade() -> None:
         "XS", "S", "M", "L", "XL", "XXL", name="productsize"
     )
 
-    product_condition_enum.create(op.get_bind(), checkfirst=True)
-    product_size_enum.create(op.get_bind(), checkfirst=True)
-
     # --- categories ---
     op.create_table(
         "categories",

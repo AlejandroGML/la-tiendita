@@ -40,10 +40,10 @@ class User(Base):
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
     avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     role: Mapped[UserRole] = mapped_column(
-        Enum(UserRole), default=UserRole.CUSTOMER, nullable=False
+        Enum(UserRole, values_callable=lambda x: [e.value for e in x]), default=UserRole.CUSTOMER, nullable=False
     )
     preferred_lang: Mapped[PreferredLang] = mapped_column(
-        Enum(PreferredLang), default=PreferredLang.ES, nullable=False
+        Enum(PreferredLang, values_callable=lambda x: [e.value for e in x]), default=PreferredLang.ES, nullable=False
     )
     oauth_provider: Mapped[str | None] = mapped_column(String(50), nullable=True)
     oauth_id: Mapped[str | None] = mapped_column(String(255), nullable=True)

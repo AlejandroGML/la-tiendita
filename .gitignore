@@ -13,6 +13,8 @@ venv/
 
 # Node
 node_modules/
+.pnpm-store/
+pnpm-workspace.yaml
 
 # Angular
 .angular/

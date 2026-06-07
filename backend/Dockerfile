@@ -1,6 +1,6 @@
 # Stage 1: Build — install Python dependencies
 FROM python:3.14-slim AS builder
-WORKDIR /app
+WORKDIR /build
 COPY backend/ ./
 RUN pip install --no-cache-dir .
 

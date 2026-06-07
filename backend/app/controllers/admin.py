@@ -48,9 +48,14 @@ async def provide_admin_service() -> AdminService:
 
 
 async def provide_session() -> AsyncSession:
-    """Yield a new async DB session per request."""
+    """Yield a new async DB session per request, committing on success."""
     async with _async_session_fn() as session:
-        yield session
+        try:
+            yield session
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
 
 
 # ---------------------------------------------------------------------------
