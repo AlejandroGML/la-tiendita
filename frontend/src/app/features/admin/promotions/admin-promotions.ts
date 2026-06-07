@@ -25,6 +25,7 @@ export class AdminPromotionsComponent implements OnInit, OnDestroy {
 
   readonly promotions = signal<Promotion[]>([]);
   readonly loading = signal(false);
+  readonly error = signal(false);
   readonly saving = signal(false);
 
   readonly showForm = signal(false);
@@ -99,6 +100,7 @@ export class AdminPromotionsComponent implements OnInit, OnDestroy {
 
   loadPromotions(): void {
     this.loading.set(true);
+    this.error.set(false);
     this.promotionService
       .getPromotions({ per_page: 50 })
       .pipe(takeUntil(this.destroy$))
@@ -110,6 +112,7 @@ export class AdminPromotionsComponent implements OnInit, OnDestroy {
         error: () => {
           this.promotions.set([]);
           this.loading.set(false);
+          this.error.set(true);
         },
       });
   }

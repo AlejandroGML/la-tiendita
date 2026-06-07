@@ -16,6 +16,7 @@ export class AdminProducts implements OnInit, OnDestroy {
 
   readonly products = signal<Product[]>([]);
   readonly loading = signal(false);
+  readonly error = signal(false);
   readonly displayedColumns: string[] = [
     'image',
     'name',
@@ -44,6 +45,7 @@ export class AdminProducts implements OnInit, OnDestroy {
 
   loadProducts(): void {
     this.loading.set(true);
+    this.error.set(false);
     this.adminProductService
       .getAdminProducts({ per_page: 50 })
       .pipe(takeUntil(this.destroy$))
@@ -55,6 +57,7 @@ export class AdminProducts implements OnInit, OnDestroy {
         error: () => {
           this.products.set([]);
           this.loading.set(false);
+          this.error.set(true);
         },
       });
   }

@@ -191,8 +191,9 @@ describe('AdminProducts', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const noProducts = fixture.nativeElement.querySelector('[data-testid="no-products"]');
-    expect(noProducts).toBeTruthy();
+    const errorSection = fixture.nativeElement.querySelector('[data-testid="products-error"]');
+    expect(errorSection).toBeTruthy();
+    expect(component.error()).toBe(true);
   });
 
   it('should display product thumbnail image when available', () => {

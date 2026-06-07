@@ -19,7 +19,25 @@
   ></mat-progress-bar>
 
   <div
-    *ngIf="!loading() && products().length === 0"
+    *ngIf="error() && !loading()"
+    class="text-center py-12"
+    data-testid="products-error"
+  >
+    <mat-icon class="text-4xl text-red-400 mb-2">error_outline</mat-icon>
+    <p class="text-gray-500">{{ 'admin.productsError' | translate }}</p>
+    <button
+      mat-stroked-button
+      color="primary"
+      (click)="loadProducts()"
+      class="mt-3"
+      data-testid="products-retry"
+    >
+      {{ 'catalog.retry' | translate }}
+    </button>
+  </div>
+
+  <div
+    *ngIf="!loading() && !error() && products().length === 0"
     class="text-center text-gray-500 py-12"
     data-testid="no-products"
   >
@@ -28,7 +46,7 @@
   </div>
 
   <div
-    *ngIf="products().length > 0"
+    *ngIf="!loading() && !error() && products().length > 0"
     class="overflow-x-auto"
     data-testid="products-table"
   >

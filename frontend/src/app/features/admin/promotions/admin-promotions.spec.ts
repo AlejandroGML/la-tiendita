@@ -279,5 +279,6 @@ describe('AdminPromotionsComponent', () => {
     fixture.detectChanges();
 
     expect(component.promotions().length).toBe(0);
+    expect(component.error()).toBe(true);
   });
 });
