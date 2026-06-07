@@ -37,6 +37,17 @@ class ProductResponse(BaseModel):
     size: str | None = None
     brand: str | None = None
     condition: str | None = None
+    condition_rating: int | None = None
+    condition_details: dict | None = None
+    target_gender: str | None = None
+    material: str | None = None
+    colors: list[str] | None = None
+    trend: str | None = None
+    pattern: str | None = None
+    season: str | None = None
+    cut: list[str] | None = None
+    usage: str | None = None
+    source_dataset: str | None = None
     image_urls: list[str] = []
     stock: int
     translations: list[ProductTranslationResponse] = []
@@ -77,6 +88,17 @@ class CreateProductRequest(BaseModel):
     size: str | None = None
     brand: str | None = None
     condition: str | None = None
+    condition_rating: int | None = Field(None, ge=1, le=5)
+    condition_details: dict | None = None
+    target_gender: str | None = None
+    material: str | None = None
+    colors: list[str] | None = None
+    trend: str | None = None
+    pattern: str | None = None
+    season: str | None = None
+    cut: list[str] | None = None
+    usage: str | None = None
+    source_dataset: str | None = None
 
 
 class UpdateProductRequest(BaseModel):
@@ -88,5 +110,16 @@ class UpdateProductRequest(BaseModel):
     size: str | None = None
     brand: str | None = None
     condition: str | None = None
+    condition_rating: int | None = Field(None, ge=1, le=5)
+    condition_details: dict | None = None
+    target_gender: str | None = None
+    material: str | None = None
+    colors: list[str] | None = None
+    trend: str | None = None
+    pattern: str | None = None
+    season: str | None = None
+    cut: list[str] | None = None
+    usage: str | None = None
+    source_dataset: str | None = None
     image_urls: list[str] | None = None
     stock: int | None = Field(None, ge=0)

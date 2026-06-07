@@ -109,6 +109,17 @@ class ProductService:
             condition=(
                 ProductCondition(data.condition) if data.condition else None
             ),
+            condition_rating=data.condition_rating,
+            condition_details=data.condition_details,
+            target_gender=data.target_gender,
+            material=data.material,
+            colors=data.colors,
+            trend=data.trend,
+            pattern=data.pattern,
+            season=data.season,
+            cut=data.cut,
+            usage=data.usage,
+            source_dataset=data.source_dataset,
         )
         session.add(product)
         await session.flush()
@@ -159,6 +170,28 @@ class ProductService:
             product.brand = data.brand
         if data.condition is not None:
             product.condition = ProductCondition(data.condition)
+        if data.condition_rating is not None:
+            product.condition_rating = data.condition_rating
+        if data.condition_details is not None:
+            product.condition_details = data.condition_details
+        if data.target_gender is not None:
+            product.target_gender = data.target_gender
+        if data.material is not None:
+            product.material = data.material
+        if data.colors is not None:
+            product.colors = data.colors
+        if data.trend is not None:
+            product.trend = data.trend
+        if data.pattern is not None:
+            product.pattern = data.pattern
+        if data.season is not None:
+            product.season = data.season
+        if data.cut is not None:
+            product.cut = data.cut
+        if data.usage is not None:
+            product.usage = data.usage
+        if data.source_dataset is not None:
+            product.source_dataset = data.source_dataset
         if data.image_urls is not None:
             product.image_urls = data.image_urls
         if data.stock is not None:
@@ -271,6 +304,22 @@ class ProductService:
             stmt = stmt.where(Product.size == filters.size)
         if filters.condition is not None:
             stmt = stmt.where(Product.condition == filters.condition)
+        if filters.condition_rating is not None:
+            stmt = stmt.where(Product.condition_rating == filters.condition_rating)
+        if filters.brand is not None:
+            stmt = stmt.where(Product.brand.ilike(f"%{filters.brand}%"))
+        if filters.target_gender is not None:
+            stmt = stmt.where(Product.target_gender == filters.target_gender)
+        if filters.material is not None:
+            stmt = stmt.where(Product.material.ilike(f"%{filters.material}%"))
+        if filters.trend is not None:
+            stmt = stmt.where(Product.trend == filters.trend)
+        if filters.pattern is not None:
+            stmt = stmt.where(Product.pattern == filters.pattern)
+        if filters.season is not None:
+            stmt = stmt.where(Product.season == filters.season)
+        if filters.usage is not None:
+            stmt = stmt.where(Product.usage == filters.usage)
         if filters.min_price is not None:
             stmt = stmt.where(Product.price >= filters.min_price)
         if filters.max_price is not None:

@@ -46,7 +46,12 @@ class ProductSize(StrEnum):
 
 
 class Product(Base):
-    """A sellable clothing item with translations and category reference."""
+    """A sellable clothing item with translations and category reference.
+
+    Extended with detailed second-hand condition metadata, material,
+    colours, trend/pattern/season, and dataset provenance fields to
+    support rich catalogues like HuggingFace fashion-second-hand.
+    """
 
     __tablename__ = "products"
 
@@ -65,6 +70,40 @@ class Product(Base):
     brand: Mapped[str | None] = mapped_column(String(100), nullable=True)
     condition: Mapped[ProductCondition | None] = mapped_column(
         Enum(ProductCondition, values_callable=lambda x: [e.value for e in x]), nullable=True
+    )
+    condition_rating: Mapped[int | None] = mapped_column(
+        Integer, nullable=True, comment="1-5 quality rating (dataset condition)"
+    )
+    condition_details: Mapped[dict | None] = mapped_column(
+        JSONB, nullable=True,
+        comment="Structured defects: {pilling, damage, stains, holes, smell}"
+    )
+    target_gender: Mapped[str | None] = mapped_column(
+        String(20), nullable=True, comment="Ladies, Men, Kids, Unisex"
+    )
+    material: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, comment="e.g. 95%cotton 5%elastan"
+    )
+    colors: Mapped[list | None] = mapped_column(
+        JSONB, nullable=True, comment="e.g. ['Pink', 'Blue']"
+    )
+    trend: Mapped[str | None] = mapped_column(
+        String(50), nullable=True, comment="No trend, Sports, 90s, 80s, etc."
+    )
+    pattern: Mapped[str | None] = mapped_column(
+        String(50), nullable=True, comment="Floral print, Striped, Animal print, etc."
+    )
+    season: Mapped[str | None] = mapped_column(
+        String(20), nullable=True, comment="All, Winter, Summer, Spring, Autumn"
+    )
+    cut: Mapped[list | None] = mapped_column(
+        JSONB, nullable=True, comment="e.g. ['Collar', 'V-collar', 'Cropped']"
+    )
+    usage: Mapped[str | None] = mapped_column(
+        String(30), nullable=True, comment="Reuse, Export, Not Applicable"
+    )
+    source_dataset: Mapped[str | None] = mapped_column(
+        String(100), nullable=True, comment="Provenance: fnauman/fashion-second-hand"
     )
     image_urls: Mapped[list] = mapped_column(
         JSONB, nullable=False, default=list

@@ -24,6 +24,16 @@ class ProductFilter(BaseModel):
     )
     size: str | None = None
     condition: str | None = None
+    condition_rating: int | None = Field(
+        default=None, ge=1, le=5, alias="condition_rating"
+    )
+    brand: str | None = None
+    target_gender: str | None = None
+    material: str | None = None
+    trend: str | None = None
+    pattern: str | None = None
+    season: str | None = None
+    usage: str | None = None
     min_price: Decimal | None = None
     max_price: Decimal | None = None
     q: str | None = Field(
