@@ -1,0 +1,27 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]: La Tiendita
+    - navigation [ref=e6]:
+      - generic [ref=e8]: Productos
+      - generic [ref=e11]:
+        - img [ref=e12]: shopping_cart
+        - generic [ref=e13]: Carrito
+      - button "Switch to light mode" [ref=e16] [cursor=pointer]:
+        - img [ref=e17]: dark_mode
+  - main [ref=e20]:
+    - generic [ref=e21]:
+      - generic [ref=e23]:
+        - heading "La Tiendita" [level=1] [ref=e24]
+        - paragraph [ref=e25]: Ropa de segunda mano con estilo. Encuentra tesoros únicos.
+        - link "Explorar Catálogo" [ref=e26] [cursor=pointer]:
+          - /url: /productos
+      - generic [ref=e27]:
+        - heading "Categorías" [level=2] [ref=e29]
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - heading "Productos Destacados" [level=2] [ref=e32]
+            - link "Ver Todos" [ref=e33] [cursor=pointer]:
+              - /url: /productos
+          - progressbar [ref=e35]:
+            - img [ref=e36]
+  - contentinfo [ref=e39]: © 2026 La Tiendita
