@@ -12,7 +12,20 @@
     "categories": "Categories",
     "featured": "Featured Products",
     "noProducts": "No products available",
-    "viewAll": "View All"
+    "viewAll": "View All",
+    "sustainable": "Sustainable Fashion",
+    "heroTitle": "Give a second life",
+    "heroHighlight": "to your clothes",
+    "heroDesc": "Buy and sell second-hand clothing with style. Find unique treasures, save money and help the planet.",
+    "joinCommunity": "Join Free",
+    "freeShipping": "Free shipping +50k",
+    "securePay": "Secure Payment",
+    "explore": "Explore",
+    "categoriesDesc": "Discover our categories and find exactly what you need",
+    "trending": "Trending",
+    "promoTitle": "Got clothes you no longer wear?",
+    "promoDesc": "Turn them into extra cash. List your items in minutes and reach thousands of buyers.",
+    "promoCTA": "Start Selling"
   },
   "product": {
     "price": "Price",

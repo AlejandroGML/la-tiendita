@@ -12,7 +12,20 @@
     "categories": "Kategorier",
     "featured": "Utvalda Produkter",
     "noProducts": "Inga produkter tillgängliga",
-    "viewAll": "Visa Alla"
+    "viewAll": "Visa Alla",
+    "sustainable": "Hållbart Mode",
+    "heroTitle": "Ge ett andra liv",
+    "heroHighlight": "till dina kläder",
+    "heroDesc": "Köp och sälj second hand-kläder med stil. Hitta unika skatter, spara pengar och hjälp planeten.",
+    "joinCommunity": "Gå med gratis",
+    "freeShipping": "Fri frakt +50k",
+    "securePay": "Säker betalning",
+    "explore": "Utforska",
+    "categoriesDesc": "Upptäck våra kategorier och hitta precis det du behöver",
+    "trending": "Trendigt",
+    "promoTitle": "Har du kläder du inte längre använder?",
+    "promoDesc": "Gör dem till extra pengar. Lista dina plagg på några minuter och nå tusentals köpare.",
+    "promoCTA": "Börja Sälja"
   },
   "product": {
     "price": "Pris",

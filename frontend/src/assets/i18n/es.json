@@ -12,7 +12,20 @@
     "categories": "Categorías",
     "featured": "Productos Destacados",
     "noProducts": "No hay productos disponibles",
-    "viewAll": "Ver Todos"
+    "viewAll": "Ver Todos",
+    "sustainable": "Moda Sostenible",
+    "heroTitle": "Dale una segunda vida",
+    "heroHighlight": "a la ropa que usai",
+    "heroDesc": "Compra y vende ropa de segunda mano con estilo. Encuentra tesoros únicos, ahorra dinero y ayuda al planeta.",
+    "joinCommunity": "Únete Gratis",
+    "freeShipping": "Envío gratis +50k",
+    "securePay": "Pago Seguro",
+    "explore": "Explora",
+    "categoriesDesc": "Descubre nuestras categorías y encuentra exactamente lo que buscas",
+    "trending": "Tendencias",
+    "promoTitle": "¿Tienes ropa que ya no usas?",
+    "promoDesc": "Conviértela en dinero extra. Publica tus prendas en minutos y llega a miles de compradores.",
+    "promoCTA": "Empieza a Vender"
   },
   "product": {
     "price": "Precio",
