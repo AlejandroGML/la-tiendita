@@ -1,26 +1,6 @@
-<div
-  class="star-rating inline-flex items-center"
-  [ngClass]="starGap"
-  [attr.role]="readonly ? 'img' : 'radiogroup'"
-  [attr.aria-label]="'Rating: ' + rating + ' out of 5'"
->
-  <span
-    *ngFor="let star of stars"
-    class="star-btn inline-flex"
-    [class.cursor-pointer]="!readonly"
-    [class.cursor-default]="readonly"
-    [class.text-2xl]="size === 'medium'"
-    [class.text-lg]="size === 'small'"
-    [attr.aria-label]="star + ' star' + (star > 1 ? 's' : '')"
-    [attr.tabindex]="!readonly ? 0 : -1"
-    [attr.role]="!readonly ? 'radio' : null"
-    [attr.aria-checked]="!readonly ? (star <= rating ? 'true' : 'false') : null"
-    (click)="handleClick(star)"
-    (keydown)="handleKeydown($event, star)"
-  >
-    <span
-      class="material-icons"
-      [style.color]="starFill(star) === 'empty' ? '#d1d5db' : '#f59e0b'"
-    >{{ starIcon(star) }}</span>
-  </span>
-</div>
+<p-rating
+  [(ngModel)]="rating"
+  [readonly]="readonly"
+  [stars]="5"
+  (onRate)="onRate($event)">
+</p-rating>

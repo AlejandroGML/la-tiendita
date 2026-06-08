@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchBarComponent } from './search-bar';
@@ -14,9 +14,9 @@ describe('SearchBarComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [SearchBarComponent],
       imports: [
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
+        IconFieldModule,
+        InputIconModule,
+        InputTextModule,
         NoopAnimationsModule,
         TranslateModule.forRoot(),
       ],

@@ -1,44 +1,7 @@
-<div class="pagination flex flex-wrap items-center justify-between gap-4 pt-4">
-  <div class="flex items-center gap-2">
-    <button
-      class="px-3 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-      [disabled]="!hasPrev"
-      (click)="goTo(page - 1)"
-    >
-      {{ 'pagination.prev' | translate }}
-    </button>
-
-    <ng-container *ngFor="let p of pages">
-      <button
-        class="px-3 py-1 text-sm rounded border"
-        [class.bg-blue-600]="p === page"
-        [class.text-white]="p === page"
-        [class.border-blue-600]="p === page"
-        [class.border-gray-300]="p !== page"
-        [class.hover:bg-gray-100]="p !== page"
-        (click)="goTo(p)"
-      >
-        {{ p }}
-      </button>
-    </ng-container>
-
-    <button
-      class="px-3 py-1 text-sm rounded border border-gray-300 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
-      [disabled]="!hasNext"
-      (click)="goTo(page + 1)"
-    >
-      {{ 'pagination.next' | translate }}
-    </button>
-  </div>
-
-  <div class="flex items-center gap-2 text-sm text-gray-600">
-    <span>{{ 'pagination.perPage' | translate }}:</span>
-    <mat-form-field class="w-20" appearance="outline">
-      <mat-select [value]="perPage" (selectionChange)="onPerPageChange($event.value)">
-        <mat-option *ngFor="let n of perPageOptions" [value]="n">
-          {{ n }}
-        </mat-option>
-      </mat-select>
-    </mat-form-field>
-  </div>
-</div>
+<p-paginator
+  [first]="first"
+  [rows]="perPage"
+  [totalRecords]="total"
+  [rowsPerPageOptions]="perPageOptions"
+  (onPageChange)="onPrimePageChange($event)">
+</p-paginator>

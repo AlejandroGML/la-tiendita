@@ -5,7 +5,6 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 @Component({
   selector: 'app-search-bar',
   templateUrl: './search-bar.html',
-  styleUrls: ['./search-bar.scss'],
   standalone: false,
 })
 export class SearchBarComponent implements OnDestroy {

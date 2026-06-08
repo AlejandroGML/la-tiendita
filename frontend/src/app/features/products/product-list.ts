@@ -1,6 +1,7 @@
-import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Meta, Title } from '@angular/platform-browser';
+import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import type { Product } from '../../shared/models/product.model';
 import type { Category } from '../../shared/models/category.model';
@@ -45,6 +46,32 @@ export class ProductList implements OnInit, OnDestroy {
 
   readonly conditions = ['new', 'like_new', 'good', 'fair'] as const;
   readonly sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+
+  private translate = inject(TranslateService);
+
+  readonly categoryDropdownOptions = computed(() => {
+    const all = { label: this.translate.instant('catalog.allCategories'), value: null };
+    const items = this.categories().map((cat) => ({
+      label: this.getCategoryName(cat.id),
+      value: cat.id,
+    }));
+    return [all, ...items];
+  });
+
+  readonly conditionDropdownOptions = computed(() => {
+    const all = { label: this.translate.instant('catalog.allConditions'), value: null };
+    const items = this.conditions.map((c) => ({
+      label: this.translate.instant('condition.' + c),
+      value: c,
+    }));
+    return [all, ...items];
+  });
+
+  readonly sizeDropdownOptions = computed(() => {
+    const all = { label: this.translate.instant('catalog.allSizes'), value: null };
+    const items = this.sizes.map((s) => ({ label: s, value: s }));
+    return [all, ...items];
+  });
 
   private meta = inject(Meta);
   private titleService = inject(Title);

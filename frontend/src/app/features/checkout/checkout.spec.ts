@@ -2,14 +2,14 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { provideRouter, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
+import { ButtonModule } from 'primeng/button';
+import { FloatLabelModule } from 'primeng/floatlabel';
+import { InputTextModule } from 'primeng/inputtext';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ToastModule } from 'primeng/toast';
 import { of, throwError } from 'rxjs';
 import { CheckoutComponent } from './checkout';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
@@ -95,21 +95,21 @@ describe('CheckoutComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [CheckoutComponent, CurrencyPipe],
       imports: [
-        MatButtonModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatSnackBarModule,
+        ButtonModule,
+        FloatLabelModule,
+        InputTextModule,
+        ProgressSpinnerModule,
+        ToastModule,
         NoopAnimationsModule,
         ReactiveFormsModule,
         RouterModule.forRoot([
-  { path: 'perfil/ordenes', component: {} as any },
-  { path: 'carrito', component: {} as any },
-]),
+          { path: 'perfil/ordenes', component: {} as any },
+          { path: 'carrito', component: {} as any },
+        ]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        MessageService,
         { provide: CartService, useValue: cartService },
         { provide: OrderService, useValue: orderService },
       ],
@@ -139,10 +139,11 @@ describe('CheckoutComponent', () => {
   });
 
   it('should have confirm button disabled when form is invalid', () => {
-    const confirmBtn = fixture.nativeElement.querySelector(
-      '[data-testid="confirm-button"]',
-    );
-    expect(confirmBtn.disabled).toBe(true);
+    // p-button wraps a native button; query the inner element
+    const btn = fixture.nativeElement.querySelector(
+      '[data-testid="confirm-button"] button',
+    ) as HTMLButtonElement;
+    expect(btn.disabled).toBe(true);
   });
 
   it('should enable confirm button when form is valid', () => {
@@ -154,10 +155,10 @@ describe('CheckoutComponent', () => {
     });
     fixture.detectChanges();
 
-    const confirmBtn = fixture.nativeElement.querySelector(
-      '[data-testid="confirm-button"]',
-    );
-    expect(confirmBtn.disabled).toBe(false);
+    const btn = fixture.nativeElement.querySelector(
+      '[data-testid="confirm-button"] button',
+    ) as HTMLButtonElement;
+    expect(btn.disabled).toBe(false);
   });
 
   it('should call orderService.checkout on valid submit', () => {
@@ -252,21 +253,21 @@ describe('CheckoutComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [CheckoutComponent, CurrencyPipe],
       imports: [
-        MatButtonModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatSnackBarModule,
+        ButtonModule,
+        FloatLabelModule,
+        InputTextModule,
+        ProgressSpinnerModule,
+        ToastModule,
         NoopAnimationsModule,
         ReactiveFormsModule,
         RouterModule.forRoot([
-  { path: 'perfil/ordenes', component: {} as any },
-  { path: 'carrito', component: {} as any },
-]),
+          { path: 'perfil/ordenes', component: {} as any },
+          { path: 'carrito', component: {} as any },
+        ]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        MessageService,
         { provide: CartService, useValue: cartService },
         { provide: OrderService, useValue: orderService },
       ],

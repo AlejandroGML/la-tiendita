@@ -1,8 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
+import { PaginatorModule } from 'primeng/paginator';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
-import { TranslateModule } from '@ngx-translate/core';
 import { PaginationComponent } from './pagination';
 
 describe('PaginationComponent', () => {
@@ -12,12 +10,7 @@ describe('PaginationComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [PaginationComponent],
-      imports: [
-        MatFormFieldModule,
-        MatSelectModule,
-        NoopAnimationsModule,
-        TranslateModule.forRoot(),
-      ],
+      imports: [PaginatorModule, NoopAnimationsModule],
     }).compileComponents();
 
     fixture = TestBed.createComponent(PaginationComponent);
@@ -25,102 +18,69 @@ describe('PaginationComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should compute totalPages correctly', () => {
-    component.total = 100;
-    component.perPage = 12;
-    expect(component.totalPages).toBe(9); // ceil(100/12) = 9
-  });
-
-  it('should return 1 page when total is 0', () => {
-    component.total = 0;
-    expect(component.totalPages).toBe(1);
-  });
-
-  it('should compute pages window with current page centered', () => {
-    component.total = 200;
-    component.perPage = 12;
-    component.page = 10;
-    // 200/12 = 17 pages, current=10, window 5 -> [8,9,10,11,12]
-    expect(component.pages).toEqual([8, 9, 10, 11, 12]);
-  });
-
-  it('should clamp pages window near start', () => {
-    component.total = 200;
-    component.perPage = 12;
+  it('should compute first as 0 when page=1 perPage=12', () => {
     component.page = 1;
-    expect(component.pages).toEqual([1, 2, 3, 4, 5]);
-  });
-
-  it('should clamp pages window near end', () => {
-    component.total = 200;
     component.perPage = 12;
-    component.page = 17;
-    expect(component.pages).toEqual([13, 14, 15, 16, 17]);
+    expect(component.first).toBe(0);
   });
 
-  it('should show fewer pages when totalPages < 5', () => {
-    component.total = 24;
-    component.perPage = 12;
-    component.page = 1;
-    expect(component.pages).toEqual([1, 2]);
+  it('should compute first as (page-1) * perPage', () => {
+    component.page = 3;
+    component.perPage = 24;
+    expect(component.first).toBe(48); // (3-1)*24
   });
 
-  it('should emit pageChange on goTo', () => {
+  it('should emit pageChange when onPrimePageChange receives new page', () => {
     const emitted: number[] = [];
     component.pageChange.subscribe((p) => emitted.push(p));
 
-    component.total = 100;
-    component.perPage = 12;
     component.page = 1;
-    component.goTo(3);
-    expect(emitted).toEqual([3]);
+    component.onPrimePageChange({ page: 2, rows: 12, first: 24, pageCount: 10 });
+
+    expect(emitted).toEqual([3]); // 0-based 2 → 1-based 3
   });
 
-  it('should not emit pageChange for invalid page', () => {
-    const emitted: number[] = [];
-    component.pageChange.subscribe((p) => emitted.push(p));
-
-    component.total = 100;
-    component.perPage = 12;
-    component.goTo(999); // beyond totalPages
-    expect(emitted.length).toBe(0);
-
-    component.goTo(0); // before 1
-    expect(emitted.length).toBe(0);
-  });
-
-  it('should not emit for same page', () => {
-    const emitted: number[] = [];
-    component.pageChange.subscribe((p) => emitted.push(p));
-
-    component.total = 100;
-    component.perPage = 12;
-    component.page = 5;
-    component.goTo(5);
-    expect(emitted.length).toBe(0);
-  });
-
-  it('should emit perPageChange on selection change', () => {
+  it('should emit perPageChange when rows differ from current perPage', () => {
     const emitted: number[] = [];
     component.perPageChange.subscribe((n) => emitted.push(n));
 
-    component.onPerPageChange(24);
+    component.perPage = 12;
+    component.onPrimePageChange({ page: 0, rows: 24, first: 0, pageCount: 5 });
+
     expect(emitted).toEqual([24]);
   });
 
-  it('should disable prev button on first page', () => {
-    component.total = 100;
-    component.perPage = 12;
+  it('should not emit pageChange when page is unchanged', () => {
+    const emitted: number[] = [];
+    component.pageChange.subscribe((p) => emitted.push(p));
+
     component.page = 1;
-    expect(component.hasPrev).toBe(false);
-    expect(component.hasNext).toBe(true);
+    component.onPrimePageChange({ page: 0, rows: 12, first: 0, pageCount: 10 });
+
+    expect(emitted.length).toBe(0);
   });
 
-  it('should disable next button on last page', () => {
-    component.total = 100;
+  it('should not emit perPageChange when rows are unchanged', () => {
+    const emitted: number[] = [];
+    component.perPageChange.subscribe((n) => emitted.push(n));
+
     component.perPage = 12;
-    component.page = 9; // last page
-    expect(component.hasPrev).toBe(true);
-    expect(component.hasNext).toBe(false);
+    component.onPrimePageChange({ page: 1, rows: 12, first: 12, pageCount: 10 });
+
+    expect(emitted.length).toBe(0);
+  });
+
+  it('should emit both pageChange and perPageChange when both change', () => {
+    const pages: number[] = [];
+    const rows: number[] = [];
+    component.pageChange.subscribe((p) => pages.push(p));
+    component.perPageChange.subscribe((n) => rows.push(n));
+
+    component.page = 1;
+    component.perPage = 12;
+    component.onPrimePageChange({ page: 3, rows: 48, first: 144, pageCount: 3 });
+
+    expect(pages).toEqual([4]); // 0-based 3 → 1-based 4
+    expect(rows).toEqual([48]);
   });
 });

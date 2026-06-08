@@ -3,7 +3,10 @@
 
   <!-- Loading state -->
   <div *ngIf="loading()" class="flex justify-center py-16">
-    <mat-spinner diameter="48"></mat-spinner>
+    <p-progressSpinner
+      [style]="{ width: '48px', height: '48px' }"
+      strokeWidth="4"
+    ></p-progressSpinner>
   </div>
 
   <!-- Error state -->
@@ -19,38 +22,58 @@
           <h2 class="text-xl font-semibold mb-4">{{ 'checkout.shipping' | translate }}</h2>
 
           <form [formGroup]="shippingForm" (ngSubmit)="submitOrder()" data-testid="shipping-form">
-            <mat-form-field appearance="outline" class="w-full mb-4">
-              <mat-label>{{ 'checkout.name' | translate }}</mat-label>
-              <input matInput formControlName="name" data-testid="input-name" />
-              <mat-error *ngIf="shippingForm.get('name')?.invalid">
+            <div class="mb-4">
+              <p-floatLabel variant="on" styleClass="w-full">
+                <input pInputText formControlName="name" data-testid="input-name" class="w-full" />
+                <label>{{ 'checkout.name' | translate }}</label>
+              </p-floatLabel>
+              <small
+                *ngIf="shippingForm.get('name')?.invalid && shippingForm.get('name')?.touched"
+                class="p-error block mt-1"
+              >
                 {{ 'checkout.nameRequired' | translate }}
-              </mat-error>
-            </mat-form-field>
+              </small>
+            </div>
 
-            <mat-form-field appearance="outline" class="w-full mb-4">
-              <mat-label>{{ 'checkout.address' | translate }}</mat-label>
-              <input matInput formControlName="address" data-testid="input-address" />
-              <mat-error *ngIf="shippingForm.get('address')?.invalid">
+            <div class="mb-4">
+              <p-floatLabel variant="on" styleClass="w-full">
+                <input pInputText formControlName="address" data-testid="input-address" class="w-full" />
+                <label>{{ 'checkout.address' | translate }}</label>
+              </p-floatLabel>
+              <small
+                *ngIf="shippingForm.get('address')?.invalid && shippingForm.get('address')?.touched"
+                class="p-error block mt-1"
+              >
                 {{ 'checkout.addressRequired' | translate }}
-              </mat-error>
-            </mat-form-field>
+              </small>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'checkout.city' | translate }}</mat-label>
-                <input matInput formControlName="city" data-testid="input-city" />
-                <mat-error *ngIf="shippingForm.get('city')?.invalid">
+              <div>
+                <p-floatLabel variant="on" styleClass="w-full">
+                  <input pInputText formControlName="city" data-testid="input-city" class="w-full" />
+                  <label>{{ 'checkout.city' | translate }}</label>
+                </p-floatLabel>
+                <small
+                  *ngIf="shippingForm.get('city')?.invalid && shippingForm.get('city')?.touched"
+                  class="p-error block mt-1"
+                >
                   {{ 'checkout.cityRequired' | translate }}
-                </mat-error>
-              </mat-form-field>
+                </small>
+              </div>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ 'checkout.phone' | translate }}</mat-label>
-                <input matInput formControlName="phone" data-testid="input-phone" />
-                <mat-error *ngIf="shippingForm.get('phone')?.invalid">
+              <div>
+                <p-floatLabel variant="on" styleClass="w-full">
+                  <input pInputText formControlName="phone" data-testid="input-phone" class="w-full" />
+                  <label>{{ 'checkout.phone' | translate }}</label>
+                </p-floatLabel>
+                <small
+                  *ngIf="shippingForm.get('phone')?.invalid && shippingForm.get('phone')?.touched"
+                  class="p-error block mt-1"
+                >
                   {{ 'checkout.phoneRequired' | translate }}
-                </mat-error>
-              </mat-form-field>
+                </small>
+              </div>
             </div>
           </form>
         </div>
@@ -85,19 +108,19 @@
             </div>
           </div>
 
-          <button
-            mat-flat-button
-            color="primary"
-            class="w-full mt-6 py-3 text-lg"
+          <p-button
+            [label]="'checkout.confirm' | translate"
+            severity="primary"
+            styleClass="w-full mt-6 py-3 text-lg"
+            [loading]="submitting()"
             [disabled]="submitting() || shippingForm.invalid || items.length === 0"
-            (click)="submitOrder()"
+            (onClick)="submitOrder()"
             data-testid="confirm-button"
-          >
-            <mat-spinner *ngIf="submitting()" diameter="20" class="inline-block mr-2"></mat-spinner>
-            {{ 'checkout.confirm' | translate }}
-          </button>
+          ></p-button>
         </div>
       </div>
     </div>
   </ng-container>
+
+  <p-toast position="bottom-right"></p-toast>
 </div>

@@ -1,13 +1,15 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSelectModule } from '@angular/material/select';
+import { FormsModule } from '@angular/forms';
+import { CardModule } from 'primeng/card';
+import { SelectModule } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
+import { InputTextModule } from 'primeng/inputtext';
+import { PaginatorModule } from 'primeng/paginator';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -136,13 +138,15 @@ describe('ProductList', () => {
         CurrencyPipe,
       ],
       imports: [
-        MatCardModule,
-        MatChipsModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatProgressSpinnerModule,
-        MatSelectModule,
+        FormsModule,
+        CardModule,
+        SelectModule,
+        InputNumberModule,
+        ProgressSpinnerModule,
+        IconFieldModule,
+        InputIconModule,
+        InputTextModule,
+        PaginatorModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
@@ -284,7 +288,7 @@ describe('ProductList', () => {
   });
 
   it('should render sidebar filter dropdowns', () => {
-    const selects = fixture.nativeElement.querySelectorAll('mat-select');
+    const selects = fixture.nativeElement.querySelectorAll('p-select');
     expect(selects.length).toBeGreaterThanOrEqual(3);
   });
 

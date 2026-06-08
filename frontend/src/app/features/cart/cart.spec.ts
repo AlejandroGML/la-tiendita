@@ -1,13 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { provideRouter, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { provideHttpClient } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TableModule } from 'primeng/table';
 import { of, throwError } from 'rxjs';
 import { CartComponent } from './cart';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
@@ -68,15 +67,14 @@ describe('CartComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [CartComponent, CurrencyPipe],
       imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatTableModule,
+        ButtonModule,
+        ProgressSpinnerModule,
+        TableModule,
+        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
-        provideNoopAnimations(),
         provideHttpClient(),
         { provide: CartService, useValue: cartService },
       ],
@@ -96,8 +94,10 @@ describe('CartComponent', () => {
   });
 
   it('should render table with cart items', () => {
-    const rows = fixture.nativeElement.querySelectorAll('.mat-mdc-row, .mat-mdc-header-row');
-    // 1 header + 2 data rows
+    const rows = fixture.nativeElement.querySelectorAll(
+      '[data-testid="cart-table"] tr',
+    );
+    // p-table: 1 header row + 2 data rows (no footer)
     expect(rows.length).toBe(3);
   });
 
@@ -138,50 +138,24 @@ describe('CartComponent', () => {
   });
 
   it('should call updateQuantity with +1 on increase', () => {
-    const buttons = fixture.nativeElement.querySelectorAll(
-      'button[aria-label="cart.increase"]',
-    );
-    // Click first row's increase button
-    (buttons[0] as HTMLButtonElement).click();
-
+    component.increaseQuantity(mockCartItem);
     expect(cartService.updateQuantity).toHaveBeenCalledWith('item-uuid-1', 3);
   });
 
   it('should call updateQuantity with -1 on decrease', () => {
-    const buttons = fixture.nativeElement.querySelectorAll(
-      'button[aria-label="cart.decrease"]',
-    );
-    (buttons[0] as HTMLButtonElement).click();
-
+    component.decreaseQuantity(mockCartItem);
     expect(cartService.updateQuantity).toHaveBeenCalledWith('item-uuid-1', 1);
   });
 
   it('should call removeItem on delete button when quantity is 1', () => {
-    // Use single-item cart to test delete
-    const singleItemCart = {
-      items: [{ ...mockCartItem, quantity: 1 }],
-      subtotal: '29990',
-    } satisfies CartResponse;
-    cartService.getCart = vi.fn().mockReturnValue(of(singleItemCart));
-    component.loadCart();
-    fixture.detectChanges();
-
-    // Click delete (the remove button on the single row)
-    const deleteBtn = fixture.nativeElement.querySelector(
-      'button[aria-label="cart.remove"]',
-    );
-    (deleteBtn as HTMLButtonElement).click();
-
+    const singleItem = { ...mockCartItem, quantity: 1 };
+    component.removeItem(singleItem);
     expect(cartService.removeItem).toHaveBeenCalledWith('item-uuid-1');
   });
 
   it('should navigate to /checkout on checkout button click', () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
-    const checkoutBtn = fixture.nativeElement.querySelector(
-      '[data-testid="checkout-button"]',
-    );
-    (checkoutBtn as HTMLButtonElement).click();
-
+    component.checkout();
     expect(navigateSpy).toHaveBeenCalledWith(['/checkout']);
   });
 

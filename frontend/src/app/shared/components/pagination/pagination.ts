@@ -1,9 +1,9 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import type { PaginatorState } from 'primeng/paginator';
 
 @Component({
   selector: 'app-pagination',
   templateUrl: './pagination.html',
-  styleUrls: ['./pagination.scss'],
   standalone: false,
 })
 export class PaginationComponent {
@@ -16,43 +16,19 @@ export class PaginationComponent {
 
   readonly perPageOptions = [12, 24, 48];
 
-  get totalPages(): number {
-    return Math.ceil(this.total / this.perPage) || 1;
+  get first(): number {
+    return (this.page - 1) * this.perPage;
   }
 
-  get pages(): number[] {
-    const total = this.totalPages;
-    const current = this.page;
-    const maxVisible = 5;
-    const pages: number[] = [];
-
-    let start = Math.max(1, current - Math.floor(maxVisible / 2));
-    let end = Math.min(total, start + maxVisible - 1);
-    if (end - start + 1 < maxVisible) {
-      start = Math.max(1, end - maxVisible + 1);
+  onPrimePageChange(event: PaginatorState): void {
+    if (event.rows != null && event.rows !== this.perPage) {
+      this.perPageChange.emit(event.rows);
     }
-
-    for (let i = start; i <= end; i++) {
-      pages.push(i);
+    if (event.page != null) {
+      const newPage = event.page + 1; // 0-based → 1-based
+      if (newPage !== this.page) {
+        this.pageChange.emit(newPage);
+      }
     }
-    return pages;
-  }
-
-  get hasPrev(): boolean {
-    return this.page > 1;
-  }
-
-  get hasNext(): boolean {
-    return this.page < this.totalPages;
-  }
-
-  goTo(p: number): void {
-    if (p >= 1 && p <= this.totalPages && p !== this.page) {
-      this.pageChange.emit(p);
-    }
-  }
-
-  onPerPageChange(value: number): void {
-    this.perPageChange.emit(value);
   }
 }

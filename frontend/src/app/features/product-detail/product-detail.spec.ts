@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -69,10 +69,10 @@ describe('ProductDetail', () => {
     await TestBed.configureTestingModule({
       declarations: [ProductDetail, CurrencyPipe],
       imports: [
-        MatButtonModule,
+        ButtonModule,
+        ProgressSpinnerModule,
         MatCardModule,
         MatChipsModule,
-        MatProgressSpinnerModule,
         MatSnackBarModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
@@ -184,7 +184,7 @@ describe('ProductDetail', () => {
 
   it('should enable add to cart button when product in stock', () => {
     const button = fixture.nativeElement.querySelector(
-      'button[mat-raised-button]',
+      'button.p-button',
     ) as HTMLButtonElement;
     expect(button).toBeTruthy();
     expect(button.disabled).toBe(false);
@@ -192,7 +192,7 @@ describe('ProductDetail', () => {
 
   it('should call addItem on button click', () => {
     const button = fixture.nativeElement.querySelector(
-      'button[mat-raised-button]',
+      'button.p-button',
     ) as HTMLButtonElement;
     button.click();
     fixture.detectChanges();
@@ -205,7 +205,7 @@ describe('ProductDetail', () => {
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector(
-      'button[mat-raised-button]',
+      'button.p-button',
     ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
   });
@@ -223,7 +223,7 @@ describe('ProductDetail', () => {
     newFixture.detectChanges();
 
     const button = newFixture.nativeElement.querySelector(
-      'button[mat-raised-button]',
+      'button.p-button',
     ) as HTMLButtonElement;
     expect(button.disabled).toBe(true);
   });
@@ -234,7 +234,7 @@ describe('ProductDetail', () => {
       .mockReturnValue(throwError(() => new Error('fail')));
 
     const button = fixture.nativeElement.querySelector(
-      'button[mat-raised-button]',
+      'button.p-button',
     ) as HTMLButtonElement;
     button.click();
     fixture.detectChanges();

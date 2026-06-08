@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormBuilder, Validators, type FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import type { CartResponse, CartItem } from '../../shared/models/cart.model';
 import type { Order, ShippingAddress } from '../../shared/models/order.model';
@@ -29,7 +29,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private readonly cartService: CartService,
     private readonly orderService: OrderService,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar,
+    private readonly messageService: MessageService,
     fb: FormBuilder,
   ) {
     this.shippingForm = fb.group({
@@ -79,12 +79,12 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         next: (order) => {
           this.success.set(order);
           this.submitting.set(false);
-          this.snackBar
-            .open('checkout.orderPlaced', 'checkout.viewOrder', {
-              duration: 8000,
-            })
-            .onAction()
-            .subscribe(() => this.router.navigate(['/perfil/ordenes']));
+          this.messageService.add({
+            severity: 'success',
+            summary: 'checkout.orderPlaced',
+            detail: 'checkout.viewOrder',
+            life: 8000,
+          });
           this.cartService.resetState();
           this.router.navigate(['/perfil/ordenes']);
         },

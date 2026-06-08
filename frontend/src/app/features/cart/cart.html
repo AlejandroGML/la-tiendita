@@ -5,20 +5,21 @@
 
   <!-- Loading state -->
   <div *ngIf="loading()" class="flex justify-center py-16">
-    <mat-spinner diameter="48"></mat-spinner>
+    <p-progressSpinner
+      [style]="{ width: '48px', height: '48px' }"
+      strokeWidth="4"
+    ></p-progressSpinner>
   </div>
 
   <!-- Error state -->
   <div *ngIf="error() && !loading()" class="text-center py-16">
     <p class="text-red-600 text-lg">{{ error() | translate }}</p>
-    <button
-      mat-flat-button
-      color="primary"
-      class="mt-4"
-      (click)="loadCart()"
-    >
-      {{ 'cart.retry' | translate }}
-    </button>
+    <p-button
+      [label]="'cart.retry' | translate"
+      severity="primary"
+      styleClass="mt-4"
+      (onClick)="loadCart()"
+    ></p-button>
   </div>
 
   <!-- Empty state -->
@@ -27,97 +28,75 @@
     class="text-center py-16"
     data-testid="cart-empty"
   >
-    <mat-icon class="text-6xl text-gray-300 mb-4">shopping_cart</mat-icon>
+    <i class="pi pi-shopping-cart text-6xl text-gray-300 mb-4 block"></i>
     <p class="text-gray-500 text-lg">{{ 'cart.empty' | translate }}</p>
-    <button
-      mat-flat-button
-      color="primary"
+    <a
+      pButton
+      severity="primary"
       class="mt-4"
       [routerLink]="['/productos']"
     >
       {{ 'cart.continueShopping' | translate }}
-    </button>
+    </a>
   </div>
 
   <!-- Cart table -->
   <div *ngIf="!loading() && !error() && items().length > 0" data-testid="cart-table">
     <div class="overflow-x-auto bg-white rounded-lg shadow">
-      <table mat-table [dataSource]="items()" class="w-full">
-        <!-- Product image -->
-        <ng-container matColumnDef="product">
-          <th mat-header-cell *matHeaderCellDef>{{ 'cart.product' | translate }}</th>
-          <td mat-cell *matCellDef="let item" class="py-3">
-            <span class="font-medium">{{ item.product_name }}</span>
-          </td>
-        </ng-container>
-
-        <!-- Quantity controls -->
-        <ng-container matColumnDef="quantity">
-          <th mat-header-cell *matHeaderCellDef class="text-center">
-            {{ 'cart.quantity' | translate }}
-          </th>
-          <td mat-cell *matCellDef="let item" class="text-center">
-            <div class="flex items-center justify-center gap-1">
-              <button
-                mat-icon-button
-                color="primary"
-                class="min-w-[44px] min-h-[44px]"
+      <p-table [value]="items()" styleClass="w-full">
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ 'cart.product' | translate }}</th>
+            <th class="text-center">{{ 'cart.quantity' | translate }}</th>
+            <th>{{ 'cart.price' | translate }}</th>
+            <th>{{ 'cart.subtotal' | translate }}</th>
+            <th></th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-item>
+          <tr>
+            <td class="py-3">
+              <span class="font-medium">{{ item.product_name }}</span>
+            </td>
+            <td class="text-center">
+              <div class="flex items-center justify-center gap-1">
+                <p-button
+                  icon="pi pi-minus"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="primary"
+                  [disabled]="loading()"
+                  (onClick)="decreaseQuantity(item)"
+                  [attr.aria-label]="'cart.decrease' | translate"
+                ></p-button>
+                <span class="w-10 text-center font-medium">{{ item.quantity }}</span>
+                <p-button
+                  icon="pi pi-plus"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="primary"
+                  [disabled]="loading()"
+                  (onClick)="increaseQuantity(item)"
+                  [attr.aria-label]="'cart.increase' | translate"
+                ></p-button>
+              </div>
+            </td>
+            <td>{{ item.unit_price | currency }}</td>
+            <td class="font-medium">{{ item.subtotal | currency }}</td>
+            <td>
+              <p-button
+                icon="pi pi-trash"
+                [rounded]="true"
+                [text]="true"
+                severity="danger"
                 [disabled]="loading()"
-                (click)="decreaseQuantity(item)"
-                [attr.aria-label]="'cart.decrease' | translate"
-              >
-                <mat-icon>remove</mat-icon>
-              </button>
-              <span class="w-10 text-center font-medium">{{ item.quantity }}</span>
-              <button
-                mat-icon-button
-                color="primary"
-                class="min-w-[44px] min-h-[44px]"
-                [disabled]="loading()"
-                (click)="increaseQuantity(item)"
-                [attr.aria-label]="'cart.increase' | translate"
-              >
-                <mat-icon>add</mat-icon>
-              </button>
-            </div>
-          </td>
-        </ng-container>
-
-        <!-- Unit price -->
-        <ng-container matColumnDef="price">
-          <th mat-header-cell *matHeaderCellDef>{{ 'cart.price' | translate }}</th>
-          <td mat-cell *matCellDef="let item">
-            {{ item.unit_price | currency }}
-          </td>
-        </ng-container>
-
-        <!-- Subtotal -->
-        <ng-container matColumnDef="subtotal">
-          <th mat-header-cell *matHeaderCellDef>{{ 'cart.subtotal' | translate }}</th>
-          <td mat-cell *matCellDef="let item" class="font-medium">
-            {{ item.subtotal | currency }}
-          </td>
-        </ng-container>
-
-        <!-- Remove button -->
-        <ng-container matColumnDef="remove">
-          <th mat-header-cell *matHeaderCellDef></th>
-          <td mat-cell *matCellDef="let item">
-            <button
-              mat-icon-button
-              color="warn"
-              [disabled]="loading()"
-              (click)="removeItem(item)"
-              [attr.aria-label]="'cart.remove' | translate"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-      </table>
+                (onClick)="removeItem(item)"
+                [attr.aria-label]="'cart.remove' | translate"
+              ></p-button>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
 
     <!-- Footer: subtotal + checkout -->
@@ -129,16 +108,14 @@
         </p>
       </div>
 
-      <button
-        mat-flat-button
-        color="primary"
-        class="px-8 py-3 text-lg"
+      <p-button
+        [label]="'cart.checkout' | translate"
+        severity="primary"
+        styleClass="px-8 py-3 text-lg"
         [disabled]="loading() || items().length === 0"
-        (click)="checkout()"
+        (onClick)="checkout()"
         data-testid="checkout-button"
-      >
-        {{ 'cart.checkout' | translate }}
-      </button>
+      ></p-button>
     </div>
   </div>
 </div>
