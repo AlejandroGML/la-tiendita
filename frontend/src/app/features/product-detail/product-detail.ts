@@ -23,6 +23,12 @@ export class ProductDetail implements OnDestroy {
   readonly addingToCart = signal(false);
   readonly activeImageIndex = signal(0);
 
+  readonly galleriaResponsiveOptions = [
+    { breakpoint: '1024px', numVisible: 5 },
+    { breakpoint: '768px', numVisible: 3 },
+    { breakpoint: '560px', numVisible: 2 },
+  ];
+
   private sub: Subscription;
 
   private meta = inject(Meta);

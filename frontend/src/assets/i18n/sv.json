@@ -254,5 +254,15 @@
     "detail": {
       "title": "Beställning"
     }
+  },
+  "footer": {
+    "brandDesc": "Din favorit second hand-klädbutik. Kvalitet, stil och hållbarhet i varje plagg.",
+    "quickLinks": "Snabblänkar",
+    "signIn": "Logga In",
+    "register": "Registrera",
+    "contact": "Kontakt",
+    "rights": "Alla rättigheter förbehållna.",
+    "privacy": "Integritet",
+    "terms": "Villkor"
   }
 }

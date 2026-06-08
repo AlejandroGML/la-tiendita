@@ -254,5 +254,15 @@
     "detail": {
       "title": "Order"
     }
+  },
+  "footer": {
+    "brandDesc": "Your favorite second-hand clothing store. Quality, style and sustainability in every garment.",
+    "quickLinks": "Quick Links",
+    "signIn": "Sign In",
+    "register": "Register",
+    "contact": "Contact",
+    "rights": "All rights reserved.",
+    "privacy": "Privacy",
+    "terms": "Terms"
   }
 }

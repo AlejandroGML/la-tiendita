@@ -254,5 +254,15 @@
     "detail": {
       "title": "Pedido"
     }
+  },
+  "footer": {
+    "brandDesc": "Tu tienda de ropa segunda mano favorita. Calidad, estilo y sostenibilidad en cada prenda.",
+    "quickLinks": "Enlaces Rápidos",
+    "signIn": "Iniciar Sesión",
+    "register": "Registrarse",
+    "contact": "Contacto",
+    "rights": "Todos los derechos reservados.",
+    "privacy": "Privacidad",
+    "terms": "Términos"
   }
 }

@@ -1,3 +1,52 @@
-<footer class="text-center py-4 text-gray-500 text-sm border-t">
-  &copy; {{ year }} La Tiendita
-</footer>
+<div class="footer-premium bg-gray-900 text-gray-300 pt-16 pb-8">
+  <div class="container mx-auto px-4 sm:px-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
+      <!-- Brand -->
+      <div class="space-y-4">
+        <h3 class="text-white text-xl font-extrabold">{{ 'header.title' | translate }}</h3>
+        <p class="text-gray-400 text-sm leading-relaxed">{{ 'footer.brandDesc' | translate }}</p>
+        <div class="flex gap-3 pt-2">
+          <a href="#" class="w-9 h-9 bg-gray-700 hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors"><i class="pi pi-facebook"></i></a>
+          <a href="#" class="w-9 h-9 bg-gray-700 hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors"><i class="pi pi-instagram"></i></a>
+          <a href="#" class="w-9 h-9 bg-gray-700 hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors"><i class="pi pi-twitter"></i></a>
+        </div>
+      </div>
+      <!-- Quick links -->
+      <div>
+        <h4 class="text-white font-bold mb-4">{{ 'footer.quickLinks' | translate }}</h4>
+        <ul class="space-y-2.5">
+          <li><a routerLink="/productos" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'nav.products' | translate }}</a></li>
+          <li><a routerLink="/carrito" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'nav.cart' | translate }}</a></li>
+          <li><a routerLink="/login" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'footer.signIn' | translate }}</a></li>
+          <li><a routerLink="/register" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'footer.register' | translate }}</a></li>
+        </ul>
+      </div>
+      <!-- Categories -->
+      <div>
+        <h4 class="text-white font-bold mb-4">{{ 'home.categories' | translate }}</h4>
+        <ul class="space-y-2.5">
+          <li><a routerLink="/productos" [queryParams]="{category_id: 26}" class="text-gray-400 hover:text-white transition-colors text-sm">Jackets</a></li>
+          <li><a routerLink="/productos" [queryParams]="{category_id: 23}" class="text-gray-400 hover:text-white transition-colors text-sm">Dresses</a></li>
+          <li><a routerLink="/productos" [queryParams]="{category_id: 27}" class="text-gray-400 hover:text-white transition-colors text-sm">Jeans</a></li>
+          <li><a routerLink="/productos" [queryParams]="{category_id: 39}" class="text-gray-400 hover:text-white transition-colors text-sm">Sweaters</a></li>
+        </ul>
+      </div>
+      <!-- Contact -->
+      <div>
+        <h4 class="text-white font-bold mb-4">{{ 'footer.contact' | translate }}</h4>
+        <ul class="space-y-2.5 text-sm">
+          <li class="flex items-center gap-2"><i class="pi pi-envelope text-emerald-400"></i> hello&#64;latiendita.cl</li>
+          <li class="flex items-center gap-2"><i class="pi pi-phone text-emerald-400"></i> +56 9 1234 5678</li>
+          <li class="flex items-center gap-2"><i class="pi pi-map-marker text-emerald-400"></i> Santiago, Chile</li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-gray-700 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+      <span>&copy; 2026 {{ 'header.title' | translate }}. {{ 'footer.rights' | translate }}</span>
+      <div class="flex gap-6">
+        <a href="#" class="hover:text-white transition-colors">{{ 'footer.privacy' | translate }}</a>
+        <a href="#" class="hover:text-white transition-colors">{{ 'footer.terms' | translate }}</a>
+      </div>
+    </div>
+  </div>
+</div>

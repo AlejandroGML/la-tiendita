@@ -30,32 +30,27 @@
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Image Gallery -->
       <div class="gallery flex-1">
-        <!-- Main Image -->
-        <div class="main-image mb-4 rounded-lg overflow-hidden bg-gray-100">
-          <img
-            [src]="mainImage"
-            [alt]="displayName"
-            class="w-full h-64 md:h-96 object-contain"
-            loading="eager"
-          />
-        </div>
-
-        <!-- Thumbnails -->
-        <div *ngIf="images.length > 1" class="thumbnails flex gap-2 overflow-x-auto">
-          <button
-            *ngFor="let img of images; let i = index"
-            (click)="selectImage(i)"
-            class="thumbnail-btn shrink-0 w-20 h-20 rounded border-2 overflow-hidden bg-gray-50"
-            [class.border-blue-600]="i === activeImageIndex()"
-            [class.border-gray-200]="i !== activeImageIndex()"
-          >
-            <img
-              [src]="img"
-              [alt]="displayName + ' - ' + (i + 1)"
-              class="w-full h-full object-cover"
-              loading="lazy"
-            />
-          </button>
+        <p-galleria
+          *ngIf="images.length > 0"
+          [value]="images"
+          [responsiveOptions]="galleriaResponsiveOptions"
+          [showThumbnails]="images.length > 1"
+          [circular]="true"
+          [showIndicators]="true"
+          containerStyle="max-width: 100%"
+        >
+          <ng-template pTemplate="item" let-item>
+            <img [src]="item" [alt]="displayName" class="w-full h-64 md:h-96 object-contain bg-gray-50 rounded-lg" />
+          </ng-template>
+          <ng-template pTemplate="thumbnail" let-item>
+            <div class="w-16 h-16 rounded overflow-hidden border-2 border-gray-200">
+              <img [src]="item" [alt]="displayName" class="w-full h-full object-cover" />
+            </div>
+          </ng-template>
+        </p-galleria>
+        <!-- Single image fallback -->
+        <div *ngIf="images.length === 0" class="rounded-xl overflow-hidden bg-gray-100">
+          <img [src]="mainImage" [alt]="displayName" class="w-full h-64 md:h-96 object-contain" loading="eager" />
         </div>
       </div>
 
