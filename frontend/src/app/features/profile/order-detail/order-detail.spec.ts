@@ -1,10 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TableModule } from 'primeng/table';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { OrderDetailComponent } from './order-detail';
@@ -70,15 +69,14 @@ describe('OrderDetailComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [OrderDetailComponent, CurrencyPipe],
       imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatTableModule,
+        ButtonModule,
+        ProgressSpinnerModule,
+        TableModule,
+        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
-        provideNoopAnimations(),
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],
@@ -126,15 +124,14 @@ describe('OrderDetailComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [OrderDetailComponent, CurrencyPipe],
       imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatTableModule,
+        ButtonModule,
+        ProgressSpinnerModule,
+        TableModule,
+        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
-        provideNoopAnimations(),
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],
@@ -159,15 +156,14 @@ describe('OrderDetailComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [OrderDetailComponent, CurrencyPipe],
       imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatTableModule,
+        ButtonModule,
+        ProgressSpinnerModule,
+        TableModule,
+        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
-        provideNoopAnimations(),
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],
@@ -190,8 +186,7 @@ describe('OrderDetailComponent', () => {
   });
 
   it('should have back to list link', () => {
-    const backButton = fixture.nativeElement.querySelector('button');
-    const icon = backButton?.querySelector('mat-icon');
+    const icon = fixture.nativeElement.querySelector('.pi-arrow-left');
     expect(icon).toBeTruthy();
   });
 });

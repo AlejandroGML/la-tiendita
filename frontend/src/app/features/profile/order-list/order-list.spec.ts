@@ -1,11 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { provideRouter, Router } from '@angular/router';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { provideNoopAnimations } from '@angular/platform-browser/animations';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TableModule } from 'primeng/table';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { OrderListComponent } from './order-list';
@@ -64,15 +63,14 @@ describe('OrderListComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [OrderListComponent, CurrencyPipe],
       imports: [
-        MatButtonModule,
-        MatIconModule,
-        MatProgressSpinnerModule,
-        MatTableModule,
+        ButtonModule,
+        ProgressSpinnerModule,
+        TableModule,
+        NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
-        provideNoopAnimations(),
         { provide: OrderService, useValue: orderService },
       ],
     }).compileComponents();
@@ -91,7 +89,7 @@ describe('OrderListComponent', () => {
   });
 
   it('should display order rows', () => {
-    const rows = fixture.nativeElement.querySelectorAll('.mat-mdc-row, .mat-mdc-header-row');
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="order-list-table"] table tr');
     // 1 header + 2 data rows
     expect(rows.length).toBe(3);
   });
@@ -140,7 +138,7 @@ describe('OrderListComponent', () => {
 
   it('should navigate to order detail on row click', () => {
     const navigateSpy = vi.spyOn(router, 'navigate');
-    const rows = fixture.nativeElement.querySelectorAll('.mat-mdc-row, .mat-mdc-header-row');
+    const rows = fixture.nativeElement.querySelectorAll('[data-testid="order-list-table"] table tr');
     // Click first data row (index 1 is header)
     (rows[1] as HTMLElement).click();
 

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { WishlistService } from '../../../core/services/wishlist.service';
 import type { WishlistItem } from '../../../shared/models/wishlist.model';
@@ -21,7 +21,7 @@ export class WishlistComponent implements OnInit, OnDestroy {
   constructor(
     private readonly wishlistService: WishlistService,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar,
+    private readonly messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
@@ -61,10 +61,20 @@ export class WishlistComponent implements OnInit, OnDestroy {
           this.items.update((current) =>
             current.filter((i) => i.product_id !== item.product_id),
           );
-          this.snackBar.open('wishlist.removed', '', { duration: 3000 });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'wishlist.removed',
+            life: 3000,
+          });
         },
         error: () => {
-          this.snackBar.open('wishlist.removeError', '', { duration: 3000 });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'wishlist.removeError',
+            life: 3000,
+          });
         },
       });
   }

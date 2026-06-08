@@ -1,50 +1,60 @@
 <div class="flex justify-center items-center min-h-[60vh]">
-  <mat-card class="w-full max-w-sm p-4">
-    <mat-card-header>
-      <mat-card-title class="text-xl">Create Account</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-4">
+  <p-card header="Create Account" styleClass="w-full max-w-sm p-4">
+    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-4">
 
-        <mat-form-field appearance="outline">
-          <mat-label>Name</mat-label>
-          <input matInput type="text" formControlName="name" placeholder="Your name" />
-          <mat-error *ngIf="form.get('name')?.hasError('required')">Name is required</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Email</mat-label>
-          <input matInput type="email" formControlName="email" placeholder="you@example.com" />
-          <mat-error *ngIf="form.get('email')?.hasError('required')">Email is required</mat-error>
-          <mat-error *ngIf="form.get('email')?.hasError('email')">Enter a valid email</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput type="password" formControlName="password" placeholder="••••••••" />
-          <mat-error *ngIf="form.get('password')?.hasError('required')">Password is required</mat-error>
-          <mat-error *ngIf="form.get('password')?.hasError('minlength')">At least 8 characters</mat-error>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline">
-          <mat-label>Confirm Password</mat-label>
-          <input matInput type="password" formControlName="confirmPassword" placeholder="••••••••" />
-          <mat-error *ngIf="form.get('confirmPassword')?.hasError('required')">Please confirm your password</mat-error>
-          <mat-error *ngIf="form.hasError('passwordsMismatch') && form.get('confirmPassword')?.touched">
-            Passwords do not match
-          </mat-error>
-        </mat-form-field>
-
-        <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</div>
-
-        <button mat-flat-button color="primary" type="submit" [disabled]="form.invalid || submitting">
-          Create Account
-        </button>
-      </form>
-
-      <div class="mt-4">
-        <a mat-button routerLink="/login" class="text-sm">Already have an account? Sign In</a>
+      <div>
+        <p-floatLabel variant="on" styleClass="w-full">
+          <input pInputText type="text" formControlName="name" placeholder="Your name" class="w-full" />
+          <label>Name</label>
+        </p-floatLabel>
+        <small *ngIf="form.get('name')?.hasError('required')" class="p-error block mt-1">Name is required</small>
       </div>
-    </mat-card-content>
-  </mat-card>
+
+      <div>
+        <p-floatLabel variant="on" styleClass="w-full">
+          <input pInputText type="email" formControlName="email" placeholder="you@example.com" class="w-full" />
+          <label>Email</label>
+        </p-floatLabel>
+        <small *ngIf="form.get('email')?.hasError('required')" class="p-error block mt-1">Email is required</small>
+        <small *ngIf="form.get('email')?.hasError('email')" class="p-error block mt-1">Enter a valid email</small>
+      </div>
+
+      <div>
+        <p-floatLabel variant="on" styleClass="w-full">
+          <input pInputText type="password" formControlName="password" placeholder="••••••••" class="w-full" />
+          <label>Password</label>
+        </p-floatLabel>
+        <small *ngIf="form.get('password')?.hasError('required')" class="p-error block mt-1">Password is required</small>
+        <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error block mt-1">At least 8 characters</small>
+      </div>
+
+      <div>
+        <p-floatLabel variant="on" styleClass="w-full">
+          <input pInputText type="password" formControlName="confirmPassword" placeholder="••••••••" class="w-full" />
+          <label>Confirm Password</label>
+        </p-floatLabel>
+        <small *ngIf="form.get('confirmPassword')?.hasError('required')" class="p-error block mt-1">Please confirm your password</small>
+        <small
+          *ngIf="form.hasError('passwordsMismatch') && form.get('confirmPassword')?.touched"
+          class="p-error block mt-1">
+          Passwords do not match
+        </small>
+      </div>
+
+      <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</div>
+
+      <p-button
+        label="Create Account"
+        severity="primary"
+        styleClass="w-full"
+        type="submit"
+        [loading]="submitting"
+        [disabled]="form.invalid || submitting"
+      ></p-button>
+    </form>
+
+    <div class="mt-4">
+      <a pButton [text]="true" routerLink="/login" class="text-sm">Already have an account? Sign In</a>
+    </div>
+  </p-card>
 </div>

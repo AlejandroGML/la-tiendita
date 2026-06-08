@@ -3,11 +3,11 @@
     <h1 class="text-2xl font-bold">{{ 'wishlist.title' | translate }}</h1>
   </header>
 
-  <mat-progress-bar
+  <p-progressBar
     *ngIf="loading()"
     mode="indeterminate"
-    class="mb-4"
-  ></mat-progress-bar>
+    styleClass="mb-4"
+  ></p-progressBar>
 
   <!-- Empty State -->
   <div
@@ -15,16 +15,16 @@
     class="text-center text-gray-500 py-16"
     data-testid="wishlist-empty"
   >
-    <mat-icon class="text-6xl mb-4">favorite_border</mat-icon>
+    <i class="pi pi-heart text-6xl mb-4 block"></i>
     <p class="text-lg mb-4">{{ 'wishlist.empty' | translate }}</p>
-    <button
-      mat-flat-button
-      color="primary"
+    <a
+      pButton
+      severity="primary"
       [routerLink]="'/productos'"
       data-testid="btn-browse"
     >
       {{ 'wishlist.browse' | translate }}
-    </button>
+    </a>
   </div>
 
   <!-- Error State -->
@@ -33,16 +33,14 @@
     class="text-center text-gray-500 py-16"
     data-testid="wishlist-error"
   >
-    <mat-icon class="text-6xl mb-4">error_outline</mat-icon>
+    <i class="pi pi-exclamation-circle text-6xl mb-4 block"></i>
     <p class="text-lg mb-4">{{ 'wishlist.error' | translate }}</p>
-    <button
-      mat-flat-button
-      color="primary"
-      (click)="loadWishlist()"
+    <p-button
+      [label]="'catalog.retry' | translate"
+      severity="primary"
+      (onClick)="loadWishlist()"
       data-testid="btn-retry"
-    >
-      {{ 'catalog.retry' | translate }}
-    </button>
+    ></p-button>
   </div>
 
   <!-- Grid -->
@@ -70,7 +68,7 @@
           *ngIf="!item.image_url"
           class="w-full h-48 bg-gray-100 flex items-center justify-center"
         >
-          <mat-icon class="text-gray-300 text-6xl">image</mat-icon>
+          <i class="pi pi-image text-gray-300 text-6xl"></i>
         </div>
         <div class="p-3">
           <h3 class="text-sm font-semibold line-clamp-2 mb-1">{{ item.name }}</h3>
@@ -78,18 +76,19 @@
         </div>
       </div>
       <div class="px-3 pb-3">
-        <button
-          mat-stroked-button
-          color="warn"
-          class="w-full"
+        <p-button
+          [label]="'wishlist.remove' | translate"
+          icon="pi pi-trash"
+          severity="danger"
+          [outlined]="true"
+          styleClass="w-full"
           [attr.aria-label]="'wishlist.removeAria' | translate: { name: item.name }"
-          (click)="removeItem(item)"
+          (onClick)="removeItem(item)"
           data-testid="btn-remove"
-        >
-          <mat-icon>delete_outline</mat-icon>
-          {{ 'wishlist.remove' | translate }}
-        </button>
+        ></p-button>
       </div>
     </div>
   </div>
+
+  <p-toast position="bottom-right"></p-toast>
 </div>

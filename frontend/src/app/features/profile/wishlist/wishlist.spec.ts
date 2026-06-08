@@ -1,8 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { ButtonModule } from 'primeng/button';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { ToastModule } from 'primeng/toast';
+import { MessageService } from 'primeng/api';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -53,14 +54,15 @@ describe('WishlistComponent', () => {
     await TestBed.configureTestingModule({
       declarations: [WishlistComponent],
       imports: [
-        MatIconModule,
-        MatProgressBarModule,
-        MatSnackBarModule,
+        ButtonModule,
+        ProgressBarModule,
+        ToastModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        MessageService,
         { provide: WishlistService, useValue: wishlistService },
       ],
     }).compileComponents();
@@ -115,15 +117,17 @@ describe('WishlistComponent', () => {
   });
 
   it('should call removeFromWishlist on remove click', () => {
-    const removeBtn = fixture.nativeElement.querySelector('[data-testid="btn-remove"]') as HTMLElement;
-    removeBtn.click();
+    const pBtn = fixture.nativeElement.querySelector('[data-testid="btn-remove"]');
+    const innerBtn = pBtn?.querySelector('button') as HTMLElement;
+    innerBtn.click();
 
     expect(wishlistService.removeFromWishlist).toHaveBeenCalledWith('uuid-1');
   });
 
   it('should remove item from list after successful removal', async () => {
-    const removeBtn = fixture.nativeElement.querySelector('[data-testid="btn-remove"]') as HTMLElement;
-    removeBtn.click();
+    const pBtn = fixture.nativeElement.querySelector('[data-testid="btn-remove"]');
+    const innerBtn = pBtn?.querySelector('button') as HTMLElement;
+    innerBtn.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
@@ -185,7 +189,7 @@ describe('WishlistComponent', () => {
     component.loading.set(true);
     fixture.detectChanges();
 
-    const bar = fixture.nativeElement.querySelector('mat-progress-bar');
+    const bar = fixture.nativeElement.querySelector('p-progressBar');
     expect(bar).toBeTruthy();
   });
 });
