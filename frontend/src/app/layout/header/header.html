@@ -1,55 +1,76 @@
-<mat-toolbar color="primary" class="flex items-center justify-between">
-  <!-- Brand / Logo -->
-  <a routerLink="/" class="text-white font-bold text-xl no-underline">{{ title }}</a>
-
-  <!-- Desktop Navigation -->
-  <nav class="hidden md:flex items-center gap-2">
-    <a mat-button routerLink="/productos" routerLinkActive="mat-accent">
-      {{ 'nav.products' | translate }}
-    </a>
-    <a mat-button routerLink="/carrito" routerLinkActive="mat-accent">
-      <mat-icon class="align-middle">shopping_cart</mat-icon>
-      {{ 'nav.cart' | translate }}
-    </a>
-
-    <!-- Theme Toggle -->
-    <button
-      mat-icon-button
-      (click)="toggleTheme()"
-      [attr.aria-label]="themeIcon === 'light_mode' ? 'Switch to dark mode' : 'Switch to light mode'"
-    >
-      <mat-icon>{{ themeIcon }}</mat-icon>
-    </button>
-  </nav>
-
-  <!-- Mobile: hamburger + theme toggle -->
-  <div class="flex md:hidden items-center gap-1">
-    <button
-      mat-icon-button
-      (click)="toggleTheme()"
-      [attr.aria-label]="themeIcon === 'light_mode' ? 'Switch to dark mode' : 'Switch to light mode'"
-    >
-      <mat-icon>{{ themeIcon }}</mat-icon>
-    </button>
-
-    <button
-      mat-icon-button
-      [matMenuTriggerFor]="mobileMenu"
-      (click)="toggleMenu()"
-      aria-label="Open navigation menu"
-    >
-      <mat-icon>menu</mat-icon>
-    </button>
-
-    <mat-menu #mobileMenu="matMenu" (closed)="closeMenu()">
-      <a mat-menu-item routerLink="/productos">
-        <mat-icon>storefront</mat-icon>
-        <span>{{ 'nav.products' | translate }}</span>
+<header class="sticky top-0 z-50 bg-white border-b border-gray-100 shadow-sm">
+  <div class="container mx-auto px-4 sm:px-8">
+    <!-- Main bar -->
+    <div class="flex items-center justify-between h-16 md:h-20">
+      <!-- Logo -->
+      <a routerLink="/" class="flex items-center gap-2.5 flex-shrink-0">
+        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-extrabold text-sm shadow-sm">LT</div>
+        <span class="hidden sm:block text-xl font-extrabold text-gray-900">{{ 'header.title' | translate }}</span>
       </a>
-      <a mat-menu-item routerLink="/carrito">
-        <mat-icon>shopping_cart</mat-icon>
-        <span>{{ 'nav.cart' | translate }}</span>
-      </a>
-    </mat-menu>
+
+      <!-- Desktop nav -->
+      <nav class="hidden md:flex items-center gap-1">
+        <a pButton [text]="true" routerLink="/productos" class="font-medium text-gray-600 hover:text-emerald-600 !px-3"
+           routerLinkActive="!text-emerald-600 !bg-emerald-50" [routerLinkActiveOptions]="{exact: true}">
+          <i class="pi pi-th-large mr-1.5"></i>{{ 'nav.products' | translate }}
+        </a>
+      </nav>
+
+      <!-- Right section -->
+      <div class="flex items-center gap-1 sm:gap-2">
+        <!-- Search toggle -->
+        <button pButton [rounded]="true" [text]="true" severity="secondary"
+                class="!w-9 !h-9" aria-label="Buscar">
+          <i class="pi pi-search"></i>
+        </button>
+
+        <!-- Wishlist -->
+        <a pButton [rounded]="true" [text]="true" severity="secondary"
+           routerLink="/perfil/wishlist" class="!w-9 !h-9 relative" aria-label="Favoritos">
+          <i class="pi pi-heart"></i>
+        </a>
+
+        <!-- Cart -->
+        <a pButton [rounded]="true" [text]="true" severity="secondary"
+           routerLink="/carrito" class="!w-9 !h-9 relative" aria-label="Carrito">
+          <i class="pi pi-shopping-cart"></i>
+        </a>
+
+        <!-- Auth / User -->
+        <button pButton [rounded]="true" [text]="true" severity="secondary"
+                routerLink="/login" class="!w-9 !h-9" aria-label="Iniciar sesión">
+          <i class="pi pi-user"></i>
+        </button>
+
+        <!-- Theme toggle -->
+        <button pButton [rounded]="true" [text]="true" severity="secondary"
+                (click)="toggleTheme()" class="!w-9 !h-9 hidden sm:inline-flex"
+                [attr.aria-label]="themeIcon === 'pi pi-sun' ? 'Modo oscuro' : 'Modo claro'">
+          <i [class]="themeIcon"></i>
+        </button>
+
+        <!-- Mobile menu toggle -->
+        <button pButton [rounded]="true" [text]="true" severity="secondary"
+                (click)="mobileOpen = !mobileOpen" class="!w-9 !h-9 md:!hidden" aria-label="Menú">
+          <i [class]="mobileOpen ? 'pi pi-times' : 'pi pi-bars'"></i>
+        </button>
+      </div>
+    </div>
   </div>
-</mat-toolbar>
+
+  <!-- Mobile menu -->
+  <div *ngIf="mobileOpen" class="md:hidden border-t border-gray-100 bg-white px-4 pb-4 pt-2 space-y-1">
+    <a pButton [text]="true" routerLink="/productos" class="!w-full !justify-start font-medium !text-gray-700" (click)="mobileOpen = false">
+      <i class="pi pi-th-large mr-2"></i>{{ 'nav.products' | translate }}
+    </a>
+    <a pButton [text]="true" routerLink="/carrito" class="!w-full !justify-start font-medium !text-gray-700" (click)="mobileOpen = false">
+      <i class="pi pi-shopping-cart mr-2"></i>{{ 'nav.cart' | translate }}
+    </a>
+    <a pButton [text]="true" routerLink="/login" class="!w-full !justify-start font-medium !text-gray-700" (click)="mobileOpen = false">
+      <i class="pi pi-user mr-2"></i>{{ 'footer.signIn' | translate }}
+    </a>
+    <button pButton [text]="true" (click)="toggleTheme()" class="!w-full !justify-start font-medium !text-gray-700">
+      <i [class]="themeIcon" class="mr-2"></i>{{ themeIcon === 'pi pi-sun' ? 'Modo claro' : 'Modo oscuro' }}
+    </button>
+  </div>
+</header>
