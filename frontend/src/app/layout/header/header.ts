@@ -32,6 +32,7 @@ export class Header implements OnInit {
 
   mobileOpen = false;
   showMobileSearch = false;
+  catMenuOpen = false;
   searchTerm = '';
   cartCount = 0;
   categories: CategoryItem[] = [];

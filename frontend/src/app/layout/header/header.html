@@ -87,15 +87,30 @@
            routerLinkActive="!bg-emerald-100 !text-emerald-700 !font-semibold" [routerLinkActiveOptions]="{exact: true}">
           {{ 'catalog.allCategories' | translate }}
         </a>
-        <a *ngFor="let cat of categories"
-           pButton [text]="true"
-           [routerLink]="['/productos']"
-           [queryParams]="{category_id: cat.id}"
-           class="!px-3 !py-1.5 !text-xs font-medium !rounded-full whitespace-nowrap !text-gray-600 hover:!bg-emerald-50 hover:!text-emerald-700"
-           [class.!bg-emerald-100]="isCurrentCategory(cat.id)"
-           [class.!text-emerald-700]="isCurrentCategory(cat.id)">
-          {{ getCategoryIcon(cat.slug) }} {{ cat.name || cat.slug }}
-        </a>
+
+        <!-- Categories dropdown -->
+        <div class="relative" (mouseenter)="catMenuOpen = true" (mouseleave)="catMenuOpen = false">
+          <button pButton [text]="true"
+                  class="!px-3 !py-1.5 !text-xs font-medium !rounded-full !text-gray-600 hover:!bg-emerald-50 hover:!text-emerald-700 flex items-center gap-1">
+            <i class="pi pi-th-large text-xs"></i>
+            {{ 'home.categories' | translate }}
+            <i class="pi pi-chevron-down text-[10px] ml-0.5" [class.rotate-180]="catMenuOpen"></i>
+          </button>
+
+          <!-- Dropdown menu -->
+          <div *ngIf="catMenuOpen"
+               class="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 max-h-80 overflow-y-auto">
+            <a *ngFor="let cat of categories"
+               pButton [text]="true"
+               [routerLink]="['/productos']"
+               [queryParams]="{category_id: cat.id}"
+               class="!w-full !justify-start !px-4 !py-2 !text-sm !font-normal !text-gray-700 hover:!bg-emerald-50 hover:!text-emerald-700 !rounded-none"
+               (click)="catMenuOpen = false">
+              <span class="mr-2 text-base">{{ getCategoryIcon(cat.slug) }}</span>
+              {{ cat.name || cat.slug }}
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
