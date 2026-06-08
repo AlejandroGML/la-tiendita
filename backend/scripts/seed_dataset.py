@@ -176,7 +176,7 @@ async def seed(
     )
 
     # Ensure uploads directory exists
-    uploads_dir = Path(__file__).resolve().parent.parent / "uploads" / "dataset"
+    uploads_dir = Path("/app/uploads/dataset")
     uploads_dir.mkdir(parents=True, exist_ok=True)
     logger.info("Images will be saved to %s", uploads_dir)
 
