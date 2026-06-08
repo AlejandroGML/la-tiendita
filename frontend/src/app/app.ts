@@ -2,6 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Title, Meta } from '@angular/platform-browser';
 import { Router, NavigationEnd } from '@angular/router';
 import { filter, map } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 const SITE_NAME = 'La Tiendita';
 
@@ -15,8 +16,11 @@ export class App implements OnInit {
   private router = inject(Router);
   private titleService = inject(Title);
   private meta = inject(Meta);
+  private translate = inject(TranslateService);
 
   ngOnInit(): void {
+    this.translate.setDefaultLang('es');
+    this.translate.use('es');
     this.router.events
       .pipe(
         filter((event): event is NavigationEnd => event instanceof NavigationEnd),
