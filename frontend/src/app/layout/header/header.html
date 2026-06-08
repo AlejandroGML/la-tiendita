@@ -89,7 +89,8 @@
 
         <!-- Categories dropdown -->
         <div class="relative" (mouseenter)="catMenuOpen = true" (mouseleave)="catMenuOpen = false">
-          <button pButton [text]="true"
+          <button pButton [text]="true" type="button"
+                  (click)="catMenuOpen = !catMenuOpen"
                   class="!px-3 !py-1.5 !text-xs font-medium !rounded-full !text-gray-600 hover:!bg-emerald-50 hover:!text-emerald-700 flex items-center gap-1">
             <i class="pi pi-th-large text-xs"></i>
             {{ 'home.categories' | translate }}
@@ -98,6 +99,7 @@
 
           <!-- Dropdown menu -->
           <div *ngIf="catMenuOpen"
+               (click)="catMenuOpen = false"
                class="absolute top-full left-0 mt-1 w-56 bg-white rounded-xl shadow-lg border border-gray-100 py-2 z-50 max-h-80 overflow-y-auto">
             <a *ngFor="let cat of categories"
                pButton [text]="true"
