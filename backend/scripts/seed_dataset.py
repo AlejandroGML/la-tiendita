@@ -29,6 +29,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from PIL import Image as PILImage
+
 from app.db.engine import async_session
 from app.models.category import Category, CategoryTranslation
 from app.models.product import Product, ProductCondition, ProductTranslation
@@ -173,6 +175,11 @@ async def seed(
         streaming=True,
     )
 
+    # Ensure uploads directory exists
+    uploads_dir = Path(__file__).resolve().parent.parent / "uploads" / "dataset"
+    uploads_dir.mkdir(parents=True, exist_ok=True)
+    logger.info("Images will be saved to %s", uploads_dir)
+
     # Known types from the dataset (avoids full iteration for category creation)
     KNOWN_TYPES: set[str] = {
         "Top", "T-shirt", "Dress", "Sweater", "Shirt", "Blouse",
@@ -267,6 +274,21 @@ async def seed(
                 )
                 session.add(product)
                 await session.flush()
+
+                # Save product image from dataset
+                try:
+                    img_data = row.get("image")
+                    if img_data is not None:
+                        img_filename = f"{product.id.hex}.webp"
+                        img_path = uploads_dir / img_filename
+                        # Convert PIL image to RGB and save as WebP
+                        if hasattr(img_data, "convert"):
+                            img_data.convert("RGB").save(
+                                str(img_path), "WEBP", quality=85
+                            )
+                            product.image_urls = [f"/uploads/dataset/{img_filename}"]
+                except Exception:
+                    logger.warning("Failed to save image for product %s", product.id)
 
                 # Add English translation from dataset text
                 if text:
