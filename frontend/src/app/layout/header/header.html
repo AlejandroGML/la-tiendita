@@ -22,47 +22,46 @@
         </div>
 
         <!-- Right icons -->
-        <div class="flex items-center gap-1 sm:gap-2">
+        <div class="flex items-center gap-1 sm:gap-3">
           <!-- Mobile search toggle -->
           <button pButton [rounded]="true" [text]="true" severity="secondary"
                   (click)="showMobileSearch = !showMobileSearch"
-                  class="!w-9 !h-9 md:!hidden" aria-label="Buscar">
-            <i class="pi pi-search"></i>
+                  class="md:!hidden" aria-label="Buscar">
+            <i class="pi pi-search text-lg"></i>
           </button>
 
           <!-- Wishlist -->
           <a pButton [rounded]="true" [text]="true" severity="secondary"
-             routerLink="/perfil/wishlist" class="!w-9 !h-9 relative hover:!text-red-400" aria-label="Favoritos">
-            <i class="pi pi-heart"></i>
+             routerLink="/perfil/wishlist" class="relative hover:!text-red-500" aria-label="Favoritos">
+            <i class="pi pi-heart text-lg"></i>
           </a>
 
           <!-- Cart with badge -->
           <a pButton [rounded]="true" [text]="true" severity="secondary"
-             routerLink="/carrito" class="!w-9 !h-9 relative hover:!text-emerald-600" aria-label="Carrito">
-            <i class="pi pi-shopping-cart"></i>
+             routerLink="/carrito" class="relative hover:!text-emerald-600" aria-label="Carrito">
+            <i class="pi pi-shopping-cart text-lg"></i>
             <span *ngIf="cartCount > 0"
-                  class="absolute -top-1 -right-1 w-4.5 h-4.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center min-w-[18px] min-h-[18px] leading-none shadow-sm">
+                  class="absolute -top-1.5 -right-1.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center min-w-[18px] min-h-[18px] leading-none shadow-sm ring-2 ring-white">
               {{ cartCount > 99 ? '99+' : cartCount }}
             </span>
           </a>
 
           <!-- User -->
           <button pButton [rounded]="true" [text]="true" severity="secondary"
-                  routerLink="/login" class="!w-9 !h-9 hover:!text-emerald-600" aria-label="Usuario">
-            <i class="pi pi-user"></i>
+                  routerLink="/login" class="hover:!text-emerald-600" aria-label="Usuario">
+            <i class="pi pi-user text-lg"></i>
           </button>
 
           <!-- Theme -->
           <button pButton [rounded]="true" [text]="true" severity="secondary"
-                  (click)="toggleTheme()" class="!w-9 !h-9 hidden sm:inline-flex"
-                  [attr.aria-label]="themeIcon === 'pi pi-sun' ? 'Modo oscuro' : 'Modo claro'">
-            <i [class]="themeIcon"></i>
+                  (click)="toggleTheme()" class="sm:inline-flex hover:!text-amber-500" aria-label="Theme">
+            <i [class]="themeIcon" class="text-lg"></i>
           </button>
 
           <!-- Hamburger -->
           <button pButton [rounded]="true" [text]="true" severity="secondary"
-                  (click)="mobileOpen = !mobileOpen" class="!w-9 !h-9 lg:!hidden" aria-label="Menú">
-            <i [class]="mobileOpen ? 'pi pi-times' : 'pi pi-bars'"></i>
+                  (click)="mobileOpen = !mobileOpen" class="lg:!hidden" aria-label="Menú">
+            <i [class]="mobileOpen ? 'pi pi-times text-lg' : 'pi pi-bars text-lg'"></i>
           </button>
         </div>
       </div>
