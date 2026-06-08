@@ -39,19 +39,33 @@
         </div>
       </div>
 
-      <!-- Decorative cards -->
+      <!-- Decorative cards — real products -->
       <div class="hidden lg:flex flex-col gap-4 flex-shrink-0">
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 w-64 transform rotate-3 hover:rotate-0 transition-transform">
-          <span class="inline-block px-3 py-1 bg-emerald-500 text-white text-xs font-bold rounded-full mb-3">TOP VENTAS</span>
-          <div class="w-full h-32 bg-white/20 rounded-xl mb-3"></div>
-          <p class="text-white font-semibold">Chaqueta Denim</p>
-          <p class="text-emerald-200 text-sm">$25.000</p>
-        </div>
-        <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 w-56 transform -rotate-2 hover:rotate-0 transition-transform self-end">
-          <span class="inline-block px-3 py-1 bg-amber-500 text-white text-xs font-bold rounded-full mb-3">NUEVO</span>
-          <div class="w-full h-28 bg-white/20 rounded-xl mb-3"></div>
-          <p class="text-white font-semibold">Vestido Vintage</p>
-          <p class="text-emerald-200 text-sm">$40.000</p>
+        <div *ngFor="let card of heroCards; let i = index"
+             class="bg-white/10 backdrop-blur-md rounded-2xl p-4 w-64 overflow-hidden"
+             [class.transform]="true"
+             [class.rotate-3]="i === 0"
+             [class.-rotate-2]="i === 1"
+             [class.self-end]="i === 1"
+             [class.rotate-1]="i === 2"
+             [class.hover:rotate-0]="true"
+             [class.transition-transform]="true">
+          <span class="inline-block px-3 py-1 text-white text-xs font-bold rounded-full mb-2"
+                [class.bg-emerald-500]="i === 0"
+                [class.bg-amber-500]="i === 1"
+                [class.bg-blue-500]="i === 2">
+            {{ i === 0 ? 'TOP VENTAS' : i === 1 ? 'NUEVO' : 'OFERTA' }}
+          </span>
+          <img *ngIf="card.image_urls?.[0]"
+               [src]="card.image_urls[0]"
+               [alt]="getDisplayName(card)"
+               class="w-full h-28 object-cover rounded-xl mb-2"
+               loading="lazy" />
+          <div *ngIf="!card.image_urls?.[0]" class="w-full h-28 bg-white/20 rounded-xl mb-2 flex items-center justify-center">
+            <i class="pi pi-image text-3xl text-white/40"></i>
+          </div>
+          <p class="text-white font-semibold text-sm truncate">{{ getDisplayName(card) }}</p>
+          <p class="text-emerald-200 text-xs">{{ card.price | currency }}</p>
         </div>
       </div>
     </div>
@@ -77,8 +91,8 @@
            [routerLink]="['/productos']"
            [queryParams]="{ category_id: cat.id }"
            class="group flex flex-col items-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer border border-gray-100">
-          <div class="w-14 h-14 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mb-3 group-hover:bg-[var(--color-primary)]/20 transition-colors">
-            <i class="pi pi-tag text-xl text-[var(--color-primary)]"></i>
+          <div class="w-14 h-14 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mb-3 group-hover:bg-[var(--color-primary)]/20 transition-colors text-2xl">
+            {{ getCategoryIcon(cat.slug) }}
           </div>
           <span class="text-sm font-semibold text-[var(--color-text)] text-center leading-tight">
             {{ getCategoryName(cat) || cat.slug }}

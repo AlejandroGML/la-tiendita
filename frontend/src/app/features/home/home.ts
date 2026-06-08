@@ -9,6 +9,17 @@ interface CategoryItem {
   name: string;
 }
 
+const CATEGORY_ICONS: Record<string, string> = {
+  'accessories': '💍', 'bag': '👜', 'belt': '🔗', 'blazer': '🧥',
+  'blouse': '👚', 'boots': '🥾', 'cardigan': '🧶', 'coat': '🧥',
+  'dress': '👗', 'hat': '🧢', 'heels': '👠', 'jacket': '🧥',
+  'jeans': '👖', 'jumpsuit': '🦺', 'pants': '👖', 'playsuit': '🦺',
+  'poncho': '🧣', 'sandals': '🩴', 'scarf': '🧣', 'shirt': '👔',
+  'shoes': '👟', 'shorts': '🩳', 'skirt': '👗', 'sneakers': '👟',
+  'sweater': '🧶', 't-shirt': '👕', 'tank-top': '🎽', 'top': '👚',
+  'tunic': '👚', 'vest': '🦺',
+};
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.html',
@@ -22,6 +33,15 @@ export class Home {
   readonly featuredProducts = signal<Product[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+
+  /** First 3 featured products for decorative hero cards */
+  get heroCards(): Product[] {
+    return this.featuredProducts().slice(0, 3);
+  }
+
+  getCategoryIcon(slug: string): string {
+    return CATEGORY_ICONS[slug] || '🏷️';
+  }
 
   constructor() {
     this.fetchAll();
@@ -37,7 +57,7 @@ export class Home {
       error: () => this.error.set('catalog.error'),
     });
 
-    this.productService.getProducts({ per_page: 6 }).subscribe({
+    this.productService.getProducts({ per_page: 8 }).subscribe({
       next: (res) => {
         this.featuredProducts.set(res.data);
         this.loading.set(false);
@@ -55,6 +75,11 @@ export class Home {
 
   getCategoryName(cat: any): string {
     const t = cat?.translations?.find((t: any) => t.lang === 'es');
+    return t?.name ?? '';
+  }
+
+  getDisplayName(product: Product): string {
+    const t = product?.translations?.find((t: any) => t.lang === 'es');
     return t?.name ?? '';
   }
 }
