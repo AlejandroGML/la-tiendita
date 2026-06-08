@@ -4,6 +4,8 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
+import { providePrimeNG } from 'primeng/config';
+import Aura from '@primeuix/themes/aura';
 
 import { AppRoutingModule } from './app-routing-module';
 import { LayoutModule } from './layout/layout-module';
@@ -26,6 +28,15 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
     provideAnimations(),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     provideTranslateHttpLoader(),
+    providePrimeNG({
+      theme: {
+        preset: Aura,
+        options: {
+          darkModeSelector: '.dark-theme',
+          cssLayer: { name: 'primeng', order: 'tailwind-base, primeng, tailwind-utilities' }
+        }
+      }
+    }),
   ],
   bootstrap: [App],
 })
