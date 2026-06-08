@@ -1,4 +1,93 @@
-<div class="container mx-auto p-8">
-  <h1 class="text-3xl font-bold">La Tiendita</h1>
-  <p class="mt-4 text-gray-600">Welcome to your second-hand clothing store.</p>
+<!-- Hero Section -->
+<section class="bg-gradient-to-br from-purple-700 via-purple-600 to-indigo-700 text-white py-20 px-4">
+  <div class="container mx-auto text-center">
+    <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ 'header.title' | translate }}</h1>
+    <p class="text-lg md:text-xl text-purple-100 mb-8 max-w-2xl mx-auto">
+      {{ 'home.tagline' | translate }}
+    </p>
+    <a
+      pButton
+      severity="help"
+      class="text-lg px-8 py-4"
+      routerLink="/productos"
+    >
+      {{ 'home.browseCatalog' | translate }}
+    </a>
+  </div>
+</section>
+
+<div class="container mx-auto px-4 py-12">
+  <!-- Categories Section -->
+  <section class="mb-16">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">{{ 'home.categories' | translate }}</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      @for (cat of categories(); track cat.id) {
+        <a
+          [routerLink]="['/productos']"
+          [queryParams]="{ category_id: cat.id }"
+          class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:border-purple-400 hover:shadow-md transition-all cursor-pointer no-underline"
+        >
+          <p class="text-sm font-medium text-gray-800">{{ cat.name }}</p>
+        </a>
+      }
+    </div>
+  </section>
+
+  <!-- Featured Products Section -->
+  <section>
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-gray-900">{{ 'home.featured' | translate }}</h2>
+      <a
+        pButton
+        [outlined]="true"
+        severity="primary"
+        routerLink="/productos"
+        class="text-lg px-8"
+      >
+        {{ 'home.viewAll' | translate }}
+      </a>
+    </div>
+
+    <!-- Loading state -->
+    @if (loading()) {
+      <div class="flex justify-center items-center py-20">
+        <p-progressSpinner
+          [style]="{ width: '48px', height: '48px' }"
+          strokeWidth="4"
+        ></p-progressSpinner>
+      </div>
+    }
+
+    <!-- Error state -->
+    @else if (error()) {
+      <div class="text-center py-20">
+        <p class="text-gray-500 mb-4">{{ 'catalog.error' | translate }}</p>
+        <button
+          pButton
+          [outlined]="true"
+          severity="primary"
+          class="mt-4"
+          (click)="retry()"
+        >
+          {{ 'catalog.retry' | translate }}
+        </button>
+      </div>
+    }
+
+    <!-- Empty state -->
+    @else if (featuredProducts().length === 0) {
+      <div class="text-center py-20">
+        <p class="text-gray-500">{{ 'home.noProducts' | translate }}</p>
+      </div>
+    }
+
+    <!-- Products grid -->
+    @else {
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        @for (product of featuredProducts(); track product.id) {
+          <app-product-card [product]="product"></app-product-card>
+        }
+      </div>
+    }
+  </section>
 </div>

@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { MatCardModule } from '@angular/material/card';
+import { CardModule } from 'primeng/card';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProductCardComponent } from './product-card';
 import { CurrencyPipe } from '../../pipes/currency.pipe';
@@ -41,7 +41,7 @@ describe('ProductCardComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ProductCardComponent, CurrencyPipe],
-      imports: [MatCardModule, TranslateModule.forRoot()],
+      imports: [CardModule, TranslateModule.forRoot()],
     }).compileComponents();
 
     translate = TestBed.inject(TranslateService);
