@@ -1,41 +1,55 @@
-<p-card styleClass="product-card w-full cursor-pointer hover:shadow-lg transition-shadow block">
+<p-card styleClass="product-card-enhanced block w-full cursor-pointer group">
   <ng-template pTemplate="header">
-    <img
-      [src]="imageUrl"
-      [alt]="displayName"
-      class="h-48 w-full object-cover"
-      loading="lazy"
-    />
+    <div class="relative overflow-hidden aspect-[3/4] bg-gray-100">
+      <img
+        [src]="imageUrl"
+        [alt]="displayName"
+        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        loading="lazy"
+      />
+      <!-- Condition badge -->
+      <span
+        *ngIf="product.condition"
+        class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm"
+        [class]="conditionBadgeClass"
+      >
+        {{ 'condition.' + conditionLabel | translate }}
+      </span>
+      <!-- Stock badge -->
+      <span
+        *ngIf="product.stock === 0"
+        class="absolute inset-0 bg-black/50 flex items-center justify-center"
+      >
+        <span class="bg-white text-gray-800 px-4 py-2 rounded-full text-sm font-bold">
+          {{ 'product.outOfStock' | translate }}
+        </span>
+      </span>
+    </div>
   </ng-template>
   <ng-template pTemplate="content">
-    <div class="p-3">
-      <h3 class="text-sm font-semibold line-clamp-2 mb-1">{{ displayName }}</h3>
-      <p class="text-lg font-bold text-gray-900 mb-2">
-        {{ product.price | currency }}
-      </p>
-      <div class="flex flex-wrap gap-1 items-center">
-        <!-- Condition badge -->
-        <span
-          *ngIf="product.condition"
-          class="inline-block px-2 py-0.5 text-xs font-medium rounded border"
-          [class]="conditionClasses"
-        >
-          {{ 'condition.' + conditionLabel | translate }}
-        </span>
-        <!-- Condition rating stars -->
-        <span
-          *ngIf="product.condition_rating"
-          class="text-xs text-yellow-600"
-          [title]="'Rating: ' + product.condition_rating + '/5'"
-        >
+    <div class="p-0 space-y-2">
+      <h3 class="text-sm font-bold text-gray-900 line-clamp-2 leading-snug group-hover:text-[var(--color-primary)] transition-colors">
+        {{ displayName }}
+      </h3>
+
+      <!-- Condition rating stars -->
+      <div *ngIf="product.condition_rating" class="flex items-center gap-1">
+        <span class="text-yellow-500 text-xs">
           {{ '★'.repeat(product.condition_rating) }}{{ '☆'.repeat(5 - product.condition_rating) }}
         </span>
-        <!-- Material chip -->
-        <span
-          *ngIf="product.material"
-          class="inline-block px-2 py-0.5 text-xs bg-gray-100 text-gray-600 rounded"
-        >
-          {{ product.material }}
+      </div>
+
+      <div class="flex items-end justify-between gap-2">
+        <div>
+          <p class="text-lg font-extrabold text-gray-900">
+            {{ product.price | currency }}
+          </p>
+          <p *ngIf="product.material" class="text-xs text-gray-500 mt-0.5 line-clamp-1">
+            {{ product.material }}
+          </p>
+        </div>
+        <span *ngIf="product.brand" class="text-xs text-gray-400 font-medium">
+          {{ product.brand }}
         </span>
       </div>
     </div>

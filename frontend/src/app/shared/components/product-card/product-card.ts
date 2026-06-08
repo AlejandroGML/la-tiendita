@@ -9,6 +9,13 @@ const CONDITION_COLORS: Record<string, string> = {
   fair: 'bg-orange-100 text-orange-800 border-orange-300',
 };
 
+const CONDITION_BADGES: Record<string, string> = {
+  new: 'bg-emerald-500/90 text-white backdrop-blur-sm',
+  like_new: 'bg-blue-500/90 text-white backdrop-blur-sm',
+  good: 'bg-amber-500/90 text-white backdrop-blur-sm',
+  fair: 'bg-red-500/90 text-white backdrop-blur-sm',
+};
+
 @Component({
   selector: 'app-product-card',
   templateUrl: './product-card.html',
@@ -39,5 +46,9 @@ export class ProductCardComponent {
 
   get conditionClasses(): string {
     return CONDITION_COLORS[this.product?.condition] ?? '';
+  }
+
+  get conditionBadgeClass(): string {
+    return CONDITION_BADGES[this.product?.condition] ?? 'bg-gray-500/90 text-white';
   }
 }

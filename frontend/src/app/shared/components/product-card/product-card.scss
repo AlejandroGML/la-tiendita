@@ -1,7 +1,15 @@
-.product-card {
-  transition: box-shadow 0.2s ease;
+:host {
+  display: block;
+}
 
-  .p-card-header img {
-    aspect-ratio: 3 / 4;
+.product-card-enhanced {
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: none;
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
   }
 }
