@@ -1,76 +1,133 @@
-<header class="sticky top-0 z-50 bg-white border-b-2 border-gray-200 shadow-md">
-  <div class="container mx-auto px-4 sm:px-8">
-    <!-- Main bar -->
-    <div class="flex items-center justify-between h-16 md:h-20">
-      <!-- Logo -->
-      <a routerLink="/" class="flex items-center gap-2.5 flex-shrink-0">
-        <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-extrabold text-sm shadow-sm">LT</div>
-        <span class="hidden sm:block text-xl font-extrabold text-gray-900">{{ 'header.title' | translate }}</span>
-      </a>
-
-      <!-- Desktop nav -->
-      <nav class="hidden md:flex items-center gap-1">
-        <a pButton [text]="true" routerLink="/productos" class="font-medium text-gray-600 hover:text-emerald-600 !px-3"
-           routerLinkActive="!text-emerald-600 !bg-emerald-50" [routerLinkActiveOptions]="{exact: true}">
-          <i class="pi pi-th-large mr-1.5"></i>{{ 'nav.products' | translate }}
-        </a>
-      </nav>
-
-      <!-- Right section -->
-      <div class="flex items-center gap-1 sm:gap-2">
-        <!-- Search toggle -->
-        <button pButton [rounded]="true" [text]="true" severity="secondary"
-                class="!w-9 !h-9" aria-label="Buscar">
-          <i class="pi pi-search"></i>
-        </button>
-
-        <!-- Wishlist -->
-        <a pButton [rounded]="true" [text]="true" severity="secondary"
-           routerLink="/perfil/wishlist" class="!w-9 !h-9 relative" aria-label="Favoritos">
-          <i class="pi pi-heart"></i>
+<header class="sticky top-0 z-50 bg-white shadow-md border-b border-gray-200">
+  <!-- Top bar: Logo + Search + Icons -->
+  <div class="border-b border-gray-100">
+    <div class="container mx-auto px-4 sm:px-8">
+      <div class="flex items-center justify-between h-16 gap-4">
+        <!-- Logo -->
+        <a routerLink="/" class="flex items-center gap-2.5 flex-shrink-0">
+          <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-extrabold text-sm shadow-sm">LT</div>
+          <span class="hidden sm:block text-lg font-extrabold text-gray-900">{{ 'header.title' | translate }}</span>
         </a>
 
-        <!-- Cart -->
-        <a pButton [rounded]="true" [text]="true" severity="secondary"
-           routerLink="/carrito" class="!w-9 !h-9 relative" aria-label="Carrito">
-          <i class="pi pi-shopping-cart"></i>
+        <!-- Search bar -->
+        <div class="hidden md:flex flex-1 max-w-md lg:max-w-lg">
+          <p-iconField iconPosition="left" class="w-full">
+            <p-inputIcon>
+              <i class="pi pi-search"></i>
+            </p-inputIcon>
+            <input pInputText type="text" [placeholder]="'catalog.search' | translate"
+                   class="w-full !rounded-full !bg-gray-50 !border-gray-200 !pl-10 !text-sm focus:!border-emerald-400 focus:!ring-1 focus:!ring-emerald-400 transition-all"
+                   [ngModel]="searchTerm" (ngModelChange)="onSearch($event)" />
+          </p-iconField>
+        </div>
+
+        <!-- Right icons -->
+        <div class="flex items-center gap-1 sm:gap-2">
+          <!-- Mobile search toggle -->
+          <button pButton [rounded]="true" [text]="true" severity="secondary"
+                  (click)="showMobileSearch = !showMobileSearch"
+                  class="!w-9 !h-9 md:!hidden" aria-label="Buscar">
+            <i class="pi pi-search"></i>
+          </button>
+
+          <!-- Wishlist -->
+          <a pButton [rounded]="true" [text]="true" severity="secondary"
+             routerLink="/perfil/wishlist" class="!w-9 !h-9 relative hover:!text-red-400" aria-label="Favoritos">
+            <i class="pi pi-heart"></i>
+          </a>
+
+          <!-- Cart with badge -->
+          <a pButton [rounded]="true" [text]="true" severity="secondary"
+             routerLink="/carrito" class="!w-9 !h-9 relative hover:!text-emerald-600" aria-label="Carrito">
+            <i class="pi pi-shopping-cart"></i>
+            <span *ngIf="cartCount > 0"
+                  class="absolute -top-1 -right-1 w-4.5 h-4.5 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center min-w-[18px] min-h-[18px] leading-none shadow-sm">
+              {{ cartCount > 99 ? '99+' : cartCount }}
+            </span>
+          </a>
+
+          <!-- User -->
+          <button pButton [rounded]="true" [text]="true" severity="secondary"
+                  routerLink="/login" class="!w-9 !h-9 hover:!text-emerald-600" aria-label="Usuario">
+            <i class="pi pi-user"></i>
+          </button>
+
+          <!-- Theme -->
+          <button pButton [rounded]="true" [text]="true" severity="secondary"
+                  (click)="toggleTheme()" class="!w-9 !h-9 hidden sm:inline-flex"
+                  [attr.aria-label]="themeIcon === 'pi pi-sun' ? 'Modo oscuro' : 'Modo claro'">
+            <i [class]="themeIcon"></i>
+          </button>
+
+          <!-- Hamburger -->
+          <button pButton [rounded]="true" [text]="true" severity="secondary"
+                  (click)="mobileOpen = !mobileOpen" class="!w-9 !h-9 lg:!hidden" aria-label="Menú">
+            <i [class]="mobileOpen ? 'pi pi-times' : 'pi pi-bars'"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile search bar -->
+  <div *ngIf="showMobileSearch" class="md:hidden border-b border-gray-100 px-4 pb-3 pt-2">
+    <p-iconField iconPosition="left" class="w-full">
+      <p-inputIcon><i class="pi pi-search"></i></p-inputIcon>
+      <input pInputText type="text" [placeholder]="'catalog.search' | translate"
+             class="w-full !rounded-full !bg-gray-50 !text-sm" />
+    </p-iconField>
+  </div>
+
+  <!-- Category nav bar -->
+  <div class="hidden lg:block border-b border-gray-100 bg-gray-50/50">
+    <div class="container mx-auto px-4 sm:px-8">
+      <div class="flex items-center gap-1 overflow-x-auto py-2 scrollbar-hide">
+        <a pButton [text]="true" routerLink="/productos"
+           class="!px-3 !py-1.5 !text-xs font-medium !rounded-full whitespace-nowrap !text-gray-600 hover:!bg-emerald-50 hover:!text-emerald-700"
+           routerLinkActive="!bg-emerald-100 !text-emerald-700 !font-semibold" [routerLinkActiveOptions]="{exact: true}">
+          {{ 'catalog.allCategories' | translate }}
         </a>
-
-        <!-- Auth / User -->
-        <button pButton [rounded]="true" [text]="true" severity="secondary"
-                routerLink="/login" class="!w-9 !h-9" aria-label="Iniciar sesión">
-          <i class="pi pi-user"></i>
-        </button>
-
-        <!-- Theme toggle -->
-        <button pButton [rounded]="true" [text]="true" severity="secondary"
-                (click)="toggleTheme()" class="!w-9 !h-9 hidden sm:inline-flex"
-                [attr.aria-label]="themeIcon === 'pi pi-sun' ? 'Modo oscuro' : 'Modo claro'">
-          <i [class]="themeIcon"></i>
-        </button>
-
-        <!-- Mobile menu toggle -->
-        <button pButton [rounded]="true" [text]="true" severity="secondary"
-                (click)="mobileOpen = !mobileOpen" class="!w-9 !h-9 md:!hidden" aria-label="Menú">
-          <i [class]="mobileOpen ? 'pi pi-times' : 'pi pi-bars'"></i>
-        </button>
+        <a *ngFor="let cat of categories"
+           pButton [text]="true"
+           [routerLink]="['/productos']"
+           [queryParams]="{category_id: cat.id}"
+           class="!px-3 !py-1.5 !text-xs font-medium !rounded-full whitespace-nowrap !text-gray-600 hover:!bg-emerald-50 hover:!text-emerald-700"
+           [class.!bg-emerald-100]="isCurrentCategory(cat.id)"
+           [class.!text-emerald-700]="isCurrentCategory(cat.id)">
+          {{ getCategoryIcon(cat.slug) }} {{ cat.name || cat.slug }}
+        </a>
       </div>
     </div>
   </div>
 
   <!-- Mobile menu -->
-  <div *ngIf="mobileOpen" class="md:hidden border-t border-gray-100 bg-white px-4 pb-4 pt-2 space-y-1">
-    <a pButton [text]="true" routerLink="/productos" class="!w-full !justify-start font-medium !text-gray-700" (click)="mobileOpen = false">
-      <i class="pi pi-th-large mr-2"></i>{{ 'nav.products' | translate }}
-    </a>
-    <a pButton [text]="true" routerLink="/carrito" class="!w-full !justify-start font-medium !text-gray-700" (click)="mobileOpen = false">
-      <i class="pi pi-shopping-cart mr-2"></i>{{ 'nav.cart' | translate }}
-    </a>
-    <a pButton [text]="true" routerLink="/login" class="!w-full !justify-start font-medium !text-gray-700" (click)="mobileOpen = false">
-      <i class="pi pi-user mr-2"></i>{{ 'footer.signIn' | translate }}
-    </a>
-    <button pButton [text]="true" (click)="toggleTheme()" class="!w-full !justify-start font-medium !text-gray-700">
-      <i [class]="themeIcon" class="mr-2"></i>{{ themeIcon === 'pi pi-sun' ? 'Modo claro' : 'Modo oscuro' }}
-    </button>
+  <div *ngIf="mobileOpen" class="lg:hidden border-b border-gray-200 bg-white shadow-inner">
+    <div class="px-4 py-3 space-y-1">
+      <a pButton [text]="true" routerLink="/productos" class="!w-full !justify-start !font-medium !text-gray-700" (click)="mobileOpen = false">
+        <i class="pi pi-th-large mr-2"></i>{{ 'nav.products' | translate }}
+      </a>
+      <a pButton [text]="true" routerLink="/carrito" class="!w-full !justify-start !font-medium !text-gray-700" (click)="mobileOpen = false">
+        <i class="pi pi-shopping-cart mr-2"></i>{{ 'nav.cart' | translate }}
+      </a>
+      <a pButton [text]="true" routerLink="/perfil/wishlist" class="!w-full !justify-start !font-medium !text-gray-700" (click)="mobileOpen = false">
+        <i class="pi pi-heart mr-2"></i>Favoritos
+      </a>
+      <a pButton [text]="true" routerLink="/login" class="!w-full !justify-start !font-medium !text-gray-700" (click)="mobileOpen = false">
+        <i class="pi pi-user mr-2"></i>{{ 'footer.signIn' | translate }}
+      </a>
+      <div class="border-t border-gray-100 pt-2 mt-2">
+        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2 px-3">{{ 'home.categories' | translate }}</p>
+        <div class="flex flex-wrap gap-1.5">
+          <a *ngFor="let cat of categories"
+             pButton [text]="true"
+             [routerLink]="['/productos']"
+             [queryParams]="{category_id: cat.id}"
+             class="!px-3 !py-1 !text-xs !rounded-full !font-medium !text-gray-600"
+             (click)="mobileOpen = false">
+            {{ getCategoryIcon(cat.slug) }} {{ cat.name || cat.slug }}
+          </a>
+        </div>
+      </div>
+    </div>
   </div>
 </header>
