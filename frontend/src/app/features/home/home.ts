@@ -21,7 +21,7 @@ export class Home {
   readonly categories = signal<CategoryItem[]>([]);
   readonly featuredProducts = signal<Product[]>([]);
   readonly loading = signal(true);
-  readonly error = signal(false);
+  readonly error = signal<string | null>(null);
 
   constructor() {
     this.fetchAll();
@@ -29,12 +29,12 @@ export class Home {
 
   fetchAll(): void {
     this.loading.set(true);
-    this.error.set(false);
+    this.error.set(null);
 
     const params = new HttpParams().set('lang', 'es');
     this.http.get<CategoryItem[]>('/api/categories', { params }).subscribe({
       next: (data) => this.categories.set(data),
-      error: () => this.error.set(true),
+      error: () => this.error.set('catalog.error'),
     });
 
     this.productService.getProducts({ per_page: 6 }).subscribe({
@@ -43,7 +43,7 @@ export class Home {
         this.loading.set(false);
       },
       error: () => {
-        this.error.set(true);
+        this.error.set('catalog.error');
         this.loading.set(false);
       },
     });
@@ -51,5 +51,10 @@ export class Home {
 
   retry(): void {
     this.fetchAll();
+  }
+
+  getCategoryName(cat: any): string {
+    const t = cat?.translations?.find((t: any) => t.lang === 'es');
+    return t?.name ?? '';
   }
 }

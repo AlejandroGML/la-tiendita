@@ -37,7 +37,7 @@
           [showThumbnails]="images.length > 1"
           [circular]="true"
           [showIndicators]="true"
-          containerStyle="max-width: 100%"
+          [containerStyle]="{'max-width': '100%'}"
         >
           <ng-template pTemplate="item" let-item>
             <img [src]="item" [alt]="displayName" class="w-full h-64 md:h-96 object-contain bg-gray-50 rounded-lg" />
