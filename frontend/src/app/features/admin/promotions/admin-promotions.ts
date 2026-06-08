@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { PromotionService } from '../../../core/services/promotion.service';
 import type {
@@ -14,11 +14,16 @@ interface EditingPromotion extends Promotion {
   _editing?: boolean;
 }
 
+function pad(n: number): string {
+  return n.toString().padStart(2, '0');
+}
+
 @Component({
   selector: 'app-admin-promotions',
   templateUrl: './admin-promotions.html',
   styleUrls: ['./admin-promotions.scss'],
   standalone: false,
+  providers: [MessageService],
 })
 export class AdminPromotionsComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -31,20 +36,18 @@ export class AdminPromotionsComponent implements OnInit, OnDestroy {
   readonly showForm = signal(false);
   readonly editingId = signal<string | null>(null);
 
-  form!: FormGroup;
-  readonly displayedColumns: string[] = [
-    'code',
-    'discount',
-    'product',
-    'dates',
-    'status',
-    'actions',
+  readonly langOptions = [
+    { label: 'ES', value: 'es' },
+    { label: 'EN', value: 'en' },
+    { label: 'SV', value: 'sv' },
   ];
+
+  form!: FormGroup;
 
   constructor(
     private readonly promotionService: PromotionService,
     private readonly fb: FormBuilder,
-    private readonly snackBar: MatSnackBar,
+    private readonly messageService: MessageService,
   ) {
     this.buildForm();
   }
@@ -154,8 +157,10 @@ export class AdminPromotionsComponent implements OnInit, OnDestroy {
 
     request$.pipe(takeUntil(this.destroy$)).subscribe({
       next: () => {
-        this.snackBar.open(editId ? 'promotions.updated' : 'promotions.created', '', {
-          duration: 3000,
+        this.messageService.add({
+          severity: 'success',
+          detail: editId ? 'promotions.updated' : 'promotions.created',
+          life: 3000,
         });
         this.saving.set(false);
         this.showForm.set(false);
@@ -163,7 +168,7 @@ export class AdminPromotionsComponent implements OnInit, OnDestroy {
         this.loadPromotions();
       },
       error: () => {
-        this.snackBar.open('promotions.saveError', '', { duration: 3000 });
+        this.messageService.add({ severity: 'error', detail: 'promotions.saveError', life: 3000 });
         this.saving.set(false);
       },
     });
@@ -180,13 +185,28 @@ export class AdminPromotionsComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.snackBar.open('promotions.deleted', '', { duration: 3000 });
+          this.messageService.add({ severity: 'success', detail: 'promotions.deleted', life: 3000 });
           this.loadPromotions();
         },
         error: () => {
-          this.snackBar.open('promotions.deleteError', '', { duration: 3000 });
+          this.messageService.add({ severity: 'error', detail: 'promotions.deleteError', life: 3000 });
         },
       });
+  }
+
+  toDate(isoString: string | null): Date | null {
+    if (!isoString) return null;
+    return new Date(isoString);
+  }
+
+  fromDate(date: Date | null): string | null {
+    if (!date) return null;
+    const y = date.getFullYear();
+    const mo = pad(date.getMonth() + 1);
+    const d = pad(date.getDate());
+    const h = pad(date.getHours());
+    const mi = pad(date.getMinutes());
+    return `${y}-${mo}-${d}T${h}:${mi}`;
   }
 
   isActive(promotion: Promotion): boolean {

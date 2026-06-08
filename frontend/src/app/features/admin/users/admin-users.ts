@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
+import { type PaginatorState } from 'primeng/paginator';
 import { Subject, takeUntil } from 'rxjs';
 import {
   AdminUserService,
@@ -13,6 +14,7 @@ const VALID_ROLES = ['customer', 'admin'] as const;
   templateUrl: './admin-users.html',
   styleUrls: ['./admin-users.scss'],
   standalone: false,
+  providers: [MessageService],
 })
 export class AdminUsers implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -23,18 +25,17 @@ export class AdminUsers implements OnInit, OnDestroy {
   readonly page = signal(1);
   readonly totalUsers = signal(0);
   readonly pages = signal(1);
-  readonly displayedColumns = [
-    'name',
-    'email',
-    'role',
-    'orders_count',
-    'is_verified',
-    'created_at',
+  readonly first = signal(0);
+  readonly rows = 20;
+
+  readonly roleOptions = [
+    { label: 'admin.roleCustomer', value: 'customer' },
+    { label: 'admin.roleAdmin', value: 'admin' },
   ];
 
   constructor(
     private readonly adminUserService: AdminUserService,
-    private readonly snackBar: MatSnackBar,
+    private readonly messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
@@ -68,6 +69,11 @@ export class AdminUsers implements OnInit, OnDestroy {
       });
   }
 
+  onPageChange(event: PaginatorState): void {
+    this.first.set(event.first ?? 0);
+    this.loadUsers((event.page ?? 0) + 1);
+  }
+
   onRoleChange(user: UserAdminItem, newRole: string): void {
     if (!VALID_ROLES.includes(newRole as (typeof VALID_ROLES)[number])) return;
     if (newRole === user.role) return;
@@ -80,21 +86,15 @@ export class AdminUsers implements OnInit, OnDestroy {
           this.users.update((list) =>
             list.map((u) => (u.id === user.id ? { ...u, role: newRole } : u)),
           );
-          this.snackBar.open('admin.roleUpdated', '', { duration: 3000 });
+          this.messageService.add({ severity: 'success', detail: 'admin.roleUpdated', life: 3000 });
         },
         error: () => {
-          this.snackBar.open('admin.roleUpdateError', '', { duration: 3000 });
+          this.messageService.add({ severity: 'error', detail: 'admin.roleUpdateError', life: 3000 });
         },
       });
   }
 
   getVerifiedLabel(isVerified: boolean): string {
     return isVerified ? 'admin.verified' : 'admin.unverified';
-  }
-
-  changePage(page: number): void {
-    if (page >= 1 && page <= this.pages()) {
-      this.loadUsers(page);
-    }
   }
 }

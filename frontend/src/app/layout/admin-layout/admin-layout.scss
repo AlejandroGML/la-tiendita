@@ -1,37 +1,4 @@
-.admin-sidenav-container {
-  height: 100vh;
-}
-
-.admin-sidenav {
-  width: 240px;
-  background-color: #f8fafc;
-  border-right: 1px solid #e2e8f0;
-
-  .sidenav-header {
-    border-bottom: 1px solid #e2e8f0;
-  }
-}
-
-.admin-content {
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-}
-
-.admin-toolbar {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.admin-page-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.5rem;
-  background-color: #f1f5f9;
-}
-
 .active-nav-item {
   background-color: rgba(0, 0, 0, 0.04);
-  border-left: 3px solid var(--mat-sys-primary, #3f51b5);
+  border-left: 3px solid #3f51b5;
 }

@@ -55,10 +55,10 @@ export class AdminDashboard implements OnInit, OnDestroy {
     const s = this.stats();
     if (!s) return [];
     return [
-      { labelKey: 'admin.totalProducts', icon: 'inventory_2', value: s.total_products },
-      { labelKey: 'admin.totalUsers', icon: 'people', value: s.total_users },
-      { labelKey: 'admin.totalOrders', icon: 'receipt_long', value: s.total_orders },
-      { labelKey: 'admin.totalRevenue', icon: 'attach_money', value: s.total_revenue },
+      { labelKey: 'admin.totalProducts', icon: 'pi pi-box', value: s.total_products },
+      { labelKey: 'admin.totalUsers', icon: 'pi pi-users', value: s.total_users },
+      { labelKey: 'admin.totalOrders', icon: 'pi pi-receipt', value: s.total_orders },
+      { labelKey: 'admin.totalRevenue', icon: 'pi pi-dollar', value: s.total_revenue },
     ];
   }
 }

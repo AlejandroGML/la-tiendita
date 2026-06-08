@@ -110,7 +110,9 @@ Admin-only backend API and frontend interface for store monitoring (dashboard st
 
 ### Requirement: Admin Layout with Sidebar Navigation
 
-The frontend MUST provide a shared `AdminLayout` component with a `MatSidenav` sidebar listing admin sections: Dashboard, Products, Users, Orders. All admin child routes MUST render inside this layout's `<router-outlet>`.
+The frontend MUST provide a shared `AdminLayout` component with a Tailwind flex sidebar (`flex h-screen`, `w-60` sidebar + `flex-1 overflow-auto` content) using a `p-toolbar` header. Navigation items MUST use plain `<a routerLink>` tags with PrimeIcons `pi` classes instead of `mat-icon` and `mat-nav-list`. Sidebar MUST list admin sections: Dashboard, Products, Users, Orders. Active route MUST show left-border highlight. All admin child routes MUST render inside this layout's `<router-outlet>`.
+
+(Previously: Required `MatSidenav` sidebar with `mat-nav-list` and `mat-icon` under a `mat-toolbar` header.)
 
 #### Scenario: Admin navigates via sidebar
 
@@ -123,6 +125,14 @@ The frontend MUST provide a shared `AdminLayout` component with a `MatSidenav` s
 - GIVEN a customer tries to access `/admin/dashboard`
 - WHEN the route guard executes
 - THEN the user is redirected to `/`
+
+#### Scenario: Sidebar renders with PrimeNG toolbar and icons
+
+- GIVEN admin layout initializes
+- WHEN the admin panel loads
+- THEN `p-toolbar` renders at top with app branding
+- AND sidebar links display `pi` icons (e.g., `pi-home`, `pi-box`, `pi-users`, `pi-receipt`)
+- AND active route shows `border-l-4 border-primary` highlight
 
 ### Requirement: Admin Route Guards
 

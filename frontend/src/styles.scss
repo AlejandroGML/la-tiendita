@@ -1,14 +1,18 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer tailwind-base, primeng, tailwind-utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
 
 /* Angular Material light theme (default) */
 @import '@angular/material/prebuilt-themes/indigo-pink.css';
-
-/* Angular Material dark theme (toggled via html.dark-theme class) */
-html.dark-theme {
-  @import '@angular/material/prebuilt-themes/pink-bluegrey.css';
-}
 
 /* Dark theme overrides for non-Material elements */
 html.dark-theme {

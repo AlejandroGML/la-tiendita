@@ -32,19 +32,6 @@
       position: absolute;
       top: 0;
       right: 0;
-      background: rgba(255, 255, 255, 0.85);
-
-      .mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-      }
-    }
-  }
-
-  mat-tab-group {
-    .mat-mdc-tab-body-content {
-      padding: 1rem 0;
     }
   }
 }

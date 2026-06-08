@@ -1,20 +1,20 @@
 <div class="admin-product-form-container">
   <header class="flex items-center gap-3 mb-6">
-    <button
-      mat-icon-button
+    <p-button
+      [rounded]="true"
+      [text]="true"
       [attr.aria-label]="'admin.backToProducts' | translate"
-      (click)="onCancel()"
-    >
-      <mat-icon>arrow_back</mat-icon>
-    </button>
+      icon="pi pi-arrow-left"
+      (onClick)="onCancel()"
+    ></p-button>
     <h1 class="text-2xl font-bold">{{ pageTitle | translate }}</h1>
   </header>
 
-  <mat-progress-bar
+  <p-progressBar
     *ngIf="loading()"
     mode="indeterminate"
-    class="mb-4"
-  ></mat-progress-bar>
+    styleClass="mb-4"
+  ></p-progressBar>
 
   <form
     [formGroup]="form"
@@ -24,165 +24,204 @@
   >
     <!-- General Fields -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'product.price' | translate }}</mat-label>
-        <input
-          matInput
-          type="number"
+      <p-floatLabel variant="on">
+        <p-inputNumber
+          inputId="price"
           formControlName="price"
-          min="1"
+          [min]="1"
           data-testid="input-price"
-        />
-        <mat-error *ngIf="form.get('price')?.hasError('required')">
-          {{ 'catalog.required' | translate }}
-        </mat-error>
-        <mat-error *ngIf="form.get('price')?.hasError('min')">
-          Debe ser mayor a 0
-        </mat-error>
-      </mat-form-field>
+        ></p-inputNumber>
+        <label for="price">{{ 'product.price' | translate }}</label>
+      </p-floatLabel>
+      <small
+        *ngIf="form.get('price')?.touched && form.get('price')?.hasError('required')"
+        class="p-error"
+      >
+        {{ 'catalog.required' | translate }}
+      </small>
+      <small
+        *ngIf="form.get('price')?.touched && form.get('price')?.hasError('min')"
+        class="p-error"
+      >
+        Debe ser mayor a 0
+      </small>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'catalog.category' | translate }}</mat-label>
-        <mat-select
+      <p-floatLabel variant="on">
+        <p-select
+          inputId="category_id"
+          [options]="categories()"
+          optionValue="id"
           formControlName="category_id"
+          appendTo="body"
           data-testid="select-category"
         >
-          <mat-option
-            *ngFor="let cat of categories()"
-            [value]="cat.id"
-          >
+          <ng-template let-cat pTemplate="item">
             {{ getCategoryName(cat) }}
-          </mat-option>
-        </mat-select>
-        <mat-error *ngIf="form.get('category_id')?.hasError('required')">
-          {{ 'catalog.required' | translate }}
-        </mat-error>
-      </mat-form-field>
+          </ng-template>
+          <ng-template let-cat pTemplate="selectedItem">
+            {{ getCategoryName(cat) }}
+          </ng-template>
+        </p-select>
+        <label for="category_id">{{ 'catalog.category' | translate }}</label>
+      </p-floatLabel>
+      <small
+        *ngIf="form.get('category_id')?.touched && form.get('category_id')?.hasError('required')"
+        class="p-error"
+      >
+        {{ 'catalog.required' | translate }}
+      </small>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'product.condition' | translate }}</mat-label>
-        <mat-select formControlName="condition">
-          <mat-option
-            *ngFor="let c of conditions"
-            [value]="c"
-          >
+      <p-floatLabel variant="on">
+        <p-select
+          inputId="condition"
+          [options]="conditions"
+          formControlName="condition"
+          appendTo="body"
+        >
+          <ng-template let-c pTemplate="item">
             {{ 'condition.' + c | translate }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+          </ng-template>
+          <ng-template let-c pTemplate="selectedItem">
+            {{ 'condition.' + c | translate }}
+          </ng-template>
+        </p-select>
+        <label for="condition">{{ 'product.condition' | translate }}</label>
+      </p-floatLabel>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'product.size' | translate }}</mat-label>
-        <mat-select formControlName="size">
-          <mat-option value="">—</mat-option>
-          <mat-option *ngFor="let s of sizes" [value]="s">
-            {{ s }}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
+      <p-floatLabel variant="on">
+        <p-select
+          inputId="size"
+          [options]="sizes"
+          formControlName="size"
+          appendTo="body"
+          [showClear]="true"
+        >
+          <ng-template let-s pTemplate="selectedItem">
+            {{ s || '—' }}
+          </ng-template>
+        </p-select>
+        <label for="size">{{ 'product.size' | translate }}</label>
+      </p-floatLabel>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'product.brand' | translate }}</mat-label>
-        <input matInput formControlName="brand" data-testid="input-brand" />
-      </mat-form-field>
+      <p-floatLabel variant="on">
+        <input pInputText id="brand" formControlName="brand" data-testid="input-brand" />
+        <label for="brand">{{ 'product.brand' | translate }}</label>
+      </p-floatLabel>
 
-      <mat-form-field appearance="outline">
-        <mat-label>{{ 'product.stock' | translate }}</mat-label>
-        <input
-          matInput
-          type="number"
+      <p-floatLabel variant="on">
+        <p-inputNumber
+          inputId="stock"
           formControlName="stock"
-          min="0"
+          [min]="0"
           data-testid="input-stock"
-        />
-      </mat-form-field>
+        ></p-inputNumber>
+        <label for="stock">{{ 'product.stock' | translate }}</label>
+      </p-floatLabel>
     </div>
 
     <!-- Translations Tabs -->
-    <mat-tab-group
-      [selectedIndex]="selectedTabIndex"
-      (selectedIndexChange)="setSelectedTab($event)"
-      class="mb-6"
-      data-testid="translation-tabs"
+    <p-tabs
+      [value]="selectedTabIndex"
+      (valueChange)="setSelectedTab($event)"
+      styleClass="mb-6"
     >
-      <mat-tab [label]="'admin.tabES' | translate">
-        <div
-          class="tab-content"
-          [formGroup]="$any(translations.controls[0])"
-        >
-          <mat-form-field appearance="outline" class="w-full">
-            <mat-label>{{ 'admin.name' | translate }} *</mat-label>
-            <input
-              matInput
-              formControlName="name"
-              data-testid="input-name-es"
-            />
-            <mat-error *ngIf="translations.controls[0].get('name')?.hasError('required')">
+      <p-tablist>
+        <p-tab [value]="0">{{ 'admin.tabES' | translate }}</p-tab>
+        <p-tab [value]="1">{{ 'admin.tabEN' | translate }}</p-tab>
+        <p-tab [value]="2">{{ 'admin.tabSV' | translate }}</p-tab>
+      </p-tablist>
+      <p-tabpanels>
+        <p-tabpanel [value]="0">
+          <div
+            class="tab-content"
+            [formGroup]="$any(translations.controls[0])"
+          >
+            <p-floatLabel variant="on" styleClass="w-full">
+              <input
+                pInputText
+                id="name-es"
+                formControlName="name"
+                data-testid="input-name-es"
+              />
+              <label for="name-es">{{ 'admin.name' | translate }} *</label>
+            </p-floatLabel>
+            <small
+              *ngIf="translations.controls[0].get('name')?.touched && translations.controls[0].get('name')?.hasError('required')"
+              class="p-error"
+            >
               El nombre en español es obligatorio
-            </mat-error>
-          </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'admin.description' | translate }}</mat-label>
+            </small>
+
+            <p-floatLabel variant="on" styleClass="w-full">
               <textarea
-                matInput
+                pTextarea
+                id="desc-es"
                 formControlName="description"
                 rows="3"
                 data-testid="input-desc-es"
               ></textarea>
-            </mat-form-field>
+              <label for="desc-es">{{ 'admin.description' | translate }}</label>
+            </p-floatLabel>
           </div>
-      </mat-tab>
+        </p-tabpanel>
 
-      <mat-tab [label]="'admin.tabEN' | translate">
-        <div
-          class="tab-content"
-          [formGroup]="$any(translations.controls[1])"
-        >
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'admin.name' | translate }}</mat-label>
+        <p-tabpanel [value]="1">
+          <div
+            class="tab-content"
+            [formGroup]="$any(translations.controls[1])"
+          >
+            <p-floatLabel variant="on" styleClass="w-full">
               <input
-                matInput
+                pInputText
+                id="name-en"
                 formControlName="name"
                 data-testid="input-name-en"
               />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'admin.description' | translate }}</mat-label>
+              <label for="name-en">{{ 'admin.name' | translate }}</label>
+            </p-floatLabel>
+
+            <p-floatLabel variant="on" styleClass="w-full">
               <textarea
-                matInput
+                pTextarea
+                id="desc-en"
                 formControlName="description"
                 rows="3"
                 data-testid="input-desc-en"
               ></textarea>
-            </mat-form-field>
+              <label for="desc-en">{{ 'admin.description' | translate }}</label>
+            </p-floatLabel>
           </div>
-      </mat-tab>
+        </p-tabpanel>
 
-      <mat-tab [label]="'admin.tabSV' | translate">
-        <div
-          class="tab-content"
-          [formGroup]="$any(translations.controls[2])"
-        >
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'admin.name' | translate }}</mat-label>
+        <p-tabpanel [value]="2">
+          <div
+            class="tab-content"
+            [formGroup]="$any(translations.controls[2])"
+          >
+            <p-floatLabel variant="on" styleClass="w-full">
               <input
-                matInput
+                pInputText
+                id="name-sv"
                 formControlName="name"
                 data-testid="input-name-sv"
               />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-full">
-              <mat-label>{{ 'admin.description' | translate }}</mat-label>
+              <label for="name-sv">{{ 'admin.name' | translate }}</label>
+            </p-floatLabel>
+
+            <p-floatLabel variant="on" styleClass="w-full">
               <textarea
-                matInput
+                pTextarea
+                id="desc-sv"
                 formControlName="description"
                 rows="3"
                 data-testid="input-desc-sv"
               ></textarea>
-            </mat-form-field>
+              <label for="desc-sv">{{ 'admin.description' | translate }}</label>
+            </p-floatLabel>
           </div>
-      </mat-tab>
-    </mat-tab-group>
+        </p-tabpanel>
+      </p-tabpanels>
+    </p-tabs>
 
     <!-- Slug notice -->
     <p class="text-sm text-gray-500 mb-4" data-testid="slug-notice">
@@ -202,28 +241,27 @@
           data-testid="image-preview"
         >
           <img [src]="url" alt="Preview" class="image-preview-thumb" />
-          <button
+          <p-button
             type="button"
-            mat-icon-button
-            color="warn"
+            [rounded]="true"
+            [text]="true"
+            severity="danger"
             class="image-remove-btn"
             [attr.aria-label]="'admin.delete' | translate"
-            (click)="removeImage(i)"
-          >
-            <mat-icon>close</mat-icon>
-          </button>
+            icon="pi pi-times"
+            (onClick)="removeImage(i)"
+          ></p-button>
         </div>
       </div>
 
-      <button
+      <p-button
         type="button"
-        mat-stroked-button
-        (click)="fileInput.click()"
+        [outlined]="true"
+        icon="pi pi-images"
+        [label]="'admin.selectImage' | translate"
+        (onClick)="fileInput.click()"
         data-testid="btn-select-image"
-      >
-        <mat-icon>add_photo_alternate</mat-icon>
-        {{ 'admin.selectImage' | translate }}
-      </button>
+      ></p-button>
       <input
         #fileInput
         type="file"
@@ -246,24 +284,22 @@
 
     <!-- Actions -->
     <div class="flex gap-3">
-      <button
-        mat-flat-button
-        color="primary"
+      <p-button
         type="submit"
         [disabled]="submitting()"
+        icon="pi pi-save"
+        [label]="'admin.save' | translate"
         data-testid="btn-save"
-      >
-        <mat-icon>save</mat-icon>
-        {{ 'admin.save' | translate }}
-      </button>
-      <button
-        mat-stroked-button
+      ></p-button>
+      <p-button
         type="button"
-        (click)="onCancel()"
+        [outlined]="true"
+        [label]="'admin.cancel' | translate"
+        (onClick)="onCancel()"
         data-testid="btn-cancel"
-      >
-        {{ 'admin.cancel' | translate }}
-      </button>
+      ></p-button>
     </div>
   </form>
+
+  <p-toast position="bottom-right"></p-toast>
 </div>

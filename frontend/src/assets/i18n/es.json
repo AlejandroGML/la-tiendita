@@ -6,6 +6,14 @@
   "header": {
     "title": "La Tiendita"
   },
+  "home": {
+    "tagline": "Ropa de segunda mano con estilo. Encuentra tesoros únicos.",
+    "browseCatalog": "Explorar Catálogo",
+    "categories": "Categorías",
+    "featured": "Productos Destacados",
+    "noProducts": "No hay productos disponibles",
+    "viewAll": "Ver Todos"
+  },
   "product": {
     "price": "Precio",
     "condition": "Estado",

@@ -6,6 +6,14 @@
   "header": {
     "title": "La Tiendita"
   },
+  "home": {
+    "tagline": "Second-hand clothing with style. Find unique treasures.",
+    "browseCatalog": "Browse Catalog",
+    "categories": "Categories",
+    "featured": "Featured Products",
+    "noProducts": "No products available",
+    "viewAll": "View All"
+  },
   "product": {
     "price": "Price",
     "condition": "Condition",

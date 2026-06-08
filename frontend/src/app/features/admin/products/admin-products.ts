@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import type { Product } from '../../../shared/models/product.model';
 import { AdminProductService } from '../../../core/services/admin-product.service';
@@ -10,6 +10,7 @@ import { AdminProductService } from '../../../core/services/admin-product.servic
   templateUrl: './admin-products.html',
   styleUrls: ['./admin-products.scss'],
   standalone: false,
+  providers: [MessageService],
 })
 export class AdminProducts implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -17,21 +18,11 @@ export class AdminProducts implements OnInit, OnDestroy {
   readonly products = signal<Product[]>([]);
   readonly loading = signal(false);
   readonly error = signal(false);
-  readonly displayedColumns: string[] = [
-    'image',
-    'name',
-    'price',
-    'category',
-    'condition',
-    'stock',
-    'status',
-    'actions',
-  ];
 
   constructor(
     private readonly adminProductService: AdminProductService,
     private readonly router: Router,
-    private readonly snackBar: MatSnackBar,
+    private readonly messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
@@ -81,11 +72,11 @@ export class AdminProducts implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: () => {
-          this.snackBar.open('admin.productDeleted', '', { duration: 3000 });
+          this.messageService.add({ severity: 'success', detail: 'admin.productDeleted', life: 3000 });
           this.loadProducts();
         },
         error: () => {
-          this.snackBar.open('catalog.error', '', { duration: 3000 });
+          this.messageService.add({ severity: 'error', detail: 'catalog.error', life: 3000 });
         },
       });
   }

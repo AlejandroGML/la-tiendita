@@ -1,0 +1,15 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e5]: La Tiendita
+    - navigation [ref=e6]:
+      - generic [ref=e8]: Productos
+      - generic [ref=e11]:
+        - img [ref=e12]: shopping_cart
+        - generic [ref=e13]: Carrito
+      - button "Switch to light mode" [ref=e16] [cursor=pointer]:
+        - img [ref=e17]: dark_mode
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - heading "La Tiendita" [level=1] [ref=e23]
+      - paragraph [ref=e24]: Welcome to your second-hand clothing store.
+  - contentinfo [ref=e26]: © 2026 La Tiendita

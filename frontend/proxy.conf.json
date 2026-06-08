@@ -1,0 +1,17 @@
+{
+  "/api": {
+    "target": "http://backend:8000",
+    "secure": false,
+    "logLevel": "debug"
+  },
+  "/auth": {
+    "target": "http://backend:8000",
+    "secure": false,
+    "logLevel": "debug"
+  },
+  "/uploads": {
+    "target": "http://backend:8000",
+    "secure": false,
+    "logLevel": "debug"
+  }
+}

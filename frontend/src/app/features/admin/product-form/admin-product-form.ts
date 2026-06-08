@@ -8,7 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
 import { HttpClient } from '@angular/common/http';
 import { Subject, takeUntil } from 'rxjs';
 import type { Product } from '../../../shared/models/product.model';
@@ -31,6 +31,7 @@ function esNameRequired(group: AbstractControl): ValidationErrors | null {
   templateUrl: './admin-product-form.html',
   styleUrls: ['./admin-product-form.scss'],
   standalone: false,
+  providers: [MessageService],
 })
 export class AdminProductForm implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -62,7 +63,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly adminProductService: AdminProductService,
     private readonly http: HttpClient,
-    private readonly snackBar: MatSnackBar,
+    private readonly messageService: MessageService,
   ) {
     this.form = this.fb.group(
       {
@@ -146,7 +147,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
         },
         error: () => {
           this.loading.set(false);
-          this.snackBar.open('catalog.error', '', { duration: 3000 });
+          this.messageService.add({ severity: 'error', detail: 'catalog.error', life: 3000 });
         },
       });
   }
@@ -253,12 +254,12 @@ export class AdminProductForm implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open('admin.productSaved', '', { duration: 3000 });
+            this.messageService.add({ severity: 'success', detail: 'admin.productSaved', life: 3000 });
             this.router.navigate(['/admin/productos']);
           },
           error: () => {
             this.submitting.set(false);
-            this.snackBar.open('catalog.error', '', { duration: 3000 });
+            this.messageService.add({ severity: 'error', detail: 'catalog.error', life: 3000 });
           },
         });
     } else {
@@ -267,12 +268,12 @@ export class AdminProductForm implements OnInit, OnDestroy {
         .pipe(takeUntil(this.destroy$))
         .subscribe({
           next: () => {
-            this.snackBar.open('admin.productSaved', '', { duration: 3000 });
+            this.messageService.add({ severity: 'success', detail: 'admin.productSaved', life: 3000 });
             this.router.navigate(['/admin/productos']);
           },
           error: () => {
             this.submitting.set(false);
-            this.snackBar.open('catalog.error', '', { duration: 3000 });
+            this.messageService.add({ severity: 'error', detail: 'catalog.error', life: 3000 });
           },
         });
     }
@@ -282,7 +283,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
     this.router.navigate(['/admin/productos']);
   }
 
-  setSelectedTab(index: number): void {
+  setSelectedTab(index: any): void {
     this.form.patchValue({ selectedTab: index });
   }
 

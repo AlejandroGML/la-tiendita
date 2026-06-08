@@ -1,22 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatTabGroup, MatTabsModule } from '@angular/material/tabs';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
 import { of } from 'rxjs';
 import { AdminProductForm } from './admin-product-form';
 import { AdminProductService } from '../../../core/services/admin-product.service';
+import { PrimeNgModule } from '../../../shared/primeng-module';
 import type { Category } from '../../../shared/models/category.model';
 
 const mockCategories: Category[] = [
@@ -69,19 +64,13 @@ describe('AdminProductForm', () => {
       declarations: [AdminProductForm],
       imports: [
         ReactiveFormsModule,
-        MatButtonModule,
-        MatFormFieldModule,
-        MatIconModule,
-        MatInputModule,
-        MatProgressBarModule,
-        MatSelectModule,
-        MatSnackBarModule,
-        MatTabsModule,
+        PrimeNgModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        MessageService,
         { provide: AdminProductService, useValue: adminProductService },
         { provide: HttpClient, useValue: http },
         {
@@ -89,6 +78,7 @@ describe('AdminProductForm', () => {
           useValue: { snapshot: { paramMap: { get: () => null } } },
         },
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AdminProductForm);
@@ -100,11 +90,11 @@ describe('AdminProductForm', () => {
   });
 
   it('should render the translation tabs (ES, EN, SV)', () => {
-    const tabs = fixture.nativeElement.querySelector('[data-testid="translation-tabs"]');
-    expect(tabs).toBeTruthy();
+    const tabPanels = fixture.nativeElement.querySelectorAll('p-tabpanel');
+    expect(tabPanels.length).toBe(3);
 
-    const tabLabels = fixture.nativeElement.querySelectorAll('.mat-mdc-tab');
-    expect(tabLabels.length).toBe(3);
+    // Verify tab headers via aria attributes or component data
+    expect(component.translations.length).toBe(3);
   });
 
   it('should render form fields (price, category, condition, size, brand, stock)', () => {
@@ -128,14 +118,11 @@ describe('AdminProductForm', () => {
   });
 
   it('should render EN translation fields (switch tab)', async () => {
-    const tabGroup = fixture.debugElement.query(By.directive(MatTabGroup))
-      .componentInstance as MatTabGroup;
-    tabGroup.selectedIndex = 1;
+    component.setSelectedTab(1);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    // Tab content is lazy; verify form structure instead
     const enGroup = component.translations.controls[1];
     expect(enGroup.get('lang')?.value).toBe('en');
     expect(enGroup.get('name')).toBeTruthy();
@@ -143,14 +130,11 @@ describe('AdminProductForm', () => {
   });
 
   it('should render SV translation fields (switch tab)', async () => {
-    const tabGroup = fixture.debugElement.query(By.directive(MatTabGroup))
-      .componentInstance as MatTabGroup;
-    tabGroup.selectedIndex = 2;
+    component.setSelectedTab(2);
     fixture.detectChanges();
     await fixture.whenStable();
     fixture.detectChanges();
 
-    // Tab content is lazy; verify form structure instead
     const svGroup = component.translations.controls[2];
     expect(svGroup.get('lang')?.value).toBe('sv');
     expect(svGroup.get('name')).toBeTruthy();

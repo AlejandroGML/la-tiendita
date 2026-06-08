@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MessageService } from 'primeng/api';
+import { type PaginatorState } from 'primeng/paginator';
 import { Subject, takeUntil } from 'rxjs';
 import {
   AdminOrderService,
@@ -27,6 +28,7 @@ const STATUS_ORDER: Record<string, number> = {
   templateUrl: './admin-orders.html',
   styleUrls: ['./admin-orders.scss'],
   standalone: false,
+  providers: [MessageService],
 })
 export class AdminOrders implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
@@ -38,13 +40,14 @@ export class AdminOrders implements OnInit, OnDestroy {
   readonly totalOrders = signal(0);
   readonly pages = signal(1);
   readonly statusFilter = signal<string | null>(null);
-  readonly displayedColumns = ['id', 'user_name', 'total', 'status', 'created_at'];
+  readonly first = signal(0);
+  readonly rows = 20;
 
   readonly statuses = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
   constructor(
     private readonly adminOrderService: AdminOrderService,
-    private readonly snackBar: MatSnackBar,
+    private readonly messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
@@ -85,6 +88,11 @@ export class AdminOrders implements OnInit, OnDestroy {
       });
   }
 
+  onPageChange(event: PaginatorState): void {
+    this.first.set(event.first ?? 0);
+    this.loadOrders((event.page ?? 0) + 1);
+  }
+
   onStatusChange(order: OrderAdminItem, newStatus: string): void {
     const allowed = ALLOWED_TRANSITIONS[order.status] ?? [];
     if (!allowed.includes(newStatus)) return;
@@ -99,16 +107,21 @@ export class AdminOrders implements OnInit, OnDestroy {
               o.id === order.id ? { ...o, status: updated.status } : o,
             ),
           );
-          this.snackBar.open('admin.statusUpdated', '', { duration: 3000 });
+          this.messageService.add({ severity: 'success', detail: 'admin.statusUpdated', life: 3000 });
         },
         error: () => {
-          this.snackBar.open('admin.statusUpdateError', '', { duration: 3000 });
+          this.messageService.add({ severity: 'error', detail: 'admin.statusUpdateError', life: 3000 });
         },
       });
   }
 
   getAllowedTransitions(status: string): string[] {
     return ALLOWED_TRANSITIONS[status] ?? [];
+  }
+
+  getTransitionOptions(status: string): { label: string; value: string }[] {
+    const allowed = ALLOWED_TRANSITIONS[status] ?? [];
+    return allowed.map((s) => ({ label: `order.status.${s}`, value: s }));
   }
 
   getStatusClass(status: string): string {
@@ -129,11 +142,5 @@ export class AdminOrders implements OnInit, OnDestroy {
   filterByStatus(status: string | null): void {
     this.statusFilter.set(status);
     this.loadOrders(1);
-  }
-
-  changePage(page: number): void {
-    if (page >= 1 && page <= this.pages()) {
-      this.loadOrders(page);
-    }
   }
 }

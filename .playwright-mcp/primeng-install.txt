@@ -1,0 +1,231 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e6]:
+      - link "PrimeNG Logo" [ref=e8] [cursor=pointer]:
+        - /url: /
+        - img [ref=e9]
+      - list [ref=e25]:
+        - listitem [ref=e26]:
+          - button "Search (Ctrl+K)" [ref=e28] [cursor=pointer]:
+            - generic [ref=e29]:
+              - img [ref=e30]
+              - generic [ref=e32]: Search
+            - generic [ref=e33]:
+              - img [ref=e35]
+              - generic [ref=e37]:  K
+        - listitem [ref=e38]:
+          - link "" [ref=e39] [cursor=pointer]:
+            - /url: https://github.com/primefaces/primeng
+            - generic [ref=e40]: 
+        - listitem [ref=e41]:
+          - link "" [ref=e42] [cursor=pointer]:
+            - /url: https://discord.gg/gzKFYnpmCY
+            - generic [ref=e43]: 
+        - listitem [ref=e44]:
+          - link "" [ref=e45] [cursor=pointer]:
+            - /url: https://github.com/orgs/primefaces/discussions
+            - generic [ref=e46]: 
+        - listitem [ref=e47]:
+          - button "" [ref=e48] [cursor=pointer]:
+            - generic [ref=e49]: 
+        - listitem [ref=e50]:
+          - button "" [ref=e51] [cursor=pointer]:
+            - generic [ref=e52]: 
+        - listitem [ref=e53]:
+          - button "" [ref=e54] [cursor=pointer]:
+            - generic [ref=e57]: 
+        - listitem [ref=e58]:
+          - button "v21 " [ref=e59] [cursor=pointer]:
+            - generic [ref=e60]: v21
+            - generic [ref=e61]: 
+        - text: 
+    - generic [ref=e62]:
+      - complementary [ref=e64]:
+        - navigation [ref=e65]:
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - button " Getting Started " [ref=e68] [cursor=pointer]:
+                - generic [ref=e70]: 
+                - generic [ref=e71]: Getting Started
+                - generic [ref=e73]: 
+              - list [ref=e75]:
+                - listitem [ref=e76]:
+                  - link "Installation" [ref=e77] [cursor=pointer]:
+                    - /url: /installation
+                    - generic [ref=e78]: Installation
+                - listitem [ref=e79]:
+                  - link "Configuration" [ref=e80] [cursor=pointer]:
+                    - /url: /configuration
+                    - generic [ref=e81]: Configuration
+                - listitem [ref=e82]:
+                  - link "Playground" [ref=e83] [cursor=pointer]:
+                    - /url: /playground
+                    - generic [ref=e84]: Playground
+            - listitem [ref=e85]:
+              - button " Theming " [ref=e86] [cursor=pointer]:
+                - generic [ref=e88]: 
+                - generic [ref=e89]: Theming
+                - generic [ref=e91]: 
+            - listitem [ref=e92]:
+              - button " AI Tools NEW " [ref=e93] [cursor=pointer]:
+                - generic [ref=e95]: 
+                - generic [ref=e96]: AI Tools
+                - generic [ref=e97]:
+                  - generic [ref=e99]: NEW
+                  - generic [ref=e100]: 
+            - listitem [ref=e101]:
+              - button " Components " [ref=e102] [cursor=pointer]:
+                - generic [ref=e104]: 
+                - generic [ref=e105]: Components
+                - generic [ref=e107]: 
+            - listitem [ref=e108]:
+              - link " Pass Through NEW" [ref=e109] [cursor=pointer]:
+                - /url: /passthrough
+                - generic [ref=e111]: 
+                - generic [ref=e112]: Pass Through
+                - generic [ref=e114]: NEW
+            - listitem [ref=e115]:
+              - button " Guides " [ref=e116] [cursor=pointer]:
+                - generic [ref=e118]: 
+                - generic [ref=e119]: Guides
+                - generic [ref=e121]: 
+            - listitem [ref=e122]:
+              - button " Icons " [ref=e123] [cursor=pointer]:
+                - generic [ref=e125]: 
+                - generic [ref=e126]: Icons
+                - generic [ref=e128]: 
+            - listitem [ref=e129]:
+              - button " Figma UI Kit " [ref=e130] [cursor=pointer]:
+                - generic [ref=e132]: 
+                - generic [ref=e133]: Figma UI Kit
+                - generic [ref=e135]: 
+            - listitem [ref=e136]:
+              - button " Theme Designer " [ref=e137] [cursor=pointer]:
+                - generic [ref=e139]: 
+                - generic [ref=e140]: Theme Designer
+                - generic [ref=e142]: 
+            - listitem [ref=e143]:
+              - link " Templates" [ref=e144] [cursor=pointer]:
+                - /url: /templates
+                - generic [ref=e146]: 
+                - generic [ref=e147]: Templates
+            - listitem [ref=e148]:
+              - link " PrimeBlocks NEW" [ref=e149] [cursor=pointer]:
+                - /url: https://primeblocks.org
+                - generic [ref=e151]: 
+                - generic [ref=e152]: PrimeBlocks
+                - generic [ref=e154]: NEW
+            - listitem [ref=e155]:
+              - button " Migration " [ref=e156] [cursor=pointer]:
+                - generic [ref=e158]: 
+                - generic [ref=e159]: Migration
+                - generic [ref=e161]: 
+            - listitem [ref=e162]:
+              - button " Support " [ref=e163] [cursor=pointer]:
+                - generic [ref=e165]: 
+                - generic [ref=e166]: Support
+                - generic [ref=e168]: 
+            - listitem [ref=e169]:
+              - button " Discover " [ref=e170] [cursor=pointer]:
+                - generic [ref=e172]: 
+                - generic [ref=e173]: Discover
+                - generic [ref=e175]: 
+      - generic [ref=e179]:
+        - list
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - generic [ref=e184]:
+              - heading "Installation" [level=1] [ref=e185]
+              - generic [ref=e187]:
+                - button "Copy Markdown" [ref=e188] [cursor=pointer]:
+                  - generic [ref=e189]: 
+                  - generic [ref=e190]: Copy Markdown
+                - button [ref=e191] [cursor=pointer]:
+                  - img [ref=e192]
+              - paragraph [ref=e194]: Setting up PrimeNG in an Angular CLI project.
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - heading "Download" [level=2] [ref=e198]
+                - generic [ref=e199]:
+                  - paragraph [ref=e202]:
+                    - text: PrimeNG is available for download on the
+                    - link "npm registry" [ref=e203] [cursor=pointer]:
+                      - /url: https://www.npmjs.com/package/primeng
+                    - text: .
+                  - generic [ref=e205]:
+                    - text: 
+                    - code [ref=e208]: "# Using npm npm install primeng @primeuix/themes # Using yarn yarn add primeng @primeuix/themes # Using pnpm pnpm add primeng @primeuix/themes"
+              - generic [ref=e209]:
+                - heading "Provider" [level=2] [ref=e211]
+                - generic [ref=e214]:
+                  - paragraph [ref=e215]: Add providePrimeNG to the list of providers in your app.config.ts and use the theme property to configure a theme such as Aura.
+                  - generic [ref=e217]:
+                    - text: 
+                    - code [ref=e220]: "import { ApplicationConfig } from '@angular/core'; import { providePrimeNG } from 'primeng/config'; import Aura from '@primeuix/themes/aura'; export const appConfig: ApplicationConfig = { providers: [ providePrimeNG({ theme: { preset: Aura } }) ] };"
+              - generic [ref=e221]:
+                - heading "Verify" [level=2] [ref=e223]
+                - generic [ref=e224]:
+                  - paragraph [ref=e227]: Verify your setup by adding a component such as Button. Each component can be imported and registered individually so that you only include what you use for bundle optimization. Import path is available in the documentation of the corresponding component.
+                  - button "Check" [ref=e230] [cursor=pointer]:
+                    - generic [ref=e231]: Check
+                  - generic [ref=e233]:
+                    - text: 
+                    - code [ref=e236]:
+                      - text: "import { Component } from '@angular/core'; import { ButtonModule } from 'primeng/button';"
+                      - generic [ref=e237]: "@Component"
+                      - text: "({ selector: 'button-demo', templateUrl: './button-demo.html', imports: [ButtonModule] }) export class ButtonDemo {}"
+                  - generic [ref=e239]:
+                    - text: 
+                    - code [ref=e242]:
+                      - generic [ref=e243]:
+                        - generic [ref=e244]: <p-button
+                        - text: label
+                        - generic [ref=e245]: ="Check"
+                        - text: />
+              - generic [ref=e246]:
+                - heading "Example" [level=2] [ref=e248]
+                - paragraph [ref=e252]:
+                  - text: An example starter with Angular CLI is available at
+                  - link "GitHub" [ref=e253] [cursor=pointer]:
+                    - /url: https://github.com/primefaces/primeng-examples
+                  - text: .
+              - generic [ref=e254]:
+                - heading "Next Steps" [level=2] [ref=e256]
+                - generic [ref=e259]:
+                  - paragraph [ref=e260]: Welcome to the Prime UI Ecosystem! Once you have PrimeNG up and running, we recommend exploring the following resources to gain a deeper understanding of the library.
+                  - list [ref=e261]:
+                    - listitem [ref=e262]:
+                      - link "Global configuration" [ref=e263] [cursor=pointer]:
+                        - /url: /configuration
+                    - listitem [ref=e264]:
+                      - link "Customization of styles" [ref=e265] [cursor=pointer]:
+                        - /url: /theming
+                    - listitem [ref=e266]:
+                      - link "Getting support" [ref=e267] [cursor=pointer]:
+                        - /url: /support
+          - generic [ref=e269]:
+            - list [ref=e270]:
+              - listitem [ref=e271]:
+                - button "Download" [ref=e273] [cursor=pointer]
+              - listitem [ref=e274]:
+                - button "Provider" [ref=e276] [cursor=pointer]
+              - listitem [ref=e277]:
+                - button "Verify" [ref=e279] [cursor=pointer]
+              - listitem [ref=e280]:
+                - button "Example" [ref=e282] [cursor=pointer]
+              - listitem [ref=e283]:
+                - button "Next Steps" [ref=e285] [cursor=pointer]
+            - generic [ref=e286]:
+              - img [ref=e287]
+              - generic [ref=e289]: PrimeBlocks
+              - generic [ref=e290]: 490+ ready to use UI blocks crafted with PrimeNG and Tailwind CSS.
+              - link "Learn More" [ref=e292] [cursor=pointer]:
+                - /url: https://primeblocks.org
+                - generic [ref=e293]: Learn More
+    - generic [ref=e296]:
+      - text: PrimeNG 21.1.9 by
+      - link "PrimeTek" [ref=e297] [cursor=pointer]:
+        - /url: https://www.primetek.com.tr
+  - generic:
+    - generic:
+      - alertdialog

@@ -103,7 +103,10 @@ describe('CheckoutComponent', () => {
         MatSnackBarModule,
         NoopAnimationsModule,
         ReactiveFormsModule,
-        RouterModule.forRoot([]),
+        RouterModule.forRoot([
+  { path: 'perfil/ordenes', component: {} as any },
+  { path: 'carrito', component: {} as any },
+]),
         TranslateModule.forRoot(),
       ],
       providers: [
@@ -257,7 +260,10 @@ describe('CheckoutComponent', () => {
         MatSnackBarModule,
         NoopAnimationsModule,
         ReactiveFormsModule,
-        RouterModule.forRoot([]),
+        RouterModule.forRoot([
+  { path: 'perfil/ordenes', component: {} as any },
+  { path: 'carrito', component: {} as any },
+]),
         TranslateModule.forRoot(),
       ],
       providers: [

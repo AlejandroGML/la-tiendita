@@ -1,0 +1,839 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e6]:
+      - link "PrimeNG Logo" [ref=e8] [cursor=pointer]:
+        - /url: /
+        - img [ref=e9]
+      - list [ref=e25]:
+        - listitem [ref=e26]:
+          - button "Search (Ctrl+K)" [ref=e28] [cursor=pointer]:
+            - generic [ref=e29]:
+              - img [ref=e30]
+              - generic [ref=e32]: Search
+            - generic [ref=e33]:
+              - img [ref=e35]
+              - generic [ref=e37]:  K
+        - listitem [ref=e38]:
+          - link "" [ref=e39] [cursor=pointer]:
+            - /url: https://github.com/primefaces/primeng
+            - generic [ref=e40]: 
+        - listitem [ref=e41]:
+          - link "" [ref=e42] [cursor=pointer]:
+            - /url: https://discord.gg/gzKFYnpmCY
+            - generic [ref=e43]: 
+        - listitem [ref=e44]:
+          - link "" [ref=e45] [cursor=pointer]:
+            - /url: https://github.com/orgs/primefaces/discussions
+            - generic [ref=e46]: 
+        - listitem [ref=e47]:
+          - button "" [ref=e48] [cursor=pointer]:
+            - generic [ref=e49]: 
+        - listitem [ref=e50]:
+          - button "" [ref=e51] [cursor=pointer]:
+            - generic [ref=e52]: 
+        - listitem [ref=e53]:
+          - button "" [ref=e54] [cursor=pointer]:
+            - generic [ref=e57]: 
+        - listitem [ref=e58]:
+          - button "v21 " [ref=e59] [cursor=pointer]:
+            - generic [ref=e60]: v21
+            - generic [ref=e61]: 
+        - text: 
+    - generic [ref=e62]:
+      - complementary [ref=e64]:
+        - navigation [ref=e65]:
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - button " Getting Started " [ref=e68] [cursor=pointer]:
+                - generic [ref=e70]: 
+                - generic [ref=e71]: Getting Started
+                - generic [ref=e73]: 
+            - listitem [ref=e74]:
+              - button " Theming " [ref=e75] [cursor=pointer]:
+                - generic [ref=e77]: 
+                - generic [ref=e78]: Theming
+                - generic [ref=e80]: 
+              - list [ref=e82]:
+                - listitem [ref=e83]:
+                  - link "Styled Mode" [ref=e84] [cursor=pointer]:
+                    - /url: /theming/styled
+                    - generic [ref=e85]: Styled Mode
+                - listitem [ref=e86]:
+                  - link "Unstyled Mode" [ref=e87] [cursor=pointer]:
+                    - /url: /theming/unstyled
+                    - generic [ref=e88]: Unstyled Mode
+                - listitem [ref=e89]:
+                  - link "Tailwind CSS" [ref=e90] [cursor=pointer]:
+                    - /url: /tailwind
+                    - generic [ref=e91]: Tailwind CSS
+            - listitem [ref=e92]:
+              - button " AI Tools NEW " [ref=e93] [cursor=pointer]:
+                - generic [ref=e95]: 
+                - generic [ref=e96]: AI Tools
+                - generic [ref=e97]:
+                  - generic [ref=e99]: NEW
+                  - generic [ref=e100]: 
+            - listitem [ref=e101]:
+              - button " Components " [ref=e102] [cursor=pointer]:
+                - generic [ref=e104]: 
+                - generic [ref=e105]: Components
+                - generic [ref=e107]: 
+            - listitem [ref=e108]:
+              - link " Pass Through NEW" [ref=e109] [cursor=pointer]:
+                - /url: /passthrough
+                - generic [ref=e111]: 
+                - generic [ref=e112]: Pass Through
+                - generic [ref=e114]: NEW
+            - listitem [ref=e115]:
+              - button " Guides " [ref=e116] [cursor=pointer]:
+                - generic [ref=e118]: 
+                - generic [ref=e119]: Guides
+                - generic [ref=e121]: 
+            - listitem [ref=e122]:
+              - button " Icons " [ref=e123] [cursor=pointer]:
+                - generic [ref=e125]: 
+                - generic [ref=e126]: Icons
+                - generic [ref=e128]: 
+            - listitem [ref=e129]:
+              - button " Figma UI Kit " [ref=e130] [cursor=pointer]:
+                - generic [ref=e132]: 
+                - generic [ref=e133]: Figma UI Kit
+                - generic [ref=e135]: 
+            - listitem [ref=e136]:
+              - button " Theme Designer " [ref=e137] [cursor=pointer]:
+                - generic [ref=e139]: 
+                - generic [ref=e140]: Theme Designer
+                - generic [ref=e142]: 
+            - listitem [ref=e143]:
+              - link " Templates" [ref=e144] [cursor=pointer]:
+                - /url: /templates
+                - generic [ref=e146]: 
+                - generic [ref=e147]: Templates
+            - listitem [ref=e148]:
+              - link " PrimeBlocks NEW" [ref=e149] [cursor=pointer]:
+                - /url: https://primeblocks.org
+                - generic [ref=e151]: 
+                - generic [ref=e152]: PrimeBlocks
+                - generic [ref=e154]: NEW
+            - listitem [ref=e155]:
+              - button " Migration " [ref=e156] [cursor=pointer]:
+                - generic [ref=e158]: 
+                - generic [ref=e159]: Migration
+                - generic [ref=e161]: 
+            - listitem [ref=e162]:
+              - button " Support " [ref=e163] [cursor=pointer]:
+                - generic [ref=e165]: 
+                - generic [ref=e166]: Support
+                - generic [ref=e168]: 
+            - listitem [ref=e169]:
+              - button " Discover " [ref=e170] [cursor=pointer]:
+                - generic [ref=e172]: 
+                - generic [ref=e173]: Discover
+                - generic [ref=e175]: 
+      - generic [ref=e179]:
+        - list
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - generic [ref=e184]:
+              - heading "Styled Mode" [level=1] [ref=e185]
+              - generic [ref=e187]:
+                - button "Copy Markdown" [ref=e188] [cursor=pointer]:
+                  - generic [ref=e189]: 
+                  - generic [ref=e190]: Copy Markdown
+                - button [ref=e191] [cursor=pointer]:
+                  - img [ref=e192]
+              - paragraph [ref=e194]: Choose from a variety of pre-styled themes or develop your own.
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - heading "Architecture" [level=2] [ref=e198]
+                - generic [ref=e201]:
+                  - paragraph [ref=e202]: PrimeNG is a design agnostic library so unlike some other UI libraries it does not enforce a certain styling such as material design. Styling is decoupled from the components using the themes instead. A theme consists of two parts; base and preset. The base is the style rules with CSS variables as placeholders whereas the preset is a set of design tokens to feed a base by mapping the tokens to CSS variables. A base may be configured with different presets, currently Aura, Material, Lara and Nora are the available built-in options.
+                  - img "Architecture" [ref=e203]
+                  - paragraph [ref=e204]: The core of the styled mode architecture is based on a concept named design token, a preset defines the token configuration in 3 tiers; primitive, semantic and component.
+                  - heading "Primitive Tokens" [level=3] [ref=e205]
+                  - paragraph [ref=e206]: Primitive tokens have no context, a color palette is a good example for a primitive token such as blue-50 to blue-900. A token named blue-500 may be used as the primary color, the background of a message however on its own, the name of the token does not indicate context. Usually they are utilized by the semantic tokens.
+                  - heading "Semantic Tokens" [level=3] [ref=e207]
+                  - paragraph [ref=e208]: Semantic tokens define content and their names indicate where they are utilized, a well known example of a semantic token is the primary.color. Semantic tokens map to primitive tokens or other semantic tokens. The colorScheme token group is a special variable to define tokens based on the color scheme active in the application, this allows defining different tokens based on the color scheme like dark mode.
+                  - heading "Component Tokens" [level=3] [ref=e209]
+                  - paragraph [ref=e210]: Component tokens are isolated tokens per component such as inputtext.background or button.color that map to the semantic tokens. As an example, button.background component token maps to the primary.color semantic token which maps to the green.500 primitive token.
+                  - heading "Best Practices" [level=3] [ref=e211]
+                  - paragraph [ref=e212]: Use primitive tokens when defining the core color palette and semantic tokens to specify the common design elements such as focus ring, primary colors and surfaces. Components tokens should only be used when customizing a specific component. By defining your own design tokens as a custom preset, you'll be able to define your own style without touching CSS. Overriding the PrimeNG components using style classes is not a best practice and should be the last resort, design tokens are the suggested approach.
+              - generic [ref=e213]:
+                - heading "Configuration API" [level=2] [ref=e215]
+                - heading "Theme" [level=3] [ref=e217]
+                - generic [ref=e218]:
+                  - paragraph [ref=e221]: The theme property is used to customize the initial theme.
+                  - generic [ref=e223]:
+                    - text: 
+                    - code [ref=e226]: "import { ApplicationConfig } from '@angular/core'; import { providePrimeNG } from 'primeng/config'; import Aura from '@primeuix/themes/aura'; export const appConfig: ApplicationConfig = { providers: [ providePrimeNG({ theme: { preset: Aura } }) ] };"
+                - heading "Options" [level=3] [ref=e228]
+                - generic [ref=e231]:
+                  - paragraph [ref=e232]: The options property defines the how the CSS would be generated from the design tokens of the preset.
+                  - heading "prefix" [level=4] [ref=e233]
+                  - paragraph [ref=e234]: The prefix of the CSS variables, defaults to p. For instance, the primary.color design token would be var(--p-primary-color).
+                  - generic [ref=e236]:
+                    - text: 
+                    - code [ref=e239]: "options: { prefix: 'my' }"
+                  - heading "darkModeSelector" [level=4] [ref=e240]
+                  - paragraph [ref=e241]: "The CSS rule to encapsulate the CSS variables of the dark mode, the default is the system to generate @media (prefers-color-scheme: dark). If you need to make the dark mode toggleable based on the user selection define a class selector such as .app-dark and toggle this class at the document root. See the dark mode toggle section for an example."
+                  - generic [ref=e243]:
+                    - text: 
+                    - code [ref=e246]: "options: { darkModeSelector: '.my-app-dark' }"
+                  - heading "cssLayer" [level=4] [ref=e247]
+                  - paragraph [ref=e248]:
+                    - text: Defines whether the styles should be defined inside a
+                    - link "CSS layer" [ref=e249] [cursor=pointer]:
+                      - /url: https://developer.mozilla.org/en-US/docs/Web/CSS/@layer
+                    - text: by default or not. A CSS layer would be handy to declare a custom cascade layer for easier customization if necessary. The default is false.
+                  - generic [ref=e251]:
+                    - text: 
+                    - code [ref=e254]: "options: { cssLayer: { name: 'primeng', order: 'app-styles, primeng, another-css-library' } }"
+              - generic [ref=e255]:
+                - heading "Presets" [level=2] [ref=e257]
+                - paragraph [ref=e261]:
+                  - text: Aura, Material, Lara and Nora are the available built-in options, created to demonstrate the power of the design-agnostic theming. Aura is PrimeTek's own vision, Material follows Google Material Design v2, Lara is based on Bootstrap and Nora is inspired by enterprise applications. Visit the
+                  - link "source code" [ref=e262] [cursor=pointer]:
+                    - /url: https://github.com/primefaces/primeng/tree/master/packages/themes/src/presets
+                  - text: to learn more about the structure of presets. You may use them out of the box with modifications or utilize them as reference in case you need to build your own presets from scratch.
+              - generic [ref=e263]:
+                - heading "Reserved Keys" [level=2] [ref=e265]
+                - paragraph [ref=e269]: Following keys are reserved in the preset scheme and cannot be used as a token name; primitive, semantic, components, directives, colorscheme, light, dark, common, root, states and extend.
+              - generic [ref=e270]:
+                - heading "Colors" [level=2] [ref=e272]
+                - generic [ref=e275]:
+                  - paragraph [ref=e276]: Color palette of a preset is defined by the primitive design token group. You can access colors using CSS variables or the $dt utility.
+                  - generic [ref=e278]:
+                    - text: 
+                    - code [ref=e281]: // With CSS var(--p-blue-500) // With JS $dt('blue.500').value
+                  - list [ref=e283]:
+                    - listitem [ref=e284]:
+                      - generic [ref=e285]: emerald
+                      - generic [ref=e286]:
+                        - generic [ref=e289]: "50"
+                        - generic [ref=e292]: "100"
+                        - generic [ref=e295]: "200"
+                        - generic [ref=e298]: "300"
+                        - generic [ref=e301]: "400"
+                        - generic [ref=e304]: "500"
+                        - generic [ref=e307]: "600"
+                        - generic [ref=e310]: "700"
+                        - generic [ref=e313]: "800"
+                        - generic [ref=e316]: "900"
+                        - generic [ref=e319]: "950"
+                    - listitem [ref=e320]:
+                      - generic [ref=e321]: green
+                      - generic [ref=e322]:
+                        - generic [ref=e325]: "50"
+                        - generic [ref=e328]: "100"
+                        - generic [ref=e331]: "200"
+                        - generic [ref=e334]: "300"
+                        - generic [ref=e337]: "400"
+                        - generic [ref=e340]: "500"
+                        - generic [ref=e343]: "600"
+                        - generic [ref=e346]: "700"
+                        - generic [ref=e349]: "800"
+                        - generic [ref=e352]: "900"
+                        - generic [ref=e355]: "950"
+                    - listitem [ref=e356]:
+                      - generic [ref=e357]: lime
+                      - generic [ref=e358]:
+                        - generic [ref=e361]: "50"
+                        - generic [ref=e364]: "100"
+                        - generic [ref=e367]: "200"
+                        - generic [ref=e370]: "300"
+                        - generic [ref=e373]: "400"
+                        - generic [ref=e376]: "500"
+                        - generic [ref=e379]: "600"
+                        - generic [ref=e382]: "700"
+                        - generic [ref=e385]: "800"
+                        - generic [ref=e388]: "900"
+                        - generic [ref=e391]: "950"
+                    - listitem [ref=e392]:
+                      - generic [ref=e393]: red
+                      - generic [ref=e394]:
+                        - generic [ref=e397]: "50"
+                        - generic [ref=e400]: "100"
+                        - generic [ref=e403]: "200"
+                        - generic [ref=e406]: "300"
+                        - generic [ref=e409]: "400"
+                        - generic [ref=e412]: "500"
+                        - generic [ref=e415]: "600"
+                        - generic [ref=e418]: "700"
+                        - generic [ref=e421]: "800"
+                        - generic [ref=e424]: "900"
+                        - generic [ref=e427]: "950"
+                    - listitem [ref=e428]:
+                      - generic [ref=e429]: orange
+                      - generic [ref=e430]:
+                        - generic [ref=e433]: "50"
+                        - generic [ref=e436]: "100"
+                        - generic [ref=e439]: "200"
+                        - generic [ref=e442]: "300"
+                        - generic [ref=e445]: "400"
+                        - generic [ref=e448]: "500"
+                        - generic [ref=e451]: "600"
+                        - generic [ref=e454]: "700"
+                        - generic [ref=e457]: "800"
+                        - generic [ref=e460]: "900"
+                        - generic [ref=e463]: "950"
+                    - listitem [ref=e464]:
+                      - generic [ref=e465]: amber
+                      - generic [ref=e466]:
+                        - generic [ref=e469]: "50"
+                        - generic [ref=e472]: "100"
+                        - generic [ref=e475]: "200"
+                        - generic [ref=e478]: "300"
+                        - generic [ref=e481]: "400"
+                        - generic [ref=e484]: "500"
+                        - generic [ref=e487]: "600"
+                        - generic [ref=e490]: "700"
+                        - generic [ref=e493]: "800"
+                        - generic [ref=e496]: "900"
+                        - generic [ref=e499]: "950"
+                    - listitem [ref=e500]:
+                      - generic [ref=e501]: yellow
+                      - generic [ref=e502]:
+                        - generic [ref=e505]: "50"
+                        - generic [ref=e508]: "100"
+                        - generic [ref=e511]: "200"
+                        - generic [ref=e514]: "300"
+                        - generic [ref=e517]: "400"
+                        - generic [ref=e520]: "500"
+                        - generic [ref=e523]: "600"
+                        - generic [ref=e526]: "700"
+                        - generic [ref=e529]: "800"
+                        - generic [ref=e532]: "900"
+                        - generic [ref=e535]: "950"
+                    - listitem [ref=e536]:
+                      - generic [ref=e537]: teal
+                      - generic [ref=e538]:
+                        - generic [ref=e541]: "50"
+                        - generic [ref=e544]: "100"
+                        - generic [ref=e547]: "200"
+                        - generic [ref=e550]: "300"
+                        - generic [ref=e553]: "400"
+                        - generic [ref=e556]: "500"
+                        - generic [ref=e559]: "600"
+                        - generic [ref=e562]: "700"
+                        - generic [ref=e565]: "800"
+                        - generic [ref=e568]: "900"
+                        - generic [ref=e571]: "950"
+                    - listitem [ref=e572]:
+                      - generic [ref=e573]: cyan
+                      - generic [ref=e574]:
+                        - generic [ref=e577]: "50"
+                        - generic [ref=e580]: "100"
+                        - generic [ref=e583]: "200"
+                        - generic [ref=e586]: "300"
+                        - generic [ref=e589]: "400"
+                        - generic [ref=e592]: "500"
+                        - generic [ref=e595]: "600"
+                        - generic [ref=e598]: "700"
+                        - generic [ref=e601]: "800"
+                        - generic [ref=e604]: "900"
+                        - generic [ref=e607]: "950"
+                    - listitem [ref=e608]:
+                      - generic [ref=e609]: sky
+                      - generic [ref=e610]:
+                        - generic [ref=e613]: "50"
+                        - generic [ref=e616]: "100"
+                        - generic [ref=e619]: "200"
+                        - generic [ref=e622]: "300"
+                        - generic [ref=e625]: "400"
+                        - generic [ref=e628]: "500"
+                        - generic [ref=e631]: "600"
+                        - generic [ref=e634]: "700"
+                        - generic [ref=e637]: "800"
+                        - generic [ref=e640]: "900"
+                        - generic [ref=e643]: "950"
+                    - listitem [ref=e644]:
+                      - generic [ref=e645]: blue
+                      - generic [ref=e646]:
+                        - generic [ref=e649]: "50"
+                        - generic [ref=e652]: "100"
+                        - generic [ref=e655]: "200"
+                        - generic [ref=e658]: "300"
+                        - generic [ref=e661]: "400"
+                        - generic [ref=e664]: "500"
+                        - generic [ref=e667]: "600"
+                        - generic [ref=e670]: "700"
+                        - generic [ref=e673]: "800"
+                        - generic [ref=e676]: "900"
+                        - generic [ref=e679]: "950"
+                    - listitem [ref=e680]:
+                      - generic [ref=e681]: indigo
+                      - generic [ref=e682]:
+                        - generic [ref=e685]: "50"
+                        - generic [ref=e688]: "100"
+                        - generic [ref=e691]: "200"
+                        - generic [ref=e694]: "300"
+                        - generic [ref=e697]: "400"
+                        - generic [ref=e700]: "500"
+                        - generic [ref=e703]: "600"
+                        - generic [ref=e706]: "700"
+                        - generic [ref=e709]: "800"
+                        - generic [ref=e712]: "900"
+                        - generic [ref=e715]: "950"
+                    - listitem [ref=e716]:
+                      - generic [ref=e717]: violet
+                      - generic [ref=e718]:
+                        - generic [ref=e721]: "50"
+                        - generic [ref=e724]: "100"
+                        - generic [ref=e727]: "200"
+                        - generic [ref=e730]: "300"
+                        - generic [ref=e733]: "400"
+                        - generic [ref=e736]: "500"
+                        - generic [ref=e739]: "600"
+                        - generic [ref=e742]: "700"
+                        - generic [ref=e745]: "800"
+                        - generic [ref=e748]: "900"
+                        - generic [ref=e751]: "950"
+                    - listitem [ref=e752]:
+                      - generic [ref=e753]: purple
+                      - generic [ref=e754]:
+                        - generic [ref=e757]: "50"
+                        - generic [ref=e760]: "100"
+                        - generic [ref=e763]: "200"
+                        - generic [ref=e766]: "300"
+                        - generic [ref=e769]: "400"
+                        - generic [ref=e772]: "500"
+                        - generic [ref=e775]: "600"
+                        - generic [ref=e778]: "700"
+                        - generic [ref=e781]: "800"
+                        - generic [ref=e784]: "900"
+                        - generic [ref=e787]: "950"
+                    - listitem [ref=e788]:
+                      - generic [ref=e789]: fuchsia
+                      - generic [ref=e790]:
+                        - generic [ref=e793]: "50"
+                        - generic [ref=e796]: "100"
+                        - generic [ref=e799]: "200"
+                        - generic [ref=e802]: "300"
+                        - generic [ref=e805]: "400"
+                        - generic [ref=e808]: "500"
+                        - generic [ref=e811]: "600"
+                        - generic [ref=e814]: "700"
+                        - generic [ref=e817]: "800"
+                        - generic [ref=e820]: "900"
+                        - generic [ref=e823]: "950"
+                    - listitem [ref=e824]:
+                      - generic [ref=e825]: pink
+                      - generic [ref=e826]:
+                        - generic [ref=e829]: "50"
+                        - generic [ref=e832]: "100"
+                        - generic [ref=e835]: "200"
+                        - generic [ref=e838]: "300"
+                        - generic [ref=e841]: "400"
+                        - generic [ref=e844]: "500"
+                        - generic [ref=e847]: "600"
+                        - generic [ref=e850]: "700"
+                        - generic [ref=e853]: "800"
+                        - generic [ref=e856]: "900"
+                        - generic [ref=e859]: "950"
+                    - listitem [ref=e860]:
+                      - generic [ref=e861]: rose
+                      - generic [ref=e862]:
+                        - generic [ref=e865]: "50"
+                        - generic [ref=e868]: "100"
+                        - generic [ref=e871]: "200"
+                        - generic [ref=e874]: "300"
+                        - generic [ref=e877]: "400"
+                        - generic [ref=e880]: "500"
+                        - generic [ref=e883]: "600"
+                        - generic [ref=e886]: "700"
+                        - generic [ref=e889]: "800"
+                        - generic [ref=e892]: "900"
+                        - generic [ref=e895]: "950"
+                    - listitem [ref=e896]:
+                      - generic [ref=e897]: slate
+                      - generic [ref=e898]:
+                        - generic [ref=e901]: "50"
+                        - generic [ref=e904]: "100"
+                        - generic [ref=e907]: "200"
+                        - generic [ref=e910]: "300"
+                        - generic [ref=e913]: "400"
+                        - generic [ref=e916]: "500"
+                        - generic [ref=e919]: "600"
+                        - generic [ref=e922]: "700"
+                        - generic [ref=e925]: "800"
+                        - generic [ref=e928]: "900"
+                        - generic [ref=e931]: "950"
+                    - listitem [ref=e932]:
+                      - generic [ref=e933]: gray
+                      - generic [ref=e934]:
+                        - generic [ref=e937]: "50"
+                        - generic [ref=e940]: "100"
+                        - generic [ref=e943]: "200"
+                        - generic [ref=e946]: "300"
+                        - generic [ref=e949]: "400"
+                        - generic [ref=e952]: "500"
+                        - generic [ref=e955]: "600"
+                        - generic [ref=e958]: "700"
+                        - generic [ref=e961]: "800"
+                        - generic [ref=e964]: "900"
+                        - generic [ref=e967]: "950"
+                    - listitem [ref=e968]:
+                      - generic [ref=e969]: zinc
+                      - generic [ref=e970]:
+                        - generic [ref=e973]: "50"
+                        - generic [ref=e976]: "100"
+                        - generic [ref=e979]: "200"
+                        - generic [ref=e982]: "300"
+                        - generic [ref=e985]: "400"
+                        - generic [ref=e988]: "500"
+                        - generic [ref=e991]: "600"
+                        - generic [ref=e994]: "700"
+                        - generic [ref=e997]: "800"
+                        - generic [ref=e1000]: "900"
+                        - generic [ref=e1003]: "950"
+                    - listitem [ref=e1004]:
+                      - generic [ref=e1005]: neutral
+                      - generic [ref=e1006]:
+                        - generic [ref=e1009]: "50"
+                        - generic [ref=e1012]: "100"
+                        - generic [ref=e1015]: "200"
+                        - generic [ref=e1018]: "300"
+                        - generic [ref=e1021]: "400"
+                        - generic [ref=e1024]: "500"
+                        - generic [ref=e1027]: "600"
+                        - generic [ref=e1030]: "700"
+                        - generic [ref=e1033]: "800"
+                        - generic [ref=e1036]: "900"
+                        - generic [ref=e1039]: "950"
+                    - listitem [ref=e1040]:
+                      - generic [ref=e1041]: stone
+                      - generic [ref=e1042]:
+                        - generic [ref=e1045]: "50"
+                        - generic [ref=e1048]: "100"
+                        - generic [ref=e1051]: "200"
+                        - generic [ref=e1054]: "300"
+                        - generic [ref=e1057]: "400"
+                        - generic [ref=e1060]: "500"
+                        - generic [ref=e1063]: "600"
+                        - generic [ref=e1066]: "700"
+                        - generic [ref=e1069]: "800"
+                        - generic [ref=e1072]: "900"
+                        - generic [ref=e1075]: "950"
+              - generic [ref=e1076]:
+                - heading "Dark Mode" [level=2] [ref=e1078]
+                - generic [ref=e1081]:
+                  - paragraph [ref=e1082]: PrimeNG uses the system as the default darkModeSelector in theme configuration. If you have a dark mode switch in your application, set the darkModeSelector to the selector you utilize such as .my-app-dark so that PrimeNG can fit in seamlessly with your color scheme.
+                  - generic [ref=e1084]:
+                    - text: 
+                    - code [ref=e1087]: "providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.my-app-dark' } } })"
+                  - paragraph [ref=e1088]:
+                    - text: Following is a very basic example implementation of a dark mode switch, you may extend it further by involving prefers-color-scheme to retrieve it from the system initially and use localStorage to make it stateful. See this
+                    - link "article" [ref=e1089] [cursor=pointer]:
+                      - /url: https://dev.to/abbeyperini/dark-mode-toggle-and-prefers-color-scheme-4f3m
+                    - text: for more information.
+                  - generic [ref=e1092]:
+                    - text: 
+                    - code [ref=e1095]:
+                      - generic [ref=e1096]:
+                        - generic [ref=e1097]: <p-button
+                        - text: label
+                        - generic [ref=e1098]: ="Toggle Dark Mode"
+                        - text: (onClick)
+                        - generic [ref=e1099]: ="toggleDarkMode()"
+                        - text: />
+                  - generic [ref=e1102]:
+                    - text: 
+                    - code [ref=e1105]: "toggleDarkMode() { const element = document.querySelector('html'); element.classList.toggle('my-app-dark'); }"
+                  - paragraph [ref=e1106]: In case you prefer to use dark mode all the time, apply the darkModeSelector initially and never change it.
+                  - generic [ref=e1109]:
+                    - text: 
+                    - code [ref=e1112]:
+                      - generic [ref=e1113]:
+                        - generic [ref=e1114]: <html
+                        - text: class
+                        - generic [ref=e1115]: ="my-app-dark"
+                        - text: ">"
+                  - paragraph [ref=e1116]: It is also possible to disable dark mode completely using false or none as the value of the selector.
+                  - generic [ref=e1119]:
+                    - text: 
+                    - code [ref=e1122]: "providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: false || 'none' } } })"
+              - generic [ref=e1123]:
+                - heading "Customization" [level=2] [ref=e1125]
+                - heading "definePreset" [level=3] [ref=e1127]
+                - generic [ref=e1128]:
+                  - paragraph [ref=e1131]: The definePreset utility is used to customize an existing preset during the PrimeNG setup. The first parameter is the preset to customize and the second is the design tokens to override.
+                  - generic [ref=e1133]:
+                    - text: 
+                    - code [ref=e1136]: "//mypreset.ts import { definePreset } from '@primeuix/themes'; import Aura from '@primeuix/themes/aura'; const MyPreset = definePreset(Aura, { //Your customizations, see the following sections for examples }); export MyPreset;"
+                  - generic [ref=e1138]:
+                    - text: 
+                    - code [ref=e1141]: "import { ApplicationConfig } from '@angular/core'; import { providePrimeNG } from 'primeng/config'; import MyPreset from './mypreset'; export const appConfig: ApplicationConfig = { providers: [ providePrimeNG({ theme: { preset: MyPreset } }) ] };"
+                - heading "Color Scheme" [level=3] [ref=e1143]
+                - generic [ref=e1146]:
+                  - paragraph [ref=e1147]: A token can be defined per color scheme using light and dark properties of the colorScheme property. Each token can have specific values based on the current color scheme.
+                  - generic [ref=e1149]:
+                    - text: 
+                    - code [ref=e1152]: "import { bootstrapApplication } from '@angular/platform-browser'; import { providePrimeNG } from 'primeng/config'; import { definePreset } from '@primeuix/themes'; import Aura from '@primeuix/themes/aura'; import { AppComponent } from './app/app.component'; const MyPreset = definePreset(Aura, { semantic: { colorScheme: { light: { //... }, dark: { //... } } } }); bootstrapApplication(AppComponent, { providers: [ providePrimeNG({ theme: { preset: MyPreset } }) ] });"
+                  - generic [ref=e1153]: Common Pitfall
+                  - paragraph [ref=e1154]: When customizing an existing preset, your token overrides may be ignored if you don't properly account for color scheme variations. If the original preset defines a token using the colorScheme property, but your customization only provides a direct value, your override will be ignored because the colorScheme property takes precedence over direct values and the system will continue using the preset's scheme-specific values. When customizing tokens that are not defined with colorScheme in the original preset, your customizations will be applied successfully regardless of how you structure them; whether direct or under colorScheme.
+                  - generic [ref=e1156]:
+                    - text: 
+                    - code [ref=e1159]: "/* Fails as Aura defines highlight tokens in colorScheme */ const MyPreset = definePreset(Aura, { semantic: { highlight: { background: '{primary.50}', color: '{primary.700}', } } });"
+                  - generic [ref=e1160]: Best Practices
+                  - list [ref=e1161]:
+                    - listitem [ref=e1162]:
+                      - text: Check how tokens are defined in the preset before customizing from the
+                      - link "source" [ref=e1163] [cursor=pointer]:
+                        - /url: https://github.com/primefaces/primeuix/tree/main/packages/themes/src/presets
+                      - text: .
+                    - listitem [ref=e1164]: Always maintain the same structure (direct value or colorScheme) as the original preset.
+                    - listitem [ref=e1165]: Consider both light and dark mode values when overriding scheme-dependent tokens.
+                  - generic [ref=e1167]:
+                    - text: 
+                    - code [ref=e1170]: "/* Works because highlight tokens are defined under colorScheme */ const MyPreset = definePreset(Aura, { semantic: { colorScheme: { light: { semantic: { highlight: { background: '{primary.50}', color: '{primary.700}', } } }, dark: { semantic: { highlight: { background: '{primary.200}', color: '{primary.900}', } } } } } });"
+                  - paragraph [ref=e1171]: This approach ensures your customizations will be applied correctly regardless of the user's selected color scheme.
+                - heading "Primary" [level=3] [ref=e1173]
+                - generic [ref=e1174]:
+                  - paragraph [ref=e1177]: The primary defines the main color palette, default value maps to the emerald primitive token. Let's setup to use indigo instead.
+                  - generic [ref=e1179]:
+                    - text: 
+                    - code [ref=e1182]: "const MyPreset = definePreset(Aura, { semantic: { primary: { 50: '{indigo.50}', 100: '{indigo.100}', 200: '{indigo.200}', 300: '{indigo.300}', 400: '{indigo.400}', 500: '{indigo.500}', 600: '{indigo.600}', 700: '{indigo.700}', 800: '{indigo.800}', 900: '{indigo.900}', 950: '{indigo.950}' } } });"
+                - heading "Surface" [level=3] [ref=e1184]
+                - generic [ref=e1185]:
+                  - paragraph [ref=e1188]: The color scheme palette that varies between light and dark modes is specified with the surface tokens. Example below uses zinc for light mode and slategray for dark mode. With this setting, light mode, would have a grayscale tone and dark mode would include bluish tone.
+                  - generic [ref=e1190]:
+                    - text: 
+                    - code [ref=e1193]: "const MyPreset = definePreset(Aura, { semantic: { colorScheme: { light: { surface: { 0: '#ffffff', 50: '{zinc.50}', 100: '{zinc.100}', 200: '{zinc.200}', 300: '{zinc.300}', 400: '{zinc.400}', 500: '{zinc.500}', 600: '{zinc.600}', 700: '{zinc.700}', 800: '{zinc.800}', 900: '{zinc.900}', 950: '{zinc.950}' } }, dark: { surface: { 0: '#ffffff', 50: '{slate.50}', 100: '{slate.100}', 200: '{slate.200}', 300: '{slate.300}', 400: '{slate.400}', 500: '{slate.500}', 600: '{slate.600}', 700: '{slate.700}', 800: '{slate.800}', 900: '{slate.900}', 950: '{slate.950}' } } } } });"
+                - heading "Noir" [level=3] [ref=e1195]
+                - generic [ref=e1196]:
+                  - paragraph [ref=e1199]: The noir mode is the nickname of a variant that uses surface tones as the primary and requires and additional colorScheme configuration to implement. A sample preset configuration with black and white variants as the primary color;
+                  - generic [ref=e1201]:
+                    - text: 
+                    - code [ref=e1204]: "const Noir = definePreset(Aura, { semantic: { primary: { 50: '{zinc.50}', 100: '{zinc.100}', 200: '{zinc.200}', 300: '{zinc.300}', 400: '{zinc.400}', 500: '{zinc.500}', 600: '{zinc.600}', 700: '{zinc.700}', 800: '{zinc.800}', 900: '{zinc.900}', 950: '{zinc.950}' }, colorScheme: { light: { primary: { color: '{zinc.950}', inverseColor: '#ffffff', hoverColor: '{zinc.900}', activeColor: '{zinc.800}' }, highlight: { background: '{zinc.950}', focusBackground: '{zinc.700}', color: '#ffffff', focusColor: '#ffffff' } }, dark: { primary: { color: '{zinc.50}', inverseColor: '{zinc.950}', hoverColor: '{zinc.100}', activeColor: '{zinc.200}' }, highlight: { background: 'rgba(250, 250, 250, .16)', focusBackground: 'rgba(250, 250, 250, .24)', color: 'rgba(255,255,255,.87)', focusColor: 'rgba(255,255,255,.87)' } } } } });"
+                - heading "Font" [level=3] [ref=e1206]
+                - paragraph [ref=e1210]: There is no design for fonts as UI components inherit their font settings from the application.
+                - heading "Forms" [level=3] [ref=e1212]
+                - generic [ref=e1213]:
+                  - paragraph [ref=e1216]: The design tokens of the form input components are derived from the form.field token group. This customization example changes border color to primary on hover. Any component that depends on this semantic token such as dropdown.hover.border.color and textarea.hover.border.color would receive the change.
+                  - generic [ref=e1218]:
+                    - text: 
+                    - code [ref=e1221]: "const MyPreset = definePreset(Aura, { semantic: { colorScheme: { light: { formField: { hoverBorderColor: '{primary.color}' } }, dark: { formField: { hoverBorderColor: '{primary.color}' } } } } });"
+                - heading "Focus Ring" [level=3] [ref=e1223]
+                - generic [ref=e1224]:
+                  - paragraph [ref=e1227]: Focus ring defines the outline width, style, color and offset. Let's use a thicker ring with the primary color for the outline.
+                  - generic [ref=e1229]:
+                    - text: 
+                    - code [ref=e1232]: "const MyPreset = definePreset(Aura, { semantic: { focusRing: { width: '2px', style: 'dashed', color: '{primary.color}', offset: '1px' } } });"
+                - heading "Component" [level=3] [ref=e1234]
+                - generic [ref=e1235]:
+                  - paragraph [ref=e1238]: The design tokens of a specific component is defined at components layer. Overriding components tokens is not the recommended approach if you are building your own style, building your own preset should be preferred instead. This configuration is global and applies to all card components, in case you need to customize a particular component on a page locally, view the Scoped CSS section for an example.
+                  - generic [ref=e1240]:
+                    - text: 
+                    - code [ref=e1243]: "const MyPreset = definePreset(Aura, { components: { card: { colorScheme: { light: { root: { background: '{surface.0}', color: '{surface.700}' }, subtitle: { color: '{surface.500}' } }, dark: { root: { background: '{surface.900}', color: '{surface.0}' }, subtitle: { color: '{surface.400}' } } } } } });"
+                - heading "Extend" [level=3] [ref=e1245]
+                - generic [ref=e1246]:
+                  - generic [ref=e1248]:
+                    - paragraph [ref=e1249]: The theming system can be extended by adding custom design tokens and additional styles. This feature provides a high degree of customization, allowing you to adjust styles according to your needs, as you are not limited to the default tokens.
+                    - paragraph [ref=e1250]: The example preset configuration adds a new accent button with custom button.accent.color and button.accent.inverse.color tokens. It is also possible to add tokens globally to share them within the components.
+                  - generic [ref=e1252]:
+                    - text: 
+                    - code [ref=e1255]:
+                      - text: "const MyPreset = definePreset(Aura, { components: { // custom button tokens and additional style button: { extend: { accent: { color: '#f59e0b', inverseColor: '#ffffff' } } css: ({ dt }) =>"
+                      - generic [ref=e1256]:
+                        - text: "` .p-button-accent { background:"
+                        - generic [ref=e1257]: "${dt('button.accent.color')}"
+                        - text: "; color:"
+                        - generic [ref=e1258]: "${dt('button.accent.inverse.color')}"
+                        - text: "; transition-duration:"
+                        - generic [ref=e1259]: "${dt('my.transition.fast')}"
+                        - text: "; } `"
+                      - text: "} }, // common tokens and styles extend: { my: { transition: { slow: '0.75s' normal: '0.5s' fast: '0.25s' }, imageDisplay: 'block' } }, css: ({ dt }) =>"
+                      - generic [ref=e1260]:
+                        - text: "` /* Global CSS */ img { display:"
+                        - generic [ref=e1261]: "${dt('my.image.display')}"
+                        - text: "; } `"
+                      - text: "});"
+              - generic [ref=e1262]:
+                - heading "Scoped Tokens" [level=2] [ref=e1264]
+                - generic [ref=e1265]:
+                  - generic [ref=e1267]:
+                    - paragraph [ref=e1268]: Design tokens can be scoped to a certain component using the dt property. In this example, first switch uses the global tokens whereas second one overrides the global with its own tokens.
+                    - paragraph [ref=e1269]: This approach is recommended over the ::ng-deep as it offers a cleaner API while avoiding the hassle of CSS rule overrides.
+                  - generic [ref=e1270]:
+                    - switch [checked] [ref=e1272] [cursor=pointer]
+                    - switch [checked] [ref=e1276] [cursor=pointer]
+                  - generic [ref=e1280]:
+                    - text: 
+                    - code [ref=e1283]:
+                      - text: "import { Component } from '@angular/core'; import { FormsModule } from '@angular/forms'; import { ToggleSwitch } from 'primeng/toggleswitch';"
+                      - generic [ref=e1284]: "@Component"
+                      - text: "({ template:"
+                      - generic [ref=e1285]: "` <p-toggleswitch [(ngModel)]=\"checked1\"/> <p-toggleswitch [(ngModel)]=\"checked2\" [dt]=\"amberSwitch\"/> `"
+                      - text: ", standalone: true, imports: [ToggleSwitch, FormsModule] }) export class AppComponent { checked1: boolean = true; checked2: boolean = true; amberSwitch = { handle: { borderRadius: '4px' }, colorScheme: { light: { root: { checkedBackground: '{amber.500}', checkedHoverBackground: '{amber.600}', borderRadius: '4px' }, handle: { checkedBackground: '{amber.50}', checkedHoverBackground: '{amber.100}' } }, dark: { root: { checkedBackground: '{amber.400}', checkedHoverBackground: '{amber.300}', borderRadius: '4px' }, handle: { checkedBackground: '{amber.900}', checkedHoverBackground: '{amber.800}' } } } }; }"
+              - generic [ref=e1286]:
+                - heading "Utils" [level=2] [ref=e1288]
+                - heading "usePreset" [level=3] [ref=e1290]
+                - generic [ref=e1291]:
+                  - paragraph [ref=e1294]: Replaces the current presets entirely, common use case is changing the preset dynamically at runtime.
+                  - generic [ref=e1296]:
+                    - text: 
+                    - code [ref=e1299]: "import { usePreset } from '@primeuix/themes';"
+                  - generic [ref=e1301]:
+                    - text: 
+                    - code [ref=e1304]: "onButtonClick() { usePreset(MyPreset); }"
+                - heading "updatePreset" [level=3] [ref=e1306]
+                - generic [ref=e1307]:
+                  - paragraph [ref=e1310]: Merges the provided tokens to the current preset, an example would be changing the primary color palette dynamically.
+                  - generic [ref=e1312]:
+                    - text: 
+                    - code [ref=e1315]: "import { updatePreset } from '@primeuix/themes';"
+                  - generic [ref=e1317]:
+                    - text: 
+                    - code [ref=e1320]: "changePrimaryColor() { updatePreset({ semantic: { primary: { 50: '{indigo.50}', 100: '{indigo.100}', 200: '{indigo.200}', 300: '{indigo.300}', 400: '{indigo.400}', 500: '{indigo.500}', 600: '{indigo.600}', 700: '{indigo.700}', 800: '{indigo.800}', 900: '{indigo.900}', 950: '{indigo.950}' } } }) }"
+                - heading "updatePrimaryPalette" [level=3] [ref=e1322]
+                - generic [ref=e1323]:
+                  - paragraph [ref=e1326]: Updates the primary colors, this is a shorthand to do the same update using updatePreset.
+                  - generic [ref=e1328]:
+                    - text: 
+                    - code [ref=e1331]: "import { updatePrimaryPalette } from '@primeuix/themes';"
+                  - generic [ref=e1333]:
+                    - text: 
+                    - code [ref=e1336]: "changePrimaryColor() { updatePrimaryPalette({ 50: '{indigo.50}', 100: '{indigo.100}', 200: '{indigo.200}', 300: '{indigo.300}', 400: '{indigo.400}', 500: '{indigo.500}', 600: '{indigo.600}', 700: '{indigo.700}', 800: '{indigo.800}', 900: '{indigo.900}', 950: '{indigo.950}' }); }"
+                - heading "updateSurfacePalette" [level=3] [ref=e1338]
+                - generic [ref=e1339]:
+                  - paragraph [ref=e1342]: Updates the surface colors, this is a shorthand to do the same update using updatePreset.
+                  - generic [ref=e1344]:
+                    - text: 
+                    - code [ref=e1347]: "import { updateSurfacePalette } from '@primeuix/themes';"
+                  - generic [ref=e1349]:
+                    - text: 
+                    - code [ref=e1352]: "changeSurfaces() { //changes surfaces both in light and dark mode updateSurfacePalette({ 50: '{zinc.50}', // ... 950: '{zinc.950}' }); }"
+                  - generic [ref=e1354]:
+                    - text: 
+                    - code [ref=e1357]: "const changeLightSurfaces() { //changes surfaces only in light updateSurfacePalette({ light: { 50: '{zinc.50}', // ... 950: '{zinc.950}' } }); }"
+                  - generic [ref=e1359]:
+                    - text: 
+                    - code [ref=e1362]: "function changeDarkSurfaces() { //changes surfaces only in dark mode updateSurfacePalette({ dark: { 50: '{zinc.50}', // ... 950: '{zinc.950}' } }); }"
+                - heading "$dt" [level=3] [ref=e1364]
+                - generic [ref=e1365]:
+                  - paragraph [ref=e1368]: The $dt function returns the information about a token like the full path and value. This would be useful if you need to access tokens programmatically.
+                  - generic [ref=e1370]:
+                    - text: 
+                    - code [ref=e1373]: "import { $dt } from '@primeuix/themes';"
+                  - generic [ref=e1375]:
+                    - text: 
+                    - code [ref=e1378]: "const duration = $dt('transition.duration'); /* duration: { name: '--transition-duration', variable: 'var(--p-transition-duration)', value: '0.2s' } */ const primaryColor = $dt('primary.color'); /* primaryColor: { name: '--primary-color', variable: 'var(--p-primary-color)', value: { light: { value: '#10b981', paths: { name: 'semantic.primary.color', binding: { name: 'primitive.emerald.500' } } }, dark: { value: '#34d399', paths: { name: 'semantic.primary.color', binding: { name: 'primitive.emerald.400' } } } } } */"
+                - heading "palette" [level=3] [ref=e1380]
+                - generic [ref=e1381]:
+                  - paragraph [ref=e1384]: Returns shades and tints of a given color from 50 to 950 as an array.
+                  - generic [ref=e1386]:
+                    - text: 
+                    - code [ref=e1389]: "import { palette } from '@primeuix/themes';"
+                  - generic [ref=e1391]:
+                    - text: 
+                    - code [ref=e1394]: "// custom color const values1 = palette('#10b981'); // copy an existing token set const primaryColor = palette('{blue}');"
+              - generic [ref=e1395]:
+                - heading "CSS Layer" [level=2] [ref=e1397]
+                - heading "Specificity" [level=3] [ref=e1399]
+                - generic [ref=e1402]:
+                  - paragraph [ref=e1403]:
+                    - text: The @layer is a standard CSS feature to define cascade layers for a customizable order of precedence. If you need to become more familiar with layers, visit the documentation at
+                    - link "MDN" [ref=e1404] [cursor=pointer]:
+                      - /url: https://developer.mozilla.org/en-US/docs/Web/CSS/@layer
+                    - text: to begin with.
+                  - paragraph [ref=e1405]: The cssLayer is disabled by default, when it is enabled at theme configuration, PrimeNG wraps the built-in style classes under the primeng cascade layer to make the library styles easy to override. CSS in your app without a layer has the highest CSS specificity, so you'll be able to override styles regardless of the location or how strong a class is written.
+                - heading "Reset" [level=3] [ref=e1407]
+                - generic [ref=e1408]:
+                  - paragraph [ref=e1411]: In case PrimeNG components have visual issues in your application, a Reset CSS may be the culprit. CSS layers would be an efficient solution that involves enabling the PrimeNG layer, wrapping the Reset CSS in another layer and defining the layer order. This way, your Reset CSS does not get in the way of PrimeNG components.
+                  - generic [ref=e1413]:
+                    - text: 
+                    - code [ref=e1416]:
+                      - text: /* Order */
+                      - generic [ref=e1417]: "@layer"
+                      - text: reset, primeng; /* Reset CSS */
+                      - generic [ref=e1418]: "@layer"
+                      - text: "reset { button, input { /* CSS to Reset */ } }"
+              - generic [ref=e1419]:
+                - heading "Scale" [level=2] [ref=e1421]
+                - generic [ref=e1422]:
+                  - paragraph [ref=e1425]: PrimeNG UI component use rem units, 1rem equals to the font size of the html element which is 16px by default. Use the root font-size to adjust the size of the components globally. This website uses 14px as the base so it may differ from your application if your base font size is different.
+                  - generic [ref=e1427]:
+                    - text: 
+                    - code [ref=e1430]: "html { font-size: 14px; }"
+          - generic [ref=e1432]:
+            - list [ref=e1433]:
+              - listitem [ref=e1434]:
+                - button "Architecture" [ref=e1436] [cursor=pointer]
+              - listitem [ref=e1437]:
+                - button "Configuration API" [ref=e1439] [cursor=pointer]
+                - list [ref=e1440]:
+                  - listitem [ref=e1441]:
+                    - button "Theme" [ref=e1443] [cursor=pointer]
+                  - listitem [ref=e1444]:
+                    - button "Options" [ref=e1446] [cursor=pointer]
+              - listitem [ref=e1447]:
+                - button "Presets" [ref=e1449] [cursor=pointer]
+              - listitem [ref=e1450]:
+                - button "Reserved Keys" [ref=e1452] [cursor=pointer]
+              - listitem [ref=e1453]:
+                - button "Colors" [ref=e1455] [cursor=pointer]
+              - listitem [ref=e1456]:
+                - button "Dark Mode" [ref=e1458] [cursor=pointer]
+              - listitem [ref=e1459]:
+                - button "Customization" [ref=e1461] [cursor=pointer]
+                - list [ref=e1462]:
+                  - listitem [ref=e1463]:
+                    - button "definePreset" [ref=e1465] [cursor=pointer]
+                  - listitem [ref=e1466]:
+                    - button "Color Scheme" [ref=e1468] [cursor=pointer]
+                  - listitem [ref=e1469]:
+                    - button "Primary" [ref=e1471] [cursor=pointer]
+                  - listitem [ref=e1472]:
+                    - button "Surface" [ref=e1474] [cursor=pointer]
+                  - listitem [ref=e1475]:
+                    - button "Noir" [ref=e1477] [cursor=pointer]
+                  - listitem [ref=e1478]:
+                    - button "Font" [ref=e1480] [cursor=pointer]
+                  - listitem [ref=e1481]:
+                    - button "Forms" [ref=e1483] [cursor=pointer]
+                  - listitem [ref=e1484]:
+                    - button "Focus Ring" [ref=e1486] [cursor=pointer]
+                  - listitem [ref=e1487]:
+                    - button "Component" [ref=e1489] [cursor=pointer]
+                  - listitem [ref=e1490]:
+                    - button "Extend" [ref=e1492] [cursor=pointer]
+              - listitem [ref=e1493]:
+                - button "Scoped Tokens" [ref=e1495] [cursor=pointer]
+              - listitem [ref=e1496]:
+                - button "Utils" [ref=e1498] [cursor=pointer]
+                - list [ref=e1499]:
+                  - listitem [ref=e1500]:
+                    - button "usePreset" [ref=e1502] [cursor=pointer]
+                  - listitem [ref=e1503]:
+                    - button "updatePreset" [ref=e1505] [cursor=pointer]
+                  - listitem [ref=e1506]:
+                    - button "updatePrimaryPalette" [ref=e1508] [cursor=pointer]
+                  - listitem [ref=e1509]:
+                    - button "updateSurfacePalette" [ref=e1511] [cursor=pointer]
+                  - listitem [ref=e1512]:
+                    - button "$dt" [ref=e1514] [cursor=pointer]
+                  - listitem [ref=e1515]:
+                    - button "palette" [ref=e1517] [cursor=pointer]
+              - listitem [ref=e1518]:
+                - button "CSS Layer" [ref=e1520] [cursor=pointer]
+                - list [ref=e1521]:
+                  - listitem [ref=e1522]:
+                    - button "Specificity" [ref=e1524] [cursor=pointer]
+                  - listitem [ref=e1525]:
+                    - button "Reset" [ref=e1527] [cursor=pointer]
+              - listitem [ref=e1528]:
+                - button "Scale" [ref=e1530] [cursor=pointer]
+            - generic [ref=e1531]:
+              - img [ref=e1532]
+              - generic [ref=e1534]: Theme Designer
+              - generic [ref=e1535]: Theme Designer is the ultimate tool to customize and design your own themes featuring a visual editor, Figma to theme code, cloud storage, and migration assistant.
+              - link "Learn More" [ref=e1537] [cursor=pointer]:
+                - /url: /designer
+                - generic [ref=e1538]: Learn More
+    - generic [ref=e1541]:
+      - text: PrimeNG 21.1.9 by
+      - link "PrimeTek" [ref=e1542] [cursor=pointer]:
+        - /url: https://www.primetek.com.tr
+  - generic:
+    - generic:
+      - alertdialog

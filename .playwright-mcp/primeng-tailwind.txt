@@ -1,0 +1,737 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - generic [ref=e6]:
+      - link "PrimeNG Logo" [ref=e8] [cursor=pointer]:
+        - /url: /
+        - img [ref=e9]
+      - list [ref=e25]:
+        - listitem [ref=e26]:
+          - button "Search (Ctrl+K)" [ref=e28] [cursor=pointer]:
+            - generic [ref=e29]:
+              - img [ref=e30]
+              - generic [ref=e32]: Search
+            - generic [ref=e33]:
+              - img [ref=e35]
+              - generic [ref=e37]:  K
+        - listitem [ref=e38]:
+          - link "" [ref=e39] [cursor=pointer]:
+            - /url: https://github.com/primefaces/primeng
+            - generic [ref=e40]: 
+        - listitem [ref=e41]:
+          - link "" [ref=e42] [cursor=pointer]:
+            - /url: https://discord.gg/gzKFYnpmCY
+            - generic [ref=e43]: 
+        - listitem [ref=e44]:
+          - link "" [ref=e45] [cursor=pointer]:
+            - /url: https://github.com/orgs/primefaces/discussions
+            - generic [ref=e46]: 
+        - listitem [ref=e47]:
+          - button "" [ref=e48] [cursor=pointer]:
+            - generic [ref=e49]: 
+        - listitem [ref=e50]:
+          - button "" [ref=e51] [cursor=pointer]:
+            - generic [ref=e52]: 
+        - listitem [ref=e53]:
+          - button "" [ref=e54] [cursor=pointer]:
+            - generic [ref=e57]: 
+        - listitem [ref=e58]:
+          - button "v21 " [ref=e59] [cursor=pointer]:
+            - generic [ref=e60]: v21
+            - generic [ref=e61]: 
+        - text: 
+    - generic [ref=e62]:
+      - complementary [ref=e64]:
+        - navigation [ref=e65]:
+          - list [ref=e66]:
+            - listitem [ref=e67]:
+              - button " Getting Started " [ref=e68] [cursor=pointer]:
+                - generic [ref=e70]: 
+                - generic [ref=e71]: Getting Started
+                - generic [ref=e73]: 
+            - listitem [ref=e74]:
+              - button " Theming " [ref=e75] [cursor=pointer]:
+                - generic [ref=e77]: 
+                - generic [ref=e78]: Theming
+                - generic [ref=e80]: 
+              - list [ref=e82]:
+                - listitem [ref=e83]:
+                  - link "Styled Mode" [ref=e84] [cursor=pointer]:
+                    - /url: /theming/styled
+                    - generic [ref=e85]: Styled Mode
+                - listitem [ref=e86]:
+                  - link "Unstyled Mode" [ref=e87] [cursor=pointer]:
+                    - /url: /theming/unstyled
+                    - generic [ref=e88]: Unstyled Mode
+                - listitem [ref=e89]:
+                  - link "Tailwind CSS" [ref=e90] [cursor=pointer]:
+                    - /url: /tailwind
+                    - generic [ref=e91]: Tailwind CSS
+            - listitem [ref=e92]:
+              - button " AI Tools NEW " [ref=e93] [cursor=pointer]:
+                - generic [ref=e95]: 
+                - generic [ref=e96]: AI Tools
+                - generic [ref=e97]:
+                  - generic [ref=e99]: NEW
+                  - generic [ref=e100]: 
+            - listitem [ref=e101]:
+              - button " Components " [ref=e102] [cursor=pointer]:
+                - generic [ref=e104]: 
+                - generic [ref=e105]: Components
+                - generic [ref=e107]: 
+            - listitem [ref=e108]:
+              - link " Pass Through NEW" [ref=e109] [cursor=pointer]:
+                - /url: /passthrough
+                - generic [ref=e111]: 
+                - generic [ref=e112]: Pass Through
+                - generic [ref=e114]: NEW
+            - listitem [ref=e115]:
+              - button " Guides " [ref=e116] [cursor=pointer]:
+                - generic [ref=e118]: 
+                - generic [ref=e119]: Guides
+                - generic [ref=e121]: 
+            - listitem [ref=e122]:
+              - button " Icons " [ref=e123] [cursor=pointer]:
+                - generic [ref=e125]: 
+                - generic [ref=e126]: Icons
+                - generic [ref=e128]: 
+            - listitem [ref=e129]:
+              - button " Figma UI Kit " [ref=e130] [cursor=pointer]:
+                - generic [ref=e132]: 
+                - generic [ref=e133]: Figma UI Kit
+                - generic [ref=e135]: 
+            - listitem [ref=e136]:
+              - button " Theme Designer " [ref=e137] [cursor=pointer]:
+                - generic [ref=e139]: 
+                - generic [ref=e140]: Theme Designer
+                - generic [ref=e142]: 
+            - listitem [ref=e143]:
+              - link " Templates" [ref=e144] [cursor=pointer]:
+                - /url: /templates
+                - generic [ref=e146]: 
+                - generic [ref=e147]: Templates
+            - listitem [ref=e148]:
+              - link " PrimeBlocks NEW" [ref=e149] [cursor=pointer]:
+                - /url: https://primeblocks.org
+                - generic [ref=e151]: 
+                - generic [ref=e152]: PrimeBlocks
+                - generic [ref=e154]: NEW
+            - listitem [ref=e155]:
+              - button " Migration " [ref=e156] [cursor=pointer]:
+                - generic [ref=e158]: 
+                - generic [ref=e159]: Migration
+                - generic [ref=e161]: 
+            - listitem [ref=e162]:
+              - button " Support " [ref=e163] [cursor=pointer]:
+                - generic [ref=e165]: 
+                - generic [ref=e166]: Support
+                - generic [ref=e168]: 
+            - listitem [ref=e169]:
+              - button " Discover " [ref=e170] [cursor=pointer]:
+                - generic [ref=e172]: 
+                - generic [ref=e173]: Discover
+                - generic [ref=e175]: 
+      - generic [ref=e179]:
+        - list
+        - generic [ref=e181]:
+          - generic [ref=e182]:
+            - generic [ref=e184]:
+              - heading "Tailwind CSS" [level=1] [ref=e185]
+              - generic [ref=e187]:
+                - button "Copy Markdown" [ref=e188] [cursor=pointer]:
+                  - generic [ref=e189]: 
+                  - generic [ref=e190]: Copy Markdown
+                - button [ref=e191] [cursor=pointer]:
+                  - img [ref=e192]
+              - paragraph [ref=e194]: Integration between PrimeNG and Tailwind CSS.
+            - generic [ref=e195]:
+              - generic [ref=e196]:
+                - heading "Overview" [level=2] [ref=e198]
+                - generic [ref=e201]:
+                  - paragraph [ref=e202]: Tailwind CSS is a popular CSS framework based on a utility-first design. The core provides flexible CSS classes with predefined CSS rules to build your own UI elements. For example, instead of an opinionated btn class as in Bootstrap, Tailwind offers primitive classes like bg-blue-500, rounded and p-4 to apply a button. A set of reusable classes can also be grouped as a Tailwind CSS component and there are even a couple of libraries that take this approach to build components specifically for Tailwind.
+                  - paragraph [ref=e203]: Tailwind is an outstanding CSS library, however it lacks a true comprehensive UI suite when combined with Angular, this is where PrimeNG comes in by providing a wide range of highly accessible and feature rich UI component library. The core of PrimeNG does not depend on Tailwind CSS.
+              - generic [ref=e204]:
+                - heading "Plugin" [level=2] [ref=e206]
+                - generic [ref=e209]:
+                  - paragraph [ref=e210]:
+                    - text: The
+                    - link "tailwindcss-primeui" [ref=e211] [cursor=pointer]:
+                      - /url: https://www.npmjs.com/package/tailwindcss-primeui
+                    - text: is an official plugin by PrimeTek to provide first class integration between a Prime UI library like PrimeNG and Tailwind CSS. It is designed to work both in styled and unstyled modes. In styled mode, for instance the semantic colors such as primary and surfaces are provided as Tailwind utilities e.g. bg-primary, text-surface-500, text-muted-color.
+                  - paragraph [ref=e212]:
+                    - text: If you haven't already done so, start by integrating Tailwind into your project. Detailed steps for this process can be found in the Tailwind
+                    - link "documentation" [ref=e213] [cursor=pointer]:
+                      - /url: https://tailwindcss.com/
+                    - text: ". After successfully installing Tailwind, proceed with the installation of the PrimeUI plugin. This single npm package comes with two libraries: the CSS version is compatible with Tailwind v4, while the JS version is designed for Tailwind v3."
+                  - generic [ref=e215]:
+                    - text: 
+                    - code [ref=e218]: npm i tailwindcss-primeui
+                  - heading "Tailwind v4" [level=3] [ref=e219]
+                  - paragraph [ref=e220]: In the CSS file that contains the tailwindcss import, add the tailwindcss-primeui import as well.
+                  - generic [ref=e222]:
+                    - text: 
+                    - code [ref=e225]: "@import \"tailwindcss\"; @import \"tailwindcss-primeui\";"
+                  - paragraph [ref=e226]:
+                    - text: For a comprehensive starter guide, review the
+                    - link "primeng-quickstart-tailwind" [ref=e227] [cursor=pointer]:
+                      - /url: https://github.com/primefaces/primeng-examples/tree/main/primeng-quickstart-tailwind
+                    - text: repository which demonstrates the integration.
+                  - heading "Tailwind v3" [level=3] [ref=e228]
+                  - paragraph [ref=e229]: Use the plugins option in your Tailwind config file to configure the plugin.
+                  - generic [ref=e231]:
+                    - text: 
+                    - code [ref=e234]: "// tailwind.config.js import PrimeUI from 'tailwindcss-primeui'; export default { // ... plugins: [PrimeUI] };"
+              - generic [ref=e235]:
+                - heading "Extensions" [level=2] [ref=e237]
+                - generic [ref=e240]:
+                  - paragraph [ref=e241]: The plugin extends the default configuration with a new set of utilities. All variants and breakpoints are supported e.g. dark:sm:hover:bg-primary.
+                  - heading "Color Palette" [level=3] [ref=e242]
+                  - table [ref=e244]:
+                    - rowgroup [ref=e245]:
+                      - row "Class Property" [ref=e246]:
+                        - columnheader "Class" [ref=e247]
+                        - columnheader "Property" [ref=e248]
+                    - rowgroup [ref=e249]:
+                      - row "primary-[50-950] Primary color palette." [ref=e250]:
+                        - cell "primary-[50-950]" [ref=e251]
+                        - cell "Primary color palette." [ref=e252]
+                      - row "surface-[0-950] Surface color palette." [ref=e253]:
+                        - cell "surface-[0-950]" [ref=e254]
+                        - cell "Surface color palette." [ref=e255]
+                      - row "primary Default primary color." [ref=e256]:
+                        - cell "primary" [ref=e257]
+                        - cell "Default primary color." [ref=e258]
+                      - row "primary-contrast Default primary contrast color." [ref=e259]:
+                        - cell "primary-contrast" [ref=e260]
+                        - cell "Default primary contrast color." [ref=e261]
+                      - row "primary-emphasis Default primary emphasis color." [ref=e262]:
+                        - cell "primary-emphasis" [ref=e263]
+                        - cell "Default primary emphasis color." [ref=e264]
+                      - row "border-surface Default primary emphasis color." [ref=e265]:
+                        - cell "border-surface" [ref=e266]
+                        - cell "Default primary emphasis color." [ref=e267]
+                      - row "bg-emphasis Emphasis background e.g. hovered element." [ref=e268]:
+                        - cell "bg-emphasis" [ref=e269]
+                        - cell "Emphasis background e.g. hovered element." [ref=e270]
+                      - row "bg-highlight Highlight background." [ref=e271]:
+                        - cell "bg-highlight" [ref=e272]
+                        - cell "Highlight background." [ref=e273]
+                      - row "bg-highlight-emphasis Highlight background with emphasis." [ref=e274]:
+                        - cell "bg-highlight-emphasis" [ref=e275]
+                        - cell "Highlight background with emphasis." [ref=e276]
+                      - row "rounded-border Border radius." [ref=e277]:
+                        - cell "rounded-border" [ref=e278]
+                        - cell "Border radius." [ref=e279]
+                      - row "text-color Text color with emphasis." [ref=e280]:
+                        - cell "text-color" [ref=e281]
+                        - cell "Text color with emphasis." [ref=e282]
+                      - row "text-color-emphasis Default primary emphasis color." [ref=e283]:
+                        - cell "text-color-emphasis" [ref=e284]
+                        - cell "Default primary emphasis color." [ref=e285]
+                      - row "text-muted-color Secondary text color." [ref=e286]:
+                        - cell "text-muted-color" [ref=e287]
+                        - cell "Secondary text color." [ref=e288]
+                      - row "text-muted-color-emphasis Secondary text color with emphasis." [ref=e289]:
+                        - cell "text-muted-color-emphasis" [ref=e290]
+                        - cell "Secondary text color with emphasis." [ref=e291]
+              - generic [ref=e292]:
+                - heading "Dark Mode" [level=2] [ref=e294]
+                - generic [ref=e297]:
+                  - paragraph [ref=e298]: In styled mode, PrimeNG uses the system as the default darkModeSelector in theme configuration. If you have a dark mode switch in your application, ensure that darkModeSelector is aligned with the Tailwind dark variant for seamless integration. Note that, this particular configuration isn't required if you're utilizing the default system color scheme.
+                  - paragraph [ref=e299]: Suppose that, the darkModeSelector is set as my-app-dark in PrimeNG.
+                  - generic [ref=e301]:
+                    - text: 
+                    - code [ref=e304]: "providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.my-app-dark' } } })"
+                  - heading "Tailwind v4" [level=3] [ref=e305]
+                  - paragraph [ref=e306]: Add a custom variant for dark with a custom selector.
+                  - generic [ref=e308]:
+                    - text: 
+                    - code [ref=e311]:
+                      - text: "@import \"tailwindcss\"; @import \"tailwindcss-primeui\";"
+                      - generic [ref=e312]: "@custom"
+                      - text: "-variant dark (&:where(.my-app-dark, .my-app-dark *)); //dark mode configuration"
+                  - heading "Tailwind v3" [level=3] [ref=e313]
+                  - paragraph [ref=e314]: Use the plugins option in your Tailwind config file to configure the plugin.
+                  - generic [ref=e316]:
+                    - text: 
+                    - code [ref=e319]: "// tailwind.config.js import PrimeUI from 'tailwindcss-primeui'; export default { darkMode: ['selector', '[class~=\"my-app-dark\"]'], //dark mode configuration plugins: [PrimeUI] };"
+              - generic [ref=e320]:
+                - heading "Override" [level=2] [ref=e322]
+                - generic [ref=e325]:
+                  - paragraph [ref=e326]: Tailwind utilities may not be able to override the default styling of components due to css specificity, there are two possible solutions; Import and CSS Layer.
+                  - heading "Important" [level=3] [ref=e327]
+                  - paragraph [ref=e328]: Use the ! as a prefix to enforce the styling. This is not the recommend approach, and should be used as last resort to avoid adding unnecessary style classes to your bundle.
+                  - heading "Tailwind v4" [level=5] [ref=e329]
+                  - generic [ref=e331]:
+                    - text: 
+                    - code [ref=e334]:
+                      - generic [ref=e335]:
+                        - generic [ref=e336]: <input
+                        - text: pInputText placeholder
+                        - generic [ref=e337]: ="Overriden"
+                        - text: class
+                        - generic [ref=e338]: ="p-8!"
+                        - text: />
+                  - heading "Tailwind v3" [level=5] [ref=e339]
+                  - generic [ref=e341]:
+                    - text: 
+                    - code [ref=e344]:
+                      - generic [ref=e345]:
+                        - generic [ref=e346]: <input
+                        - text: pInputText placeholder
+                        - generic [ref=e347]: ="Overriden"
+                        - text: class
+                        - generic [ref=e348]: ="!p-8"
+                        - text: />
+                  - heading "CSS Layer" [level=3] [ref=e349]
+                  - paragraph [ref=e350]: CSS Layer provides control over the css specificity so that Tailwind utilities can safely override components.
+                  - heading "Tailwind v4" [level=5] [ref=e351]
+                  - paragraph [ref=e352]: Ensure primeng layer is after theme and base, but before the other Tailwind layers such as utilities.
+                  - generic [ref=e354]:
+                    - text: 
+                    - code [ref=e357]: "providePrimeNG({ theme: { preset: Aura, options: { cssLayer: { name: 'primeng', order: 'theme, base, primeng' } } } })"
+                  - paragraph [ref=e358]: No change in the CSS configuration is required.
+                  - generic [ref=e360]:
+                    - text: 
+                    - code [ref=e363]: "@import \"tailwindcss\"; @import \"tailwindcss-primeui\";"
+                  - heading "Tailwind v3" [level=5] [ref=e364]
+                  - paragraph [ref=e365]: The primeng layer should be between base and utilities.
+                  - generic [ref=e367]:
+                    - text: 
+                    - code [ref=e370]: "providePrimeNG({ theme: { preset: Aura, options: { cssLayer: { name: 'primeng', order: 'tailwind-base, primeng, tailwind-utilities' } } } })"
+                  - paragraph [ref=e371]: Tailwind v3 does not use native layer so needs to be defined with CSS.
+                  - generic [ref=e373]:
+                    - text: 
+                    - code [ref=e376]:
+                      - generic [ref=e377]: "@layer"
+                      - text: tailwind-base, primeng, tailwind-utilities;
+                      - generic [ref=e378]: "@layer"
+                      - text: "tailwind-base {"
+                      - generic [ref=e379]: "@tailwind"
+                      - text: "base; }"
+                      - generic [ref=e380]: "@layer"
+                      - text: "tailwind-utilities {"
+                      - generic [ref=e381]: "@tailwind"
+                      - text: components;
+                      - generic [ref=e382]: "@tailwind"
+                      - text: "utilities; }"
+              - generic [ref=e383]:
+                - generic [ref=e384]:
+                  - heading "Samples" [level=2] [ref=e385]
+                  - paragraph [ref=e387]: Example uses cases with PrimeNG and Tailwind CSS.
+                - heading "Color Palette" [level=3] [ref=e389]
+                - generic [ref=e390]:
+                  - paragraph [ref=e393]: PrimeNG color palette as utility classes.
+                  - generic [ref=e395]:
+                    - list [ref=e396]:
+                      - listitem [ref=e397]:
+                        - generic [ref=e398]: primary
+                        - generic [ref=e399]:
+                          - generic [ref=e402]: "50"
+                          - generic [ref=e405]: "100"
+                          - generic [ref=e408]: "200"
+                          - generic [ref=e411]: "300"
+                          - generic [ref=e414]: "400"
+                          - generic [ref=e417]: "500"
+                          - generic [ref=e420]: "600"
+                          - generic [ref=e423]: "700"
+                          - generic [ref=e426]: "800"
+                          - generic [ref=e429]: "900"
+                          - generic [ref=e432]: "950"
+                      - listitem [ref=e433]:
+                        - generic [ref=e434]: surface
+                        - generic [ref=e435]:
+                          - generic [ref=e438]: "0"
+                          - generic [ref=e441]: "50"
+                          - generic [ref=e444]: "100"
+                          - generic [ref=e447]: "200"
+                          - generic [ref=e450]: "300"
+                          - generic [ref=e453]: "400"
+                          - generic [ref=e456]: "500"
+                          - generic [ref=e459]: "600"
+                          - generic [ref=e462]: "700"
+                          - generic [ref=e465]: "800"
+                          - generic [ref=e468]: "900"
+                          - generic [ref=e471]: "950"
+                    - generic [ref=e472]:
+                      - generic [ref=e473]: primary
+                      - generic [ref=e474]: highlight
+                      - generic [ref=e475]: box
+                - heading "Form" [level=3] [ref=e477]
+                - generic [ref=e478]:
+                  - paragraph [ref=e481]: Using Tailwind utilities for the responsive layout of a form with PrimeNG components.
+                  - generic [ref=e483]:
+                    - generic [ref=e484]:
+                      - generic [ref=e485]:
+                        - generic [ref=e486]: Firstname
+                        - textbox "Firstname" [ref=e487]
+                      - generic [ref=e488]:
+                        - generic [ref=e489]: Lastname
+                        - textbox "Lastname" [ref=e490]
+                    - generic [ref=e491]:
+                      - generic [ref=e492]:
+                        - generic [ref=e493]: Date
+                        - combobox "Date" [ref=e495]
+                      - generic [ref=e496]:
+                        - generic [ref=e497]: Country
+                        - generic [ref=e498] [cursor=pointer]:
+                          - combobox "Select a Country" [ref=e499]
+                          - button "dropdown trigger" [ref=e500]:
+                            - img [ref=e501]
+                    - generic [ref=e503]:
+                      - generic [ref=e504]: Message
+                      - textbox "Message" [ref=e505]
+                  - generic [ref=e507]:
+                    - text: 
+                    - code [ref=e510]:
+                      - text: "import { Component, OnInit } from '@angular/core'; import { FormsModule } from '@angular/forms'; import { DatePickerModule } from 'primeng/datepicker'; import { SelectModule } from 'primeng/select'; import { InputTextModule } from 'primeng/inputtext'; import { Country } from '@/domain/customer';"
+                      - generic [ref=e511]: "@Component"
+                      - text: "({ template:"
+                      - generic [ref=e512]: "` <div class=\"card flex sm:justify-center\"> <div class=\"flex flex-col gap-6 w-full sm:w-auto\"> <div class=\"flex flex-col sm:flex-row sm:items-center gap-6\"> <div class=\"flex-auto\"> <label for=\"firstname\" class=\"block font-semibold mb-2\">Firstname</label> <input type=\"text\" pInputText id=\"firstname\" class=\"w-full\" /> </div> <div class=\"flex-auto\"> <label for=\"lastname\" class=\"block font-semibold mb-2\">Lastname</label> <input type=\"text\" pInputText id=\"lastname\" class=\"w-full\" /> </div> </div> <div class=\"flex flex-col sm:flex-row sm:items-center gap-6\"> <div class=\"flex-1\"> <label for=\"date\" class=\"block font-semibold mb-2\">Date</label> <p-datepicker inputId=\"date\" class=\"w-full\" /> </div> <div class=\"flex-1\"> <label for=\"country\" class=\"block font-semibold mb-2\">Country</label> <p-select [options]=\"countries\" [(ngModel)]=\"selectedCountry\" optionLabel=\"name\" [showClear]=\"true\" placeholder=\"Select a Country\"> <ng-template pTemplate=\"selectedItem\"> <div class=\"flex items-center gap-2\" *ngIf=\"selectedCountry\"> <img src=\"https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png\" [class]=\"'flag flag-' + selectedCountry.code.toLowerCase()\" style=\"width: 18px\" /> <div>{{ selectedCountry.name }}</div> </div> </ng-template> <ng-template let-country pTemplate=\"item\"> <div class=\"flex items-center gap-2\"> <img src=\"https://primefaces.org/cdn/primeng/images/demo/flag/flag_placeholder.png\" [class]=\"'flag flag-' + country.code.toLowerCase()\" style=\"width: 18px\" /> <div>{{ country.name }}</div> </div> </ng-template> </p-select> </div> </div> <div class=\"flex-auto\"> <label for=\"message\" class=\"block font-semibold mb-2\">Message</label> <textarea pTextarea id=\"message\" class=\"w-full\" rows=\"4\"></textarea> </div> </div> </div> `"
+                      - text: ", standalone: true, imports: [DatePickerModule, SelectModule, InputTextModule, FormsModule] }) export class TailwindFormDemo implements OnInit { countries: any[] | undefined; selectedCountry: string | undefined; ngOnInit() { this.countries = [ { name: 'Australia', code: 'AU' }, { name: 'Brazil', code: 'BR' }, { name: 'China', code: 'CN' }, { name: 'Egypt', code: 'EG' }, { name: 'France', code: 'FR' }, { name: 'Germany', code: 'DE' }, { name: 'India', code: 'IN' }, { name: 'Japan', code: 'JP' }, { name: 'Spain', code: 'ES' }, { name: 'United States', code: 'US' } ]; } }"
+                - heading "Headless" [level=3] [ref=e514]
+                - generic [ref=e515]:
+                  - paragraph [ref=e518]: A headless PrimeNG dialog with a custom UI.
+                  - button " Login" [ref=e521] [cursor=pointer]:
+                    - generic [ref=e522]: 
+                    - generic [ref=e523]: Login
+                  - generic [ref=e525]:
+                    - text: 
+                    - code [ref=e528]:
+                      - text: "import { Component } from '@angular/core'; import { ButtonModule } from 'primeng/button'; import { DialogModule } from 'primeng/dialog'; import { InputTextModule } from 'primeng/inputtext';"
+                      - generic [ref=e529]: "@Component"
+                      - text: "({ template:"
+                      - generic [ref=e530]: "` <div class=\"card flex justify-center\"> <p-button (click)=\"showDialog()\" icon=\"pi pi-user\" label=\"Login\" /> <p-dialog maskStyleClass=\"backdrop-blur-sm\" [(visible)]=\"visible\" styleClass=\"!border-0 !bg-transparent\"> <ng-template pTemplate=\"headless\"> <div class=\"flex flex-col px-8 py-8 gap-6 rounded-2xl\" style=\"border-radius: 12px; background-image: radial-gradient(circle at left top, var(--p-primary-400), var(--p-primary-700))\"> <svg width=\"31\" height=\"33\" viewBox=\"0 0 31 33\" fill=\"none\" xmlns=\"http://www.w3.org/2000/svg\" class=\"block mx-auto\"> <path d=\"M15.1934 0V0V0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427V32.427V32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z\" fill=\"var(--p-primary-color)\" /> <mask id=\"mask0_1_52\" style=\"mask-type:luminance\" maskUnits=\"userSpaceOnUse\" x=\"0\" y=\"0\" width=\"31\" height=\"33\"> <path d=\"M15.1934 0V0V0L0.0391235 5.38288L2.35052 25.3417L15.1934 32.427V32.427V32.427L28.0364 25.3417L30.3478 5.38288L15.1934 0Z\" fill=\"var(--ground-background)\" /> </mask> <g mask=\"url(#mask0_1_52)\"> <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M15.1935 0V3.5994V3.58318V20.0075V20.0075V32.427V32.427L28.0364 25.3417L30.3478 5.38288L15.1935 0Z\" fill=\"var(--p-primary-color)\" /> </g> <path d=\"M19.6399 15.3776L18.1861 15.0547L19.3169 16.6695V21.6755L23.1938 18.4458V12.9554L21.4169 13.6013L19.6399 15.3776Z\" fill=\"var(--ground-background)\" /> <path d=\"M10.5936 15.3776L12.0474 15.0547L10.9166 16.6695V21.6755L7.03966 18.4458V12.9554L8.81661 13.6013L10.5936 15.3776Z\" fill=\"var(--ground-background)\" /> <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M11.3853 16.9726L12.6739 15.0309L13.4793 15.5163H16.7008L17.5061 15.0309L18.7947 16.9726V24.254L17.8283 25.7103L16.7008 26.843H13.4793L12.3518 25.7103L11.3853 24.254V16.9726Z\" fill=\"var(--ground-background)\" /> <path d=\"M19.3168 24.7437L21.4168 22.6444V20.5451L19.3168 22.3214V24.7437Z\" fill=\"var(--ground-background)\" /> <path d=\"M10.9166 24.7437L8.81662 22.6444V20.5451L10.9166 22.3214V24.7437Z\" fill=\"var(--ground-background)\" /> <path fill-rule=\"evenodd\" clip-rule=\"evenodd\" d=\"M13.0167 5.68861L11.7244 8.7568L13.8244 14.8932H14.7936V5.68861H13.0167ZM15.4397 5.68861V14.8932H16.5706L18.5091 8.7568L17.2167 5.68861H15.4397Z\" fill=\"var(--ground-background)\" /> <path d=\"M13.8244 14.8932L6.87813 12.3094L5.90888 8.27235L11.8859 8.7568L13.9859 14.8932H13.8244Z\" fill=\"var(--ground-background)\" /> <path d=\"M16.5706 14.8932L23.5169 12.3094L24.4861 8.27235L18.3476 8.7568L16.4091 14.8932H16.5706Z\" fill=\"var(--ground-background)\" /> <path d=\"M18.8321 8.27235L22.2245 7.94938L19.9629 5.68861H17.7013L18.8321 8.27235Z\" fill=\"var(--ground-background)\" /> <path d=\"M11.4013 8.27235L8.00893 7.94938L10.2705 5.68861H12.5321L11.4013 8.27235Z\" fill=\"var(--ground-background)\" /> </svg> <div class=\"inline-flex flex-col gap-2\"> <label for=\"username\" class=\"text-primary-50 font-semibold\">Username</label> <input pInputText id=\"username\" class=\"!bg-white/20 !border-0 !p-4 !text-primary-50 w-80\" /> </div> <div class=\"inline-flex flex-col gap-2\"> <label for=\"password\" class=\"text-primary-50 font-semibold\">Password</label> <input pInputText id=\"password\" class=\"!bg-white/20 !border-0 !p-4 !text-primary-50 w-80\" type=\"password\" /> </div> <div class=\"flex items-center gap-4\"> <p-button label=\"Cancel\" (click)=\"closeDialog()\" [text]=\"true\" styleClass=\"!p-4 w-full !text-primary-50 !border !border-white/30 hover:!bg-white/10\" class=\"w-full\" /> <p-button label=\"Sign-In\" (click)=\"closeDialog()\" [text]=\"true\" styleClass=\"!p-4 w-full !text-primary-50 !border !border-white/30 hover:!bg-white/10\" class=\"w-full\" /> </div> </div> </ng-template> </p-dialog> </div> `"
+                      - text: ", standalone: true, imports: [ButtonModule, DialogModule, InputTextModule] }) export class TailwindHeadlessDemo { visible: boolean = false; showDialog() { this.visible = true; } closeDialog() { this.visible = false; } }"
+                - heading "Animations" [level=3] [ref=e532]
+                - generic [ref=e533]:
+                  - paragraph [ref=e536]:
+                    - text: The plugin also adds extended animation utilities that can be used with the
+                    - link "styleclass" [ref=e537] [cursor=pointer]:
+                      - /url: /styleclass
+                    - text: and
+                    - link "animateonscroll" [ref=e538] [cursor=pointer]:
+                      - /url: /animateonscroll
+                    - text: directives.
+                  - generic [ref=e540] [cursor=pointer]:
+                    - combobox "Select One" [ref=e541]
+                    - button "dropdown trigger" [ref=e542]:
+                      - img [ref=e543]
+                  - generic [ref=e548]:
+                    - text: 
+                    - code [ref=e551]:
+                      - generic [ref=e552]:
+                        - generic [ref=e553]: <p-select
+                        - text: "[(ngModel)]"
+                        - generic [ref=e554]: ="animation"
+                        - text: "[options]"
+                        - generic [ref=e555]: ="animations"
+                        - text: placeholder
+                        - generic [ref=e556]: ="Select One"
+                        - text: class
+                        - generic [ref=e557]: ="w-full sm:w-44"
+                        - text: />
+                      - generic [ref=e558]:
+                        - generic [ref=e559]: <div
+                        - text: class
+                        - generic [ref=e560]: ="py-8 overflow-hidden"
+                        - text: ">"
+                      - generic [ref=e561]:
+                        - generic [ref=e562]: <div
+                        - text: "[ngClass]"
+                        - generic [ref=e563]: ="dynamicAnimationClasses"
+                        - text: ">"
+                      - generic [ref=e564]:
+                        - generic [ref=e565]: </div
+                        - text: ">"
+                      - generic [ref=e566]:
+                        - generic [ref=e567]: </div
+                        - text: ">"
+                  - heading "Animations" [level=3] [ref=e568]
+                  - table [ref=e570]:
+                    - rowgroup [ref=e571]:
+                      - row "Class Property" [ref=e572]:
+                        - columnheader "Class" [ref=e573]
+                        - columnheader "Property" [ref=e574]
+                    - rowgroup [ref=e575]:
+                      - row "animate-fadein fadein 0.15s linear" [ref=e576]:
+                        - cell "animate-fadein" [ref=e577]
+                        - cell "fadein 0.15s linear" [ref=e578]
+                      - row "animate-fadeout fadeout 0.15s linear" [ref=e579]:
+                        - cell "animate-fadeout" [ref=e580]
+                        - cell "fadeout 0.15s linear" [ref=e581]
+                      - row "animate-slidedown slidedown 0.45s ease-in-out" [ref=e582]:
+                        - cell "animate-slidedown" [ref=e583]
+                        - cell "slidedown 0.45s ease-in-out" [ref=e584]
+                      - row "animate-slideup slideup 0.45s cubic-bezier(0, 1, 0, 1)" [ref=e585]:
+                        - cell "animate-slideup" [ref=e586]
+                        - cell "slideup 0.45s cubic-bezier(0, 1, 0, 1)" [ref=e587]
+                      - row "animate-scalein scalein 0.15s linear" [ref=e588]:
+                        - cell "animate-scalein" [ref=e589]
+                        - cell "scalein 0.15s linear" [ref=e590]
+                      - row "animate-fadeinleft fadeinleft 0.15s linear" [ref=e591]:
+                        - cell "animate-fadeinleft" [ref=e592]
+                        - cell "fadeinleft 0.15s linear" [ref=e593]
+                      - row "animate-fadeoutleft fadeoutleft 0.15s linear" [ref=e594]:
+                        - cell "animate-fadeoutleft" [ref=e595]
+                        - cell "fadeoutleft 0.15s linear" [ref=e596]
+                      - row "animate-fadeinright fadeinright 0.15s linear" [ref=e597]:
+                        - cell "animate-fadeinright" [ref=e598]
+                        - cell "fadeinright 0.15s linear" [ref=e599]
+                      - row "animate-fadeoutright fadeoutright 0.15s linear" [ref=e600]:
+                        - cell "animate-fadeoutright" [ref=e601]
+                        - cell "fadeoutright 0.15s linear" [ref=e602]
+                      - row "animate-fadeinup fadeinup 0.15s linear" [ref=e603]:
+                        - cell "animate-fadeinup" [ref=e604]
+                        - cell "fadeinup 0.15s linear" [ref=e605]
+                      - row "animate-fadeoutup fadeoutup 0.15s linear" [ref=e606]:
+                        - cell "animate-fadeoutup" [ref=e607]
+                        - cell "fadeoutup 0.15s linear" [ref=e608]
+                      - row "animate-fadeindown fadeindown 0.15s linear" [ref=e609]:
+                        - cell "animate-fadeindown" [ref=e610]
+                        - cell "fadeindown 0.15s linear" [ref=e611]
+                      - row "animate-fadeoutup fadeoutup 0.15s linear" [ref=e612]:
+                        - cell "animate-fadeoutup" [ref=e613]
+                        - cell "fadeoutup 0.15s linear" [ref=e614]
+                      - row "animate-width width 0.15s linear" [ref=e615]:
+                        - cell "animate-width" [ref=e616]
+                        - cell "width 0.15s linear" [ref=e617]
+                      - row "animate-flip flip 0.15s linear" [ref=e618]:
+                        - cell "animate-flip" [ref=e619]
+                        - cell "flip 0.15s linear" [ref=e620]
+                      - row "animate-flipup flipup 0.15s linear" [ref=e621]:
+                        - cell "animate-flipup" [ref=e622]
+                        - cell "flipup 0.15s linear" [ref=e623]
+                      - row "animate-flipleft fadein 0.15s linear" [ref=e624]:
+                        - cell "animate-flipleft" [ref=e625]
+                        - cell "fadein 0.15s linear" [ref=e626]
+                      - row "animate-flipright flipright 0.15s linear" [ref=e627]:
+                        - cell "animate-flipright" [ref=e628]
+                        - cell "flipright 0.15s linear" [ref=e629]
+                      - row "animate-zoomin zoomin 0.15s linear" [ref=e630]:
+                        - cell "animate-zoomin" [ref=e631]
+                        - cell "zoomin 0.15s linear" [ref=e632]
+                      - row "animate-zoomindown zoomindown 0.15s linear" [ref=e633]:
+                        - cell "animate-zoomindown" [ref=e634]
+                        - cell "zoomindown 0.15s linear" [ref=e635]
+                      - row "animate-zoominleft zoominleft 0.15s linear" [ref=e636]:
+                        - cell "animate-zoominleft" [ref=e637]
+                        - cell "zoominleft 0.15s linear" [ref=e638]
+                      - row "animate-zoominright zoominright 0.15s linear" [ref=e639]:
+                        - cell "animate-zoominright" [ref=e640]
+                        - cell "zoominright 0.15s linear" [ref=e641]
+                      - row "animate-zoominup zoominup 0.15s linear" [ref=e642]:
+                        - cell "animate-zoominup" [ref=e643]
+                        - cell "zoominup 0.15s linear" [ref=e644]
+                  - heading "Animation Duration" [level=3] [ref=e645]
+                  - table [ref=e647]:
+                    - rowgroup [ref=e648]:
+                      - row "Class Property" [ref=e649]:
+                        - columnheader "Class" [ref=e650]
+                        - columnheader "Property" [ref=e651]
+                    - rowgroup [ref=e652]:
+                      - 'row "animate-duration-0 animation-duration: 0s" [ref=e653]':
+                        - cell "animate-duration-0" [ref=e654]
+                        - 'cell "animation-duration: 0s" [ref=e655]'
+                      - 'row "animate-duration-75 animation-duration: 75ms" [ref=e656]':
+                        - cell "animate-duration-75" [ref=e657]
+                        - 'cell "animation-duration: 75ms" [ref=e658]'
+                      - 'row "animate-duration-100 animation-duration: 100ms" [ref=e659]':
+                        - cell "animate-duration-100" [ref=e660]
+                        - 'cell "animation-duration: 100ms" [ref=e661]'
+                      - 'row "animate-duration-200 animation-duration: 200ms" [ref=e662]':
+                        - cell "animate-duration-200" [ref=e663]
+                        - 'cell "animation-duration: 200ms" [ref=e664]'
+                      - 'row "animate-duration-300 animation-duration: 300ms" [ref=e665]':
+                        - cell "animate-duration-300" [ref=e666]
+                        - 'cell "animation-duration: 300ms" [ref=e667]'
+                      - 'row "animate-duration-400 animation-duration: 400ms" [ref=e668]':
+                        - cell "animate-duration-400" [ref=e669]
+                        - 'cell "animation-duration: 400ms" [ref=e670]'
+                      - 'row "animate-duration-500 animation-duration: 500ms" [ref=e671]':
+                        - cell "animate-duration-500" [ref=e672]
+                        - 'cell "animation-duration: 500ms" [ref=e673]'
+                      - 'row "animate-duration-700 animation-duration: 700ms" [ref=e674]':
+                        - cell "animate-duration-700" [ref=e675]
+                        - 'cell "animation-duration: 700ms" [ref=e676]'
+                      - 'row "animate-duration-1000 animation-duration: 1000ms" [ref=e677]':
+                        - cell "animate-duration-1000" [ref=e678]
+                        - 'cell "animation-duration: 1000ms" [ref=e679]'
+                      - 'row "animate-duration-2000 animation-duration: 2000ms" [ref=e680]':
+                        - cell "animate-duration-2000" [ref=e681]
+                        - 'cell "animation-duration: 2000ms" [ref=e682]'
+                      - 'row "animate-duration-3000 animation-duration: 300ms" [ref=e683]':
+                        - cell "animate-duration-3000" [ref=e684]
+                        - 'cell "animation-duration: 300ms" [ref=e685]'
+                  - heading "Animation Delay" [level=3] [ref=e686]
+                  - table [ref=e688]:
+                    - rowgroup [ref=e689]:
+                      - row "Class Property" [ref=e690]:
+                        - columnheader "Class" [ref=e691]
+                        - columnheader "Property" [ref=e692]
+                    - rowgroup [ref=e693]:
+                      - 'row "animate-delay-none animation-duration: 0s" [ref=e694]':
+                        - cell "animate-delay-none" [ref=e695]
+                        - 'cell "animation-duration: 0s" [ref=e696]'
+                      - 'row "animate-delay-75 animation-delay: 75ms" [ref=e697]':
+                        - cell "animate-delay-75" [ref=e698]
+                        - 'cell "animation-delay: 75ms" [ref=e699]'
+                      - 'row "animate-delay-100 animation-delay: 100ms" [ref=e700]':
+                        - cell "animate-delay-100" [ref=e701]
+                        - 'cell "animation-delay: 100ms" [ref=e702]'
+                      - 'row "animate-delay-150 animation-delay: 150ms" [ref=e703]':
+                        - cell "animate-delay-150" [ref=e704]
+                        - 'cell "animation-delay: 150ms" [ref=e705]'
+                      - 'row "animate-delay-200 animation-delay: 200ms" [ref=e706]':
+                        - cell "animate-delay-200" [ref=e707]
+                        - 'cell "animation-delay: 200ms" [ref=e708]'
+                      - 'row "animate-delay-300 animation-delay: 300ms" [ref=e709]':
+                        - cell "animate-delay-300" [ref=e710]
+                        - 'cell "animation-delay: 300ms" [ref=e711]'
+                      - 'row "animate-delay-400 animation-delay: 400ms" [ref=e712]':
+                        - cell "animate-delay-400" [ref=e713]
+                        - 'cell "animation-delay: 400ms" [ref=e714]'
+                      - 'row "animate-delay-500 animation-delay: 500ms" [ref=e715]':
+                        - cell "animate-delay-500" [ref=e716]
+                        - 'cell "animation-delay: 500ms" [ref=e717]'
+                      - 'row "animate-delay-700 animation-delay: 700ms" [ref=e718]':
+                        - cell "animate-delay-700" [ref=e719]
+                        - 'cell "animation-delay: 700ms" [ref=e720]'
+                      - 'row "animate-delay-1000 animation-delay: 1000ms" [ref=e721]':
+                        - cell "animate-delay-1000" [ref=e722]
+                        - 'cell "animation-delay: 1000ms" [ref=e723]'
+                  - heading "Iteration Count" [level=3] [ref=e724]
+                  - table [ref=e726]:
+                    - rowgroup [ref=e727]:
+                      - row "Class Property" [ref=e728]:
+                        - columnheader "Class" [ref=e729]
+                        - columnheader "Property" [ref=e730]
+                    - rowgroup [ref=e731]:
+                      - 'row "animate-infinite animation-iteration-count: infinite" [ref=e732]':
+                        - cell "animate-infinite" [ref=e733]
+                        - 'cell "animation-iteration-count: infinite" [ref=e734]'
+                      - 'row "animate-once animation-iteration-count: 1" [ref=e735]':
+                        - cell "animate-once" [ref=e736]
+                        - 'cell "animation-iteration-count: 1" [ref=e737]'
+                      - 'row "animate-twice animation-iteration-count: 2" [ref=e738]':
+                        - cell "animate-twice" [ref=e739]
+                        - 'cell "animation-iteration-count: 2" [ref=e740]'
+                  - heading "Direction" [level=3] [ref=e741]
+                  - table [ref=e743]:
+                    - rowgroup [ref=e744]:
+                      - row "Class Property" [ref=e745]:
+                        - columnheader "Class" [ref=e746]
+                        - columnheader "Property" [ref=e747]
+                    - rowgroup [ref=e748]:
+                      - 'row "animate-normal animation-direction: normal" [ref=e749]':
+                        - cell "animate-normal" [ref=e750]
+                        - 'cell "animation-direction: normal" [ref=e751]'
+                      - 'row "animate-reverse animation-direction: reverse" [ref=e752]':
+                        - cell "animate-reverse" [ref=e753]
+                        - 'cell "animation-direction: reverse" [ref=e754]'
+                      - 'row "animate-alternate animation-direction: alternate" [ref=e755]':
+                        - cell "animate-alternate" [ref=e756]
+                        - 'cell "animation-direction: alternate" [ref=e757]'
+                      - 'row "animate-alternate-reverse animation-direction: alternate-reverse" [ref=e758]':
+                        - cell "animate-alternate-reverse" [ref=e759]
+                        - 'cell "animation-direction: alternate-reverse" [ref=e760]'
+                  - heading "Timing Function" [level=3] [ref=e761]
+                  - table [ref=e763]:
+                    - rowgroup [ref=e764]:
+                      - row "Class Property" [ref=e765]:
+                        - columnheader "Class" [ref=e766]
+                        - columnheader "Property" [ref=e767]
+                    - rowgroup [ref=e768]:
+                      - 'row "animate-ease-linear animation-timing-function: linear" [ref=e769]':
+                        - cell "animate-ease-linear" [ref=e770]
+                        - 'cell "animation-timing-function: linear" [ref=e771]'
+                      - 'row "animate-ease-in animation-timing-function: cubic-bezier(0.4, 0, 1, 1)" [ref=e772]':
+                        - cell "animate-ease-in" [ref=e773]
+                        - 'cell "animation-timing-function: cubic-bezier(0.4, 0, 1, 1)" [ref=e774]'
+                      - 'row "animate-ease-out animation-timing-function: cubic-bezier(0, 0, 0.2, 1)" [ref=e775]':
+                        - cell "animate-ease-out" [ref=e776]
+                        - 'cell "animation-timing-function: cubic-bezier(0, 0, 0.2, 1)" [ref=e777]'
+                      - 'row "animate-ease-in-out animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1)" [ref=e778]':
+                        - cell "animate-ease-in-out" [ref=e779]
+                        - 'cell "animation-timing-function: cubic-bezier(0.4, 0, 0.2, 1)" [ref=e780]'
+                  - heading "Fill Mode" [level=3] [ref=e781]
+                  - table [ref=e783]:
+                    - rowgroup [ref=e784]:
+                      - row "Class Property" [ref=e785]:
+                        - columnheader "Class" [ref=e786]
+                        - columnheader "Property" [ref=e787]
+                    - rowgroup [ref=e788]:
+                      - 'row "animate-fill-none animation-fill-mode: normal" [ref=e789]':
+                        - cell "animate-fill-none" [ref=e790]
+                        - 'cell "animation-fill-mode: normal" [ref=e791]'
+                      - 'row "animate-fill-forwards animation-fill-mode: forwards" [ref=e792]':
+                        - cell "animate-fill-forwards" [ref=e793]
+                        - 'cell "animation-fill-mode: forwards" [ref=e794]'
+                      - 'row "animate-fill-backwards animation-fill-mode: backwards" [ref=e795]':
+                        - cell "animate-fill-backwards" [ref=e796]
+                        - 'cell "animation-fill-mode: backwards" [ref=e797]'
+                      - 'row "animate-fill-both animation-fill-mode: both" [ref=e798]':
+                        - cell "animate-fill-both" [ref=e799]
+                        - 'cell "animation-fill-mode: both" [ref=e800]'
+                  - heading "Play State" [level=3] [ref=e801]
+                  - table [ref=e803]:
+                    - rowgroup [ref=e804]:
+                      - row "Class Property" [ref=e805]:
+                        - columnheader "Class" [ref=e806]
+                        - columnheader "Property" [ref=e807]
+                    - rowgroup [ref=e808]:
+                      - 'row "animate-running animation-play-state: running" [ref=e809]':
+                        - cell "animate-running" [ref=e810]
+                        - 'cell "animation-play-state: running" [ref=e811]'
+                      - 'row "animate-paused animation-play-state: paused" [ref=e812]':
+                        - cell "animate-paused" [ref=e813]
+                        - 'cell "animation-play-state: paused" [ref=e814]'
+                  - heading "Backface Visibility State" [level=3] [ref=e815]
+                  - table [ref=e817]:
+                    - rowgroup [ref=e818]:
+                      - row "Class Property" [ref=e819]:
+                        - columnheader "Class" [ref=e820]
+                        - columnheader "Property" [ref=e821]
+                    - rowgroup [ref=e822]:
+                      - 'row "backface-visible backface-visibility: visible" [ref=e823]':
+                        - cell "backface-visible" [ref=e824]
+                        - 'cell "backface-visibility: visible" [ref=e825]'
+                      - 'row "backface-hidden backface-visibility: hidden" [ref=e826]':
+                        - cell "backface-hidden" [ref=e827]
+                        - 'cell "backface-visibility: hidden" [ref=e828]'
+          - generic [ref=e830]:
+            - list [ref=e831]:
+              - listitem [ref=e832]:
+                - button "Overview" [ref=e834] [cursor=pointer]
+              - listitem [ref=e835]:
+                - button "Plugin" [ref=e837] [cursor=pointer]
+              - listitem [ref=e838]:
+                - button "Extensions" [ref=e840] [cursor=pointer]
+              - listitem [ref=e841]:
+                - button "Dark Mode" [ref=e843] [cursor=pointer]
+              - listitem [ref=e844]:
+                - button "Override" [ref=e846] [cursor=pointer]
+              - listitem [ref=e847]:
+                - button "Samples" [ref=e849] [cursor=pointer]
+                - list [ref=e850]:
+                  - listitem [ref=e851]:
+                    - button "Color Palette" [ref=e853] [cursor=pointer]
+                  - listitem [ref=e854]:
+                    - button "Form" [ref=e856] [cursor=pointer]
+                  - listitem [ref=e857]:
+                    - button "Headless" [ref=e859] [cursor=pointer]
+                  - listitem [ref=e860]:
+                    - button "Animations" [ref=e862] [cursor=pointer]
+            - generic [ref=e863]:
+              - img [ref=e864]
+              - generic [ref=e866]: Templates
+              - generic [ref=e867]: Highly customizable application templates to get started in no time with style. Designed and implemented by PrimeTek.
+              - link "Learn More" [ref=e869] [cursor=pointer]:
+                - /url: /templates
+                - generic [ref=e870]: Learn More
+    - generic [ref=e873]:
+      - text: PrimeNG 21.1.9 by
+      - link "PrimeTek" [ref=e874] [cursor=pointer]:
+        - /url: https://www.primetek.com.tr
+  - generic:
+    - generic:
+      - alertdialog

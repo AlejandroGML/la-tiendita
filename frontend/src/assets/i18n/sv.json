@@ -6,6 +6,14 @@
   "header": {
     "title": "La Tiendita"
   },
+  "home": {
+    "tagline": "Second hand-kläder med stil. Hitta unika skatter.",
+    "browseCatalog": "Bläddra i Katalogen",
+    "categories": "Kategorier",
+    "featured": "Utvalda Produkter",
+    "noProducts": "Inga produkter tillgängliga",
+    "viewAll": "Visa Alla"
+  },
   "product": {
     "price": "Pris",
     "condition": "Skick",
