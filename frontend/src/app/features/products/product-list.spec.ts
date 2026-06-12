@@ -29,7 +29,6 @@ const mockProducts: Product[] = [
     slug: 'jeans-levis',
     price: '29990',
     category_id: 1,
-    size: 'M',
     brand: 'Levis',
     condition: 'new',
   condition_rating: null,
@@ -44,7 +43,7 @@ const mockProducts: Product[] = [
   usage: null,
   source_dataset: null,
     image_urls: ['/uploads/img1.jpg'],
-    stock: 5,
+    variants: [],
     translations: [
       { lang: 'es', name: 'Jeans Levis', description: 'Jeans clásicos' },
       { lang: 'en', name: 'Levis Jeans', description: 'Classic jeans' },
@@ -56,7 +55,6 @@ const mockProducts: Product[] = [
     slug: 'chaqueta-north',
     price: '49990',
     category_id: 2,
-    size: 'L',
     brand: 'North Face',
     condition: 'like_new',
   condition_rating: null,
@@ -71,7 +69,7 @@ const mockProducts: Product[] = [
   usage: null,
   source_dataset: null,
     image_urls: ['/uploads/img2.jpg'],
-    stock: 3,
+    variants: [],
     translations: [
       { lang: 'es', name: 'Chaqueta North Face', description: 'Abrigadora' },
       { lang: 'en', name: 'North Face Jacket', description: 'Warm' },

@@ -1,23 +1,60 @@
 <p-card styleClass="product-card-enhanced block w-full cursor-pointer group">
   <ng-template pTemplate="header">
-    <div class="relative overflow-hidden aspect-[3/4] bg-gray-100">
+    <div
+      class="relative overflow-hidden aspect-[3/4] bg-gray-100"
+      (mouseenter)="onMouseEnter()"
+      (mouseleave)="onMouseLeave()"
+    >
+      <!-- Primary image -->
       <img
         [src]="imageUrl"
         [alt]="displayName"
-        class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+        class="w-full h-full object-cover product-card-img transition-transform duration-500 group-hover:scale-110"
+        [class.opacity-0]="isHovered() && hoverImage !== imageUrl"
         loading="lazy"
       />
-      <!-- Condition badge -->
+      <!-- Hover image (absolutely positioned over primary) -->
+      <img
+        *ngIf="hoverImage !== imageUrl"
+        [src]="hoverImage"
+        [alt]="displayName"
+        class="absolute inset-0 w-full h-full object-cover product-card-img transition-transform duration-500 group-hover:scale-110"
+        [class.opacity-100]="isHovered()"
+        [class.opacity-0]="!isHovered()"
+        loading="lazy"
+      />
+      <!-- Badge stack: SALE > Bestseller > Nuevo (top-left) -->
+      <div class="absolute top-3 left-3 flex flex-col gap-1 z-10">
+        <span
+          *ngIf="product.sale_price != null"
+          class="px-2.5 py-1 rounded-full text-xs font-bold shadow-sm bg-red-500 text-white"
+        >
+          {{ product.discount_label || ('product.sale' | translate) }}
+        </span>
+        <span
+          *ngIf="isBestseller"
+          class="px-2.5 py-1 rounded-full text-xs font-bold shadow-sm bg-amber-500 text-white"
+        >
+          {{ 'product.bestseller' | translate }}
+        </span>
+        <span
+          *ngIf="isNewArrival"
+          class="px-2.5 py-1 rounded-full text-xs font-bold shadow-sm bg-emerald-500/90 text-white backdrop-blur-sm"
+        >
+          {{ 'product.newArrival' | translate }}
+        </span>
+      </div>
+      <!-- Condition badge (top-right) -->
       <span
         *ngIf="product.condition"
-        class="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm"
+        class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm"
         [class]="conditionBadgeClass"
       >
         {{ 'condition.' + conditionLabel | translate }}
       </span>
       <!-- Stock badge -->
       <span
-        *ngIf="product.stock === 0"
+        *ngIf="isOutOfStock"
         class="absolute inset-0 bg-black/50 flex items-center justify-center"
       >
         <span class="bg-white text-gray-800 px-4 py-2 rounded-full text-sm font-bold">
@@ -32,6 +69,34 @@
         {{ displayName }}
       </h3>
 
+      <!-- Color swatches row (below product name) -->
+      <div *ngIf="displayColors.length > 0" class="flex items-center gap-1">
+        <span
+          *ngFor="let swatch of displayColors"
+          class="cursor-pointer inline-block w-4 h-4 rounded-full border border-gray-300 hover:border-gray-500 transition-colors"
+          [style.background-color]="swatch.hex"
+          [title]="swatch.color"
+          (click)="navigateToDetail($event)"
+          aria-hidden="true"
+        ></span>
+        <span *ngIf="colorOverflow > 0" class="text-xs text-gray-400">
+          +{{ colorOverflow }}
+        </span>
+      </div>
+
+      <!-- Rating display -->
+      <div *ngIf="hasRating" class="text-xs text-gray-500 mt-1">
+        ⭐ {{ formatRating }} ({{ totalReviews() }})
+      </div>
+
+      <!-- Variant summary -->
+      <p *ngIf="hasVariants" class="text-xs text-gray-500">
+        {{ sizeRange }}
+        <ng-container *ngIf="colorCount > 0">
+          · {{ colorCount }} {{ 'product.colors' | translate }}
+        </ng-container>
+      </p>
+
       <!-- Condition rating stars -->
       <div *ngIf="product.condition_rating" class="flex items-center gap-1">
         <span class="text-yellow-500 text-xs">
@@ -41,9 +106,19 @@
 
       <div class="flex items-end justify-between gap-2">
         <div>
-          <p class="text-lg font-extrabold text-gray-900">
-            {{ product.price | currency }}
-          </p>
+          <ng-container *ngIf="product.sale_price != null; else normalPrice">
+            <p class="text-sm text-gray-400 line-through">
+              {{ product.price | currency }}
+            </p>
+            <p class="text-lg font-extrabold text-red-600">
+              {{ product.sale_price | currency }}
+            </p>
+          </ng-container>
+          <ng-template #normalPrice>
+            <p class="text-lg font-extrabold text-gray-900">
+              {{ product.price | currency }}
+            </p>
+          </ng-template>
           <p *ngIf="product.material" class="text-xs text-gray-500 mt-0.5 line-clamp-1">
             {{ product.material }}
           </p>

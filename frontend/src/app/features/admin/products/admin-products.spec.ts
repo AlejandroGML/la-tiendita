@@ -19,7 +19,6 @@ const mockProducts: Product[] = [
     slug: 'jeans-levis',
     price: '29990',
     category_id: 1,
-    size: 'M',
     brand: 'Levis',
     condition: 'new',
   condition_rating: null,
@@ -34,7 +33,7 @@ const mockProducts: Product[] = [
   usage: null,
   source_dataset: null,
     image_urls: ['/uploads/img1.jpg'],
-    stock: 5,
+    variants: [],
     translations: [
       { lang: 'es', name: 'Jeans Levis', description: 'Jeans clásicos' },
       { lang: 'en', name: 'Levis Jeans', description: 'Classic jeans' },
@@ -46,7 +45,6 @@ const mockProducts: Product[] = [
     slug: 'chaqueta-vieja',
     price: '14990',
     category_id: 2,
-    size: 'L',
     brand: 'Zara',
     condition: 'good',
   condition_rating: null,
@@ -61,7 +59,7 @@ const mockProducts: Product[] = [
   usage: null,
   source_dataset: null,
     image_urls: [],
-    stock: 0,
+    variants: [],
     translations: [
       { lang: 'es', name: 'Chaqueta vieja', description: '' },
     ],
