@@ -4,49 +4,54 @@
 
 | Field | Value |
 |-------|-------|
-| Estimated changed lines | ~200-250 |
-| 400-line budget risk | Low |
-| Chained PRs recommended | No |
-| Suggested split | Single PR |
-| Delivery strategy | force-chained |
-| Chain strategy | size-exception |
+| Estimated changed lines | ~600-800 |
+| 400-line budget risk | High |
+| Chained PRs recommended | Yes |
+| Suggested split | PR 1 → PR 2 → PR 3 (stacked) |
+| Delivery strategy | auto-chain |
+| Chain strategy | stacked-to-main |
 
 Decision needed before apply: No
-Chained PRs recommended: No
-Chain strategy: size-exception
-400-line budget risk: Low
+Chained PRs recommended: Yes
+Chain strategy: stacked-to-main
+400-line budget risk: High
 
 ### Suggested Work Units
 
 | Unit | Goal | Likely PR | Notes |
 |------|------|-----------|-------|
-| 1 | All UX polish | Single PR | ~200 lines, well under 400-line budget; all parts are independent |
+| 1 | Backend filters + i18n keys | PR 1 | Foundation all other units depend on |
+| 2 | Product card polish (badges, swatches, hover) | PR 2 | Independent component changes |
+| 3 | Header tabs + landing pages + SEO + sizing | PR 3 | New components and routes |
 
-## Phase 1: i18n Keys (Foundation)
+## Phase 1: Foundation — Backend + i18n (PR 1)
 
-- [x] 1.1 Add `product.addedToCart`, `cart.view` keys to `frontend/src/assets/i18n/en.json`, `es.json`, `sv.json`
-- [x] 1.2 Add `checkout.orderPlaced`, `checkout.viewOrder` keys to all three i18n files
-- [x] 1.3 Add `admin.productsError`, `admin.promotionsError` keys to all three i18n files
+- [x] 1.1 Add `has_promotion: bool | None`, `order_by: str | None` to `backend/app/schemas/common.py` ProductFilter
+- [x] 1.2 Add `_apply_promotion_filter()` and `_apply_order_by()` to `backend/app/services/product_service.py` `_build_list_query()`
+- [x] 1.3 Expose `has_promotion`, `order_by` query params in `backend/app/controllers/products.py` `list_products()`
+- [x] 1.4 Add ~15 i18n keys to `frontend/src/assets/i18n/es.json`, `en.json`, `sv.json` (badge labels, gender tabs, landing page titles, sizing guide, SEO)
+- [x] 1.5 Add `has_promotion`, `order_by` to `frontend/src/app/core/services/product.service.ts` ProductFilter interface + HttpParams
+- [ ] 1.6 Unit test: pytest `test_list_products_has_promotion_filter`, `test_list_products_order_by`
 
-## Phase 2: Add-to-Cart Wiring (Part A)
+## Phase 2: Product Card Polish (PR 2)
 
-- [x] 2.1 Inject `CartService`, `MatSnackBar`, `Router` into `frontend/src/app/features/product-detail/product-detail.ts`; add `addingToCart` signal and `addToCart()` method
-- [x] 2.2 Wire template in `product-detail.html`: bind button `(click)="addToCart()"`, replace hardcoded `[disabled]="true"` with `[disabled]="addingToCart()"`, add snackbar action for "View cart"
-- [x] 2.3 Add spec in `product-detail.spec.ts`: mock `CartService`, test `addToCart` calls `addItem`, test button disabled state during loading, test snackbar on success/error
+- [x] 2.1 Add `isBestseller`, `isNew` computed signals to `product-card.ts` (top 10 by orders, created_at ≤7d)
+- [x] 2.2 Add `hoverImage` computed, `uniqueColors` with hex fallback to `product-card.ts`
+- [x] 2.3 Add bestseller + nuevo badge chips to `product-card.html` (top-left overlay, priority: SALE > Bestseller > Nuevo)
+- [x] 2.4 Add color swatch circles row to `product-card.html` below product name (max 5 + "+N more")
+- [x] 2.5 Add hover image swap to `product-card.html` (opacity transition, second `<img>` absolutely positioned)
+- [x] 2.6 Add CSS to `product-card.scss`: swatch circles (w-4 h-4 rounded-full border), hover transition (opacity 300ms)
+- [x] 2.7 Jasmine tests: badge visibility logic, color hex fallback, hover image null when 1 image, swatch click navigates
 
-## Phase 3: Checkout Success Notification (Part B)
+## Phase 3: Header + Landing + SEO + Sizing (PR 3)
 
-- [x] 3.1 Inject `MatSnackBar` into `frontend/src/app/features/checkout/checkout.ts`; call `snackBar.open` with `checkout.orderPlaced` + `checkout.viewOrder` action BEFORE `router.navigate()`
-
-## Phase 4: Admin Error States (Part C)
-
-- [x] 4.1 Add `error = signal(false)` to `frontend/src/app/features/admin/products/admin-products.ts`; set `error.set(true)` in `catch` block of `loadProducts()`
-- [x] 4.2 Add error display section in `admin-products.html` (icon + message + retry button, matching admin-orders pattern)
-- [x] 4.3 Add `error = signal(false)` to `frontend/src/app/features/admin/promotions/admin-promotions.ts`; set `error.set(true)` in `catch` block of `loadPromotions()`
-- [x] 4.4 Add error display section in `admin-promotions.html` (icon + message + retry button, matching admin-orders pattern)
-
-## Phase 5: Responsive CSS (Part D)
-
-- [x] 5.1 Set image height classes in `product-detail.html`: `h-64 md:h-96` on main product image
-- [x] 5.2 Add `img[mat-card-image] { aspect-ratio: 3/4; }` to `frontend/src/app/shared/components/product-card/product-card.scss`
-- [x] 5.3 Add `min-w-[44px] min-h-[44px]` touch targets on quantity buttons in `frontend/src/app/features/cart/cart.html`
+- [ ] 3.1 Add `genderTabs` array and `navigateToGender()` method to `frontend/src/app/layout/header/header.ts`
+- [ ] 3.2 Add gender tab row to `header.html` (inline nav, active class when `?gender=` matches)
+- [ ] 3.3 Create `frontend/src/app/features/landing/new-arrivals.ts` (wrapper: ProductList, `orderBy='created_at'` preset)
+- [ ] 3.4 Create `frontend/src/app/features/landing/sale.ts` (wrapper: ProductList, `hasPromotion=true` preset)
+- [ ] 3.5 Create `frontend/src/app/features/landing/landing-module.ts` (declares both, imports SharedModule)
+- [ ] 3.6 Add `/nuevos`, `/ofertas` lazy routes to `app-routing-module.ts`
+- [ ] 3.7 Add `injectJsonLd()` method to `product-detail.ts` (DomSanitizer + Meta, schema.org/Product)
+- [ ] 3.8 Add "Size guide" link to `product-detail.html` next to size selector
+- [ ] 3.9 Create `frontend/src/app/shared/components/size-guide/size-guide.ts` (modal, @Input clothingType, SIZE_GUIDES constant)
+- [ ] 3.10 Jasmine tests: gender tab click navigates, landing pages load with correct params, JSON-LD injects, size guide opens/closes
