@@ -30,6 +30,7 @@ import { ProductCardComponent } from './components/product-card/product-card';
 import { SearchBarComponent } from './components/search-bar/search-bar';
 import { PaginationComponent } from './components/pagination/pagination';
 import { StarRatingComponent } from './components/star-rating/star-rating';
+import { SizingGuideComponent } from './components/sizing-guide/sizing-guide';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -61,6 +62,7 @@ const SHARED_COMPONENTS = [
   SearchBarComponent,
   PaginationComponent,
   StarRatingComponent,
+  SizingGuideComponent,
 ];
 
 @NgModule({

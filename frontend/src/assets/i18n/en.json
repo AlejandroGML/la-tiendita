@@ -1,7 +1,9 @@
 {
   "nav": {
     "products": "Products",
-    "cart": "Cart"
+    "cart": "Cart",
+    "newArrivals": "New Arrivals",
+    "sale": "Sale"
   },
   "header": {
     "title": "La Tiendita"
@@ -49,7 +51,24 @@
     "trend": "Trend",
     "season": "Season",
     "gender": "Gender",
-    "usage": "Usage"
+    "usage": "Usage",
+    "selectSize": "Select a size",
+    "selectColor": "Select a color",
+    "inStock": "In Stock",
+    "outOfStock": "Out of Stock",
+    "sizesAvailable": "Available sizes",
+    "colorsAvailable": "Available colors",
+    "oneSize": "One size",
+    "bestseller": "Bestseller",
+    "newArrival": "New Arrival",
+    "variants": "Variants",
+    "addVariant": "Add variant",
+    "removeVariant": "Remove variant",
+    "variantSKU": "SKU",
+    "sale": "SALE",
+    "savings": "You save",
+    "promoCode": "Code",
+    "promoEnds": "Ends"
   },
   "catalog": {
     "title": "Catalog",
@@ -78,6 +97,16 @@
     "totalOrders": "Total Orders",
     "totalRevenue": "Total Revenue",
     "dashboardError": "Error loading stats",
+    "ordersPending": "Pending Orders",
+    "ordersShipped": "Shipped Orders",
+    "ordersDelivered": "Delivered Orders",
+    "reviewsTotal": "Total Reviews",
+    "reviewsAvgRating": "Avg Rating",
+    "promotionsActive": "Active Promotions",
+    "revenueMonth": "Revenue This Month",
+    "ordersMonth": "Orders This Month",
+    "recentOrders": "Recent Orders",
+    "recentUsers": "Recent Users",
     "products": "Products",
     "newProduct": "New Product",
     "editProduct": "Edit Product",
@@ -152,7 +181,9 @@
     "continueShopping": "Continue shopping",
     "retry": "Retry",
     "error": "Error loading cart",
-    "view": "View cart"
+    "view": "View cart",
+    "originalSubtotal": "Original subtotal",
+    "savings": "Savings"
   },
   "checkout": {
     "title": "Checkout",
@@ -185,7 +216,11 @@
     "submitted": "Review submitted",
     "error": "Error submitting review",
     "nonBuyer": "You can only review products you have purchased",
-    "duplicate": "You have already reviewed this product"
+    "duplicate": "You have already reviewed this product",
+    "cancel": "Cancel",
+    "loadError": "Failed to load reviews",
+    "retry": "Retry",
+    "ratingRequired": "Please select a rating"
   },
   "wishlist": {
     "title": "My Wishlist",
@@ -264,5 +299,19 @@
     "rights": "All rights reserved.",
     "privacy": "Privacy",
     "terms": "Terms"
+  },
+  "gender": {
+    "women": "Women",
+    "men": "Men",
+    "kids": "Kids",
+    "unisex": "Unisex"
+  },
+  "sizing": {
+    "title": "Size Guide",
+    "size": "Size",
+    "chest": "Chest",
+    "waist": "Waist",
+    "hips": "Hips",
+    "disclaimer": "Measurements are approximate and correspond to body measurements in centimeters. We recommend measuring yourself before buying."
   }
 }

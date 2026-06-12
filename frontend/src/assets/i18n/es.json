@@ -1,7 +1,9 @@
 {
   "nav": {
     "products": "Productos",
-    "cart": "Carrito"
+    "cart": "Carrito",
+    "newArrivals": "Novedades",
+    "sale": "Ofertas"
   },
   "header": {
     "title": "La Tiendita"
@@ -49,7 +51,24 @@
     "trend": "Tendencia",
     "season": "Temporada",
     "gender": "Género",
-    "usage": "Uso"
+    "usage": "Uso",
+    "selectSize": "Selecciona una talla",
+    "selectColor": "Selecciona un color",
+    "inStock": "En Stock",
+    "outOfStock": "Agotado",
+    "sizesAvailable": "Tallas disponibles",
+    "colorsAvailable": "Colores disponibles",
+    "oneSize": "Talla única",
+    "bestseller": "Más Vendido",
+    "newArrival": "Nuevo",
+    "variants": "Variantes",
+    "addVariant": "Agregar variante",
+    "removeVariant": "Eliminar variante",
+    "variantSKU": "SKU",
+    "sale": "OFERTA",
+    "savings": "Ahorras",
+    "promoCode": "Código",
+    "promoEnds": "Termina"
   },
   "catalog": {
     "title": "Catálogo",
@@ -78,6 +97,16 @@
     "totalOrders": "Órdenes Totales",
     "totalRevenue": "Ingresos Totales",
     "dashboardError": "Error al cargar estadísticas",
+    "ordersPending": "Órdenes Pendientes",
+    "ordersShipped": "Órdenes Enviadas",
+    "ordersDelivered": "Órdenes Entregadas",
+    "reviewsTotal": "Reseñas Totales",
+    "reviewsAvgRating": "Valoración Promedio",
+    "promotionsActive": "Promociones Activas",
+    "revenueMonth": "Ingresos del Mes",
+    "ordersMonth": "Órdenes del Mes",
+    "recentOrders": "Órdenes Recientes",
+    "recentUsers": "Usuarios Recientes",
     "products": "Productos",
     "newProduct": "Nuevo Producto",
     "editProduct": "Editar Producto",
@@ -152,7 +181,9 @@
     "continueShopping": "Seguir comprando",
     "retry": "Reintentar",
     "error": "Error al cargar el carrito",
-    "view": "Ver carrito"
+    "view": "Ver carrito",
+    "originalSubtotal": "Subtotal original",
+    "savings": "Ahorro"
   },
   "checkout": {
     "title": "Finalizar Compra",
@@ -185,7 +216,11 @@
     "submitted": "Reseña enviada",
     "error": "Error al enviar la reseña",
     "nonBuyer": "Solo puedes reseñar productos que has comprado",
-    "duplicate": "Ya has reseñado este producto"
+    "duplicate": "Ya has reseñado este producto",
+    "cancel": "Cancelar",
+    "loadError": "Error al cargar reseñas",
+    "retry": "Reintentar",
+    "ratingRequired": "Selecciona una calificación"
   },
   "wishlist": {
     "title": "Mis Favoritos",
@@ -264,5 +299,19 @@
     "rights": "Todos los derechos reservados.",
     "privacy": "Privacidad",
     "terms": "Términos"
+  },
+  "gender": {
+    "women": "Mujer",
+    "men": "Hombre",
+    "kids": "Kids",
+    "unisex": "Unisex"
+  },
+  "sizing": {
+    "title": "Guía de Tallas",
+    "size": "Talla",
+    "chest": "Pecho",
+    "waist": "Cintura",
+    "hips": "Cadera",
+    "disclaimer": "Las medidas son aproximadas y corresponden a medidas corporales en centímetros. Te recomendamos medirte antes de comprar."
   }
 }

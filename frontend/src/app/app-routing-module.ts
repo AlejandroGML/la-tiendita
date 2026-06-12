@@ -3,6 +3,9 @@ import { type CanMatchFn, RouterModule, Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
 import { AdminLayoutComponent } from './layout/admin-layout/admin-layout';
+import { RegistrationSuccess } from './features/auth/registration-success/registration-success';
+import { AdminLogin } from './features/admin/login/admin-login';
+import { AdminVerify2fa } from './features/admin/login/admin-verify-2fa';
 
 /** Only match auth-prefixed paths so the AuthModule is lazy-loaded on demand. */
 const authCanMatch: CanMatchFn = (_route, segments) => {
@@ -46,6 +49,14 @@ const routes: Routes = [
           ),
       },
     ],
+  },
+  {
+    path: 'admin/login/verify-2fa',
+    component: AdminVerify2fa,
+  },
+  {
+    path: 'admin/login',
+    component: AdminLogin,
   },
   {
     path: 'admin',
@@ -102,8 +113,8 @@ const routes: Routes = [
       {
         path: 'categorias',
         loadChildren: () =>
-          import('./features/admin/dashboard/admin-dashboard-module').then(
-            (m) => m.AdminDashboardModule,
+          import('./features/admin/categories/admin-categories-module').then(
+            (m) => m.AdminCategoriesModule,
           ),
       },
       {
@@ -114,6 +125,10 @@ const routes: Routes = [
           ),
       },
     ],
+  },
+  {
+    path: 'registro-exitoso',
+    component: RegistrationSuccess,
   },
   {
     path: 'carrito',
@@ -133,6 +148,13 @@ const routes: Routes = [
     path: 'perfil',
     canActivate: [authGuard],
     children: [
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/profile/profile-view/profile-view-module').then(
+            (m) => m.ProfileViewModule,
+          ),
+      },
       {
         path: 'wishlist',
         loadChildren: () =>
@@ -160,6 +182,18 @@ const routes: Routes = [
         ],
       },
     ],
+  },
+  {
+    path: 'nuevos',
+    loadChildren: () =>
+      import('./features/new-arrivals/new-arrivals.module').then(
+        (m) => m.NewArrivalsModule,
+      ),
+  },
+  {
+    path: 'ofertas',
+    loadChildren: () =>
+      import('./features/sale/sale.module').then((m) => m.SaleModule),
   },
   {
     path: '',

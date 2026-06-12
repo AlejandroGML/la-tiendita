@@ -11,15 +11,20 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { RatingModule } from 'primeng/rating';
 import { PaginatorModule } from 'primeng/paginator';
+import { ToastModule } from 'primeng/toast';
+import { GalleriaModule } from 'primeng/galleria';
+import { DialogModule } from 'primeng/dialog';
 import { of, throwError } from 'rxjs';
 import { ProductDetail } from './product-detail';
 import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating';
 import { PaginationComponent } from '../../shared/components/pagination/pagination';
+import { SizingGuideComponent } from '../../shared/components/sizing-guide/sizing-guide';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { ReviewService } from '../../core/services/review.service';
 import { AuthService } from '../../core/services/auth.service';
+import { SeoService } from '../../core/services/seo.service';
 import type { Product } from '../../shared/models/product.model';
 
 const mockProduct: Product = {
@@ -90,6 +95,16 @@ function createAuthServiceMock(isAuth = true) {
   };
 }
 
+function createSeoServiceMock() {
+  return {
+    setPageTitle: vi.fn(),
+    setDescription: vi.fn(),
+    setOgImage: vi.fn(),
+    setProductStructuredData: vi.fn(),
+    removeStructuredData: vi.fn(),
+  };
+}
+
 describe('ProductDetail', () => {
   let fixture: ComponentFixture<ProductDetail>;
   let component: ProductDetail;
@@ -97,6 +112,7 @@ describe('ProductDetail', () => {
   let cartService: ReturnType<typeof createCartServiceMock>;
   let reviewService: ReturnType<typeof createReviewServiceMock>;
   let authService: ReturnType<typeof createAuthServiceMock>;
+  let seoService: ReturnType<typeof createSeoServiceMock>;
   let translate: TranslateService;
 
   beforeEach(async () => {
@@ -104,14 +120,18 @@ describe('ProductDetail', () => {
     cartService = createCartServiceMock();
     reviewService = createReviewServiceMock();
     authService = createAuthServiceMock();
+    seoService = createSeoServiceMock();
 
     await TestBed.configureTestingModule({
-      declarations: [ProductDetail, CurrencyPipe, StarRatingComponent, PaginationComponent],
+      declarations: [ProductDetail, CurrencyPipe, StarRatingComponent, PaginationComponent, SizingGuideComponent],
       imports: [
         ButtonModule,
         ProgressSpinnerModule,
         RatingModule,
         PaginatorModule,
+        ToastModule,
+        GalleriaModule,
+        DialogModule,
         FormsModule,
         MatCardModule,
         MatChipsModule,
@@ -125,6 +145,7 @@ describe('ProductDetail', () => {
         { provide: CartService, useValue: cartService },
         { provide: ReviewService, useValue: reviewService },
         { provide: AuthService, useValue: authService },
+        { provide: SeoService, useValue: seoService },
         { provide: MessageService, useValue: { add: vi.fn() } },
         {
           provide: ActivatedRoute,

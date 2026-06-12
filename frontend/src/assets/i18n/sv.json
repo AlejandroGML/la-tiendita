@@ -1,7 +1,9 @@
 {
   "nav": {
     "products": "Produkter",
-    "cart": "Varukorg"
+    "cart": "Varukorg",
+    "newArrivals": "Nyheter",
+    "sale": "Rea"
   },
   "header": {
     "title": "La Tiendita"
@@ -49,7 +51,24 @@
     "trend": "Trend",
     "season": "Säsong",
     "gender": "Kön",
-    "usage": "Användning"
+    "usage": "Användning",
+    "selectSize": "Välj en storlek",
+    "selectColor": "Välj en färg",
+    "inStock": "I lager",
+    "outOfStock": "Slut i lager",
+    "sizesAvailable": "Tillgängliga storlekar",
+    "colorsAvailable": "Tillgängliga färger",
+    "oneSize": "En storlek",
+    "bestseller": "Mest Såld",
+    "newArrival": "Nyhet",
+    "variants": "Varianter",
+    "addVariant": "Lägg till variant",
+    "removeVariant": "Ta bort variant",
+    "variantSKU": "SKU",
+    "sale": "REA",
+    "savings": "Du sparar",
+    "promoCode": "Kod",
+    "promoEnds": "Slutar"
   },
   "catalog": {
     "title": "Katalog",
@@ -78,6 +97,16 @@
     "totalOrders": "Totalt Beställningar",
     "totalRevenue": "Totala Intäkter",
     "dashboardError": "Fel vid laddning av statistik",
+    "ordersPending": "Väntande Beställningar",
+    "ordersShipped": "Skickade Beställningar",
+    "ordersDelivered": "Levererade Beställningar",
+    "reviewsTotal": "Totalt Recensioner",
+    "reviewsAvgRating": "Genomsnittsbetyg",
+    "promotionsActive": "Aktiva Kampanjer",
+    "revenueMonth": "Intäkter denna Månad",
+    "ordersMonth": "Beställningar denna Månad",
+    "recentOrders": "Senaste Beställningar",
+    "recentUsers": "Senaste Användare",
     "products": "Produkter",
     "newProduct": "Ny Produkt",
     "editProduct": "Redigera Produkt",
@@ -152,7 +181,9 @@
     "continueShopping": "Fortsätt handla",
     "retry": "Försök igen",
     "error": "Fel vid laddning av varukorg",
-    "view": "Visa varukorg"
+    "view": "Visa varukorg",
+    "originalSubtotal": "Ursprunglig delsumma",
+    "savings": "Besparing"
   },
   "checkout": {
     "title": "Kassa",
@@ -185,7 +216,11 @@
     "submitted": "Recension skickad",
     "error": "Fel vid inskickning av recension",
     "nonBuyer": "Du kan bara recensera produkter du har köpt",
-    "duplicate": "Du har redan recenserat denna produkt"
+    "duplicate": "Du har redan recenserat denna produkt",
+    "cancel": "Avbryt",
+    "loadError": "Kunde inte ladda recensioner",
+    "retry": "Försök igen",
+    "ratingRequired": "Välj ett betyg"
   },
   "wishlist": {
     "title": "Mina Favoriter",
@@ -264,5 +299,19 @@
     "rights": "Alla rättigheter förbehållna.",
     "privacy": "Integritet",
     "terms": "Villkor"
+  },
+  "gender": {
+    "women": "Kvinna",
+    "men": "Man",
+    "kids": "Barn",
+    "unisex": "Unisex"
+  },
+  "sizing": {
+    "title": "Storleksguide",
+    "size": "Storlek",
+    "chest": "Bröst",
+    "waist": "Midja",
+    "hips": "Höft",
+    "disclaimer": "Måtten är ungefärliga och motsvarar kroppsmått i centimeter. Vi rekommenderar att du mäter dig innan du köper."
   }
 }

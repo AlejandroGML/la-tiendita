@@ -21,6 +21,7 @@ import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DatePickerModule } from 'primeng/datepicker';
 import { GalleriaModule } from 'primeng/galleria';
+import { DialogModule } from 'primeng/dialog';
 
 @NgModule({
   declarations: [],
@@ -47,6 +48,7 @@ import { GalleriaModule } from 'primeng/galleria';
     InputGroupAddonModule,
     DatePickerModule,
     GalleriaModule,
+    DialogModule,
   ],
   exports: [
     ButtonModule,
@@ -70,6 +72,7 @@ import { GalleriaModule } from 'primeng/galleria';
     InputGroupAddonModule,
     DatePickerModule,
     GalleriaModule,
+    DialogModule,
   ],
 })
 export class PrimeNgModule {}

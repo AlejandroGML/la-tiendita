@@ -1,0 +1,97 @@
+<p-dialog
+  [(visible)]="visible"
+  [header]="'sizing.title' | translate"
+  [modal]="true"
+  [style]="{width: '560px', maxWidth: '95vw'}"
+  [draggable]="false"
+  styleClass="sizing-guide-dialog"
+>
+  <!-- Gender Tabs -->
+  <div class="flex gap-1 mb-4 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+    <button
+      type="button"
+      class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors"
+      [class.bg-white]="selectedTab() === 'women'"
+      [class.dark:bg-gray-700]="selectedTab() === 'women'"
+      [class.text-gray-900]="selectedTab() === 'women'"
+      [class.dark:text-gray-100]="selectedTab() === 'women'"
+      [class.shadow-sm]="selectedTab() === 'women'"
+      [class.text-gray-600]="selectedTab() !== 'women'"
+      [class.dark:text-gray-400]="selectedTab() !== 'women'"
+      [class.hover:text-gray-900]="selectedTab() !== 'women'"
+      [class.dark:hover:text-gray-200]="selectedTab() !== 'women'"
+      (click)="selectTab('women')"
+    >
+      {{ 'gender.women' | translate }}
+    </button>
+    <button
+      type="button"
+      class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors"
+      [class.bg-white]="selectedTab() === 'men'"
+      [class.dark:bg-gray-700]="selectedTab() === 'men'"
+      [class.text-gray-900]="selectedTab() === 'men'"
+      [class.dark:text-gray-100]="selectedTab() === 'men'"
+      [class.shadow-sm]="selectedTab() === 'men'"
+      [class.text-gray-600]="selectedTab() !== 'men'"
+      [class.dark:text-gray-400]="selectedTab() !== 'men'"
+      [class.hover:text-gray-900]="selectedTab() !== 'men'"
+      [class.dark:hover:text-gray-200]="selectedTab() !== 'men'"
+      (click)="selectTab('men')"
+    >
+      {{ 'gender.men' | translate }}
+    </button>
+  </div>
+
+  <!-- Size Table -->
+  <div class="overflow-x-auto">
+    <table class="w-full text-sm border-collapse">
+      <thead>
+        <tr class="bg-gray-50 dark:bg-gray-800">
+          <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+            {{ 'sizing.size' | translate }}
+          </th>
+          <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+            {{ 'sizing.chest' | translate }} (cm)
+          </th>
+          <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+            {{ 'sizing.waist' | translate }} (cm)
+          </th>
+          <th class="text-left py-3 px-4 font-semibold text-gray-700 dark:text-gray-300 border-b border-gray-200 dark:border-gray-700">
+            {{ 'sizing.hips' | translate }} (cm)
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr
+          *ngFor="let row of currentSizes; let i = index"
+          class="border-b border-gray-100 dark:border-gray-800"
+          [class.bg-gray-50]="i % 2 === 0"
+          [class.dark:bg-gray-800]="i % 2 === 0"
+          [class.bg-white]="i % 2 !== 0"
+          [class.dark:bg-gray-900]="i % 2 !== 0"
+        >
+          <td class="py-3 px-4 font-medium text-gray-900 dark:text-gray-100">{{ row.size }}</td>
+          <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ row.chest }}</td>
+          <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ row.waist }}</td>
+          <td class="py-3 px-4 text-gray-600 dark:text-gray-400">{{ row.hips }}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+    {{ 'sizing.disclaimer' | translate }}
+  </p>
+
+  <!-- Close button -->
+  <div class="flex justify-end mt-4">
+    <button
+      pButton
+      severity="secondary"
+      size="small"
+      (click)="close()"
+    >
+      {{ 'reviews.cancel' | translate }}
+    </button>
+  </div>
+</p-dialog>
