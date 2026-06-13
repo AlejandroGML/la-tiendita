@@ -1,7 +1,7 @@
 <p-card styleClass="product-card-enhanced block w-full cursor-pointer group">
   <ng-template pTemplate="header">
     <div
-      class="relative overflow-hidden aspect-[3/4] bg-gray-100"
+      class="relative overflow-hidden aspect-[3/4] bg-gray-100 dark:bg-gray-800"
       (mouseenter)="onMouseEnter()"
       (mouseleave)="onMouseLeave()"
     >
@@ -57,7 +57,7 @@
         *ngIf="isOutOfStock"
         class="absolute inset-0 bg-black/50 flex items-center justify-center"
       >
-        <span class="bg-white text-gray-800 px-4 py-2 rounded-full text-sm font-bold">
+        <span class="bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-full text-sm font-bold">
           {{ 'product.outOfStock' | translate }}
         </span>
       </span>
@@ -65,7 +65,7 @@
   </ng-template>
   <ng-template pTemplate="content">
     <div class="p-0 space-y-2">
-      <h3 class="text-sm font-bold text-gray-900 line-clamp-2 leading-snug group-hover:text-[var(--color-primary)] transition-colors">
+      <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-2 leading-snug group-hover:text-[var(--color-primary)] dark:group-hover:text-[var(--color-primary)] transition-colors">
         {{ displayName }}
       </h3>
 
@@ -73,7 +73,7 @@
       <div *ngIf="displayColors.length > 0" class="flex items-center gap-1">
         <a
           *ngFor="let swatch of displayColors"
-          class="cursor-pointer inline-block w-4 h-4 rounded-full border border-gray-300 hover:border-gray-500 transition-colors"
+          class="cursor-pointer inline-block w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600 hover:border-gray-500 dark:hover:border-gray-400 transition-colors"
           [style.background-color]="swatch.hex"
           [title]="swatch.color"
           (click)="navigateToDetail($event)"
@@ -82,18 +82,18 @@
           [attr.aria-label]="swatch.color"
           tabindex="0"
         ></a>
-        <span *ngIf="colorOverflow > 0" class="text-xs text-gray-400">
+        <span *ngIf="colorOverflow > 0" class="text-xs text-gray-400 dark:text-gray-500">
           +{{ colorOverflow }}
         </span>
       </div>
 
       <!-- Rating display -->
-      <div *ngIf="hasRating" class="text-xs text-gray-500 mt-1">
+      <div *ngIf="hasRating" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
         ⭐ {{ formatRating }} ({{ totalReviews() }})
       </div>
 
       <!-- Variant summary -->
-      <p *ngIf="hasVariants" class="text-xs text-gray-500">
+      <p *ngIf="hasVariants" class="text-xs text-gray-500 dark:text-gray-400">
         {{ sizeRange }}
         <ng-container *ngIf="colorCount > 0">
           · {{ colorCount }} {{ 'product.colors' | translate }}
@@ -110,7 +110,7 @@
       <div class="flex items-end justify-between gap-2">
         <div>
           <ng-container *ngIf="product.sale_price != null; else normalPrice">
-            <p class="text-sm text-gray-400 line-through">
+            <p class="text-sm text-gray-400 dark:text-gray-500 line-through">
               {{ product.price | currency }}
             </p>
             <p class="text-lg font-extrabold text-red-600">
@@ -118,15 +118,15 @@
             </p>
           </ng-container>
           <ng-template #normalPrice>
-            <p class="text-lg font-extrabold text-gray-900">
+            <p class="text-lg font-extrabold text-gray-900 dark:text-gray-100">
               {{ product.price | currency }}
             </p>
           </ng-template>
-          <p *ngIf="product.material" class="text-xs text-gray-500 mt-0.5 line-clamp-1">
+          <p *ngIf="product.material" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
             {{ product.material }}
           </p>
         </div>
-        <span *ngIf="product.brand" class="text-xs text-gray-400 font-medium">
+        <span *ngIf="product.brand" class="text-xs text-gray-400 dark:text-gray-500 font-medium">
           {{ product.brand }}
         </span>
       </div>
