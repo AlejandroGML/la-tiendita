@@ -73,16 +73,21 @@ export class ProductList implements OnInit, OnDestroy {
   readonly colors = Object.keys(COLOR_MAP);
   readonly seasons = ['All', 'Summer', 'Winter', 'Autumn', 'Spring'];
   readonly patterns = ['Floral print', 'Striped', 'Lace', 'Animal print', 'Geometric print', 'Logo print', 'Glitter', 'Dots', 'Checkered print', 'Plain'];
-  readonly sortOptions = computed<{ label: string; value: string | null }[]>(() => [
+  readonly sortOptions = computed<{ label: string; value: string | null }[]>(() => {
+    this.langKey();
+    return [
     { label: this.translate.instant('catalog.sortRelevance'), value: null },
     { label: this.translate.instant('catalog.sortNewest'), value: 'newest' },
     { label: this.translate.instant('catalog.sortPriceAsc'), value: 'price_asc' },
     { label: this.translate.instant('catalog.sortPriceDesc'), value: 'price_desc' },
-  ]);
+    ];
+  });
 
   private translate = inject(TranslateService);
+  private readonly langKey = signal(0);
 
   readonly categoryDropdownOptions = computed(() => {
+    this.langKey();
     const all = { label: this.translate.instant('catalog.allCategories'), value: null };
     const items = this.categories().map((cat) => ({
       label: this.getCategoryName(cat.id),
@@ -92,6 +97,7 @@ export class ProductList implements OnInit, OnDestroy {
   });
 
   readonly conditionDropdownOptions = computed(() => {
+    this.langKey();
     const all = { label: this.translate.instant('catalog.allConditions'), value: null };
     const items = this.conditions.map((c) => ({
       label: this.translate.instant('condition.' + c),
@@ -101,12 +107,14 @@ export class ProductList implements OnInit, OnDestroy {
   });
 
   readonly sizeDropdownOptions = computed(() => {
+    this.langKey();
     const all = { label: this.translate.instant('catalog.allSizes'), value: null };
     const items = this.sizes.map((s) => ({ label: s, value: s }));
     return [all, ...items];
   });
 
   readonly genderDropdownOptions = computed(() => {
+    this.langKey();
     const all = { label: this.translate.instant('catalog.allGenders'), value: null };
     const items = this.genders.map((g) => ({
       label: this.translate.instant('gender.' + g),
@@ -124,6 +132,7 @@ export class ProductList implements OnInit, OnDestroy {
   });
 
   readonly seasonDropdownOptions = computed(() => {
+    this.langKey();
     const all = { label: this.translate.instant('catalog.allSeasons'), value: null };
     const items = this.seasons.map((s) => ({
       label: this.translate.instant('season.' + s.toLowerCase()),
@@ -133,6 +142,7 @@ export class ProductList implements OnInit, OnDestroy {
   });
 
   readonly patternDropdownOptions = computed(() => {
+    this.langKey();
     const all = { label: this.translate.instant('catalog.allPatterns'), value: null };
     const items = this.patterns.map((p) => ({ label: p, value: p }));
     return [all, ...items];
@@ -149,6 +159,7 @@ export class ProductList implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.loadCategories();
     this.loadProducts();
+    this.translate.onLangChange.subscribe(() => this.langKey.update(v => v + 1));
   }
 
   ngOnDestroy(): void {
