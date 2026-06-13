@@ -154,8 +154,8 @@ export class ProductDetail implements OnDestroy {
   readonly canAddToCart = computed<boolean>(() => {
     if (this.addingToCart()) return false;
     const variants = this.product()?.variants ?? [];
-    // If no variants at all, disable
-    if (variants.length === 0) return false;
+    // No variants → one-size product, always addable
+    if (variants.length === 0) return true;
     // If variants exist, must have selected a valid variant
     const v = this.selectedVariant();
     return v !== null && v.stock > 0;
@@ -163,10 +163,10 @@ export class ProductDetail implements OnDestroy {
 
   /** Human-readable stock label for the selected variant */
   readonly stockLabel = computed<string>(() => {
+    const variants = this.product()?.variants ?? [];
+    if (variants.length === 0) return 'product.inStock';
     const v = this.selectedVariant();
     if (!v) {
-      // No selection yet — show generic availability
-      const variants = this.product()?.variants ?? [];
       const totalStock = variants.reduce((sum, v2) => sum + v2.stock, 0);
       return totalStock > 0 ? 'product.inStock' : 'product.outOfStock';
     }
@@ -174,15 +174,18 @@ export class ProductDetail implements OnDestroy {
   });
 
   readonly stockClasses = computed<string>(() => {
+    const variants = this.product()?.variants ?? [];
+    if (variants.length === 0) return 'text-green-700';
     const v = this.selectedVariant();
     const stock = v?.stock ?? 0;
     return stock > 0 ? 'text-green-700' : 'text-red-600';
   });
 
   readonly inStockText = computed<string>(() => {
+    const variants = this.product()?.variants ?? [];
+    if (variants.length === 0) return 'product.inStock';
     const v = this.selectedVariant();
     if (!v) {
-      const variants = this.product()?.variants ?? [];
       const total = variants.reduce((sum, v2) => sum + v2.stock, 0);
       return total > 0 ? 'product.inStock' : 'product.outOfStock';
     }
@@ -342,13 +345,15 @@ export class ProductDetail implements OnDestroy {
     if (!this.canAddToCart()) return;
 
     const p = this.product();
+    if (!p) return;
+
     const variant = this.selectedVariant();
-    if (!p || !variant) return;
+    const variantId = variant?.id;
 
     this.addingToCart.set(true);
     this.error.set(null);
 
-    this.cartService.addItem(p.id, 1, variant.id).subscribe({
+    this.cartService.addItem(p.id, 1, variantId).subscribe({
       next: () => {
         this.addingToCart.set(false);
         this.snackBar
