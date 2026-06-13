@@ -34,6 +34,7 @@ class ProductFilter(BaseModel):
     pattern: str | None = None
     season: str | None = None
     usage: str | None = None
+    color: str | None = None
     min_price: Decimal | None = None
     max_price: Decimal | None = None
     has_promotion: bool | None = Field(
