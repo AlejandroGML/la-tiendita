@@ -73,12 +73,12 @@ export class ProductList implements OnInit, OnDestroy {
   readonly colors = Object.keys(COLOR_MAP);
   readonly seasons = ['All', 'Summer', 'Winter', 'Autumn', 'Spring'];
   readonly patterns = ['Floral print', 'Striped', 'Lace', 'Animal print', 'Geometric print', 'Logo print', 'Glitter', 'Dots', 'Checkered print', 'Plain'];
-  readonly sortOptions: { label: string; value: string | null }[] = [
-    { label: 'Más relevantes', value: null },
-    { label: 'Más nuevos', value: 'newest' },
-    { label: 'Precio: menor a mayor', value: 'price_asc' },
-    { label: 'Precio: mayor a menor', value: 'price_desc' },
-  ];
+  readonly sortOptions = computed<{ label: string; value: string | null }[]>(() => [
+    { label: this.translate.instant('catalog.sortRelevance'), value: null },
+    { label: this.translate.instant('catalog.sortNewest'), value: 'newest' },
+    { label: this.translate.instant('catalog.sortPriceAsc'), value: 'price_asc' },
+    { label: this.translate.instant('catalog.sortPriceDesc'), value: 'price_desc' },
+  ]);
 
   private translate = inject(TranslateService);
 
