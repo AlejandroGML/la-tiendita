@@ -8,7 +8,7 @@
         <label class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ 'catalog.sort' | translate }}:</label>
         <p-select
           class="w-48"
-          [options]="sortOptions"
+          [options]="sortOptions()"
           [ngModel]="filters().sort"
           (onChange)="onFilterChange('sort', $event.value)"
         ></p-select>
