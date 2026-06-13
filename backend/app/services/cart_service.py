@@ -371,6 +371,7 @@ class CartService:
             subtotal = unit_price * cart_item.quantity
 
         image_url = None
+        product_slug = cart_item.product.slug if cart_item.product else None
         if cart_item.product and cart_item.product.image_urls:
             urls = cart_item.product.image_urls
             if isinstance(urls, list) and len(urls) > 0:
@@ -380,6 +381,7 @@ class CartService:
             id=cart_item.id,
             product_id=cart_item.product_id,
             product_name=product_name,
+            product_slug=product_slug,
             image_url=image_url,
             quantity=cart_item.quantity,
             unit_price=unit_price,
