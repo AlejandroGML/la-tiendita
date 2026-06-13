@@ -115,6 +115,8 @@
     "allGenders": "Todos los géneros",
     "allColors": "Todos los colores",
     "colorsSelected": "{0} colores seleccionados",
+    "allSeasons": "Todas las temporadas",
+    "allPatterns": "Todos los patrones",
     "sort": "Ordenar",
     "brandPlaceholder": "Buscar marca...",
     "materialPlaceholder": "Buscar material...",
@@ -364,6 +366,13 @@
     "men": "Hombre",
     "kids": "Kids",
     "unisex": "Unisex"
+  },
+  "season": {
+    "all": "Todas",
+    "summer": "Verano",
+    "winter": "Invierno",
+    "autumn": "Otoño",
+    "spring": "Primavera"
   },
   "sizing": {
     "title": "Guía de Tallas",

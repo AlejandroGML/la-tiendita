@@ -114,6 +114,34 @@
           </p-multiSelect>
         </div>
 
+        <!-- Season -->
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            {{ 'product.season' | translate }}
+          </label>
+          <p-select
+            class="w-full"
+            [options]="seasonDropdownOptions()"
+            [ngModel]="filters().season"
+            (onChange)="onFilterChange('season', $event.value)"
+            [placeholder]="'catalog.allSeasons' | translate"
+          ></p-select>
+        </div>
+
+        <!-- Pattern -->
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+            {{ 'product.pattern' | translate }}
+          </label>
+          <p-select
+            class="w-full"
+            [options]="patternDropdownOptions()"
+            [ngModel]="filters().pattern"
+            (onChange)="onFilterChange('pattern', $event.value)"
+            [placeholder]="'catalog.allPatterns' | translate"
+          ></p-select>
+        </div>
+
         <!-- Brand -->
         <div class="mb-5">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">

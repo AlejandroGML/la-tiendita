@@ -115,6 +115,8 @@
     "allGenders": "Alla kön",
     "allColors": "Alla färger",
     "colorsSelected": "{0} färger valda",
+    "allSeasons": "Alla säsonger",
+    "allPatterns": "Alla mönster",
     "sort": "Sortera",
     "brandPlaceholder": "Sök märke...",
     "materialPlaceholder": "Sök material...",
@@ -364,6 +366,13 @@
     "men": "Man",
     "kids": "Barn",
     "unisex": "Unisex"
+  },
+  "season": {
+    "all": "Alla",
+    "summer": "Sommar",
+    "winter": "Vinter",
+    "autumn": "Höst",
+    "spring": "Vår"
   },
   "sizing": {
     "title": "Storleksguide",

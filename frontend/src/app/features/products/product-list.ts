@@ -16,6 +16,8 @@ interface FilterState {
   target_gender: string | null;
   material: string | null;
   colors: string[];
+  season: string | null;
+  pattern: string | null;
   min_price: number | null;
   max_price: number | null;
   sort: string | null;
@@ -57,6 +59,8 @@ export class ProductList implements OnInit, OnDestroy {
     target_gender: null,
     material: null,
       colors: [],
+      season: null,
+      pattern: null,
     min_price: null,
     max_price: null,
     sort: null,
@@ -67,6 +71,8 @@ export class ProductList implements OnInit, OnDestroy {
   readonly sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
   readonly genders = ['women', 'men', 'kids', 'unisex'] as const;
   readonly colors = Object.keys(COLOR_MAP);
+  readonly seasons = ['All', 'Summer', 'Winter', 'Autumn', 'Spring'];
+  readonly patterns = ['Floral print', 'Striped', 'Lace', 'Animal print', 'Geometric print', 'Logo print', 'Glitter', 'Dots', 'Checkered print', 'Plain'];
   readonly sortOptions: { label: string; value: string | null }[] = [
     { label: 'Más relevantes', value: null },
     { label: 'Más nuevos', value: 'newest' },
@@ -117,6 +123,21 @@ export class ProductList implements OnInit, OnDestroy {
     }));
   });
 
+  readonly seasonDropdownOptions = computed(() => {
+    const all = { label: this.translate.instant('catalog.allSeasons'), value: null };
+    const items = this.seasons.map((s) => ({
+      label: this.translate.instant('season.' + s.toLowerCase()),
+      value: s,
+    }));
+    return [all, ...items];
+  });
+
+  readonly patternDropdownOptions = computed(() => {
+    const all = { label: this.translate.instant('catalog.allPatterns'), value: null };
+    const items = this.patterns.map((p) => ({ label: p, value: p }));
+    return [all, ...items];
+  });
+
   private meta = inject(Meta);
   private titleService = inject(Title);
 
@@ -164,6 +185,8 @@ export class ProductList implements OnInit, OnDestroy {
         target_gender: f.target_gender ?? undefined,
         material: f.material ?? undefined,
         colors: f.colors.length > 0 ? f.colors.join(',') : undefined,
+        season: f.season ?? undefined,
+        pattern: f.pattern ?? undefined,
         min_price: f.min_price ?? undefined,
         max_price: f.max_price ?? undefined,
         sort: f.sort ?? undefined,
@@ -206,7 +229,9 @@ export class ProductList implements OnInit, OnDestroy {
       brand: null,
       target_gender: null,
       material: null,
-    colors: [],
+      colors: [],
+      season: null,
+      pattern: null,
       min_price: null,
       max_price: null,
       sort: null,
@@ -239,6 +264,8 @@ export class ProductList implements OnInit, OnDestroy {
       f.target_gender != null ||
       f.material != null ||
       f.colors.length > 0 ||
+      f.season != null ||
+      f.pattern != null ||
       f.min_price != null ||
       f.max_price != null ||
       f.sort != null ||
