@@ -1,21 +1,19 @@
-import { Pipe, type PipeTransform } from '@angular/core';
+import { Pipe, type PipeTransform, inject } from '@angular/core';
+import { CurrencyService } from '../../core/services/currency.service';
 
 /**
- * Formats a number as Chilean Peso (CLP) — no decimals, locale-based grouping.
+ * Converts a SEK price to the currently selected currency.
  * Usage: {{ product.price | currency }}
+ * The backend stores prices in SEK; this pipe converts and formats.
  */
-@Pipe({ name: 'currency', standalone: false })
+@Pipe({ name: 'currency', standalone: false, pure: false })
 export class CurrencyPipe implements PipeTransform {
+  private readonly currencyService = inject(CurrencyService);
+
   transform(value: number | string | null | undefined): string {
-    if (value == null) return '$0';
-    const num = typeof value === 'string' ? parseInt(value, 10) : value;
-    if (isNaN(num)) return '$0';
-    const formatted = new Intl.NumberFormat('es-CL', {
-      style: 'currency',
-      currency: 'CLP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0,
-    }).format(num);
-    return formatted;
+    if (value == null) return this.currencyService.format(0);
+    const num = typeof value === 'string' ? parseFloat(value) : value;
+    if (isNaN(num)) return this.currencyService.format(0);
+    return this.currencyService.format(num);
   }
 }
