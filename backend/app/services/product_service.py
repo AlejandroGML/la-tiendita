@@ -686,14 +686,16 @@ class ProductService:
             stmt = stmt.where(Product.brand.ilike(f"%{filters.brand}%"))
         if filters.target_gender is not None:
             stmt = stmt.where(Product.target_gender == filters.target_gender)
-        if filters.color is not None:
-            stmt = stmt.where(
-                exists().where(
-                    ProductVariant.product_id == Product.id,
-                    ProductVariant.color.ilike(f"%{filters.color}%"),
-                    ProductVariant.deleted_at.is_(None),
+        if filters.colors is not None:
+            color_list = [c.strip() for c in filters.colors.split(",") if c.strip()]
+            if color_list:
+                stmt = stmt.where(
+                    exists().where(
+                        ProductVariant.product_id == Product.id,
+                        ProductVariant.color.in_(color_list),
+                        ProductVariant.deleted_at.is_(None),
+                    )
                 )
-            )
         if filters.material is not None:
             stmt = stmt.where(Product.material.ilike(f"%{filters.material}%"))
         if filters.trend is not None:

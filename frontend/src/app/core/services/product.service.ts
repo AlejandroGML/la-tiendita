@@ -14,7 +14,7 @@ export interface ProductFilter {
   brand?: string;
   target_gender?: string;
   material?: string;
-  color?: string;
+  colors?: string;
   min_price?: number;
   max_price?: number;
   has_promotion?: boolean;
@@ -55,7 +55,7 @@ export class ProductService {
     if (filters.brand) params = params.set('brand', filters.brand);
     if (filters.target_gender) params = params.set('target_gender', filters.target_gender);
     if (filters.material) params = params.set('material', filters.material);
-    if (filters.color) params = params.set('color', filters.color);
+    if (filters.colors) params = params.set('colors', filters.colors);
     if (filters.min_price != null) params = params.set('min_price', String(filters.min_price));
     if (filters.max_price != null) params = params.set('max_price', String(filters.max_price));
     if (filters.has_promotion != null) params = params.set('has_promotion', String(filters.has_promotion));

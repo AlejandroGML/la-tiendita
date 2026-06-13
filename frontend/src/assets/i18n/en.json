@@ -114,6 +114,7 @@
     "allSizes": "All sizes",
     "allGenders": "All genders",
     "allColors": "All colors",
+    "colorsSelected": "{0} colors selected",
     "sort": "Sort",
     "brandPlaceholder": "Search brand...",
     "materialPlaceholder": "Search material...",

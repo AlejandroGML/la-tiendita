@@ -92,23 +92,26 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             {{ 'product.colors' | translate }}
           </label>
-          <p-select
+          <p-multiSelect
             class="w-full"
-            [options]="colorDropdownOptions()"
-            [ngModel]="filters().color"
-            (onChange)="onFilterChange('color', $event.value)"
+            [options]="colorOptions()"
+            [ngModel]="filters().colors"
+            (onChange)="onFilterChange('colors', $event.value)"
             [placeholder]="'catalog.allColors' | translate"
+            [selectedItemsLabel]="'catalog.colorsSelected' | translate"
+            [maxSelectedLabels]="2"
+            display="chip"
           >
             <ng-template let-option pTemplate="item">
               <div class="flex items-center gap-2">
                 <span
-                  class="inline-block w-4 h-4 rounded-full border border-gray-300"
+                  class="inline-block w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600 shrink-0"
                   [style.background]="option.hex || '#ccc'"
                 ></span>
                 <span>{{ option.label }}</span>
               </div>
             </ng-template>
-          </p-select>
+          </p-multiSelect>
         </div>
 
         <!-- Brand -->
@@ -146,7 +149,7 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
             {{ 'catalog.priceRange' | translate }}
           </label>
-          <div class="flex gap-2">
+          <div class="flex flex-col gap-2">
             <p-inputNumber
               class="w-full"
               mode="currency"

@@ -114,6 +114,7 @@
     "allSizes": "Todas las tallas",
     "allGenders": "Todos los géneros",
     "allColors": "Todos los colores",
+    "colorsSelected": "{0} colores seleccionados",
     "sort": "Ordenar",
     "brandPlaceholder": "Buscar marca...",
     "materialPlaceholder": "Buscar material...",

@@ -34,7 +34,10 @@ class ProductFilter(BaseModel):
     pattern: str | None = None
     season: str | None = None
     usage: str | None = None
-    color: str | None = None
+    colors: str | None = Field(
+        default=None,
+        description="Comma-separated list of color names (e.g. 'Pink,Blue')",
+    )
     min_price: Decimal | None = None
     max_price: Decimal | None = None
     has_promotion: bool | None = Field(

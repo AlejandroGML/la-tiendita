@@ -114,6 +114,7 @@
     "allSizes": "Alla storlekar",
     "allGenders": "Alla kön",
     "allColors": "Alla färger",
+    "colorsSelected": "{0} färger valda",
     "sort": "Sortera",
     "brandPlaceholder": "Sök märke...",
     "materialPlaceholder": "Sök material...",

@@ -15,7 +15,7 @@ interface FilterState {
   brand: string | null;
   target_gender: string | null;
   material: string | null;
-  color: string | null;
+  colors: string[];
   min_price: number | null;
   max_price: number | null;
   sort: string | null;
@@ -56,7 +56,7 @@ export class ProductList implements OnInit, OnDestroy {
     brand: null,
     target_gender: null,
     material: null,
-    color: null,
+      colors: [],
     min_price: null,
     max_price: null,
     sort: null,
@@ -109,14 +109,12 @@ export class ProductList implements OnInit, OnDestroy {
     return [all, ...items];
   });
 
-  readonly colorDropdownOptions = computed(() => {
-    const all = { label: this.translate.instant('catalog.allColors'), value: null };
-    const items = this.colors.map((c) => ({
+  readonly colorOptions = computed(() => {
+    return this.colors.map((c) => ({
       label: c,
       value: c,
       hex: COLOR_MAP[c] || '#ccc',
     }));
-    return [all, ...items];
   });
 
   private meta = inject(Meta);
@@ -165,7 +163,7 @@ export class ProductList implements OnInit, OnDestroy {
         brand: f.brand ?? undefined,
         target_gender: f.target_gender ?? undefined,
         material: f.material ?? undefined,
-        color: f.color ?? undefined,
+        colors: f.colors.length > 0 ? f.colors.join(',') : undefined,
         min_price: f.min_price ?? undefined,
         max_price: f.max_price ?? undefined,
         sort: f.sort ?? undefined,
@@ -194,7 +192,7 @@ export class ProductList implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
-  onFilterChange(key: keyof FilterState, value: string | number | boolean | null): void {
+  onFilterChange(key: keyof FilterState, value: string | number | boolean | string[] | null): void {
     this.filters.update((f) => ({ ...f, [key]: value }));
     this.page.set(1);
     this.loadProducts();
@@ -208,7 +206,7 @@ export class ProductList implements OnInit, OnDestroy {
       brand: null,
       target_gender: null,
       material: null,
-      color: null,
+    colors: [],
       min_price: null,
       max_price: null,
       sort: null,
@@ -240,7 +238,7 @@ export class ProductList implements OnInit, OnDestroy {
       f.brand != null ||
       f.target_gender != null ||
       f.material != null ||
-      f.color != null ||
+      f.colors.length > 0 ||
       f.min_price != null ||
       f.max_price != null ||
       f.sort != null ||
