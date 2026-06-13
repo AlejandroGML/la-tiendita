@@ -1,9 +1,8 @@
 import { Component, OnDestroy, signal, computed, inject, ViewChild } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MessageService } from 'primeng/api';
 import type { Product, ProductVariant } from '../../shared/models/product.model';
 import type { Review } from '../../shared/models/review.model';
@@ -212,8 +211,6 @@ export class ProductDetail implements OnDestroy {
     private productService: ProductService,
     private translate: TranslateService,
     private cartService: CartService,
-    private snackBar: MatSnackBar,
-    private router: Router,
     private reviewService: ReviewService,
     public authService: AuthService,
     private seoService: SeoService,
@@ -353,13 +350,15 @@ export class ProductDetail implements OnDestroy {
     this.addingToCart.set(true);
     this.error.set(null);
 
-    this.cartService.addItem(p.id, 1, variantId).subscribe({
+        this.cartService.addItem(p.id, 1, variantId).subscribe({
       next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: this.translate.instant('product.addedToCart'),
+          detail: this.displayName,
+          life: 4000,
+        });
         this.addingToCart.set(false);
-        this.snackBar
-          .open('product.addedToCart', 'cart.view', { duration: 5000 })
-          .onAction()
-          .subscribe(() => this.router.navigate(['/carrito']));
       },
       error: () => {
         this.addingToCart.set(false);

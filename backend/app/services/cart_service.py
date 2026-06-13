@@ -7,6 +7,7 @@ Exactly one scope identifier must be provided (XOR).
 """
 
 import logging
+import re
 from decimal import Decimal
 from uuid import UUID
 
@@ -313,23 +314,29 @@ class CartService:
         return cart_item
 
     @staticmethod
+    @staticmethod
     def _resolve_product_name(product: Product) -> str:
         """Extract the best available name from product translations.
 
         Prefers Spanish (default locale), falls back to English or the
-        first available translation.
+        first available translation.  If no translations exist, formats
+        the slug as a readable name (e.g. ``odd-molly-top`` → ``Odd Molly Top``).
         """
         translations: list[ProductTranslation] = product.translations  # type: ignore[assignment]
-        if not translations:
-            return "Unknown product"
-
-        for t in translations:
-            if t.language_code == "es":
-                return t.name
-        for t in translations:
-            if t.language_code == "en":
-                return t.name
-        return translations[0].name
+        if translations:
+            for t in translations:
+                if t.language_code == "es" and t.name:
+                    return t.name
+            for t in translations:
+                if t.language_code == "en" and t.name:
+                    return t.name
+            return translations[0].name
+        # Fallback: format slug as readable name
+        slug = product.slug or ""
+        if not slug:
+            return "Producto"
+        cleaned = re.sub(r"[-\s][a-z0-9]{4,8}$", "", slug)
+        return " ".join(w.capitalize() for w in cleaned.split("-"))
 
     def _build_cart_item_response(
         self,
@@ -363,10 +370,17 @@ class CartService:
             unit_price = Decimal(str(sale_price))
             subtotal = unit_price * cart_item.quantity
 
+        image_url = None
+        if cart_item.product and cart_item.product.image_urls:
+            urls = cart_item.product.image_urls
+            if isinstance(urls, list) and len(urls) > 0:
+                image_url = str(urls[0])
+
         return CartItemResponse(
             id=cart_item.id,
             product_id=cart_item.product_id,
             product_name=product_name,
+            image_url=image_url,
             quantity=cart_item.quantity,
             unit_price=unit_price,
             subtotal=subtotal,
