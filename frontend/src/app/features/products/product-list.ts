@@ -12,9 +12,22 @@ interface FilterState {
   category_id: number | null;
   condition: string | null;
   size: string | null;
+  brand: string | null;
+  target_gender: string | null;
+  material: string | null;
+  color: string | null;
   min_price: number | null;
   max_price: number | null;
+  sort: string | null;
+  has_promotion: boolean | null;
 }
+
+const COLOR_MAP: Record<string, string> = {
+  Black: '#000000', White: '#FFFFFF', Red: '#DC2626', Blue: '#2563EB',
+  Green: '#16A34A', Yellow: '#EAB308', Pink: '#EC4899', Purple: '#9333EA',
+  Grey: '#6B7280', Navy: '#1E3A5F', Brown: '#92400E', Orange: '#EA580C',
+  Beige: '#F5F5DC', Gold: '#D4AF37', Silver: '#C0C0C0', Multi: 'linear-gradient(90deg,red,orange,yellow,green,blue,purple)',
+};
 
 @Component({
   selector: 'app-product-list',
@@ -40,12 +53,26 @@ export class ProductList implements OnInit, OnDestroy {
     category_id: null,
     condition: null,
     size: null,
+    brand: null,
+    target_gender: null,
+    material: null,
+    color: null,
     min_price: null,
     max_price: null,
+    sort: null,
+    has_promotion: null,
   });
 
   readonly conditions = ['new', 'like_new', 'good', 'fair'] as const;
   readonly sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
+  readonly genders = ['women', 'men', 'kids', 'unisex'] as const;
+  readonly colors = Object.keys(COLOR_MAP);
+  readonly sortOptions: { label: string; value: string | null }[] = [
+    { label: 'Más relevantes', value: null },
+    { label: 'Más nuevos', value: 'newest' },
+    { label: 'Precio: menor a mayor', value: 'price_asc' },
+    { label: 'Precio: mayor a menor', value: 'price_desc' },
+  ];
 
   private translate = inject(TranslateService);
 
@@ -70,6 +97,25 @@ export class ProductList implements OnInit, OnDestroy {
   readonly sizeDropdownOptions = computed(() => {
     const all = { label: this.translate.instant('catalog.allSizes'), value: null };
     const items = this.sizes.map((s) => ({ label: s, value: s }));
+    return [all, ...items];
+  });
+
+  readonly genderDropdownOptions = computed(() => {
+    const all = { label: this.translate.instant('catalog.allGenders'), value: null };
+    const items = this.genders.map((g) => ({
+      label: this.translate.instant('gender.' + g),
+      value: g === 'women' ? 'Ladies' : g === 'men' ? 'Men' : g === 'kids' ? 'Kids' : 'Unisex',
+    }));
+    return [all, ...items];
+  });
+
+  readonly colorDropdownOptions = computed(() => {
+    const all = { label: this.translate.instant('catalog.allColors'), value: null };
+    const items = this.colors.map((c) => ({
+      label: c,
+      value: c,
+      hex: COLOR_MAP[c] || '#ccc',
+    }));
     return [all, ...items];
   });
 
@@ -116,8 +162,14 @@ export class ProductList implements OnInit, OnDestroy {
         category_id: f.category_id ?? undefined,
         condition: f.condition ?? undefined,
         size: f.size ?? undefined,
+        brand: f.brand ?? undefined,
+        target_gender: f.target_gender ?? undefined,
+        material: f.material ?? undefined,
+        color: f.color ?? undefined,
         min_price: f.min_price ?? undefined,
         max_price: f.max_price ?? undefined,
+        sort: f.sort ?? undefined,
+        has_promotion: f.has_promotion ?? undefined,
         lang: undefined,
       })
       .pipe(takeUntil(this.destroy$))
@@ -142,7 +194,7 @@ export class ProductList implements OnInit, OnDestroy {
     this.loadProducts();
   }
 
-  onFilterChange(key: keyof FilterState, value: string | number | null): void {
+  onFilterChange(key: keyof FilterState, value: string | number | boolean | null): void {
     this.filters.update((f) => ({ ...f, [key]: value }));
     this.page.set(1);
     this.loadProducts();
@@ -153,8 +205,14 @@ export class ProductList implements OnInit, OnDestroy {
       category_id: null,
       condition: null,
       size: null,
+      brand: null,
+      target_gender: null,
+      material: null,
+      color: null,
       min_price: null,
       max_price: null,
+      sort: null,
+      has_promotion: null,
     });
     this.searchTerm.set('');
     this.page.set(1);
@@ -179,8 +237,14 @@ export class ProductList implements OnInit, OnDestroy {
       f.category_id != null ||
       f.condition != null ||
       f.size != null ||
+      f.brand != null ||
+      f.target_gender != null ||
+      f.material != null ||
+      f.color != null ||
       f.min_price != null ||
       f.max_price != null ||
+      f.sort != null ||
+      f.has_promotion != null ||
       this.searchTerm() !== ''
     );
   }

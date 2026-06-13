@@ -112,6 +112,13 @@
     "allCategories": "Alla kategorier",
     "allConditions": "Alla skick",
     "allSizes": "Alla storlekar",
+    "allGenders": "Alla kön",
+    "allColors": "Alla färger",
+    "sort": "Sortera",
+    "brandPlaceholder": "Sök märke...",
+    "materialPlaceholder": "Sök material...",
+    "onlyPromotions": "Endast rea",
+    "resultsCount": "{{total}} produkt(er) hittades",
     "priceRange": "Prisintervall",
     "minPrice": "Min",
     "maxPrice": "Max"

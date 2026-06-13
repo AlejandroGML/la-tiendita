@@ -20,6 +20,7 @@ import { ToolbarModule } from 'primeng/toolbar';
 import { InputGroupModule } from 'primeng/inputgroup';
 import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
 import { DatePickerModule } from 'primeng/datepicker';
+import { CheckboxModule } from 'primeng/checkbox';
 import { GalleriaModule } from 'primeng/galleria';
 import { DialogModule } from 'primeng/dialog';
 
@@ -47,6 +48,7 @@ import { DialogModule } from 'primeng/dialog';
     InputGroupModule,
     InputGroupAddonModule,
     DatePickerModule,
+    CheckboxModule,
     GalleriaModule,
     DialogModule,
   ],
@@ -71,6 +73,7 @@ import { DialogModule } from 'primeng/dialog';
     InputGroupModule,
     InputGroupAddonModule,
     DatePickerModule,
+    CheckboxModule,
     GalleriaModule,
     DialogModule,
   ],

@@ -112,6 +112,13 @@
     "allCategories": "Todas las categorías",
     "allConditions": "Todas las condiciones",
     "allSizes": "Todas las tallas",
+    "allGenders": "Todos los géneros",
+    "allColors": "Todos los colores",
+    "sort": "Ordenar",
+    "brandPlaceholder": "Buscar marca...",
+    "materialPlaceholder": "Buscar material...",
+    "onlyPromotions": "Solo ofertas",
+    "resultsCount": "{{total}} producto(s) encontrado(s)",
     "priceRange": "Rango de precio",
     "minPrice": "Mín",
     "maxPrice": "Máx"

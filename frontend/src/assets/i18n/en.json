@@ -112,6 +112,13 @@
     "allCategories": "All categories",
     "allConditions": "All conditions",
     "allSizes": "All sizes",
+    "allGenders": "All genders",
+    "allColors": "All colors",
+    "sort": "Sort",
+    "brandPlaceholder": "Search brand...",
+    "materialPlaceholder": "Search material...",
+    "onlyPromotions": "On sale only",
+    "resultsCount": "{{total}} product(s) found",
     "priceRange": "Price range",
     "minPrice": "Min",
     "maxPrice": "Max"
