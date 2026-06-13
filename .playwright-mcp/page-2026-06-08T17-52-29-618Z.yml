@@ -1,0 +1,18 @@
+- generic [ref=e2]:
+  - separator [ref=e3]
+  - iframe [ref=e8]:
+    - generic [ref=f29e2]:
+      - generic [ref=f29e3]:
+        - checkbox "No soy un robot" [ref=f29e7]
+        - generic [ref=f29e11]: No soy un robot
+      - generic [ref=f29e15]: reCAPTCHA
+  - separator [ref=e9]
+  - generic [ref=e10]:
+    - text: Acerca de esta página
+    - text: Nuestros sistemas han detectado tráfico inusual procedente de tu red de ordenadores. En esta página se comprueba si eres tú quien envía las solicitudes en lugar de un robot.
+    - link "¿A qué se debe esto?" [ref=e11] [cursor=pointer]:
+      - /url: "#"
+    - generic [ref=e12]:
+      - text: "Dirección IP: 2001:2042:33d5:7200:1f8:7096:25d2:6f61"
+      - text: "Hora: 2026-06-08T17:52:29Z"
+      - text: "URL: https://www.google.com/search?q=Reshop+ReCommerce+second+hand+theme+header+navbar&udm=2&sei=XAEnaoCJGOfFwPAP-Ke4oAg"

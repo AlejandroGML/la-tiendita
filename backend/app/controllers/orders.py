@@ -23,12 +23,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.engine import async_session as _async_session_fn
 from app.models.user import UserRole
-from app.schemas.order import CheckoutRequest, OrderResponse
+from app.schemas.order import CheckoutRequest, CheckoutResponse, OrderResponse
 from app.services.order_service import (
     CartEmptyError,
     OrderService,
     StockInsufficientError,
 )
+from app.services.stripe_service import StripeError
 
 
 # ---------------------------------------------------------------------------
@@ -38,6 +39,13 @@ from app.services.order_service import (
 
 async def provide_order_service() -> OrderService:
     return OrderService()
+
+
+async def provide_email_service() -> "EmailService":
+    """Construct a stateless EmailService."""
+    from app.services.email_service import EmailService
+
+    return EmailService()
 
 
 async def provide_session() -> AsyncSession:
@@ -72,19 +80,21 @@ class OrderController(Controller):
         request: ASGIConnection,
         service: OrderService,
         session: AsyncSession,
-    ) -> OrderResponse:
+    ) -> CheckoutResponse:
         """Convert the authenticated user's cart into an order.
 
-        Stock is validated and deducted atomically. Product data is
-        frozen as a JSONB snapshot at checkout time. The cart is cleared
-        on success.
+        Creates a Stripe hosted Checkout session and returns the URL
+        the frontend must redirect the user to. Stock is NOT deducted
+        at checkout — it is deducted when the Stripe webhook confirms
+        the payment.
 
-        Returns 201 with the created order.
+        Returns 201 with ``{ checkout_url, order_id }``.
         """
         try:
             return await service.checkout(
                 session,
                 user_id=request.user.id,
+                user_email=request.user.email,
                 shipping_address=data.shipping_address,
             )
         except CartEmptyError as exc:
@@ -92,6 +102,10 @@ class OrderController(Controller):
         except StockInsufficientError as exc:
             raise HTTPException(
                 status_code=HTTP_409_CONFLICT, detail=str(exc)
+            ) from exc
+        except StripeError as exc:
+            raise HTTPException(
+                status_code=502, detail=str(exc)
             ) from exc
 
     @get("/orders")
@@ -146,6 +160,8 @@ class OrderController(Controller):
             return OrderResponse(
                 id=order.id,
                 status=order.status.value,
+                payment_status=order.payment_status.value,
+                stripe_session_id=order.stripe_session_id,
                 total=order.total,
                 shipping_address=order.shipping_address,
                 items=items,

@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
-import type { Order, OrderStatus } from '../../../shared/models/order.model';
+import type { Order, OrderStatus, PaymentStatus } from '../../../shared/models/order.model';
 import { OrderService } from '../../../core/services/order.service';
 
 @Component({
@@ -11,7 +11,7 @@ import { OrderService } from '../../../core/services/order.service';
   standalone: false,
 })
 export class OrderListComponent implements OnInit, OnDestroy {
-  readonly displayedColumns: string[] = ['id', 'date', 'status', 'total'];
+  readonly displayedColumns: string[] = ['id', 'date', 'status', 'payment', 'total'];
 
   private readonly destroy$ = new Subject<void>();
 
@@ -74,5 +74,19 @@ export class OrderListComponent implements OnInit, OnDestroy {
       cancelled: 'bg-red-100 text-red-800',
     };
     return map[status] ?? 'bg-gray-100 text-gray-800';
+  }
+
+  getPaymentStatusLabel(paymentStatus: string): string {
+    return `order.payment${paymentStatus.charAt(0).toUpperCase() + paymentStatus.slice(1)}`;
+  }
+
+  getPaymentStatusClasses(paymentStatus: string): string {
+    const map: Record<string, string> = {
+      pending: 'bg-amber-100 text-amber-800',
+      paid: 'bg-emerald-100 text-emerald-800',
+      failed: 'bg-red-100 text-red-800',
+      refunded: 'bg-gray-100 text-gray-800',
+    };
+    return map[paymentStatus] ?? 'bg-gray-100 text-gray-800';
   }
 }

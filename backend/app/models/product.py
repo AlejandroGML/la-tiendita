@@ -23,6 +23,7 @@ from app.db.base import Base, TranslationBase
 
 if TYPE_CHECKING:
     from app.models.category import Category
+    from app.models.product_variant import ProductVariant
 
 
 class ProductCondition(StrEnum):
@@ -63,9 +64,6 @@ class Product(Base):
     )
     category_id: Mapped[int | None] = mapped_column(
         ForeignKey("categories.id", ondelete="SET NULL"), nullable=True
-    )
-    size: Mapped[ProductSize | None] = mapped_column(
-        Enum(ProductSize, values_callable=lambda x: [e.value for e in x]), nullable=True
     )
     brand: Mapped[str | None] = mapped_column(String(100), nullable=True)
     condition: Mapped[ProductCondition | None] = mapped_column(
@@ -108,7 +106,6 @@ class Product(Base):
     image_urls: Mapped[list] = mapped_column(
         JSONB, nullable=False, default=list
     )
-    stock: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, index=True
     )
@@ -128,6 +125,9 @@ class Product(Base):
     )
     category: Mapped["Category | None"] = relationship(
         "Category", back_populates="products"
+    )
+    variants: Mapped[list["ProductVariant"]] = relationship(
+        "ProductVariant", back_populates="product", cascade="all, delete-orphan"
     )
 
 

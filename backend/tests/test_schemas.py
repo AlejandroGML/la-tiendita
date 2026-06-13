@@ -119,7 +119,7 @@ class TestCreateProductRequest:
             )
 
     def test_optional_fields_default_none(self):
-        """category_id, size, brand, condition default to None."""
+        """category_id, variants, brand, condition default to None."""
         req = self.Schema(
             translations=[
                 {"language_code": "es", "name": "Test"}
@@ -127,12 +127,12 @@ class TestCreateProductRequest:
             price=Decimal("15.00"),
         )
         assert req.category_id is None
-        assert req.size is None
+        assert req.variants is None
         assert req.brand is None
         assert req.condition is None
 
     def test_all_fields_set(self):
-        """Full creation payload with all optional fields."""
+        """Full creation payload with all optional fields including variants."""
         req = self.Schema(
             translations=[
                 {"language_code": "es", "name": "Pantalón", "description": "Vaqueros"},
@@ -140,14 +140,21 @@ class TestCreateProductRequest:
             ],
             price=Decimal("49.99"),
             category_id=2,
-            size="M",
             brand="Levi's",
             condition="like_new",
+            variants=[
+                {"size": "M", "color": "Azul", "color_hex": "#0000FF", "stock": 10},
+                {"size": "L", "color": "Negro", "color_hex": "#000000", "stock": 5},
+            ],
         )
         assert req.brand == "Levi's"
-        assert req.size == "M"
         assert req.condition == "like_new"
         assert len(req.translations) == 2
+        assert req.variants is not None
+        assert len(req.variants) == 2
+        assert req.variants[0].size == "M"
+        assert req.variants[0].color == "Azul"
+        assert req.variants[0].stock == 10
 
 
 class TestUpdateProductRequest:
@@ -164,7 +171,7 @@ class TestUpdateProductRequest:
         req = self.Schema()
         assert req.price is None
         assert req.translations is None
-        assert req.size is None
+        assert req.variants is None
 
     def test_partial_price_update(self):
         """Only price can be updated."""
@@ -173,9 +180,11 @@ class TestUpdateProductRequest:
         assert req.translations is None
 
     def test_stock_cannot_be_negative(self):
-        """stock must be >= 0."""
+        """Variant stock must be >= 0 (tested via ProductVariantCreate)."""
+        from app.schemas.product_variant import ProductVariantCreate
+
         with pytest.raises(ValidationError):
-            self.Schema(stock=-1)
+            ProductVariantCreate(stock=-1)
 
 
 class TestPaginationMeta:
@@ -204,3 +213,119 @@ class TestProductTranslationResponse:
         t = ProductTranslationResponse(language_code="es", name="Camisa")
         assert t.lang == "es"
         assert t.name == "Camisa"
+
+
+class TestProductVariantCreate:
+    """Validation of ProductVariantCreate schema (admin variant creation)."""
+
+    @pytest.fixture(autouse=True)
+    def _schema(self):
+        from app.schemas.product_variant import ProductVariantCreate
+
+        self.Schema = ProductVariantCreate
+
+    def test_defaults(self):
+        """Size, color, color_hex default to None; stock defaults to 0; sku defaults to None."""
+        v = self.Schema()
+        assert v.size is None
+        assert v.color is None
+        assert v.color_hex is None
+        assert v.stock == 0
+        assert v.sku is None
+
+    def test_full_payload(self):
+        """All fields can be set."""
+        v = self.Schema(
+            size="M",
+            color="Azul",
+            color_hex="#0000FF",
+            stock=25,
+            sku="HOOD-M-AZU-01",
+        )
+        assert v.size == "M"
+        assert v.color == "Azul"
+        assert v.color_hex == "#0000FF"
+        assert v.stock == 25
+        assert v.sku == "HOOD-M-AZU-01"
+
+    def test_stock_must_not_be_negative(self):
+        """Variant stock < 0 is rejected."""
+        with pytest.raises(ValidationError):
+            self.Schema(stock=-5)
+
+
+class TestProductVariantUpdate:
+    """Validation of ProductVariantUpdate schema (all fields optional)."""
+
+    @pytest.fixture(autouse=True)
+    def _schema(self):
+        from app.schemas.product_variant import ProductVariantUpdate
+
+        self.Schema = ProductVariantUpdate
+
+    def test_empty_update_allowed(self):
+        """All fields optional — empty body is valid."""
+        v = self.Schema()
+        assert v.size is None
+        assert v.color is None
+        assert v.color_hex is None
+        assert v.stock is None
+        assert v.sku is None
+
+    def test_partial_stock_update(self):
+        """Only stock can be updated."""
+        v = self.Schema(stock=50)
+        assert v.stock == 50
+        assert v.color is None
+
+    def test_update_stock_must_not_be_negative(self):
+        """Updated stock must be >= 0."""
+        with pytest.raises(ValidationError):
+            self.Schema(stock=-10)
+
+
+class TestProductVariantResponse:
+    """Validation of ProductVariantResponse schema."""
+
+    def test_minimal_response(self):
+        from uuid import uuid4
+
+        from app.schemas.product_variant import ProductVariantResponse
+
+        vid = uuid4()
+        pid = uuid4()
+        v = ProductVariantResponse(
+            id=vid,
+            product_id=pid,
+            stock=0,
+            sku="TEST-NS-NC-01",
+        )
+        assert v.id == vid
+        assert v.product_id == pid
+        assert v.size is None
+        assert v.color is None
+        assert v.color_hex is None
+        assert v.stock == 0
+        assert v.sku == "TEST-NS-NC-01"
+
+    def test_full_response(self):
+        from uuid import uuid4
+
+        from app.schemas.product_variant import ProductVariantResponse
+
+        vid = uuid4()
+        pid = uuid4()
+        v = ProductVariantResponse(
+            id=vid,
+            product_id=pid,
+            size="L",
+            color="Red",
+            color_hex="#FF0000",
+            stock=15,
+            sku="HOOD-L-RED-02",
+        )
+        assert v.size == "L"
+        assert v.color == "Red"
+        assert v.color_hex == "#FF0000"
+        assert v.stock == 15
+        assert v.sku == "HOOD-L-RED-02"

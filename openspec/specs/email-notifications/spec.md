@@ -1,8 +1,8 @@
-# email-notifications Specification (New)
+# email-notifications Specification
 
 ## Purpose
 
-Email notification system: send transactional emails via console logging (MVP) or SMTP, using Jinja2 HTML templates.
+Email notification infrastructure: send transactional emails via console logging (MVP) or SMTP, using Jinja2 HTML templates.
 
 ## Requirements
 
@@ -10,10 +10,7 @@ Email notification system: send transactional emails via console logging (MVP) o
 |---|------------|----------|
 | R1 | Console-log email mode | MUST |
 | R2 | Jinja2 email templates | MUST |
-| R3 | Password reset email | MUST |
-| R4 | Order confirmation email | MUST |
-| R5 | SMTP config fields | MUST |
-| R6 | Language-aware templates | SHOULD |
+| R3 | SMTP config fields | MUST |
 
 ### Requirement: Console-Log Email Mode
 
@@ -43,29 +40,6 @@ The system SHALL store HTML email templates under `backend/app/templates/emails/
 - WHEN rendered with `reset_link="https://..."` and `user_name="Xoko"`
 - THEN output contains the full reset URL and user's name in HTML
 
-### Requirement: Password Reset Email
-
-`POST /auth/forgot-password` SHALL call `send_email()` with the Jinja2-rendered password reset template, passing the reset token link.
-
-#### Scenario: Forgot password sends email
-
-- GIVEN a registered user with email "user@test.com"
-- WHEN `POST /auth/forgot-password` is called
-- THEN `send_email()` is invoked with the password reset template
-- AND the email body contains the reset link
-- AND a 200 response is returned
-
-### Requirement: Order Confirmation Email
-
-`POST /api/checkout` SHALL call `send_email()` with the Jinja2-rendered order confirmation template after successfully creating the order.
-
-#### Scenario: Checkout sends confirmation email
-
-- GIVEN an authenticated user completes checkout
-- WHEN the order is created and stock reduced
-- THEN `send_email()` is invoked with the order confirmation template
-- AND the email body contains order ID, total, and item summary
-
 ### Requirement: SMTP Config Fields
 
 `backend/app/config.py` MUST include `EMAIL_MODE: str = "log"`, `SMTP_HOST: str = ""`, `SMTP_PORT: int = 587`, `SMTP_USER: str = ""`, `SMTP_PASSWORD: str = ""`, and `EMAIL_FROM: str = "noreply@latiendita.local"`.
@@ -76,12 +50,4 @@ The system SHALL store HTML email templates under `backend/app/templates/emails/
 - WHEN `Settings()` is instantiated
 - THEN `EMAIL_MODE` defaults to "log"
 
-### Requirement: Language-Aware Templates
-
-Email templates SHALL accept a `lang` parameter and render content in the user's preferred language (es/en/sv). Template files MAY use Jinja2 conditionals or separate language blocks.
-
-#### Scenario: Template renders in user's language
-
-- GIVEN user has `preferred_lang="sv"`
-- WHEN the password reset email is rendered
-- THEN the email subject and body are in Swedish
+> **Note**: Behavioral requirements for Password Reset, Order Confirmation, and i18n email rendering are now defined in `openspec/specs/transactional-emails/spec.md`. This spec covers only the infrastructure layer (send_email, render_template, SMTP config).

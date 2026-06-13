@@ -33,6 +33,7 @@ import app.models.password_reset  # noqa: E402, F401
 import app.models.category  # noqa: E402, F401
 import app.models.order  # noqa: E402, F401
 import app.models.product  # noqa: E402, F401
+import app.models.product_variant  # noqa: E402, F401
 import app.models.promotion  # noqa: E402, F401
 import app.models.refresh_token  # noqa: E402, F401
 import app.models.review  # noqa: E402, F401

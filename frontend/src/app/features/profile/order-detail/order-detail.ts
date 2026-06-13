@@ -1,5 +1,6 @@
 import { Component, OnDestroy, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { Subscription, switchMap } from 'rxjs';
 import type { Order, OrderStatus } from '../../../shared/models/order.model';
 import { OrderService } from '../../../core/services/order.service';
@@ -29,7 +30,22 @@ export class OrderDetailComponent implements OnDestroy {
   constructor(
     private readonly route: ActivatedRoute,
     private readonly orderService: OrderService,
+    private readonly router: Router,
+    private readonly messageService: MessageService,
   ) {
+    // Handle payment return params
+    this.route.queryParams.subscribe((params) => {
+      if (params['payment'] === 'success') {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'order.paymentSuccess',
+          life: 10000,
+        });
+      } else if (params['payment'] === 'cancelled') {
+        this.router.navigate(['/carrito'], { queryParams: { payment: 'cancelled' } });
+      }
+    });
+
     this.sub = this.route.params
       .pipe(
         switchMap((params) => {
@@ -97,5 +113,22 @@ export class OrderDetailComponent implements OnDestroy {
 
   getSnapshotField(item: { product_snapshot: Record<string, unknown> }, field: string): string {
     return String(item.product_snapshot?.[field] ?? '');
+  }
+
+  getPaymentStatusLabel(): string {
+    const status = this.order()?.payment_status;
+    if (!status) return 'order.paymentPending';
+    return `order.payment${status.charAt(0).toUpperCase() + status.slice(1)}`;
+  }
+
+  getPaymentStatusClasses(): string {
+    const status = this.order()?.payment_status;
+    const map: Record<string, string> = {
+      pending: 'bg-amber-100 text-amber-800',
+      paid: 'bg-emerald-100 text-emerald-800',
+      failed: 'bg-red-100 text-red-800',
+      refunded: 'bg-gray-100 text-gray-800',
+    };
+    return map[status ?? ''] ?? 'bg-amber-100 text-amber-800';
   }
 }

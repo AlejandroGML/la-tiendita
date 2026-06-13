@@ -8,6 +8,8 @@ interface SizeRow {
   hips: string;
 }
 
+type SizingTab = 'women' | 'men' | 'kids' | 'unisex';
+
 /**
  * Hardcoded general sizing chart (women's/men's clothing).
  * Can be made admin-configurable later.
@@ -39,7 +41,7 @@ export class SizingGuideComponent {
   private readonly translate = inject(TranslateService);
 
   readonly visible = signal(false);
-  readonly selectedTab = signal<'women' | 'men'>('women');
+  readonly selectedTab = signal<SizingTab>('women');
 
   get womensSizes(): SizeRow[] {
     return WOMENS_SIZES;
@@ -50,7 +52,15 @@ export class SizingGuideComponent {
   }
 
   get currentSizes(): SizeRow[] {
-    return this.selectedTab() === 'women' ? WOMENS_SIZES : MENS_SIZES;
+    switch (this.selectedTab()) {
+      case 'women': return WOMENS_SIZES;
+      case 'men': return MENS_SIZES;
+      default: return [];
+    }
+  }
+
+  get isComingSoon(): boolean {
+    return this.selectedTab() === 'kids' || this.selectedTab() === 'unisex';
   }
 
   open(): void {
@@ -61,13 +71,11 @@ export class SizingGuideComponent {
     this.visible.set(false);
   }
 
-  selectTab(tab: 'women' | 'men'): void {
-    this.selectedTab.set(tab);
+  selectTab(tab: string): void {
+    this.selectedTab.set(tab as SizingTab);
   }
 
   get tabLabel(): string {
-    return this.selectedTab() === 'women'
-      ? this.translate.instant('gender.women')
-      : this.translate.instant('gender.men');
+    return this.translate.instant('gender.' + this.selectedTab());
   }
 }

@@ -7,7 +7,7 @@ Admin-only backend API and frontend interface for store monitoring (dashboard st
 ## Requirements
 
 | # | Requirement | Strength |
-|---|------------|----------|
+|----|------------|----------|
 | R1 | Dashboard aggregate stats | MUST |
 | R2 | Admin user listing with pagination | MUST |
 | R3 | Admin role and verification management | MUST |
@@ -15,28 +15,55 @@ Admin-only backend API and frontend interface for store monitoring (dashboard st
 | R5 | Order status transition state machine | MUST |
 | R6 | Admin layout with sidebar navigation | MUST |
 | R7 | Admin route guards | MUST |
+| R8 | Recent Orders mini-table | SHALL |
+| R9 | Recent Users mini-table | SHALL |
 
 ### Requirement: Dashboard Aggregate Stats
 
-`GET /api/admin/dashboard` MUST return `{ total_products, total_users, total_orders, total_revenue }` computed via aggregate queries (COUNT, SUM). The endpoint MUST require admin role.
+`GET /api/admin/stats` MUST return 12 aggregate fields: `total_products`, `total_users`, `total_orders`, `total_revenue`, `orders_pending`, `orders_shipped`, `orders_delivered`, `reviews_total`, `reviews_avg_rating`, `promotions_active`, `revenue_month`, `orders_month`. All fields MUST be non-negative numeric; `reviews_avg_rating` SHALL be a float 0.0–5.0.
 
-#### Scenario: Admin receives dashboard stats
+The admin dashboard page MUST render all 12 stats as stat cards in a 4-column responsive grid. Each card SHALL display a ngx-translate label, value, trend icon, and background color. The stats section SHALL show independent loading spinner and error-with-retry states.
 
-- GIVEN a user with role `admin` sends a GET request to `/api/admin/dashboard`
+(Previously: returned 4 fields from `/api/admin/dashboard` without stat card rendering or loading/error states.)
+
+#### Scenario: Admin receives full dashboard stats
+
+- GIVEN a user with role `admin` sends GET `/api/admin/stats`
 - WHEN the request is processed
-- THEN response 200 returns `total_products`, `total_users`, `total_orders`, `total_revenue` as non-negative integers
+- THEN response 200 returns all 12 fields as non-negative numbers
+- AND `orders_pending + orders_shipped + orders_delivered ≤ total_orders`
+- AND `revenue_month ≤ total_revenue`
+
+#### Scenario: Empty database returns zeros
+
+- GIVEN the database contains no orders, reviews, or promotions
+- WHEN admin requests GET `/api/admin/stats`
+- THEN response 200 returns all 12 fields as 0 (or 0.0 for `reviews_avg_rating`)
 
 #### Scenario: Non-admin receives 403
 
-- GIVEN a user with role `customer` sends a GET request to `/api/admin/dashboard`
+- GIVEN a user with role `customer` sends GET `/api/admin/stats`
 - WHEN the request is processed
 - THEN response 403 with detail "admin access required"
 
 #### Scenario: Unauthenticated receives 401
 
 - GIVEN no valid JWT is provided
-- WHEN a GET request is sent to `/api/admin/dashboard`
+- WHEN GET `/api/admin/stats` is requested
 - THEN response 401 with detail "authentication required"
+
+#### Scenario: Dashboard renders 12 stat cards in 4-column grid
+
+- GIVEN admin dashboard loads with stats data
+- WHEN the component renders
+- THEN 12 stat cards display in a responsive 4-column CSS grid
+- AND each card shows a translated label (en/es/sv), numeric value, and color
+
+#### Scenario: Stats section loading and error states
+
+- GIVEN admin navigates to dashboard
+- WHEN stats API call is in flight THEN a loading spinner renders
+- WHEN stats API call returns 500 THEN error message with retry button renders
 
 ### Requirement: Admin User Listing with Pagination
 
@@ -149,3 +176,47 @@ All `/admin/*` frontend routes MUST require `authGuard` AND `adminGuard`. All `/
 - GIVEN existing `/admin/productos` routes
 - WHEN the admin layout is applied to all admin children
 - THEN `/admin/productos` continues to work and shows the products table
+
+### Requirement: Recent Orders Mini-Table
+
+The admin dashboard SHALL display the last 5 orders below stat cards. Each row MUST show user name, total (currency pipe), status badge, and date (`date` pipe). The table SHALL use PrimeNG `p-table` with independent `[loading]` and `[emptyMessage]` bindings. Table errors MUST NOT block the stats section.
+
+#### Scenario: Recent orders render with data
+
+- GIVEN 5+ orders exist
+- WHEN admin dashboard loads
+- THEN a `p-table` renders 5 most recent orders with user name, formatted total, status badge, and formatted date
+
+#### Scenario: Recent orders empty, loading, and error states
+
+- GIVEN admin dashboard loads
+- WHEN orders API call is in flight THEN `p-table` shows loading indicator
+- WHEN no orders exist THEN translated empty message displays
+- WHEN orders API returns 500 THEN table shows error AND stats section continues normally
+
+### Requirement: Admin Product Variant Count
+
+The admin product listing SHALL display the number of variants per product (e.g., "3 variants") as an additional column or badge. This applies to the admin products table view under `/api/admin/products`.
+
+#### Scenario: Admin product list shows variant count
+
+- GIVEN products with 0, 1, and 5 variants
+- WHEN admin views the product listing
+- THEN each product row shows a variant count column (e.g., "1 variant", "5 variants")
+
+### Requirement: Recent Users Mini-Table
+
+The admin dashboard SHALL display the last 5 registered users below stat cards. Each row MUST show name, email, role badge, and `created_at` (`date` pipe). The table SHALL use PrimeNG `p-table` with independent `[loading]` and `[emptyMessage]` bindings. Table errors MUST NOT block the stats or orders sections.
+
+#### Scenario: Recent users render with data
+
+- GIVEN 5+ users exist
+- WHEN admin dashboard loads
+- THEN a `p-table` renders 5 most recently registered users with name, email, role badge, and formatted date
+
+#### Scenario: Recent users empty, loading, and error states
+
+- GIVEN admin dashboard loads
+- WHEN users API call is in flight THEN `p-table` shows loading indicator
+- WHEN no users exist THEN translated empty message displays
+- WHEN users API returns 500 THEN table shows error AND stats + orders sections continue normally

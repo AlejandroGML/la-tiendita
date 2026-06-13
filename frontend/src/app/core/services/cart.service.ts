@@ -21,9 +21,16 @@ export class CartService {
       .pipe(tap((res) => this.cartSubject.next(res)));
   }
 
-  /** Add a product to the cart (quantity defaults to 1) */
-  addItem(productId: string, quantity: number = 1): Observable<CartResponse> {
+  /** Add a product to the cart (quantity defaults to 1). Optionally pass a variantId. */
+  addItem(
+    productId: string,
+    quantity: number = 1,
+    variantId?: string,
+  ): Observable<CartResponse> {
     const body: AddToCartRequest = { product_id: productId, quantity };
+    if (variantId) {
+      body.variant_id = variantId;
+    }
     return this.http
       .post<CartResponse>('/api/cart', body)
       .pipe(tap((res) => this.cartSubject.next(res)));

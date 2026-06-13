@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import type { Product } from '../../shared/models/product.model';
 import type { ProductListResponse } from '../../core/services/product.service';
 import { ProductService } from '../../core/services/product.service';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-sale',
@@ -15,8 +15,7 @@ import { ProductService } from '../../core/services/product.service';
 export class Sale implements OnInit, OnDestroy {
   private readonly productService = inject(ProductService);
   private readonly translate = inject(TranslateService);
-  private readonly meta = inject(Meta);
-  private readonly titleService = inject(Title);
+  private readonly seo = inject(SeoService);
 
   private readonly destroy$ = new Subject<void>();
 
@@ -56,7 +55,7 @@ export class Sale implements OnInit, OnDestroy {
 
   private updateSeo(): void {
     const title = this.translate.instant('nav.sale');
-    this.titleService.setTitle(`${title} | La Tiendita`);
-    this.meta.updateTag({ property: 'og:title', content: `${title} | La Tiendita` });
+    this.seo.setPageTitle(title);
+    this.seo.setDescription(this.translate.instant('home.heroDesc'));
   }
 }

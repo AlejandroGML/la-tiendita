@@ -40,6 +40,8 @@ class OrderResponse(BaseModel):
 
     id: UUID
     status: str
+    payment_status: str
+    stripe_session_id: str | None
     total: Decimal
     shipping_address: dict
     items: list[OrderItemResponse]
@@ -49,12 +51,21 @@ class OrderResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class CheckoutResponse(BaseModel):
+    """Response for POST /api/checkout — redirect the client to Stripe."""
+
+    checkout_url: str
+    order_id: UUID
+
+
 class OrderAdminListItem(BaseModel):
     """A compact order row for the admin order list — includes the owner name
     resolved via a JOIN on the users table."""
 
     id: UUID
     status: str
+    payment_status: str
+    stripe_session_id: str | None
     total: Decimal
     user_name: str
     created_at: datetime

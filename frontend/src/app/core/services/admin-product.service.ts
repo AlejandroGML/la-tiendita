@@ -3,19 +3,26 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import type { Product } from '../../shared/models/product.model';
 
+export interface VariantPayload {
+  size?: string | null;
+  color?: string | null;
+  color_hex?: string | null;
+  stock: number;
+  sku?: string;
+}
+
 export interface CreateProductPayload {
   price: number;
   category_id: number;
-  size?: string;
   brand?: string;
   condition?: string;
   image_urls?: string[];
-  stock?: number;
   translations: Array<{
     lang: string;
     name: string;
     description?: string;
   }>;
+  variants?: VariantPayload[];
 }
 
 export interface UpdateProductPayload extends Partial<CreateProductPayload> {

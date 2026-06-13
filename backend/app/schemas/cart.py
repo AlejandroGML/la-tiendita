@@ -17,6 +17,7 @@ class AddToCartRequest(BaseModel):
 
     product_id: UUID
     quantity: int = Field(default=1, ge=1, description="Quantity to add (≥ 1)")
+    variant_id: UUID | None = None
 
 
 class UpdateCartItemRequest(BaseModel):
@@ -42,7 +43,13 @@ class CartItemResponse(BaseModel):
     quantity: int
     unit_price: Decimal
     subtotal: Decimal
+    variant_id: UUID | None = None
+    size: str | None = None
+    color: str | None = None
     added_at: datetime
+    original_unit_price: str | None = None
+    discount_label: str | None = None
+    savings: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
@@ -52,3 +59,5 @@ class CartResponse(BaseModel):
 
     items: list[CartItemResponse]
     subtotal: Decimal
+    original_subtotal: str | None = None
+    total_savings: str | None = None

@@ -10,7 +10,7 @@ Endpoints are stubbed in PR 1 — full implementations in PR 2.
 import math
 from uuid import UUID
 
-from litestar import Controller, get, patch
+from litestar import Controller, get, post, put, delete, patch
 from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import (
@@ -30,6 +30,11 @@ from app.schemas.admin import (
     UserRoleUpdate,
 )
 from app.schemas.order import OrderAdminListItem
+from app.schemas.product_variant import (
+    ProductVariantCreate,
+    ProductVariantResponse,
+    ProductVariantUpdate,
+)
 from app.services.admin_order_service import (
     AdminOrderService,
     InvalidTransitionError,
@@ -59,6 +64,13 @@ async def provide_admin_user_service() -> AdminUserService:
 async def provide_admin_order_service() -> AdminOrderService:
     """Construct a stateless AdminOrderService."""
     return AdminOrderService()
+
+
+async def provide_email_service() -> "EmailService":
+    """Construct a stateless EmailService."""
+    from app.services.email_service import EmailService
+
+    return EmailService()
 
 
 async def provide_session() -> AsyncSession:
@@ -221,3 +233,117 @@ class AdminController(Controller):
             raise NotFoundException(detail=str(exc)) from exc
 
         return item.model_dump()
+
+
+# ---------------------------------------------------------------------------
+# ProductService DI
+# ---------------------------------------------------------------------------
+
+
+async def provide_product_service() -> "ProductService":
+    """Construct a stateless ProductService for variant CRUD."""
+    from app.services.product_service import ProductService
+
+    return ProductService()
+
+
+# ---------------------------------------------------------------------------
+# AdminProductVariantController — variant CRUD under admin
+# ---------------------------------------------------------------------------
+
+
+class AdminProductVariantController(Controller):
+    """Admin variant CRUD for products.
+
+    Mounted at ``/api/admin/products/{product_id}/variants``.
+    Requires admin JWT (guards=admin_guard).
+    """
+
+    path = "/api/admin/products/{product_id:uuid}/variants"
+    tags = ["admin-product-variants"]
+    guards = [admin_guard]
+    dependencies = {
+        "service": Provide(provide_product_service, sync_to_thread=False),
+        "session": Provide(provide_session, sync_to_thread=False),
+    }
+
+    @get("/")
+    async def list_variants(
+        self,
+        product_id: UUID,
+        service: "ProductService",
+        session: AsyncSession,
+    ) -> dict:
+        """List all non-deleted variants for a product."""
+        try:
+            variants = await service.list_variants(session, product_id)
+        except ValueError as exc:
+            raise NotFoundException(detail=str(exc)) from exc
+
+        return {
+            "data": [
+                ProductVariantResponse.model_validate(v).model_dump()
+                for v in variants
+            ],
+        }
+
+    @post("/", status_code=201)
+    async def create_variant(
+        self,
+        product_id: UUID,
+        data: ProductVariantCreate,
+        service: "ProductService",
+        session: AsyncSession,
+    ) -> dict:
+        """Create a new variant for a product."""
+        try:
+            variant = await service.create_variant(
+                session, product_id, data
+            )
+        except ValueError as exc:
+            raise ValidationException(detail=str(exc)) from exc
+
+        return ProductVariantResponse.model_validate(variant).model_dump()
+
+    @put("/{variant_id:uuid}")
+    async def update_variant(
+        self,
+        product_id: UUID,
+        variant_id: UUID,
+        data: ProductVariantUpdate,
+        service: "ProductService",
+        session: AsyncSession,
+    ) -> dict:
+        """Update an existing variant (partial)."""
+        variant = await service.update_variant(
+            session, variant_id, data
+        )
+        if variant is None:
+            raise NotFoundException(detail="variant not found")
+
+        # Verify variant belongs to product
+        if variant.product_id != product_id:
+            raise ValidationException(
+                detail="variant does not belong to this product"
+            )
+
+        return ProductVariantResponse.model_validate(variant).model_dump()
+
+    @delete("/{variant_id:uuid}", status_code=204)
+    async def delete_variant(
+        self,
+        product_id: UUID,
+        variant_id: UUID,
+        service: "ProductService",
+        session: AsyncSession,
+    ) -> None:
+        """Soft-delete a variant (blocks if referenced by cart items)."""
+        try:
+            deleted = await service.delete_variant(
+                session, variant_id, product_id=product_id
+            )
+        except ValueError as exc:
+            raise ValidationException(detail=str(exc)) from exc
+
+        if not deleted:
+            raise NotFoundException(detail="variant not found")

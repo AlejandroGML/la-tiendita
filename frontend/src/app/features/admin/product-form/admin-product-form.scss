@@ -1,37 +1,56 @@
-.admin-product-form-container {
-  padding: 1.5rem;
-  max-width: 900px;
+/* ═══════════════════════════════════════════════
+   Admin Product Form — La Tiendita
+   ═══════════════════════════════════════════════ */
+
+/* ── Image previews ── */
+.image-preview-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+
+  :host-context(.dark-theme) & {
+    border-color: #374151;
+    background-color: #1f2937;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 }
 
-.product-form {
-  .tab-content {
-    padding: 1.5rem 0;
+.image-remove-btn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 150ms;
+  font-size: 10px;
+  border: none;
+  cursor: pointer;
+
+  &:hover {
+    background: #ef4444;
   }
+}
 
-  .image-preview-list {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
+.image-preview-item:hover .image-remove-btn {
+  opacity: 1;
+}
 
-  .image-preview-item {
-    position: relative;
-    width: 100px;
-    height: 100px;
-    border-radius: 8px;
-    overflow: hidden;
-    border: 1px solid #e5e7eb;
-
-    .image-preview-thumb {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .image-remove-btn {
-      position: absolute;
-      top: 0;
-      right: 0;
-    }
-  }
+/* ── Tabs dark mode overrides ── */
+:host ::ng-deep .p-tabpanel {
+  padding: 0 !important;
 }

@@ -12,7 +12,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from app.models.order import OrderStatus
+from app.models.order import OrderStatus, PaymentStatus
 from app.services.admin_order_service import (
     AdminOrderService,
     InvalidTransitionError,
@@ -29,6 +29,7 @@ def _make_order(
     *,
     order_id: uuid.UUID | None = None,
     status: OrderStatus = OrderStatus.PENDING,
+    payment_status: PaymentStatus = PaymentStatus.PAID,
     total: Decimal | None = None,
     user_name: str = "Test User",
 ) -> MagicMock:
@@ -37,6 +38,8 @@ def _make_order(
     order = MagicMock()
     order.id = order_id or uuid.uuid4()
     order.status = status
+    order.payment_status = payment_status
+    order.stripe_session_id = None
     order.total = total or Decimal("150.00")
     order.user = MagicMock()
     order.user.name = user_name
@@ -79,9 +82,28 @@ class TestValidTransitions:
 
         mock_session.scalar = AsyncMock(side_effect=[order, reloaded])
 
-        mock_result = MagicMock()
-        mock_result.rowcount = 1
-        mock_session.execute = AsyncMock(return_value=mock_result)
+        mock_update_result = MagicMock()
+        mock_update_result.rowcount = 1
+
+        # The shipped transition triggers EmailService._load_user() which
+        # calls session.execute(select(User)...). Provide a mock user so
+        # the email render doesn't crash on missing attributes.
+        mock_user = MagicMock()
+        mock_user.email = "test@example.com"
+        mock_user.name = "Test User"
+        mock_user.preferred_lang = MagicMock()
+        mock_user.preferred_lang.value = "en"
+
+        mock_user_result = MagicMock()
+        mock_user_result.scalar_one_or_none.return_value = mock_user
+
+        if target == OrderStatus.SHIPPED:
+            mock_session.execute = AsyncMock(
+                side_effect=[mock_update_result, mock_user_result]
+            )
+        else:
+            mock_session.execute = AsyncMock(return_value=mock_update_result)
+
         mock_session.flush = AsyncMock()
 
         result = await svc.update_order_status(
@@ -92,8 +114,11 @@ class TestValidTransitions:
         assert result.id == order.id
         assert result.user_name == order.user.name
 
-        # Verify the atomic UPDATE was called
-        mock_session.execute.assert_called_once()
+        # Verify the atomic UPDATE was called (at minimum)
+        assert mock_session.execute.call_count >= 1
+        # First call should be the UPDATE
+        first_call_arg = mock_session.execute.call_args_list[0][0][0]
+        assert "UPDATE" in str(first_call_arg).upper()
         mock_session.flush.assert_called_once()
 
 

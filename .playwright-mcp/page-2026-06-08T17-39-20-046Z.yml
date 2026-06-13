@@ -1,0 +1,168 @@
+- generic [ref=e2]:
+  - banner [ref=e4]:
+    - generic [ref=e7]:
+      - link "LT La Tiendita" [ref=e8] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e9]: LT
+        - generic [ref=e10]: La Tiendita
+      - textbox "Buscar productos..." [ref=e13]
+      - generic [ref=e14]:
+        - link "Favoritos" [ref=e15] [cursor=pointer]:
+          - /url: /perfil/wishlist
+        - link "Carrito" [ref=e16] [cursor=pointer]:
+          - /url: /carrito
+        - button "Usuario" [ref=e17] [cursor=pointer]
+        - button "Modo oscuro" [ref=e18] [cursor=pointer]
+    - generic [ref=e21]:
+      - link "Todas las categorías" [ref=e22] [cursor=pointer]:
+        - /url: /productos
+      - link "💍 Accessories" [ref=e23] [cursor=pointer]:
+        - /url: /productos?category_id=1
+      - link "👜 Bag" [ref=e24] [cursor=pointer]:
+        - /url: /productos?category_id=2
+      - link "🔗 Belt" [ref=e25] [cursor=pointer]:
+        - /url: /productos?category_id=3
+      - link "🧥 Blazer" [ref=e26] [cursor=pointer]:
+        - /url: /productos?category_id=4
+      - link "👚 Blouse" [ref=e27] [cursor=pointer]:
+        - /url: /productos?category_id=5
+      - link "🥾 Boots" [ref=e28] [cursor=pointer]:
+        - /url: /productos?category_id=6
+      - link "🧶 Cardigan" [ref=e29] [cursor=pointer]:
+        - /url: /productos?category_id=7
+      - link "🧥 Coat" [ref=e30] [cursor=pointer]:
+        - /url: /productos?category_id=8
+      - link "👗 Dress" [ref=e31] [cursor=pointer]:
+        - /url: /productos?category_id=9
+      - link "🧢 Hat" [ref=e32] [cursor=pointer]:
+        - /url: /productos?category_id=10
+      - link "👠 Heels" [ref=e33] [cursor=pointer]:
+        - /url: /productos?category_id=11
+      - link "🧥 Jacket" [ref=e34] [cursor=pointer]:
+        - /url: /productos?category_id=12
+      - link "👖 Jeans" [ref=e35] [cursor=pointer]:
+        - /url: /productos?category_id=13
+      - link "🦺 Jumpsuit" [ref=e36] [cursor=pointer]:
+        - /url: /productos?category_id=14
+      - link "👖 Pants" [ref=e37] [cursor=pointer]:
+        - /url: /productos?category_id=15
+      - link "🦺 Playsuit" [ref=e38] [cursor=pointer]:
+        - /url: /productos?category_id=16
+      - link "🧣 Poncho" [ref=e39] [cursor=pointer]:
+        - /url: /productos?category_id=17
+      - link "🩴 Sandals" [ref=e40] [cursor=pointer]:
+        - /url: /productos?category_id=18
+      - link "🧣 Scarf" [ref=e41] [cursor=pointer]:
+        - /url: /productos?category_id=19
+      - link "👔 Shirt" [ref=e42] [cursor=pointer]:
+        - /url: /productos?category_id=20
+      - link "👟 Shoes" [ref=e43] [cursor=pointer]:
+        - /url: /productos?category_id=21
+      - link "🩳 Shorts" [ref=e44] [cursor=pointer]:
+        - /url: /productos?category_id=22
+      - link "👗 Skirt" [ref=e45] [cursor=pointer]:
+        - /url: /productos?category_id=23
+      - link "👟 Sneakers" [ref=e46] [cursor=pointer]:
+        - /url: /productos?category_id=24
+      - link "🧶 Sweater" [ref=e47] [cursor=pointer]:
+        - /url: /productos?category_id=25
+      - link "👕 T-shirt" [ref=e48] [cursor=pointer]:
+        - /url: /productos?category_id=26
+      - link "🎽 Tank Top" [ref=e49] [cursor=pointer]:
+        - /url: /productos?category_id=27
+      - link "👚 Top" [ref=e50] [cursor=pointer]:
+        - /url: /productos?category_id=28
+      - link "👚 Tunic" [ref=e51] [cursor=pointer]:
+        - /url: /productos?category_id=29
+      - link "🦺 Vest" [ref=e52] [cursor=pointer]:
+        - /url: /productos?category_id=30
+  - main [ref=e53]:
+    - generic [ref=e55]:
+      - generic [ref=e56]:
+        - generic [ref=e60]:
+          - generic [ref=e61]: ♻️ Moda Sostenible
+          - heading "Dale una segunda vida a la ropa que usai" [level=1] [ref=e62]:
+            - text: Dale una segunda vida
+            - text: a la ropa que usai
+          - paragraph [ref=e63]: Compra y vende ropa de segunda mano con estilo. Encuentra tesoros únicos, ahorra dinero y ayuda al planeta.
+          - generic [ref=e64]:
+            - link "Explorar Catálogo" [ref=e65] [cursor=pointer]:
+              - /url: /productos
+              - text: Explorar Catálogo
+            - link "Únete Gratis" [ref=e66] [cursor=pointer]:
+              - /url: /register
+              - text: Únete Gratis
+          - generic [ref=e67]:
+            - generic [ref=e69]: Envío gratis +50k
+            - generic [ref=e71]: Pago Seguro
+        - img [ref=e73]
+      - generic [ref=e76]:
+        - generic [ref=e77]:
+          - generic [ref=e78]:
+            - text: Tendencias
+            - heading "Productos Destacados" [level=2] [ref=e79]
+          - link "Ver Todos" [ref=e80] [cursor=pointer]:
+            - /url: /productos
+        - progressbar [ref=e82]:
+          - img [ref=e83]
+      - generic [ref=e89]:
+        - heading "¿Tienes ropa que ya no usas?" [level=3] [ref=e90]
+        - paragraph [ref=e91]: Conviértela en dinero extra. Publica tus prendas en minutos y llega a miles de compradores.
+        - link "Empieza a Vender" [ref=e92] [cursor=pointer]:
+          - /url: /register
+          - text: Empieza a Vender
+  - generic [ref=e95]:
+    - generic [ref=e96]:
+      - generic [ref=e97]:
+        - heading "La Tiendita" [level=3] [ref=e98]
+        - paragraph [ref=e99]: Tu tienda de ropa segunda mano favorita. Calidad, estilo y sostenibilidad en cada prenda.
+        - generic [ref=e100]:
+          - link [ref=e101] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=e102] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=e103] [cursor=pointer]:
+            - /url: "#"
+      - generic [ref=e104]:
+        - heading "Enlaces Rápidos" [level=4] [ref=e105]
+        - list [ref=e106]:
+          - listitem [ref=e107]:
+            - link "Productos" [ref=e108] [cursor=pointer]:
+              - /url: /productos
+          - listitem [ref=e109]:
+            - link "Carrito" [ref=e110] [cursor=pointer]:
+              - /url: /carrito
+          - listitem [ref=e111]:
+            - link "Iniciar Sesión" [ref=e112] [cursor=pointer]:
+              - /url: /login
+          - listitem [ref=e113]:
+            - link "Registrarse" [ref=e114] [cursor=pointer]:
+              - /url: /register
+      - generic [ref=e115]:
+        - heading "Categorías" [level=4] [ref=e116]
+        - list [ref=e117]:
+          - listitem [ref=e118]:
+            - link "Jackets" [ref=e119] [cursor=pointer]:
+              - /url: /productos?category_id=26
+          - listitem [ref=e120]:
+            - link "Dresses" [ref=e121] [cursor=pointer]:
+              - /url: /productos?category_id=23
+          - listitem [ref=e122]:
+            - link "Jeans" [ref=e123] [cursor=pointer]:
+              - /url: /productos?category_id=27
+          - listitem [ref=e124]:
+            - link "Sweaters" [ref=e125] [cursor=pointer]:
+              - /url: /productos?category_id=39
+      - generic [ref=e126]:
+        - heading "Contacto" [level=4] [ref=e127]
+        - list [ref=e128]:
+          - listitem [ref=e129]: hello@latiendita.cl
+          - listitem [ref=e130]: +56 9 1234 5678
+          - listitem [ref=e131]: Santiago, Chile
+    - generic [ref=e132]:
+      - generic [ref=e133]: © 2026 La Tiendita. Todos los derechos reservados.
+      - generic [ref=e134]:
+        - link "Privacidad" [ref=e135] [cursor=pointer]:
+          - /url: "#"
+        - link "Términos" [ref=e136] [cursor=pointer]:
+          - /url: "#"

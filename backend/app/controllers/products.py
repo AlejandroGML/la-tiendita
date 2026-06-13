@@ -51,9 +51,16 @@ async def provide_session() -> AsyncSession:
 # ---------------------------------------------------------------------------
 
 
-def _build_product_response(product, *, lang: str | None = None) -> dict:
+def _build_product_response(
+    product, *, lang: str | None = None, promotion_info: dict | None = None
+) -> dict:
     """Convert a Product ORM instance to a dict, optionally filtering
-    translations to *lang* with ``en`` fallback."""
+    translations to *lang* with ``en`` fallback.
+
+    When *promotion_info* is provided (keyed by ``product.id``),
+    ``sale_price``, ``discount_label``, and ``promotion`` summary fields
+    are attached to the response.
+    """
     translations = [
         {
             "language_code": t.language_code,
@@ -76,12 +83,42 @@ def _build_product_response(product, *, lang: str | None = None) -> dict:
             matched = translations[0]
         translations = [matched] if matched else []
 
+    # Serialize variants (non-deleted only)
+    variants = [
+        {
+            "id": str(v.id),
+            "product_id": str(v.product_id),
+            "size": v.size.value if v.size else None,
+            "color": v.color,
+            "color_hex": v.color_hex,
+            "stock": v.stock,
+            "sku": v.sku,
+        }
+        for v in getattr(product, "variants", []) or []
+        if v.deleted_at is None
+    ]
+
+    # Sale pricing from resolved promotions
+    _sale_price = None
+    _discount_label = None
+    _promotion_summary = None
+
+    if promotion_info and product.id in promotion_info:
+        info = promotion_info[product.id]
+        promo = info["promotion"]
+        _sale_price = str(info["sale_price"])
+        _discount_label = info.get("discount_label") or None
+        _promotion_summary = {
+            "code": promo.code,
+            "discount_percent": promo.discount_percent,
+            "end_date": promo.end_date.isoformat() if promo.end_date else None,
+        }
+
     return {
         "id": str(product.id),
         "slug": product.slug,
         "price": str(product.price),
         "category_id": product.category_id,
-        "size": product.size.value if product.size else None,
         "brand": product.brand,
         "condition": product.condition.value if product.condition else None,
         "condition_rating": product.condition_rating,
@@ -96,9 +133,13 @@ def _build_product_response(product, *, lang: str | None = None) -> dict:
         "usage": product.usage,
         "source_dataset": product.source_dataset,
         "image_urls": product.image_urls,
-        "stock": product.stock,
         "translations": translations,
+        "variants": variants,
+        "variant_count": len(variants),
         "created_at": product.created_at.isoformat(),
+        "sale_price": _sale_price,
+        "discount_label": _discount_label,
+        "promotion": _promotion_summary,
     }
 
 
@@ -139,6 +180,8 @@ class ProductController(Controller):
         usage: str | None = None,
         min_price: str | None = None,
         max_price: str | None = None,
+        has_promotion: bool | None = None,
+        sort: str | None = None,
     ) -> dict:
         """Paginated product listing with search, filter, and i18n.
 
@@ -146,7 +189,7 @@ class ProductController(Controller):
         ``?category_id=``, ``?size=``, ``?condition=``, ``?condition_rating=``,
         ``?brand=``, ``?target_gender=``, ``?material=``, ``?trend=``,
         ``?pattern=``, ``?season=``, ``?usage=``, ``?min_price=``,
-        ``?max_price=``.
+        ``?max_price=``, ``?has_promotion=``, ``?sort=``.
         """
         from decimal import Decimal
 
@@ -169,17 +212,23 @@ class ProductController(Controller):
                 usage=usage,
                 min_price=Decimal(min_price) if min_price is not None else None,
                 max_price=Decimal(max_price) if max_price is not None else None,
+                has_promotion=has_promotion,
+                sort=sort,
             )
         except (PydanticValidationError, ValueError) as exc:
             raise ValidationException(detail=str(exc))
 
         items, total = await service.list_products(session, filters)
 
+        # Resolve active promotions for sale pricing
+        promotions = await service._apply_promotions(session, items)
+
         per_page = filters.per_page
         total_pages = max(1, math.ceil(total / per_page))
 
         data = [
-            _build_product_response(p, lang=filters.lang) for p in items
+            _build_product_response(p, lang=filters.lang, promotion_info=promotions)
+            for p in items
         ]
 
         return {
@@ -205,6 +254,8 @@ class ProductController(Controller):
                 "usage": filters.usage,
                 "min_price": str(filters.min_price) if filters.min_price else None,
                 "max_price": str(filters.max_price) if filters.max_price else None,
+                "has_promotion": filters.has_promotion,
+                "sort": filters.sort,
                 "search": filters.q,
             },
         }
@@ -244,7 +295,8 @@ class ProductController(Controller):
         if product is None:
             raise NotFoundException(detail="product not found")
 
-        return _build_product_response(product)
+        promotions = await service._apply_promotions(session, [product])
+        return _build_product_response(product, promotion_info=promotions)
 
 
 # ---------------------------------------------------------------------------
@@ -262,6 +314,28 @@ class AdminProductController(Controller):
         "service": Provide(provide_product_service, sync_to_thread=False),
         "session": Provide(provide_session, sync_to_thread=False),
     }
+
+    @get("/", status_code=200)
+    async def list_admin_products(
+        self,
+        service: ProductService,
+        session: AsyncSession,
+        page: int = 1,
+        per_page: int = 50,
+    ) -> dict:
+        """List all products for the admin panel (paginated)."""
+        items, total = await service.list_admin_products(
+            session, page=page, per_page=per_page
+        )
+        return {
+            "data": [_build_product_response(item) for item in items],
+            "pagination": {
+                "page": page,
+                "per_page": per_page,
+                "total": total,
+                "pages": max(1, math.ceil(total / per_page)),
+            },
+        }
 
     @post("/", status_code=201)
     async def create_product(

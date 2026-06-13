@@ -14,6 +14,10 @@ import { AuthService } from '../../core/services/auth.service';
 import { SeoService } from '../../core/services/seo.service';
 import { SizingGuideComponent } from '../../shared/components/sizing-guide/sizing-guide';
 
+const SIZE_ORDER: Record<string, number> = {
+  'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'XL': 4, 'XXL': 5,
+};
+
 const COLOR_MAP: Record<string, string> = {
   Black: '#000000',
   White: '#FFFFFF',
@@ -74,7 +78,7 @@ export class ProductDetail implements OnDestroy {
     const sizes = new Set(
       variants.map((v) => v.size).filter((s): s is string => s !== null),
     );
-    return [...sizes].sort();
+    return [...sizes].sort((a, b) => (SIZE_ORDER[a] ?? 999) - (SIZE_ORDER[b] ?? 999));
   });
 
   /** Variant IDs grouped by size for quick lookup */
@@ -197,6 +201,8 @@ export class ProductDetail implements OnDestroy {
 
 
   private sub: Subscription;
+  private reviewSub: Subscription | null = null;
+  private submitReviewSub: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
@@ -220,6 +226,17 @@ export class ProductDetail implements OnDestroy {
           this.activeImageIndex.set(0);
           this.selectedSize.set(null);
           this.selectedColor.set(null);
+          this.reviews.set([]);
+          this.avgRating.set(0);
+          this.totalReviews.set(0);
+          this.reviewPage.set(1);
+          this.reviewsLoading.set(false);
+          this.reviewsError.set(null);
+          this.showWriteForm.set(false);
+          this.newRating.set(0);
+          this.newComment.set('');
+          this.submitting.set(false);
+          this.submitError.set('');
           return this.productService.getProductBySlug(params['slug']);
         }),
       )
@@ -261,6 +278,8 @@ export class ProductDetail implements OnDestroy {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+    this.reviewSub?.unsubscribe();
+    this.submitReviewSub?.unsubscribe();
     this.seoService.removeStructuredData();
   }
 
@@ -368,9 +387,12 @@ export class ProductDetail implements OnDestroy {
     const p = this.product();
     if (!p?.slug) return;
 
+    // Unsubscribe previous to avoid race conditions
+    this.reviewSub?.unsubscribe();
+
     this.reviewsLoading.set(true);
     this.reviewsError.set(null);
-    this.reviewService.getProductReviews(p.slug, page, 10).subscribe({
+    this.reviewSub = this.reviewService.getProductReviews(p.slug, page, 12).subscribe({
       next: (res) => {
         this.reviews.set(res.reviews);
         this.avgRating.set(res.avg_rating);
@@ -406,7 +428,8 @@ export class ProductDetail implements OnDestroy {
       comment: this.newComment().trim() || undefined,
     };
 
-    this.reviewService.createReview(p.id, payload).subscribe({
+    this.submitReviewSub?.unsubscribe();
+    this.submitReviewSub = this.reviewService.createReview(p.id, payload).subscribe({
       next: () => {
         this.submitting.set(false);
         this.resetWriteForm();

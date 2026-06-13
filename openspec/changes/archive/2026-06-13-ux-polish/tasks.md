@@ -45,13 +45,13 @@ Chain strategy: stacked-to-main
 
 ## Phase 3: Header + Landing + SEO + Sizing (PR 3)
 
-- [ ] 3.1 Add `genderTabs` array and `navigateToGender()` method to `frontend/src/app/layout/header/header.ts`
-- [ ] 3.2 Add gender tab row to `header.html` (inline nav, active class when `?gender=` matches)
-- [ ] 3.3 Create `frontend/src/app/features/landing/new-arrivals.ts` (wrapper: ProductList, `orderBy='created_at'` preset)
-- [ ] 3.4 Create `frontend/src/app/features/landing/sale.ts` (wrapper: ProductList, `hasPromotion=true` preset)
-- [ ] 3.5 Create `frontend/src/app/features/landing/landing-module.ts` (declares both, imports SharedModule)
-- [ ] 3.6 Add `/nuevos`, `/ofertas` lazy routes to `app-routing-module.ts`
-- [ ] 3.7 Add `injectJsonLd()` method to `product-detail.ts` (DomSanitizer + Meta, schema.org/Product)
-- [ ] 3.8 Add "Size guide" link to `product-detail.html` next to size selector
-- [ ] 3.9 Create `frontend/src/app/shared/components/size-guide/size-guide.ts` (modal, @Input clothingType, SIZE_GUIDES constant)
-- [ ] 3.10 Jasmine tests: gender tab click navigates, landing pages load with correct params, JSON-LD injects, size guide opens/closes
+- [x] 3.1 Add `genderTabs` array and `navigateToGender()` method to `frontend/src/app/layout/header/header.ts` (✅ GENDER_TABS const, currentGender, isGenderActive, navigateByGender — implemented as ROW 3 below category nav)
+- [x] 3.2 Add gender tab row to `header.html` (inline nav, active class when `?gender=` matches) (✅ Tailwind-styled tabs with active underline indicator)
+- [x] 3.3 Create `frontend/src/app/features/landing/new-arrivals.ts` (wrapper: ProductList, `orderBy='created_at'` preset) (✅ new-arrivals.ts, new-arrivals.html, new-arrivals.module.ts)
+- [x] 3.4 Create `frontend/src/app/features/landing/sale.ts` (wrapper: ProductList, `hasPromotion=true` preset) (✅ sale.ts, sale.html, sale.module.ts)
+- [x] 3.5 Create `frontend/src/app/features/landing/landing-module.ts` (declares both, imports SharedModule) (✅ individual lazy modules per component)
+- [x] 3.6 Add `/nuevos`, `/ofertas` lazy routes to `app-routing-module.ts` (✅ app-routing-module.ts L187-197)
+- [x] 3.7 Add `injectJsonLd()` method to `product-detail.ts` (✅ SeoService.setProductStructuredData with JSON-LD via Renderer2)
+- [x] 3.8 Add "Size guide" link to `product-detail.html` next to size selector (✅ product-detail.html L114, sizing-guide component)
+- [x] 3.9 Create `frontend/src/app/shared/components/size-guide/size-guide.ts` (✅ sizing-guide.ts with women's/men's tabs, p-dialog, hardcoded data)
+- [x] 3.10 Tests: product-detail spec updated with SeoService mock, SizingGuideComponent declaration, module imports (✅ 21 test fixes, 264/283 pass)

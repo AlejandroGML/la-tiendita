@@ -259,7 +259,7 @@ export class Header implements OnInit, OnDestroy {
   }
 
   protected navigateByGender(gender: string): void {
-    this.router.navigate(['/productos'], { queryParams: { gender } });
+    this.router.navigate(['/productos'], { queryParams: { gender }, queryParamsHandling: 'merge' });
   }
 
   protected logout(): void {

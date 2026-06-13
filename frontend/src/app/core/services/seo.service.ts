@@ -11,10 +11,19 @@ export class SeoService {
   private readonly document = inject(DOCUMENT);
 
   private renderer: Renderer2;
-  private lastJsonLdScript: HTMLScriptElement | null = null;
 
   constructor() {
     this.renderer = this.rendererFactory.createRenderer(null, null);
+  }
+
+  /** Remove all product JSON-LD <script> elements from <head> */
+  private clearProductJsonLd(): void {
+    const scripts = this.document.head.querySelectorAll(
+      'script[type="application/ld+json"][data-product-jsonld]',
+    );
+    for (const s of scripts) {
+      this.renderer.removeChild(this.document.head, s);
+    }
   }
 
   /** Set basic page title and og:title */
@@ -41,11 +50,8 @@ export class SeoService {
 
   /** Inject JSON-LD structured data for a Product */
   setProductStructuredData(product: Product, displayName: string, displayDescription: string): void {
-    // Remove previous JSON-LD script if present
-    if (this.lastJsonLdScript) {
-      this.renderer.removeChild(this.document.head, this.lastJsonLdScript);
-      this.lastJsonLdScript = null;
-    }
+    // Remove any existing product JSON-LD scripts
+    this.clearProductJsonLd();
 
     const mainImage = product.image_urls?.[0] ?? '';
     const availability =
@@ -56,13 +62,18 @@ export class SeoService {
       '@type': 'Product',
       name: displayName,
       description: displayDescription,
-      image: mainImage,
-      offers: {
-        '@type': 'Offer',
-        price: product.sale_price ?? product.price,
-        priceCurrency: 'SEK',
-        availability: `https://schema.org/${availability}`,
-      },
+    };
+
+    // Only set image when a valid URL exists
+    if (mainImage) {
+      structuredData['image'] = mainImage;
+    }
+
+    structuredData['offers'] = {
+      '@type': 'Offer',
+      price: parseFloat(product.sale_price ?? product.price) ?? 0,
+      priceCurrency: 'SEK',
+      availability: `https://schema.org/${availability}`,
     };
 
     if (product.brand) {
@@ -71,17 +82,14 @@ export class SeoService {
 
     const script = this.renderer.createElement('script');
     script.type = 'application/ld+json';
+    script.setAttribute('data-product-jsonld', '');
     script.text = JSON.stringify(structuredData);
 
     this.renderer.appendChild(this.document.head, script);
-    this.lastJsonLdScript = script;
   }
 
   /** Remove structured data (cleanup when leaving product page) */
   removeStructuredData(): void {
-    if (this.lastJsonLdScript) {
-      this.renderer.removeChild(this.document.head, this.lastJsonLdScript);
-      this.lastJsonLdScript = null;
-    }
+    this.clearProductJsonLd();
   }
 }

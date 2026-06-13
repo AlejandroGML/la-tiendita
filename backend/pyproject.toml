@@ -24,8 +24,10 @@ dependencies = [
     "httpx-oauth>=0.16",
     "Pillow>=10.0",
     "bcrypt>=4.0",
+    "pyotp>=2.9",
     "jinja2>=3.1",
     "email-validator>=2.0",
+    "stripe>=11.0",
 ]
 
 [project.optional-dependencies]

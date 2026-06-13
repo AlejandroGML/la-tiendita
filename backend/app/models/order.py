@@ -35,6 +35,15 @@ class OrderStatus(StrEnum):
     CANCELLED = "cancelled"
 
 
+class PaymentStatus(StrEnum):
+    """Stripe payment lifecycle for an order."""
+
+    PENDING = "pending"
+    PAID = "paid"
+    FAILED = "failed"
+    REFUNDED = "refunded"
+
+
 class Order(Base):
     """A completed purchase — created atomically during checkout."""
 
@@ -45,6 +54,14 @@ class Order(Base):
     )
     status: Mapped[OrderStatus] = mapped_column(
         Enum(OrderStatus, values_callable=lambda x: [e.value for e in x]), default=OrderStatus.PENDING, nullable=False
+    )
+    payment_status: Mapped[PaymentStatus] = mapped_column(
+        Enum(PaymentStatus, values_callable=lambda x: [e.value for e in x]),
+        default=PaymentStatus.PENDING,
+        nullable=False,
+    )
+    stripe_session_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, unique=True
     )
     total: Mapped[Decimal] = mapped_column(
         Numeric(10, 2), nullable=False
@@ -72,9 +89,9 @@ class Order(Base):
 class OrderItem(Base):
     """Frozen product data at time of purchase — immutable order history.
 
-    ``product_snapshot`` stores ``{name, price, size, product_id}`` as JSONB.
-    Decoupled from the live products table so order history survives
-    subsequent price/name changes.
+    ``product_snapshot`` stores ``{name, price, size, color, sku,
+    product_id, variant_id}`` as JSONB.  Decoupled from the live products
+    table so order history survives subsequent price/name/variant changes.
     """
 
     __tablename__ = "order_items"

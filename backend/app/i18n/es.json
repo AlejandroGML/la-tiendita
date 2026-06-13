@@ -8,7 +8,7 @@
             "expiry": "Este enlace expira en 1 hora. Si no solicitaste un restablecimiento de contraseña, por favor ignora este correo."
         },
         "order_confirmation": {
-            "subject": "Confirmación de Pedido #",
+            "subject": "Confirmación de Pedido #{order_id} — La Tiendita",
             "thanks": "¡Gracias por tu compra",
             "summary": "Aquí tienes un resumen de tu pedido:",
             "product": "Producto",
@@ -16,6 +16,20 @@
             "price": "Precio",
             "total": "Total",
             "shipping": "Dirección de envío"
+        },
+        "order_shipped": {
+            "subject": "¡Tu Pedido #{order_id} Ha Sido Enviado!",
+            "greeting": "Hola",
+            "body": "¡Buenas noticias! Tu pedido ha sido enviado y está en camino.",
+            "track": "Ver Pedido",
+            "estimated_delivery": "Entrega estimada: 3-5 días hábiles."
+        },
+        "welcome": {
+            "subject": "¡Bienvenido a La Tiendita, {name}!",
+            "greeting": "Hola",
+            "body": "¡Bienvenido a La Tiendita! Estamos muy contentos de tenerte con nosotros.",
+            "cta": "Empezar a Comprar",
+            "footer_text": "Si tienes alguna pregunta, responde a este correo."
         }
     },
     "errors": {

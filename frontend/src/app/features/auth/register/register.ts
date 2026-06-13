@@ -42,7 +42,7 @@ export class Register {
     this.auth.register({ name, email, password }).subscribe({
       next: () => {
         this.submitting = false;
-        this.router.navigate(['/']);
+        this.router.navigate(['/registro-exitoso']);
       },
       error: (err) => {
         this.submitting = false;

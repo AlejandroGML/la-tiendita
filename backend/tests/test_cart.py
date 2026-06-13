@@ -63,6 +63,9 @@ def _make_cart_item(
     product_name: str = "Test Product",
     quantity: int = 2,
     unit_price: Decimal = Decimal("10.00"),
+    variant_id: uuid.UUID | None = None,
+    size: str | None = None,
+    color: str | None = None,
 ) -> CartItemResponse:
     return CartItemResponse(
         id=item_id or uuid.uuid4(),
@@ -71,6 +74,9 @@ def _make_cart_item(
         quantity=quantity,
         unit_price=unit_price,
         subtotal=unit_price * quantity,
+        variant_id=variant_id,
+        size=size,
+        color=color,
         added_at=datetime.now(timezone.utc),
     )
 
@@ -247,6 +253,140 @@ class TestCartCRUD:
         body = r.json()
         assert body["items"] == []
         assert body["subtotal"] == "0"
+
+    def test_add_item_with_variant_id(self, client):
+        """POST /api/cart/ with variant_id adds a variant-specific item."""
+        product_id = uuid.uuid4()
+        variant_id = uuid.uuid4()
+        item = _make_cart_item(
+            product_id=product_id,
+            quantity=1,
+            variant_id=variant_id,
+            size="M",
+            color="Black",
+        )
+        client.mock_svc.add_item.return_value = _make_cart_response(
+            items=[item], subtotal=item.subtotal
+        )
+
+        r = client.post(
+            "/api/cart/",
+            json={
+                "product_id": str(product_id),
+                "variant_id": str(variant_id),
+                "quantity": 1,
+            },
+            headers=_customer_headers(),
+        )
+
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert len(body["items"]) == 1
+        assert body["items"][0]["variant_id"] == str(variant_id)
+        assert body["items"][0]["size"] == "M"
+        assert body["items"][0]["color"] == "Black"
+
+    def test_same_variant_increments_quantity(self, client):
+        """Adding the same variant twice increments quantity, not duplicates."""
+        product_id = uuid.uuid4()
+        variant_id = uuid.uuid4()
+        # Service merges: quantity goes from 2 + 2 = 4
+        item = _make_cart_item(
+            product_id=product_id,
+            quantity=4,
+            variant_id=variant_id,
+            size="L",
+            color="Red",
+            unit_price=Decimal("25.00"),
+        )
+        client.mock_svc.add_item.return_value = _make_cart_response(
+            items=[item], subtotal=Decimal("100.00")
+        )
+
+        r = client.post(
+            "/api/cart/",
+            json={
+                "product_id": str(product_id),
+                "variant_id": str(variant_id),
+                "quantity": 2,
+            },
+            headers=_customer_headers(),
+        )
+
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert len(body["items"]) == 1
+        assert body["items"][0]["quantity"] == 4
+        assert body["items"][0]["variant_id"] == str(variant_id)
+
+    def test_different_variants_same_product_creates_separate_items(self, client):
+        """Two different variants of the same product create two cart items."""
+        product_id = uuid.uuid4()
+        v1 = uuid.uuid4()
+        v2 = uuid.uuid4()
+        item_a = _make_cart_item(
+            product_id=product_id,
+            quantity=1,
+            variant_id=v1,
+            size="M",
+            color="Blue",
+            unit_price=Decimal("30.00"),
+        )
+        item_b = _make_cart_item(
+            product_id=product_id,
+            quantity=1,
+            variant_id=v2,
+            size="L",
+            color="Green",
+            unit_price=Decimal("30.00"),
+        )
+        client.mock_svc.add_item.return_value = _make_cart_response(
+            items=[item_a, item_b], subtotal=Decimal("60.00")
+        )
+
+        r = client.post(
+            "/api/cart/",
+            json={
+                "product_id": str(product_id),
+                "variant_id": str(v2),
+                "quantity": 1,
+            },
+            headers=_customer_headers(),
+        )
+
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert len(body["items"]) == 2
+        # Variant IDs should differ
+        variant_ids = [i["variant_id"] for i in body["items"]]
+        assert str(v1) in variant_ids
+        assert str(v2) in variant_ids
+
+    def test_add_item_without_variant_still_works(self, client):
+        """Adding without variant_id (backward compat) still works."""
+        product_id = uuid.uuid4()
+        item = _make_cart_item(
+            product_id=product_id,
+            quantity=1,
+            variant_id=None,
+            size=None,
+            color=None,
+        )
+        client.mock_svc.add_item.return_value = _make_cart_response(
+            items=[item], subtotal=item.subtotal
+        )
+
+        r = client.post(
+            "/api/cart/",
+            json={"product_id": str(product_id), "quantity": 1},
+            headers=_customer_headers(),
+        )
+
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["items"][0]["variant_id"] is None
+        assert body["items"][0]["size"] is None
+        assert body["items"][0]["color"] is None
 
     def test_remove_item(self, client):
         """DELETE /api/cart/{item_id} removes the item and returns updated cart."""

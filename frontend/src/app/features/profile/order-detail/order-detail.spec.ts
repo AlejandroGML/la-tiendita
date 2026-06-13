@@ -1,8 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, RouterModule } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TableModule } from 'primeng/table';
+import { ToastModule } from 'primeng/toast';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
@@ -35,6 +37,7 @@ const mockOrder: Order = {
       price: '29990',
     },
   ],
+  payment_status: 'paid',
   created_at: '2026-06-06T00:00:00Z',
   updated_at: '2026-06-06T00:00:00Z',
 };
@@ -42,6 +45,7 @@ const mockOrder: Order = {
 const mockCancelledOrder: Order = {
   ...mockOrder,
   status: 'cancelled',
+  payment_status: 'failed',
 };
 
 function createOrderServiceMock() {
@@ -55,6 +59,7 @@ function createOrderServiceMock() {
 function createActivatedRouteMock(id: string = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee') {
   return {
     params: of({ id }),
+    queryParams: of({}),
   };
 }
 
@@ -72,11 +77,13 @@ describe('OrderDetailComponent', () => {
         ButtonModule,
         ProgressSpinnerModule,
         TableModule,
+        ToastModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        MessageService,
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],
@@ -127,11 +134,13 @@ describe('OrderDetailComponent', () => {
         ButtonModule,
         ProgressSpinnerModule,
         TableModule,
+        ToastModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        MessageService,
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],
@@ -159,11 +168,13 @@ describe('OrderDetailComponent', () => {
         ButtonModule,
         ProgressSpinnerModule,
         TableModule,
+        ToastModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
       ],
       providers: [
+        MessageService,
         { provide: OrderService, useValue: orderService },
         { provide: ActivatedRoute, useValue: createActivatedRouteMock() },
       ],

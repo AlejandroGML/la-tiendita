@@ -33,3 +33,15 @@ class UserAdminUpdate(BaseModel):
 
     role: str | None = None
     is_verified: bool | None = None
+
+
+class Setup2faResponse(BaseModel):
+    """Response for 2FA setup — returns the secret and a provisioning URI."""
+    secret: str
+    uri: str
+    qr_code_url: str
+
+
+class Enable2faRequest(BaseModel):
+    """Verify a TOTP code to enable 2FA."""
+    code: str

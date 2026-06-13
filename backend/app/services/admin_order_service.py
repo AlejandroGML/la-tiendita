@@ -10,7 +10,7 @@ from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
-from app.models.order import Order, OrderStatus
+from app.models.order import Order, OrderStatus, PaymentStatus
 from app.schemas.order import OrderAdminListItem
 
 
@@ -80,6 +80,8 @@ class AdminOrderService:
             OrderAdminListItem(
                 id=o.id,
                 status=o.status.value,
+                payment_status=o.payment_status.value,
+                stripe_session_id=o.stripe_session_id,
                 total=o.total,
                 user_name=o.user.name,
                 created_at=o.created_at,
@@ -136,6 +138,17 @@ class AdminOrderService:
                 f"from '{current.value}' to '{target.value}'"
             )
 
+        # Payment gate: non-paid orders may only be cancelled
+        if order.payment_status != PaymentStatus.PAID:
+            if not (
+                current == OrderStatus.PENDING
+                and target == OrderStatus.CANCELLED
+            ):
+                raise InvalidTransitionError(
+                    f"cannot transition order {order_id} — "
+                    f"payment not yet confirmed (status={order.payment_status.value})"
+                )
+
         # Atomic UPDATE — include current status to prevent TOCTOU races
         stmt = (
             update(Order)
@@ -157,9 +170,20 @@ class AdminOrderService:
             .options(selectinload(Order.user))
         )
 
+        # Fire-and-forget shipping notification
+        if target == OrderStatus.SHIPPED:
+            from app.services.email_service import EmailService
+
+            email_svc = EmailService()
+            await email_svc.send_order_shipped(
+                session, order.user.id, order
+            )
+
         return OrderAdminListItem(
             id=order.id,
             status=order.status.value,
+            payment_status=order.payment_status.value,
+            stripe_session_id=order.stripe_session_id,
             total=order.total,
             user_name=order.user.name,
             created_at=order.created_at,

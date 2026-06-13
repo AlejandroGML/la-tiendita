@@ -3,10 +3,36 @@
     "products": "Productos",
     "cart": "Carrito",
     "newArrivals": "Novedades",
-    "sale": "Ofertas"
+    "sale": "Ofertas",
+    "ofertas": "Ofertas",
+    "nuevo": "Nuevo",
+    "popular": "Más popular",
+    "ayuda": "Ayuda",
+    "wishlist": "Favoritos",
+    "categorias": "Categorías",
+    "search": "Buscar"
   },
   "header": {
-    "title": "La Tiendita"
+    "title": "La Tiendita",
+    "search": "¿Qué estás buscando?",
+    "buscarAria": "Buscar",
+    "categorias": "Categorías",
+    "verPerfil": "Ver Perfil",
+    "cerrarSesion": "Cerrar Sesión",
+    "compraSegura": "Compra segura",
+    "verTodo": "Ver todo",
+    "iniciarSesion": "Iniciar sesión",
+    "iniciarSesionAria": "Iniciar sesión",
+    "carritoAria": "Carrito",
+    "favoritosAria": "Favoritos",
+    "cambiarIdioma": "Cambiar idioma",
+    "cambiarMoneda": "Cambiar moneda",
+    "modoClaro": "Modo claro",
+    "modoOscuro": "Modo oscuro",
+    "menu": "Menú",
+    "coleccionPrimavera": "Colección<br/>Primavera",
+    "renuevaEstilo": "Renueva tu estilo con los mejores hallazgos de la temporada.",
+    "hasta40": "Hasta 40% OFF"
   },
   "home": {
     "tagline": "Ropa de segunda mano con estilo. Encuentra tesoros únicos.",
@@ -78,6 +104,7 @@
     "noResults": "No se encontraron productos",
     "notFound": "Producto no encontrado",
     "notFoundDesc": "El producto que buscas no existe o ha sido eliminado.",
+    "noProducts": "No se encontraron productos",
     "backToCatalog": "Volver al catálogo",
     "retry": "Reintentar",
     "error": "Ocurrió un error al cargar",
@@ -98,6 +125,7 @@
     "totalRevenue": "Ingresos Totales",
     "dashboardError": "Error al cargar estadísticas",
     "ordersPending": "Órdenes Pendientes",
+    "ordersConfirmed": "Órdenes Confirmadas",
     "ordersShipped": "Órdenes Enviadas",
     "ordersDelivered": "Órdenes Entregadas",
     "reviewsTotal": "Reseñas Totales",
@@ -183,7 +211,9 @@
     "error": "Error al cargar el carrito",
     "view": "Ver carrito",
     "originalSubtotal": "Subtotal original",
-    "savings": "Ahorro"
+    "savings": "Ahorro",
+    "paymentCancelled": "El pago fue cancelado. Tus productos siguen en el carrito.",
+    "dismiss": "Cerrar"
   },
   "checkout": {
     "title": "Finalizar Compra",
@@ -203,7 +233,9 @@
     "error": "Error al procesar el pedido",
     "stockError": "Stock insuficiente para algunos productos",
     "orderPlaced": "Pedido realizado con éxito",
-    "viewOrder": "Ver pedido"
+    "viewOrder": "Ver pedido",
+    "redirecting": "Redirigiendo al pago...",
+    "paymentUnavailable": "El servicio de pago no está disponible. Intenta nuevamente."
   },
   "reviews": {
     "title": "Reseñas",
@@ -288,7 +320,13 @@
     },
     "detail": {
       "title": "Pedido"
-    }
+    },
+    "paymentStatus": "Estado del pago",
+    "paymentPending": "Pendiente",
+    "paymentPaid": "Pagado",
+    "paymentFailed": "Fallido",
+    "paymentRefunded": "Reembolsado",
+    "paymentSuccess": "¡Pago exitoso! Pedido confirmado."
   },
   "footer": {
     "brandDesc": "Tu tienda de ropa segunda mano favorita. Calidad, estilo y sostenibilidad en cada prenda.",
@@ -312,6 +350,7 @@
     "chest": "Pecho",
     "waist": "Cintura",
     "hips": "Cadera",
-    "disclaimer": "Las medidas son aproximadas y corresponden a medidas corporales en centímetros. Te recomendamos medirte antes de comprar."
+    "disclaimer": "Las medidas son aproximadas y corresponden a medidas corporales en centímetros. Te recomendamos medirte antes de comprar.",
+    "comingSoon": "Guía de tallas próximamente"
   }
 }

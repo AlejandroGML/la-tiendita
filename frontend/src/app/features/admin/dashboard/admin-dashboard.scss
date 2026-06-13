@@ -1,10 +1,63 @@
-.stat-card {
-  border-left: 4px solid var(--mat-sys-primary, #3f51b5);
+/* ═══════════════════════════════════════════════
+   Admin Dashboard — La Tiendita
+   Stat cards con paleta primaveral + dark mode
+   Colors: emerald, sky, amber, pink (existing)
+           + violet, orange, cyan, rose, teal (new)
+   All bg/text/dark classes applied via Tailwind
+   utility bindings in the template.
+   ═══════════════════════════════════════════════ */
 
-  .stat-icon {
-    font-size: 2.5rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    color: var(--mat-sys-primary, #3f51b5);
+.stat-card {
+  cursor: default;
+
+  /* Subtle gradient overlay on icon background */
+  .w-12.h-12 {
+    position: relative;
+    overflow: hidden;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 60%);
+      pointer-events: none;
+    }
   }
+}
+
+/* ═══════════════════════════════════════════════
+   Mini-Tables — Recent Orders + Users
+   Responsive: side-by-side (lg) / stacked (mobile)
+   Status & role badge styles
+   ═══════════════════════════════════════════════ */
+
+.mini-table-card {
+  min-height: 260px;
+
+  /* Compact p-table cells inside mini-tables */
+  .p-datatable {
+    .p-datatable-thead > tr > th {
+      font-size: 0.8125rem;
+      padding: 0.625rem 0.875rem;
+    }
+
+    .p-datatable-tbody > tr > td {
+      padding: 0.5rem 0.875rem;
+      vertical-align: middle;
+    }
+  }
+
+  /* Subtle row hover */
+  .p-datatable-tbody > tr:hover {
+    background-color: rgb(249 250 251);
+  }
+
+  :host-context(.dark) & .p-datatable-tbody > tr:hover {
+    background-color: rgb(31 41 55);
+  }
+}
+
+.status-badge {
+  white-space: nowrap;
+  line-height: 1.25;
 }

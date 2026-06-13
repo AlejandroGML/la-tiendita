@@ -1,4 +1,66 @@
+/* ═══════════════════════════════════════════════
+   Admin Layout — La Tiendita
+   Sidebar + Toolbar con paleta primaveral
+   ═══════════════════════════════════════════════ */
+
+/* ── Navigation link ── */
+.nav-link {
+  color: #4b5563; /* gray-600 */
+
+  &:hover {
+    background-color: #f0fdf4; /* emerald-50 */
+    color: #059669; /* emerald-600 */
+  }
+
+  :host-context(.dark-theme) & {
+    color: #9ca3af; /* gray-400 */
+
+    &:hover {
+      background-color: #1f2937; /* gray-800 */
+      color: #34d399; /* emerald-400 */
+    }
+  }
+}
+
+/* ── Active navigation item ── */
 .active-nav-item {
-  background-color: rgba(0, 0, 0, 0.04);
-  border-left: 3px solid #3f51b5;
+  background-color: #f0fdf4; /* emerald-50 */
+  color: #059669 !important; /* emerald-600 */
+  font-weight: 600;
+  border-left: 3px solid #059669; /* emerald-600 */
+  border-radius: 0.75rem;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+
+  i {
+    color: #059669;
+  }
+
+  :host-context(.dark-theme) & {
+    background-color: rgba(5, 150, 105, 0.1); /* emerald-600/10 */
+    color: #34d399 !important; /* emerald-400 */
+    border-left-color: #34d399;
+
+    i {
+      color: #34d399;
+    }
+  }
+}
+
+/* ── Scrollbar styling ── */
+.flex-1.overflow-y-auto {
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #d1d5db; /* gray-300 */
+    border-radius: 3px;
+  }
+
+  :host-context(.dark-theme) &::-webkit-scrollbar-thumb {
+    background-color: #4b5563; /* gray-600 */
+  }
 }

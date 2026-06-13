@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import type {
   Order,
   CheckoutRequest,
+  CheckoutResponse,
   ShippingAddress,
 } from '../../shared/models/order.model';
 
@@ -11,10 +12,10 @@ import type {
 export class OrderService {
   private readonly http = inject(HttpClient);
 
-  /** Submit a checkout request — converts cart to order */
-  checkout(shippingAddress: ShippingAddress): Observable<Order> {
+  /** Submit a checkout request — returns Stripe redirect URL */
+  checkout(shippingAddress: ShippingAddress): Observable<CheckoutResponse> {
     const body: CheckoutRequest = { shipping_address: shippingAddress };
-    return this.http.post<Order>('/api/checkout', body);
+    return this.http.post<CheckoutResponse>('/api/checkout', body);
   }
 
   /** List orders for the authenticated user */

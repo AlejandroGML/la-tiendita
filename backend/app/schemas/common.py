@@ -36,6 +36,14 @@ class ProductFilter(BaseModel):
     usage: str | None = None
     min_price: Decimal | None = None
     max_price: Decimal | None = None
+    has_promotion: bool | None = Field(
+        default=None,
+        description="Filter by active promotion status (true = promoted only)",
+    )
+    sort: str | None = Field(
+        default=None,
+        description="Sort order: newest, price_asc, price_desc",
+    )
     q: str | None = Field(
         default=None, alias="search", description="Full-text search on translations"
     )

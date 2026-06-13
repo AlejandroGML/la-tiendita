@@ -85,6 +85,11 @@ export class AuthService {
     return localStorage.getItem(ACCESS_TOKEN_KEY);
   }
 
+  /** Store tokens + user from a successful login response. */
+  handleLoginResponse(res: TokenResponse): void {
+    this.storeTokens(res);
+  }
+
   clearTokens(): void {
     localStorage.removeItem(ACCESS_TOKEN_KEY);
     localStorage.removeItem(REFRESH_TOKEN_KEY);

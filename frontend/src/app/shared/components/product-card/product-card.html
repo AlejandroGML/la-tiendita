@@ -71,14 +71,17 @@
 
       <!-- Color swatches row (below product name) -->
       <div *ngIf="displayColors.length > 0" class="flex items-center gap-1">
-        <span
+        <a
           *ngFor="let swatch of displayColors"
           class="cursor-pointer inline-block w-4 h-4 rounded-full border border-gray-300 hover:border-gray-500 transition-colors"
           [style.background-color]="swatch.hex"
           [title]="swatch.color"
           (click)="navigateToDetail($event)"
-          aria-hidden="true"
-        ></span>
+          (keydown.enter)="navigateToDetail($event)"
+          role="button"
+          [attr.aria-label]="swatch.color"
+          tabindex="0"
+        ></a>
         <span *ngIf="colorOverflow > 0" class="text-xs text-gray-400">
           +{{ colorOverflow }}
         </span>

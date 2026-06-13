@@ -1,6 +1,6 @@
 <div class="admin-products-container">
   <header class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">{{ 'admin.products' | translate }}</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ 'admin.products' | translate }}</h1>
     <p-button
       [label]="'admin.newProduct' | translate"
       icon="pi pi-plus"
@@ -21,7 +21,7 @@
     data-testid="products-error"
   >
     <i class="pi pi-exclamation-circle text-4xl text-red-400 mb-2 block"></i>
-    <p class="text-gray-500">{{ 'admin.productsError' | translate }}</p>
+    <p class="text-gray-500 dark:text-gray-400">{{ 'admin.productsError' | translate }}</p>
     <p-button
       [outlined]="true"
       [label]="'catalog.retry' | translate"
@@ -33,7 +33,7 @@
 
   <div
     *ngIf="!loading() && !error() && products().length === 0"
-    class="text-center text-gray-500 py-12"
+    class="text-center text-gray-500 dark:text-gray-400 py-12"
     data-testid="no-products"
   >
     <i class="pi pi-box text-4xl mb-2 block"></i>

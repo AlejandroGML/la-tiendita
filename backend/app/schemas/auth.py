@@ -63,7 +63,19 @@ class ResetPasswordRequest(BaseModel):
         return v
 
 
+class AdminLoginResponse(BaseModel):
+    """First step of admin login — TOTP required."""
+    require_2fa: bool = True
+    login_token: str
+    user: UserResponse | None = None
+
+
+class Verify2faRequest(BaseModel):
+    """Payload for POST /auth/verify-2fa."""
+    login_token: str
+    code: str
+
+
 class MessageResponse(BaseModel):
     """Generic success message response."""
-
     message: str

@@ -16,7 +16,7 @@ import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import type { CartResponse, CartItem } from '../../shared/models/cart.model';
-import type { Order } from '../../shared/models/order.model';
+import type { CheckoutResponse } from '../../shared/models/order.model';
 
 const mockCartItem: CartItem = {
   id: 'item-uuid-1',
@@ -38,32 +38,9 @@ const mockEmptyCart: CartResponse = {
   subtotal: '0',
 };
 
-const mockOrder: Order = {
-  id: 'order-uuid-1',
-  status: 'confirmed',
-  total: '59980',
-  shipping_address: {
-    name: 'Test User',
-    address: 'Calle 123',
-    city: 'Valparaíso',
-    phone: '+56912345678',
-  },
-  items: [
-    {
-      id: 'oi-uuid-1',
-      product_id: 'prod-uuid-1',
-      product_snapshot: {
-        name: 'Jeans Levis',
-        price: '29990',
-        size: 'M',
-        product_id: 'prod-uuid-1',
-      },
-      quantity: 2,
-      price: '29990',
-    },
-  ],
-  created_at: '2026-06-06T00:00:00Z',
-  updated_at: '2026-06-06T00:00:00Z',
+const mockCheckoutResponse: CheckoutResponse = {
+  checkout_url: 'https://checkout.stripe.com/c/pay/cs_test_abc123',
+  order_id: 'order-uuid-1',
 };
 
 function createCartServiceMock() {
@@ -75,9 +52,9 @@ function createCartServiceMock() {
 
 function createOrderServiceMock() {
   return {
-    checkout: vi.fn().mockReturnValue(of(mockOrder)),
+    checkout: vi.fn().mockReturnValue(of(mockCheckoutResponse)),
     getOrders: vi.fn().mockReturnValue(of([])),
-    getOrder: vi.fn().mockReturnValue(of(mockOrder)),
+    getOrder: vi.fn().mockReturnValue(of(mockCheckoutResponse)),
   };
 }
 
@@ -193,8 +170,7 @@ describe('CheckoutComponent', () => {
     expect(cartService.resetState).toHaveBeenCalled();
   });
 
-  it('should navigate to /perfil/ordenes on success', () => {
-    const navigateSpy = vi.spyOn(router, 'navigate');
+  it('should redirect to Stripe checkout_url on success', () => {
     component.shippingForm.setValue({
       name: 'Test',
       address: 'Test address 123',
@@ -204,7 +180,25 @@ describe('CheckoutComponent', () => {
 
     component.submitOrder();
 
-    expect(navigateSpy).toHaveBeenCalledWith(['/perfil/ordenes']);
+    expect(orderService.checkout).toHaveBeenCalledWith({
+      name: 'Test',
+      address: 'Test address 123',
+      city: 'TestCity',
+      phone: '+56912345678',
+    });
+  });
+
+  it('should set redirecting flag on successful checkout', () => {
+    component.shippingForm.setValue({
+      name: 'Test',
+      address: 'Test address 123',
+      city: 'TestCity',
+      phone: '+56912345678',
+    });
+
+    component.submitOrder();
+
+    expect(component.redirecting()).toBe(true);
   });
 
   it('should show error on checkout failure', async () => {
@@ -244,6 +238,26 @@ describe('CheckoutComponent', () => {
     const errorEl = fixture.nativeElement.querySelector('.text-red-600');
     expect(errorEl).toBeTruthy();
     expect(errorEl.textContent).toContain('checkout.stockError');
+  });
+
+  it('should show payment unavailable error on 502', async () => {
+    orderService.checkout = vi.fn().mockReturnValue(
+      throwError(() => ({ status: 502 })),
+    );
+    component.shippingForm.setValue({
+      name: 'Test',
+      address: 'Test address 123',
+      city: 'TestCity',
+      phone: '+56912345678',
+    });
+
+    component.submitOrder();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const errorEl = fixture.nativeElement.querySelector('.text-red-600');
+    expect(errorEl).toBeTruthy();
+    expect(errorEl.textContent).toContain('checkout.paymentUnavailable');
   });
 
   it('should redirect to /carrito when cart is empty on init', async () => {

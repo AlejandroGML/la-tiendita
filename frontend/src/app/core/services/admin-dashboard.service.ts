@@ -7,6 +7,15 @@ export interface DashboardStats {
   total_users: number;
   total_orders: number;
   total_revenue: number;
+  orders_pending: number;
+  orders_confirmed: number;
+  orders_shipped: number;
+  orders_delivered: number;
+  reviews_total: number;
+  reviews_avg_rating: number;
+  promotions_active: number;
+  revenue_month: number;
+  orders_month: number;
 }
 
 @Injectable({ providedIn: 'root' })

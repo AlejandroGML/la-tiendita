@@ -8,7 +8,7 @@
             "expiry": "This link expires in 1 hour. If you did not request a password reset, please ignore this email."
         },
         "order_confirmation": {
-            "subject": "Order Confirmation #",
+            "subject": "Order Confirmation #{order_id} — La Tiendita",
             "thanks": "Thank you for your purchase",
             "summary": "Here is a summary of your order:",
             "product": "Product",
@@ -16,6 +16,20 @@
             "price": "Price",
             "total": "Total",
             "shipping": "Shipping address"
+        },
+        "order_shipped": {
+            "subject": "Your Order #{order_id} Has Shipped!",
+            "greeting": "Hi",
+            "body": "Great news! Your order has been shipped and is on its way to you.",
+            "track": "View Order",
+            "estimated_delivery": "Estimated delivery: 3-5 business days."
+        },
+        "welcome": {
+            "subject": "Welcome to La Tiendita, {name}!",
+            "greeting": "Hi",
+            "body": "Welcome to La Tiendita! We're excited to have you on board.",
+            "cta": "Start Shopping",
+            "footer_text": "If you have any questions, just reply to this email."
         }
     },
     "errors": {

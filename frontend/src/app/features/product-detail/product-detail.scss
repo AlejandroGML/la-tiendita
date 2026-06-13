@@ -21,4 +21,52 @@
     border-top: 1px solid #e5e7eb;
     padding-top: 1rem;
   }
+
+  .variant-section {
+    margin-bottom: 0.75rem;
+  }
+
+  .size-btn {
+    min-width: 3rem;
+    transition:
+      background-color 0.15s ease,
+      color 0.15s ease,
+      border-color 0.15s ease;
+
+    &:not(:disabled):hover {
+      border-color: #111827;
+    }
+  }
+
+  .color-swatch {
+    cursor: pointer;
+
+    &:not(:disabled):hover {
+      transform: scale(1.1);
+    }
+
+    &.ring-2 {
+      box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111827;
+    }
+  }
+
+  // ── Reviews ────────────────────────────────────
+
+  .review-form {
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+
+  .review-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    padding: 1rem;
+
+    &:hover {
+      border-color: #d1d5db;
+    }
+  }
 }

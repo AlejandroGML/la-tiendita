@@ -89,12 +89,38 @@ def _customer_headers() -> dict:
 
 
 def _make_dashboard_stats() -> DashboardStatsResponse:
-    """Return a predictable dashboard stats response."""
+    """Return a predictable dashboard stats response with all 12 fields."""
     return DashboardStatsResponse(
         total_products=25,
         total_users=50,
         total_orders=120,
         total_revenue=45000.75,
+        orders_pending=8,
+        orders_shipped=15,
+        orders_delivered=92,
+        reviews_total=34,
+        reviews_avg_rating=4.1,
+        promotions_active=3,
+        revenue_month=12750.50,
+        orders_month=18,
+    )
+
+
+def _make_dashboard_stats_empty() -> DashboardStatsResponse:
+    """Return a dashboard stats response where all aggregates are zero."""
+    return DashboardStatsResponse(
+        total_products=0,
+        total_users=0,
+        total_orders=0,
+        total_revenue=0.0,
+        orders_pending=0,
+        orders_shipped=0,
+        orders_delivered=0,
+        reviews_total=0,
+        reviews_avg_rating=0.0,
+        promotions_active=0,
+        revenue_month=0.0,
+        orders_month=0,
     )
 
 
@@ -123,6 +149,7 @@ def _make_order_admin_list_item(
     *,
     order_id: uuid.UUID | None = None,
     status: str = "pending",
+    payment_status: str = "pending",
     total: Decimal | None = None,
     user_name: str = "Test User",
 ) -> OrderAdminListItem:
@@ -130,6 +157,8 @@ def _make_order_admin_list_item(
     return OrderAdminListItem(
         id=order_id or uuid.uuid4(),
         status=status,
+        payment_status=payment_status,
+        stripe_session_id=None,
         total=total or Decimal("150.00"),
         user_name=user_name,
         created_at=datetime.now(timezone.utc),
@@ -236,7 +265,7 @@ class TestDashboardStats:
     """GET /api/admin/stats — returns aggregate counters for the admin dashboard."""
 
     def test_dashboard_stats_returns_200(self, client):
-        """Admin receives dashboard stats with all four aggregate values."""
+        """Admin receives dashboard stats with all twelve aggregate values."""
         client.mock_dashboard_svc.get_dashboard_stats.return_value = _make_dashboard_stats()
 
         response = client.get("/api/admin/stats", headers=_admin_headers())
@@ -247,6 +276,28 @@ class TestDashboardStats:
         assert body["total_users"] == 50
         assert body["total_orders"] == 120
         assert body["total_revenue"] == 45000.75
+        assert body["orders_pending"] == 8
+        assert body["orders_shipped"] == 15
+        assert body["orders_delivered"] == 92
+        assert body["reviews_total"] == 34
+        assert body["reviews_avg_rating"] == 4.1
+        assert body["promotions_active"] == 3
+        assert body["revenue_month"] == 12750.50
+        assert body["orders_month"] == 18
+
+    def test_dashboard_stats_empty_db_returns_zeroes(self, client):
+        """Admin receives all zeros when the database is empty."""
+        client.mock_dashboard_svc.get_dashboard_stats.return_value = _make_dashboard_stats_empty()
+
+        response = client.get("/api/admin/stats", headers=_admin_headers())
+
+        assert response.status_code == 200, response.text
+        body = response.json()
+        for key in body:
+            assert body[key] in (0, 0.0), f"expected 0 or 0.0 for {key}, got {body[key]}"
+        # reviews_avg_rating must be float zero specifically
+        assert body["reviews_avg_rating"] == 0.0
+        assert isinstance(body["reviews_avg_rating"], float)
 
 
 # ---------------------------------------------------------------------------

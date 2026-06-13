@@ -1,0 +1,109 @@
+- generic [ref=e2]:
+  - banner [ref=e4]:
+    - generic [ref=e6]:
+      - link "LT La Tiendita" [ref=e7] [cursor=pointer]:
+        - /url: /
+        - generic [ref=e8]: LT
+        - generic [ref=e9]: La Tiendita
+      - navigation [ref=e10]:
+        - link "Productos" [ref=e11] [cursor=pointer]:
+          - /url: /productos
+          - text: Productos
+      - generic [ref=e12]:
+        - button "Buscar" [ref=e13] [cursor=pointer]
+        - link "Favoritos" [ref=e14] [cursor=pointer]:
+          - /url: /perfil/wishlist
+        - link "Carrito" [ref=e15] [cursor=pointer]:
+          - /url: /carrito
+        - button "Iniciar sesión" [ref=e16] [cursor=pointer]
+        - button "Modo oscuro" [ref=e17] [cursor=pointer]
+  - main [ref=e18]:
+    - generic [ref=e20]:
+      - generic [ref=e21]:
+        - generic [ref=e25]:
+          - generic [ref=e26]: ♻️ Moda Sostenible
+          - heading "Dale una segunda vida a la ropa que usai" [level=1] [ref=e27]:
+            - text: Dale una segunda vida
+            - text: a la ropa que usai
+          - paragraph [ref=e28]: Compra y vende ropa de segunda mano con estilo. Encuentra tesoros únicos, ahorra dinero y ayuda al planeta.
+          - generic [ref=e29]:
+            - link "Explorar Catálogo" [ref=e30] [cursor=pointer]:
+              - /url: /productos
+              - text: Explorar Catálogo
+            - link "Únete Gratis" [ref=e31] [cursor=pointer]:
+              - /url: /register
+              - text: Únete Gratis
+          - generic [ref=e32]:
+            - generic [ref=e34]: Envío gratis +50k
+            - generic [ref=e36]: Pago Seguro
+        - img [ref=e38]
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - text: Tendencias
+            - heading "Productos Destacados" [level=2] [ref=e44]
+          - link "Ver Todos" [ref=e45] [cursor=pointer]:
+            - /url: /productos
+        - progressbar [ref=e47]:
+          - img [ref=e48]
+      - generic [ref=e54]:
+        - heading "¿Tienes ropa que ya no usas?" [level=3] [ref=e55]
+        - paragraph [ref=e56]: Conviértela en dinero extra. Publica tus prendas en minutos y llega a miles de compradores.
+        - link "Empieza a Vender" [ref=e57] [cursor=pointer]:
+          - /url: /register
+          - text: Empieza a Vender
+  - generic [ref=e60]:
+    - generic [ref=e61]:
+      - generic [ref=e62]:
+        - heading "La Tiendita" [level=3] [ref=e63]
+        - paragraph [ref=e64]: Tu tienda de ropa segunda mano favorita. Calidad, estilo y sostenibilidad en cada prenda.
+        - generic [ref=e65]:
+          - link [ref=e66] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=e67] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=e68] [cursor=pointer]:
+            - /url: "#"
+      - generic [ref=e69]:
+        - heading "Enlaces Rápidos" [level=4] [ref=e70]
+        - list [ref=e71]:
+          - listitem [ref=e72]:
+            - link "Productos" [ref=e73] [cursor=pointer]:
+              - /url: /productos
+          - listitem [ref=e74]:
+            - link "Carrito" [ref=e75] [cursor=pointer]:
+              - /url: /carrito
+          - listitem [ref=e76]:
+            - link "Iniciar Sesión" [ref=e77] [cursor=pointer]:
+              - /url: /login
+          - listitem [ref=e78]:
+            - link "Registrarse" [ref=e79] [cursor=pointer]:
+              - /url: /register
+      - generic [ref=e80]:
+        - heading "Categorías" [level=4] [ref=e81]
+        - list [ref=e82]:
+          - listitem [ref=e83]:
+            - link "Jackets" [ref=e84] [cursor=pointer]:
+              - /url: /productos?category_id=26
+          - listitem [ref=e85]:
+            - link "Dresses" [ref=e86] [cursor=pointer]:
+              - /url: /productos?category_id=23
+          - listitem [ref=e87]:
+            - link "Jeans" [ref=e88] [cursor=pointer]:
+              - /url: /productos?category_id=27
+          - listitem [ref=e89]:
+            - link "Sweaters" [ref=e90] [cursor=pointer]:
+              - /url: /productos?category_id=39
+      - generic [ref=e91]:
+        - heading "Contacto" [level=4] [ref=e92]
+        - list [ref=e93]:
+          - listitem [ref=e94]: hello@latiendita.cl
+          - listitem [ref=e95]: +56 9 1234 5678
+          - listitem [ref=e96]: Santiago, Chile
+    - generic [ref=e97]:
+      - generic [ref=e98]: © 2026 La Tiendita. Todos los derechos reservados.
+      - generic [ref=e99]:
+        - link "Privacidad" [ref=e100] [cursor=pointer]:
+          - /url: "#"
+        - link "Términos" [ref=e101] [cursor=pointer]:
+          - /url: "#"

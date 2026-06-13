@@ -1,11 +1,9 @@
 """OrderService — checkout and order history business logic.
 
-Checkout executes within a DB savepoint for atomicity:
-stock validation, deduction, product snapshot, order creation,
-and cart clearing all succeed or roll back together.
+Checkout creates an order + Stripe Checkout session atomically.
+Stock is deducted at webhook time (``finalize_payment``), not at checkout.
 """
 
-import asyncio
 import logging
 from decimal import Decimal
 from uuid import UUID
@@ -15,10 +13,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.cart import CartItem
-from app.models.order import Order, OrderItem
+from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product, ProductTranslation
-from app.models.user import User
-from app.schemas.order import CheckoutRequest, OrderItemResponse, OrderResponse
+from app.models.product_variant import ProductVariant
+from app.schemas.order import (
+    CheckoutRequest,
+    CheckoutResponse,
+    OrderItemResponse,
+    OrderResponse,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -42,23 +45,27 @@ class OrderService:
         self,
         session: AsyncSession,
         user_id: UUID,
+        user_email: str,
         shipping_address: dict,
-    ) -> OrderResponse:
-        """Convert the user's cart into an order atomically.
+    ) -> CheckoutResponse:
+        """Convert the user's cart into an order and create a Stripe session.
 
         Flow:
         1. Load cart items with product data
         2. Validate cart is not empty
         3. Begin nested transaction (savepoint)
-        4. For each item: atomically deduct stock, snapshot product data
-        5. Create Order + OrderItems
+        4. Build order items data (stock is NOT deducted — deferred to webhook)
+        5. Create Order + OrderItems with product snapshots
         6. Clear cart
-        7. Commit savepoint
+        7. Create Stripe Checkout session
+        8. Commit savepoint
+
+        Stock deduction happens later in ``finalize_payment()``, called by
+        the Stripe webhook handler upon ``checkout.session.completed``.
 
         Raises:
             CartEmptyError: cart has no items → 400
-            StockInsufficientError: any item has insufficient stock → 409
-            ValueError: a product referenced in the cart no longer exists
+            StripeError: Stripe API call fails → 502 (rolls back entire order)
         """
         # 1. Load cart items with product translations for snapshots
         cart_items = await self._load_cart_with_products(session, user_id)
@@ -70,8 +77,8 @@ class OrderService:
         # 3. Begin savepoint
         savepoint = await session.begin_nested()
         try:
-            # 4. Validate stock and build order data
-            total, order_items_data = await self._process_checkout_items(
+            # 4. Build order item data (NO stock deduction)
+            total, order_items_data = await self._build_order_items(
                 session, cart_items
             )
 
@@ -101,18 +108,27 @@ class OrderService:
                 delete(CartItem).where(CartItem.user_id == user_id)
             )
 
-            # 7. Commit savepoint
-            await savepoint.commit()
+            # 7. Create Stripe checkout session
+            from app.services.stripe_service import StripeService, StripeError
 
-            # 8. Send confirmation email (non-critical — order is saved)
-            await self._send_confirmation_email(
-                session, user_id, order, order_items_data
+            stripe_svc = StripeService()
+            checkout_url = await stripe_svc.create_checkout_session(
+                session, order, cart_items, user_email, user_id
             )
 
-            # Reload order with items for the response
-            return await self._build_order_response(session, order.id)
+            # 8. Commit savepoint
+            await savepoint.commit()
 
-        except Exception:
+            logger.info(
+                "Checkout complete — order %s for user %s",
+                order.id,
+                user_id,
+            )
+            return CheckoutResponse(
+                checkout_url=checkout_url, order_id=order.id
+            )
+
+        except (StripeError, Exception):
             await savepoint.rollback()
             raise
 
@@ -151,13 +167,135 @@ class OrderService:
         return self._order_to_response(order)
 
     # ------------------------------------------------------------------
+    # Payment finalization (called from Stripe webhook)
+    # ------------------------------------------------------------------
+
+    async def finalize_payment(
+        self, session: AsyncSession, order: Order
+    ) -> None:
+        """Deduct stock, increment promotion usage, confirm order, and send email.
+
+        Called by the Stripe webhook handler when
+        ``checkout.session.completed`` is received.
+
+        Promotions are consumed at this point — ``current_uses`` is
+        incremented for every order item that was purchased under a
+        promotion.  This is the correct semantic (count actual purchases,
+        not cart views).
+
+        **Atomicity**: ALL mutations (promotion usage + stock deduction +
+        status transition) happen inside a savepoint.  Stock is pre-validated
+        BEFORE any mutation to avoid partial deductions.  If any step fails,
+        the entire savepoint is rolled back.
+
+        Email is sent OUTSIDE the savepoint — failures are logged but do not
+        affect the transaction.
+
+        Raises:
+            StockInsufficientError: if any variant lacks sufficient stock.
+        """
+        from app.models.promotion import Promotion as _Promotion
+
+        # Reload order items to ensure they are attached to the session
+        await session.refresh(order, ["items"])
+
+        # STEP 1: Pre-validate ALL stock before any mutation
+        for item in order.items:
+            variant_id_str = item.product_snapshot.get("variant_id")
+            if variant_id_str is None:
+                continue  # Product has no variants — nothing to validate
+            try:
+                variant_id = UUID(variant_id_str)
+            except (ValueError, TypeError):
+                logger.warning(
+                    "Invalid variant_id %r in order_item %s product_snapshot",
+                    variant_id_str,
+                    item.id,
+                )
+                continue
+
+            result = await session.execute(
+                select(ProductVariant.stock).where(
+                    ProductVariant.id == variant_id,
+                    ProductVariant.deleted_at.is_(None),
+                )
+            )
+            stock_row = result.scalar_one_or_none()
+            if stock_row is None or stock_row < item.quantity:
+                raise StockInsufficientError(
+                    f"Insufficient stock for variant {variant_id} "
+                    f"(order_item {item.id}, requested {item.quantity})"
+                )
+
+        # STEP 2: Wrap ALL mutations in a savepoint for atomicity
+        savepoint = await session.begin_nested()
+        try:
+            # Increment promotion usage — atomic conditional UPDATE
+            for item in order.items:
+                promo_code = item.product_snapshot.get("promotion_code")
+                if promo_code:
+                    result = await session.execute(
+                        update(_Promotion)
+                        .where(_Promotion.code == promo_code)
+                        .where(
+                            _Promotion.max_uses.is_(None)
+                            | (_Promotion.current_uses < _Promotion.max_uses)
+                        )
+                        .values(current_uses=_Promotion.current_uses + 1)
+                        .returning(_Promotion.id)
+                    )
+                    if not result.scalar_one_or_none():
+                        raise StockInsufficientError(
+                            f"Promotion {promo_code} usage cap reached"
+                        )
+
+            # Deduct stock for each order item (atomic conditional UPDATE)
+            for item in order.items:
+                await self._deduct_stock_for_item(session, item)
+
+            # Transition order to confirmed
+            order.status = OrderStatus.CONFIRMED
+            await session.flush()
+
+            await savepoint.commit()
+
+        except Exception:
+            await savepoint.rollback()
+            raise
+
+        # Send confirmation email (OUTSIDE savepoint — failure is non-fatal)
+        order_items_data = [
+            {
+                "product_id": item.product_id,
+                "product_snapshot": item.product_snapshot,
+                "quantity": item.quantity,
+                "price": item.price,
+            }
+            for item in order.items
+        ]
+        try:
+            await self._send_confirmation_email(
+                session, order.user_id, order, order_items_data
+            )
+        except Exception as exc:
+            logger.error(
+                "Failed to send confirmation email for order %s: %s",
+                order.id,
+                exc,
+            )
+
+        logger.info(
+            "Order %s finalized — stock deducted, status confirmed", order.id
+        )
+
+    # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
 
     async def _load_cart_with_products(
         self, session: AsyncSession, user_id: UUID
     ) -> list[CartItem]:
-        """Load cart items with product translations for snapshot building."""
+        """Load cart items with product translations and variant for snapshot building."""
         stmt = (
             select(CartItem)
             .where(CartItem.user_id == user_id)
@@ -165,45 +303,40 @@ class OrderService:
                 selectinload(CartItem.product).selectinload(
                     Product.translations
                 ),
+                selectinload(CartItem.variant),
             )
         )
         result = await session.execute(stmt)
         return list(result.scalars().unique().all())
 
-    async def _process_checkout_items(
+    async def _build_order_items(
         self, session: AsyncSession, cart_items: list[CartItem]
     ) -> tuple[Decimal, list[dict]]:
-        """Validate stock atomically and build order items data.
+        """Build order item data from cart items WITHOUT deducting stock.
+
+        Stock deduction is deferred to ``finalize_payment()`` at webhook time.
+        Product snapshots are captured at checkout time for order history.
+        Active promotion codes are resolved and stored in the snapshot so
+        ``finalize_payment()`` can increment ``current_uses``.
 
         Returns:
             (total, list of order_item_dicts)
-
-        Raises:
-            StockInsufficientError: if any product has insufficient stock
         """
+        from app.services.promotion_service import PromotionService
+
+        promo_service = PromotionService()
+        product_ids = list({ci.product_id for ci in cart_items})
+        promotions = await promo_service.get_active_promotions_for_products(
+            session, product_ids
+        )
+
         total = Decimal("0")
         order_items_data: list[dict] = []
 
         for item in cart_items:
-            # Atomic stock deduction: UPDATE WHERE stock >= qty
-            update_result = await session.execute(
-                update(Product)
-                .where(
-                    Product.id == item.product_id,
-                    Product.stock >= item.quantity,
-                    Product.deleted_at.is_(None),
-                )
-                .values(stock=Product.stock - item.quantity)
-                .returning(Product.id)
-            )
-            if update_result.scalar_one_or_none() is None:
-                raise StockInsufficientError(
-                    f"Insufficient stock for product {item.product_id}"
-                )
-
-            # Build snapshot from the product relationship (already loaded)
-            product: Product = item.product
-            snapshot = self._build_product_snapshot(product)
+            promo = promotions.get(item.product_id)
+            promo_code = promo.code if promo else None
+            snapshot = self._build_product_snapshot(item, promo_code=promo_code)
             price = item.unit_price
             item_total = price * item.quantity
             total += item_total
@@ -217,17 +350,65 @@ class OrderService:
 
         return total, order_items_data
 
-    @staticmethod
-    def _build_product_snapshot(product: Product) -> dict:
-        """Capture current product state as a JSONB snapshot.
+    async def _deduct_stock_for_item(
+        self, session: AsyncSession, item: OrderItem
+    ) -> None:
+        """Atomically deduct stock for a single order item's variant.
 
-        Freezes the checkout-time product name (from translations),
-        price, size, and the product ID for future reference.
+        Uses a conditional UPDATE with a stock >= quantity guard to prevent
+        negative stock from race conditions.
+
+        Raises:
+            StockInsufficientError: if the variant has insufficient stock or
+                was deleted between checkout and payment.
         """
+        variant_id_str = item.product_snapshot.get("variant_id")
+        if variant_id_str is None:
+            return  # Product has no variants — nothing to deduct
+
+        try:
+            variant_id = UUID(variant_id_str)
+        except (ValueError, TypeError):
+            logger.warning(
+                "Invalid variant_id %r in order_item %s product_snapshot",
+                variant_id_str,
+                item.id,
+            )
+            return
+
+        result = await session.execute(
+            update(ProductVariant)
+            .where(
+                ProductVariant.id == variant_id,
+                ProductVariant.stock >= item.quantity,
+                ProductVariant.deleted_at.is_(None),
+            )
+            .values(stock=ProductVariant.stock - item.quantity)
+            .returning(ProductVariant.id)
+        )
+
+        if result.scalar_one_or_none() is None:
+            raise StockInsufficientError(
+                f"Insufficient stock for variant {variant_id} "
+                f"(order_item {item.id}, requested {item.quantity})"
+            )
+
+    @staticmethod
+    def _build_product_snapshot(
+        cart_item: CartItem,
+        promo_code: str | None = None,
+    ) -> dict:
+        """Capture current product + variant state as a JSONB snapshot.
+
+        Freezes the checkout-time product name, price, variant info
+        (id, size, color, SKU), and product ID for future reference.
+        When a promotion is active for the product, its code is also
+        stored so ``finalize_payment()`` can increment ``current_uses``.
+        """
+        product: Product = cart_item.product
         translations: list[ProductTranslation] = product.translations  # type: ignore[assignment]
         name = "Unknown product"
         if translations:
-            # Prefer Spanish, then English, then first available
             for t in translations:
                 if t.language_code == "es":
                     name = t.name
@@ -240,25 +421,27 @@ class OrderService:
                 else:
                     name = translations[0].name
 
-        return {
+        variant: ProductVariant | None = cart_item.variant
+        size_str = None
+        color_str = None
+        sku_str = None
+        if variant is not None:
+            size_str = variant.size.value if variant.size else None
+            color_str = variant.color
+            sku_str = variant.sku
+
+        snapshot = {
             "name": name,
             "price": str(product.price),
-            "size": product.size.value if product.size else None,
+            "size": size_str,
+            "color": color_str,
+            "sku": sku_str,
             "product_id": str(product.id),
+            "variant_id": str(variant.id) if variant else None,
         }
-
-    async def _build_order_response(
-        self, session: AsyncSession, order_id: UUID
-    ) -> OrderResponse:
-        """Reload an order with its items and convert to a response DTO."""
-        stmt = (
-            select(Order)
-            .where(Order.id == order_id)
-            .options(selectinload(Order.items))
-        )
-        result = await session.execute(stmt)
-        order = result.unique().scalar_one()
-        return self._order_to_response(order)
+        if promo_code:
+            snapshot["promotion_code"] = promo_code
+        return snapshot
 
     @staticmethod
     def _order_to_response(order: Order) -> OrderResponse:
@@ -276,6 +459,8 @@ class OrderService:
         return OrderResponse(
             id=order.id,
             status=order.status.value,
+            payment_status=order.payment_status.value,
+            stripe_session_id=order.stripe_session_id,
             total=order.total,
             shipping_address=order.shipping_address,
             items=items,
@@ -290,67 +475,14 @@ class OrderService:
         order: Order,
         order_items_data: list[dict],
     ) -> None:
-        """Render and send the order confirmation email.
+        """Delegate order confirmation email to EmailService.
 
         Called *after* the checkout savepoint commits so that email
         failures do not roll back the order.
-
-        Looks up the user's preferred language and name, builds a flat
-        item list from the product snapshots, and calls ``send_email()``
-        via the email utility.
         """
-        # Look up user for language and name
-        result = await session.execute(
-            select(User).where(User.id == user_id)
+        from app.services.email_service import EmailService
+
+        email_svc = EmailService()
+        await email_svc.send_order_confirmation(
+            session, user_id, order, order_items_data
         )
-        user = result.scalar_one_or_none()
-        if user is None:
-            logger.warning(
-                "Cannot send confirmation email: user %s not found", user_id
-            )
-            return
-
-        # Build flat item list for the template
-        template_items: list[dict] = []
-        for oi in order_items_data:
-            snapshot = oi.get("product_snapshot", {})
-            template_items.append({
-                "product_name": snapshot.get("name", "Unknown product"),
-                "quantity": oi["quantity"],
-                "price": float(oi["price"]),
-            })
-
-        # Format shipping address as a readable string
-        shipping_parts: list[str] = []
-        addr = order.shipping_address or {}
-        if isinstance(addr, dict):
-            shipping_parts.append(
-                addr.get("full_name", addr.get("name", ""))
-            )
-            shipping_parts.append(addr.get("street", ""))
-            shipping_parts.append(addr.get("city", ""))
-            shipping_parts.append(addr.get("country", ""))
-        shipping_str = ", ".join(p for p in shipping_parts if p) or "-"
-
-        from app.utils.email import render_template, send_email
-
-        html_body = render_template(
-            "emails/order_confirmation.html",
-            user_name=user.name,
-            order_id=str(order.id),
-            total=float(order.total),
-            order_items=template_items,
-            shipping_address=shipping_str,
-            lang=user.preferred_lang.value,
-        )
-        try:
-            await asyncio.to_thread(
-                send_email,
-                to=user.email,
-                subject=f"Order Confirmation #{order.id} — La Tiendita",
-                html_body=html_body,
-            )
-        except Exception:
-            logger.exception(
-                "Failed to send confirmation email for order %s", order.id
-            )

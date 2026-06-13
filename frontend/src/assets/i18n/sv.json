@@ -3,10 +3,36 @@
     "products": "Produkter",
     "cart": "Varukorg",
     "newArrivals": "Nyheter",
-    "sale": "Rea"
+    "sale": "Rea",
+    "ofertas": "Rea",
+    "nuevo": "Nyheter",
+    "popular": "Mest populära",
+    "ayuda": "Hjälp",
+    "wishlist": "Favoriter",
+    "categorias": "Kategorier",
+    "search": "Sök"
   },
   "header": {
-    "title": "La Tiendita"
+    "title": "La Tiendita",
+    "search": "Vad letar du efter?",
+    "buscarAria": "Sök",
+    "categorias": "Kategorier",
+    "verPerfil": "Visa profil",
+    "cerrarSesion": "Logga ut",
+    "compraSegura": "Säker shopping",
+    "verTodo": "Visa allt",
+    "iniciarSesion": "Logga in",
+    "iniciarSesionAria": "Logga in",
+    "carritoAria": "Varukorg",
+    "favoritosAria": "Favoriter",
+    "cambiarIdioma": "Ändra språk",
+    "cambiarMoneda": "Ändra valuta",
+    "modoClaro": "Ljust läge",
+    "modoOscuro": "Mörkt läge",
+    "menu": "Meny",
+    "coleccionPrimavera": "Vår<br/>samling",
+    "renuevaEstilo": "Förnya din stil med säsongens bästa fynd.",
+    "hasta40": "Upp till 40% rabatt"
   },
   "home": {
     "tagline": "Second hand-kläder med stil. Hitta unika skatter.",
@@ -78,6 +104,7 @@
     "noResults": "Inga produkter hittades",
     "notFound": "Produkten hittades inte",
     "notFoundDesc": "Produkten du letar efter finns inte eller har tagits bort.",
+    "noProducts": "Inga produkter hittades",
     "backToCatalog": "Tillbaka till katalogen",
     "retry": "Försök igen",
     "error": "Ett fel uppstod vid laddning",
@@ -98,6 +125,7 @@
     "totalRevenue": "Totala Intäkter",
     "dashboardError": "Fel vid laddning av statistik",
     "ordersPending": "Väntande Beställningar",
+    "ordersConfirmed": "Bekräftade Beställningar",
     "ordersShipped": "Skickade Beställningar",
     "ordersDelivered": "Levererade Beställningar",
     "reviewsTotal": "Totalt Recensioner",
@@ -183,7 +211,9 @@
     "error": "Fel vid laddning av varukorg",
     "view": "Visa varukorg",
     "originalSubtotal": "Ursprunglig delsumma",
-    "savings": "Besparing"
+    "savings": "Besparing",
+    "paymentCancelled": "Betalningen avbröts. Dina varor finns kvar i varukorgen.",
+    "dismiss": "Stäng"
   },
   "checkout": {
     "title": "Kassa",
@@ -203,7 +233,9 @@
     "error": "Fel vid behandling av beställning",
     "stockError": "Otillräckligt lager för vissa produkter",
     "orderPlaced": "Beställning genomförd",
-    "viewOrder": "Visa beställning"
+    "viewOrder": "Visa beställning",
+    "redirecting": "Omdirigerar till betalning...",
+    "paymentUnavailable": "Betaltjänsten är inte tillgänglig. Försök igen."
   },
   "reviews": {
     "title": "Recensioner",
@@ -288,7 +320,13 @@
     },
     "detail": {
       "title": "Beställning"
-    }
+    },
+    "paymentStatus": "Betalningsstatus",
+    "paymentPending": "Väntande",
+    "paymentPaid": "Betald",
+    "paymentFailed": "Misslyckad",
+    "paymentRefunded": "Återbetald",
+    "paymentSuccess": "Betalning genomförd! Beställning bekräftad."
   },
   "footer": {
     "brandDesc": "Din favorit second hand-klädbutik. Kvalitet, stil och hållbarhet i varje plagg.",
@@ -312,6 +350,7 @@
     "chest": "Bröst",
     "waist": "Midja",
     "hips": "Höft",
-    "disclaimer": "Måtten är ungefärliga och motsvarar kroppsmått i centimeter. Vi rekommenderar att du mäter dig innan du köper."
+    "disclaimer": "Måtten är ungefärliga och motsvarar kroppsmått i centimeter. Vi rekommenderar att du mäter dig innan du köper.",
+    "comingSoon": "Storleksguide kommer snart"
   }
 }

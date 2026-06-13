@@ -8,7 +8,7 @@
             "expiry": "Denna länk upphör om 1 timme. Om du inte begärde en lösenordsåterställning, ignorera detta e-postmeddelande."
         },
         "order_confirmation": {
-            "subject": "Orderbekräftelse #",
+            "subject": "Orderbekräftelse #{order_id} — La Tiendita",
             "thanks": "Tack för ditt köp",
             "summary": "Här är en sammanfattning av din order:",
             "product": "Produkt",
@@ -16,6 +16,20 @@
             "price": "Pris",
             "total": "Totalt",
             "shipping": "Leveransadress"
+        },
+        "order_shipped": {
+            "subject": "Din Order #{order_id} Har Skickats!",
+            "greeting": "Hej",
+            "body": "Bra nyheter! Din order har skickats och är på väg till dig.",
+            "track": "Visa Order",
+            "estimated_delivery": "Beräknad leverans: 3-5 arbetsdagar."
+        },
+        "welcome": {
+            "subject": "Välkommen till La Tiendita, {name}!",
+            "greeting": "Hej",
+            "body": "Välkommen till La Tiendita! Vi är glada att ha dig ombord.",
+            "cta": "Börja Handla",
+            "footer_text": "Om du har några frågor, svara bara på detta e-postmeddelande."
         }
     },
     "errors": {

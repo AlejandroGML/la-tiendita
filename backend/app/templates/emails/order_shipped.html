@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ messages.emails.order_shipped.subject | default('Your Order Has Shipped!') }}{% endblock %}
+{% block header %}{{ messages.emails.order_shipped.subject | default('Your Order Has Shipped!') }}{% endblock %}
+{% block content %}
+<p>{{ messages.emails.order_shipped.greeting | default('Hi') }} {{ user_name }},</p>
+
+<p>{{ messages.emails.order_shipped.body | default('Great news! Your order has been shipped and is on its way to you.') }}</p>
+
+<p style="text-align: center; margin: 24px 0;">
+    <a href="https://latiendita.example.com/orders/{{ order_id }}" class="button">
+        {{ messages.emails.order_shipped.track | default('View Order') }}
+    </a>
+</p>
+
+<p style="font-size: 13px; color: #888;">
+    {{ messages.emails.order_shipped.estimated_delivery | default('Estimated delivery: 3-5 business days.') }}
+</p>
+{% endblock %}

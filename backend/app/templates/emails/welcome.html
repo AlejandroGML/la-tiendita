@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}{{ messages.emails.welcome.subject | default('Welcome to La Tiendita!') }}{% endblock %}
+{% block header %}{{ messages.emails.welcome.subject | default('Welcome to La Tiendita!') }}{% endblock %}
+{% block content %}
+<p>{{ messages.emails.welcome.greeting | default('Hi') }} {{ user_name }},</p>
+
+<p>{{ messages.emails.welcome.body | default("Welcome to La Tiendita! We're excited to have you on board.") }}</p>
+
+<p style="text-align: center; margin: 24px 0;">
+    <a href="https://latiendita.example.com/catalog" class="button">
+        {{ messages.emails.welcome.cta | default('Start Shopping') }}
+    </a>
+</p>
+
+<p style="font-size: 13px; color: #888;">
+    {{ messages.emails.welcome.footer_text | default('If you have any questions, just reply to this email.') }}
+</p>
+{% endblock %}

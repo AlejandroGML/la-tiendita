@@ -5,6 +5,12 @@ export type OrderStatus =
   | 'delivered'
   | 'cancelled';
 
+export type PaymentStatus =
+  | 'pending'
+  | 'paid'
+  | 'failed'
+  | 'refunded';
+
 export interface ShippingAddress {
   name: string;
   address: string;
@@ -31,10 +37,16 @@ export interface Order {
   total: string;
   shipping_address: ShippingAddress;
   items: OrderItem[];
+  payment_status: string;
   created_at: string;
   updated_at: string;
 }
 
 export interface CheckoutRequest {
   shipping_address: ShippingAddress;
+}
+
+export interface CheckoutResponse {
+  checkout_url: string;
+  order_id: string;
 }

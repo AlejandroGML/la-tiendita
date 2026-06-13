@@ -1,0 +1,103 @@
+- generic [ref=e2]:
+  - generic [ref=e4]:
+    - link "La Tiendita" [ref=e5] [cursor=pointer]:
+      - /url: /
+    - navigation [ref=e6]:
+      - link "Productos" [ref=e7] [cursor=pointer]:
+        - /url: /productos
+        - generic [ref=e8]: Productos
+      - link "Carrito" [ref=e11] [cursor=pointer]:
+        - /url: /carrito
+        - img [ref=e12]: shopping_cart
+        - generic [ref=e13]: Carrito
+      - button "Switch to light mode" [ref=e16] [cursor=pointer]:
+        - img [ref=e17]: dark_mode
+  - main [ref=e20]:
+    - generic [ref=e22]:
+      - heading "Catálogo" [level=1] [ref=e24]
+      - generic [ref=e25]:
+        - complementary [ref=e26]:
+          - generic [ref=e27]:
+            - heading "Filtros" [level=2] [ref=e29]
+            - generic [ref=e30]:
+              - generic [ref=e31]: Categoría
+              - generic [ref=e32] [cursor=pointer]:
+                - combobox "Todas las categorías" [ref=e33]
+                - button "dropdown trigger" [ref=e34]:
+                  - img [ref=e35]
+            - generic [ref=e37]:
+              - generic [ref=e38]: Estado
+              - generic [ref=e39] [cursor=pointer]:
+                - combobox "Todas las condiciones" [ref=e40]
+                - button "dropdown trigger" [ref=e41]:
+                  - img [ref=e42]
+            - generic [ref=e44]:
+              - generic [ref=e45]: Talla
+              - generic [ref=e46] [cursor=pointer]:
+                - combobox "Todas las tallas" [ref=e47]
+                - button "dropdown trigger" [ref=e48]:
+                  - img [ref=e49]
+            - generic [ref=e51]:
+              - generic [ref=e52]: Rango de precio
+              - generic [ref=e53]:
+                - spinbutton "Mín" [ref=e55]
+                - spinbutton "Máx" [ref=e57]
+        - generic [ref=e58]:
+          - textbox "Buscar productos..." [ref=e63]
+          - progressbar [ref=e65]:
+            - img [ref=e66]
+  - generic [ref=e70]:
+    - generic [ref=e71]:
+      - generic [ref=e72]:
+        - heading "La Tiendita" [level=3] [ref=e73]
+        - paragraph [ref=e74]: Tu tienda de ropa segunda mano favorita. Calidad, estilo y sostenibilidad en cada prenda.
+        - generic [ref=e75]:
+          - link [ref=e76] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=e77] [cursor=pointer]:
+            - /url: "#"
+          - link [ref=e78] [cursor=pointer]:
+            - /url: "#"
+      - generic [ref=e79]:
+        - heading "Enlaces Rápidos" [level=4] [ref=e80]
+        - list [ref=e81]:
+          - listitem [ref=e82]:
+            - link "Productos" [ref=e83] [cursor=pointer]:
+              - /url: /productos
+          - listitem [ref=e84]:
+            - link "Carrito" [ref=e85] [cursor=pointer]:
+              - /url: /carrito
+          - listitem [ref=e86]:
+            - link "Iniciar Sesión" [ref=e87] [cursor=pointer]:
+              - /url: /login
+          - listitem [ref=e88]:
+            - link "Registrarse" [ref=e89] [cursor=pointer]:
+              - /url: /register
+      - generic [ref=e90]:
+        - heading "Categorías" [level=4] [ref=e91]
+        - list [ref=e92]:
+          - listitem [ref=e93]:
+            - link "Jackets" [ref=e94] [cursor=pointer]:
+              - /url: /productos?category_id=26
+          - listitem [ref=e95]:
+            - link "Dresses" [ref=e96] [cursor=pointer]:
+              - /url: /productos?category_id=23
+          - listitem [ref=e97]:
+            - link "Jeans" [ref=e98] [cursor=pointer]:
+              - /url: /productos?category_id=27
+          - listitem [ref=e99]:
+            - link "Sweaters" [ref=e100] [cursor=pointer]:
+              - /url: /productos?category_id=39
+      - generic [ref=e101]:
+        - heading "Contacto" [level=4] [ref=e102]
+        - list [ref=e103]:
+          - listitem [ref=e104]: hello@latiendita.cl
+          - listitem [ref=e105]: +56 9 1234 5678
+          - listitem [ref=e106]: Santiago, Chile
+    - generic [ref=e107]:
+      - generic [ref=e108]: © 2026 La Tiendita. Todos los derechos reservados.
+      - generic [ref=e109]:
+        - link "Privacidad" [ref=e110] [cursor=pointer]:
+          - /url: "#"
+        - link "Términos" [ref=e111] [cursor=pointer]:
+          - /url: "#"

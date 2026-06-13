@@ -1,8 +1,13 @@
-import { Component, Input, OnInit, signal } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import type { Product, ProductVariant } from '../../models/product.model';
 import { ReviewService } from '../../../core/services/review.service';
+
+const SIZE_ORDER: Record<string, number> = {
+  'XS': 0, 'S': 1, 'M': 2, 'L': 3, 'XL': 4, 'XXL': 5,
+};
 
 const CONDITION_COLORS: Record<string, string> = {
   new: 'bg-green-100 text-green-800 border-green-300',
@@ -41,14 +46,17 @@ const COLOR_MAP: Record<string, string> = {
   styleUrls: ['./product-card.scss'],
   standalone: false,
 })
-export class ProductCardComponent implements OnInit {
+export class ProductCardComponent implements OnInit, OnDestroy {
   @Input() product!: Product;
+  /** @todo Wire isBestseller from templates when backend bestseller data is available */
   @Input() isBestseller = false;
 
   readonly avgRating = signal(0);
   readonly totalReviews = signal(0);
   readonly ratingLoading = signal(false);
   readonly isHovered = signal(false);
+
+  private reviewSub: Subscription | null = null;
 
   constructor(
     private translate: TranslateService,
@@ -59,7 +67,7 @@ export class ProductCardComponent implements OnInit {
   ngOnInit(): void {
     if (!this.product?.slug) return;
     this.ratingLoading.set(true);
-    this.reviewService.getProductReviews(this.product.slug, 1, 1).subscribe({
+    this.reviewSub = this.reviewService.getProductReviews(this.product.slug, 1, 1).subscribe({
       next: (res) => {
         this.avgRating.set(res.avg_rating);
         this.totalReviews.set(res.total_reviews);
@@ -69,6 +77,10 @@ export class ProductCardComponent implements OnInit {
         this.ratingLoading.set(false);
       },
     });
+  }
+
+  ngOnDestroy(): void {
+    this.reviewSub?.unsubscribe();
   }
 
   get hasRating(): boolean {
@@ -111,7 +123,7 @@ export class ProductCardComponent implements OnInit {
       ...new Set(
         variants.map((v) => v.size).filter((s): s is string => s !== null),
       ),
-    ].sort();
+    ].sort((a, b) => (SIZE_ORDER[a] ?? 999) - (SIZE_ORDER[b] ?? 999));
     if (sizes.length === 0) return '';
     if (sizes.length === 1) return sizes[0] ?? '';
     return `${sizes[0]}-${sizes[sizes.length - 1]}`;
@@ -132,7 +144,7 @@ export class ProductCardComponent implements OnInit {
   /** Check if product is completely out of stock (all variants with 0 stock) */
   get isOutOfStock(): boolean {
     const variants = this.product?.variants ?? [];
-    if (variants.length === 0) return true;
+    if (variants.length === 0) return false;
     return variants.every((v) => v.stock === 0);
   }
 
@@ -202,7 +214,7 @@ export class ProductCardComponent implements OnInit {
   }
 
   /** Navigate to product detail, stopping event propagation */
-  navigateToDetail(event: MouseEvent): void {
+  navigateToDetail(event: Event): void {
     event.stopPropagation();
     if (this.product?.slug) {
       this.router.navigate(['/productos', this.product.slug]);

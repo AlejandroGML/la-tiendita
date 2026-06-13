@@ -10,7 +10,7 @@ import unicodedata
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import and_, func, or_, select
+from sqlalchemy import and_, case, exists, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import joinedload, selectinload
@@ -22,12 +22,19 @@ from app.models.product import (
     ProductSize,
     ProductTranslation,
 )
+from app.models.product_variant import ProductVariant
+from app.models.promotion import Promotion
+from app.models.cart import CartItem
 from app.schemas.common import ProductFilter
 from app.schemas.product import (
     CreateProductRequest,
     ProductResponse,
     TranslationRequest,
     UpdateProductRequest,
+)
+from app.schemas.product_variant import (
+    ProductVariantCreate,
+    ProductVariantUpdate,
 )
 from app.utils.pagination import paginate
 
@@ -57,12 +64,33 @@ class ProductService:
 
         stmt = self._build_list_query(filters)
 
-        # Eager-load translations + category to avoid N+1 in serialisation
+        # Eager-load translations + category + variants to avoid N+1 in serialisation
         stmt = stmt.options(
             selectinload(Product.translations),
             selectinload(Product.category).selectinload(Category.translations),
+            selectinload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
         )
 
+        items, total = await paginate(stmt, session, page=page, per_page=per_page)
+        return items, total
+
+    async def list_admin_products(
+        self,
+        session: AsyncSession,
+        page: int = 1,
+        per_page: int = 50,
+    ) -> tuple[list[Product], int]:
+        """Return a paginated list of ALL products (including soft-deleted)
+        for the admin panel."""
+        stmt = (
+            select(Product)
+            .order_by(Product.created_at.desc())
+            .options(
+                selectinload(Product.translations),
+                selectinload(Product.category).selectinload(Category.translations),
+                selectinload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
+            )
+        )
         items, total = await paginate(stmt, session, page=page, per_page=per_page)
         return items, total
 
@@ -79,10 +107,51 @@ class ProductService:
             .options(
                 joinedload(Product.translations),
                 joinedload(Product.category).joinedload(Category.translations),
+                joinedload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
             )
         )
         result = await session.execute(stmt)
         return result.unique().scalar_one_or_none()
+
+    async def _apply_promotions(
+        self, session: AsyncSession, products: list[Product]
+    ) -> dict[UUID, dict]:
+        """Resolve active promotions and compute sale pricing for *products*.
+
+        Creates a local ``PromotionService`` instance, resolves the best
+        active promotion per product, and computes ``sale_price`` for each
+        product that has a matching promotion.  The frontend derives
+        discount labels from ``promotion.discount_percent``.
+
+        Returns a dict ``product_id → {promotion, sale_price}``.
+        Products without an active promotion are absent from the dict.
+        """
+        if not products:
+            return {}
+
+        from app.services.promotion_service import PromotionService
+
+        promo_service = PromotionService()
+        product_ids = [p.id for p in products]
+        best_promos = await promo_service.get_active_promotions_for_products(
+            session, product_ids
+        )
+
+        result: dict[UUID, dict] = {}
+        for product in products:
+            promo = best_promos.get(product.id)
+            if promo is None:
+                continue
+            from decimal import Decimal as _Decimal
+
+            result[product.id] = {
+                "promotion": promo,
+                "sale_price": round(
+                    product.price * (1 - promo.discount_percent / 100), 2
+                ),
+            }
+
+        return result
 
     # ------------------------------------------------------------------
     # Admin write
@@ -91,10 +160,14 @@ class ProductService:
     async def create_product(
         self, session: AsyncSession, data: CreateProductRequest
     ) -> Product:
-        """Create a product with auto-generated slug and translations.
+        """Create a product with auto-generated slug, translations, and variants.
 
         The Spanish translation name is used for slug generation.
         Falls back to the first translation if no ES is present.
+
+        If *data.variants* is provided (non-empty list), those variants
+        are created.  Otherwise a single default variant (size=None,
+        color=None, stock=0) with an auto-generated SKU is created.
         """
         # Determine the source name for slug generation (prefer ES)
         es = next((t for t in data.translations if t.lang == "es"), None)
@@ -105,7 +178,6 @@ class ProductService:
             slug=slug,
             price=data.price,
             category_id=data.category_id,
-            size=ProductSize(data.size) if data.size else None,
             brand=data.brand,
             condition=(
                 ProductCondition(data.condition) if data.condition else None
@@ -143,6 +215,43 @@ class ProductService:
             )
             session.add(pt)
 
+        # Persist variants
+        variant_inputs = data.variants
+        if variant_inputs and len(variant_inputs) > 0:
+            for v in variant_inputs:
+                sku = v.sku
+                if sku is None:
+                    size_code = v.size if v.size else None
+                    color_code = (
+                        self._color_abbr(v.color) if v.color else None
+                    )
+                    sku = await self._generate_variant_sku(
+                        session, slug, size_code, color_code
+                    )
+                variant = ProductVariant(
+                    product_id=product.id,
+                    size=ProductSize(v.size) if v.size else None,
+                    color=v.color,
+                    color_hex=v.color_hex,
+                    stock=v.stock,
+                    sku=sku,
+                )
+                session.add(variant)
+        else:
+            # Auto-create default variant
+            default_sku = await self._generate_variant_sku(
+                session, slug, size_code=None, color_code=None
+            )
+            default_variant = ProductVariant(
+                product_id=product.id,
+                size=None,
+                color=None,
+                color_hex=None,
+                stock=0,
+                sku=default_sku,
+            )
+            session.add(default_variant)
+
         await session.flush()
 
         # Reload with relationships for the response
@@ -151,7 +260,7 @@ class ProductService:
     async def update_product(
         self, session: AsyncSession, product_id: UUID, data: UpdateProductRequest
     ) -> Product | None:
-        """Partially update a product and optionally upsert translations.
+        """Partially update a product and optionally upsert translations and variants.
 
         Returns the updated product or None if not found / soft-deleted.
         """
@@ -161,6 +270,7 @@ class ProductService:
             .options(
                 selectinload(Product.translations),
                 selectinload(Product.category).selectinload(Category.translations),
+                selectinload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
             )
         )
         result = await session.execute(stmt)
@@ -173,8 +283,6 @@ class ProductService:
             product.price = data.price
         if data.category_id is not None:
             product.category_id = data.category_id
-        if data.size is not None:
-            product.size = ProductSize(data.size)
         if data.brand is not None:
             product.brand = data.brand
         if data.condition is not None:
@@ -203,8 +311,6 @@ class ProductService:
             product.source_dataset = data.source_dataset
         if data.image_urls is not None:
             product.image_urls = data.image_urls
-        if data.stock is not None:
-            product.stock = data.stock
 
         # Translations upsert
         if data.translations is not None:
@@ -222,7 +328,64 @@ class ProductService:
                     )
                     session.add(pt)
 
+        # Variants upsert: if variants list is provided, upsert.
+        # Existing variants that aren't in the update list are kept as-is.
+        if data.variants is not None:
+            # Build lookup keyed by (size, color) — existing variants
+            existing_variants = [
+                v for v in product.variants
+                if v.deleted_at is None
+            ]
+            exist_map: dict[tuple[str | None, str | None], ProductVariant] = {}
+            for ev in existing_variants:
+                key = (
+                    ev.size.value if hasattr(ev.size, 'value') else ev.size if ev.size else None,
+                    ev.color,
+                )
+                exist_map[key] = ev
+
+            for v_data in data.variants:
+                size_val = ProductSize(v_data.size) if v_data.size else None
+                size_raw = v_data.size
+                size_normalized = size_raw.value if hasattr(size_raw, 'value') else size_raw
+                key = (size_normalized, v_data.color)
+                existing = exist_map.get(key)
+
+                if existing is not None:
+                    # UPDATE existing variant
+                    if v_data.stock is not None:
+                        existing.stock = v_data.stock
+                    if v_data.color_hex is not None:
+                        existing.color_hex = v_data.color_hex
+                    if v_data.sku is not None:
+                        existing.sku = v_data.sku
+                else:
+                    # CREATE new variant
+                    sku = v_data.sku
+                    if sku is None:
+                        size_code = v_data.size if v_data.size else None
+                        color_code = (
+                            self._color_abbr(v_data.color)
+                            if v_data.color
+                            else None
+                        )
+                        sku = await self._generate_variant_sku(
+                            session, product.slug, size_code, color_code
+                        )
+                    variant = ProductVariant(
+                        product_id=product.id,
+                        size=size_val,
+                        color=v_data.color,
+                        color_hex=v_data.color_hex,
+                        stock=v_data.stock,
+                        sku=sku,
+                    )
+                    session.add(variant)
+
         await session.flush()
+        await session.refresh(product, ["variants"])
+        # Refresh reloads from DB without soft-delete filter, so filter manually
+        product.variants = [v for v in product.variants if v.deleted_at is None]
         return product
 
     async def delete_product(
@@ -244,6 +407,192 @@ class ProductService:
         product.deleted_at = datetime.now(timezone.utc)
         await session.flush()
         return True
+
+    # ------------------------------------------------------------------
+    # Variant CRUD (admin)
+    # ------------------------------------------------------------------
+
+    async def list_variants(
+        self, session: AsyncSession, product_id: UUID
+    ) -> list[ProductVariant]:
+        """Return all non-deleted variants for a product."""
+        stmt = (
+            select(ProductVariant)
+            .where(
+                ProductVariant.product_id == product_id,
+                ProductVariant.deleted_at.is_(None),
+            )
+            .order_by(ProductVariant.created_at)
+        )
+        result = await session.execute(stmt)
+        return list(result.scalars().all())
+
+    async def create_variant(
+        self,
+        session: AsyncSession,
+        product_id: UUID,
+        data: ProductVariantCreate,
+    ) -> ProductVariant:
+        """Create a new variant for an existing product.
+
+        Validates the product exists and is not soft-deleted.
+        Auto-generates SKU if not provided.
+        """
+        product = await session.get(Product, product_id)
+        if product is None or product.deleted_at is not None:
+            raise ValueError("product not found")
+
+        sku = data.sku
+        if sku is None:
+            size_code = data.size if data.size else None
+            color_code = self._color_abbr(data.color) if data.color else None
+            sku = await self._generate_variant_sku(
+                session, product.slug, size_code, color_code
+            )
+
+        variant = ProductVariant(
+            product_id=product_id,
+            size=ProductSize(data.size) if data.size else None,
+            color=data.color,
+            color_hex=data.color_hex,
+            stock=data.stock,
+            sku=sku,
+        )
+        session.add(variant)
+        await session.flush()
+        return variant
+
+    async def update_variant(
+        self,
+        session: AsyncSession,
+        variant_id: UUID,
+        data: ProductVariantUpdate,
+    ) -> ProductVariant | None:
+        """Partially update an existing variant. Returns None if not found."""
+        stmt = select(ProductVariant).where(
+            ProductVariant.id == variant_id,
+            ProductVariant.deleted_at.is_(None),
+        )
+        result = await session.execute(stmt)
+        variant = result.scalar_one_or_none()
+        if variant is None:
+            return None
+
+        if data.size is not None:
+            variant.size = ProductSize(data.size)
+        if data.color is not None:
+            variant.color = data.color
+        if data.color_hex is not None:
+            variant.color_hex = data.color_hex
+        if data.stock is not None:
+            variant.stock = data.stock
+        if data.sku is not None:
+            variant.sku = data.sku
+
+        await session.flush()
+        return variant
+
+    async def delete_variant(
+        self,
+        session: AsyncSession,
+        variant_id: UUID,
+        product_id: UUID | None = None,
+    ) -> bool:
+        """Soft-delete a variant. Returns False if already deleted or not found.
+
+        When *product_id* is provided, verifies the variant belongs to that
+        product — raises ``ValueError`` on mismatch.
+
+        Does NOT allow deletion if the variant is referenced by active
+        cart items or order items.
+        """
+        stmt = select(ProductVariant).where(
+            ProductVariant.id == variant_id,
+            ProductVariant.deleted_at.is_(None),
+        )
+        result = await session.execute(stmt)
+        variant = result.scalar_one_or_none()
+        if variant is None:
+            return False
+
+        if product_id is not None and variant.product_id != product_id:
+            raise ValueError(
+                "variant does not belong to this product"
+            )
+
+        # Check for active references in cart_items
+        from sqlalchemy import func as sqlfunc
+
+        cart_count = await session.scalar(
+            select(sqlfunc.count())
+            .select_from(CartItem)
+            .where(CartItem.variant_id == variant_id)
+        )
+        if cart_count and cart_count > 0:
+            raise ValueError(
+                f"Variant is referenced by {cart_count} active cart item(s). "
+                "Remove them before deleting."
+            )
+
+        variant.deleted_at = datetime.now(timezone.utc)
+        await session.flush()
+        return True
+
+    # ------------------------------------------------------------------
+    # Variant internal helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _color_abbr(color: str | None) -> str | None:
+        """Convert a color name to a 2-char abbreviation for SKU building."""
+        if not color:
+            return None
+        parts = color.strip().split()
+        if len(parts) == 1:
+            abbr = parts[0][:2].upper()
+        else:
+            abbr = "".join(p[0] for p in parts[:2]).upper()
+        return abbr
+
+    async def _generate_variant_sku(
+        self,
+        session: AsyncSession,
+        slug: str,
+        size_code: str | None,
+        color_code: str | None,
+    ) -> str:
+        """Generate a unique SKU from slug prefix, size, and color.
+
+        Format: ``{slug_prefix}-{size|NS}-{color_abbr|NC}-{seq}``
+        Collision-safe via DB unique constraint check with incrementing seq.
+        """
+        slug_prefix = self._sku_slug_prefix(slug)
+        size_part = size_code or "NS"
+        color_part = color_code or "NC"
+
+        for seq in range(1, 100):
+            sku = f"{slug_prefix}-{size_part}-{color_part}-{seq:02d}"
+            exists = await session.scalar(
+                select(ProductVariant.id).where(ProductVariant.sku == sku)
+            )
+            if exists is None:
+                return sku
+
+        # Fallback (extremely unlikely): use UUID suffix
+        import uuid as _uuid
+
+        short_uuid = str(_uuid.uuid4())[:8]
+        return f"{slug_prefix}-{size_part}-{color_part}-{short_uuid}"
+
+    @staticmethod
+    def _sku_slug_prefix(slug: str) -> str:
+        """Extract a short uppercase prefix from a slug for SKU building."""
+        parts = slug.replace("-", " ").split()
+        if len(parts) >= 2:
+            prefix = "".join(p[0] for p in parts[:3]).upper()
+        else:
+            prefix = (parts[0][:4] if parts else "PRD").upper()
+        return prefix
 
     # ------------------------------------------------------------------
     # Slug generation
@@ -309,6 +658,7 @@ class ProductService:
             .options(
                 selectinload(Product.translations),
                 selectinload(Product.category).selectinload(Category.translations),
+                selectinload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
             )
         )
         result = await session.execute(stmt)
@@ -321,7 +671,13 @@ class ProductService:
         if filters.category is not None:
             stmt = stmt.where(Product.category_id == filters.category)
         if filters.size is not None:
-            stmt = stmt.where(Product.size == filters.size)
+            stmt = stmt.where(
+                exists().where(
+                    ProductVariant.product_id == Product.id,
+                    ProductVariant.size == filters.size,
+                    ProductVariant.deleted_at.is_(None),
+                )
+            )
         if filters.condition is not None:
             stmt = stmt.where(Product.condition == filters.condition)
         if filters.condition_rating is not None:
@@ -345,6 +701,27 @@ class ProductService:
         if filters.max_price is not None:
             stmt = stmt.where(Product.price <= filters.max_price)
 
+        # has_promotion filter: EXISTS subquery on active promotions
+        if filters.has_promotion is True:
+            now = datetime.now(timezone.utc)
+            promo_exists = exists().where(
+                (Promotion.product_id == Product.id) | (Promotion.product_id.is_(None)),
+                Promotion.is_active == True,
+                or_(
+                    Promotion.start_date.is_(None),
+                    Promotion.start_date <= now,
+                ),
+                or_(
+                    Promotion.end_date.is_(None),
+                    Promotion.end_date >= now,
+                ),
+                or_(
+                    Promotion.max_uses.is_(None),
+                    Promotion.current_uses < Promotion.max_uses,
+                ),
+            )
+            stmt = stmt.where(promo_exists)
+
         # Full-text search on translations (name OR description)
         if filters.q:
             escaped = filters.q.replace("%", r"\%").replace("_", r"\_")
@@ -363,4 +740,22 @@ class ProductService:
                 )
             )
 
-        return stmt.order_by(Product.created_at.desc())
+        # Build ordering: sort param overrides default stock-priority ordering
+        if filters.sort == "newest":
+            return stmt.order_by(Product.created_at.desc())
+        if filters.sort == "price_asc":
+            return stmt.order_by(Product.price.asc())
+        if filters.sort == "price_desc":
+            return stmt.order_by(Product.price.desc())
+
+        # Default: products with stock > 0 first, then by created_at DESC
+        in_stock = (
+            exists()
+            .where(
+                ProductVariant.product_id == Product.id,
+                ProductVariant.stock > 0,
+                ProductVariant.deleted_at.is_(None),
+            )
+            .correlate(Product)
+        )
+        return stmt.order_by(case((in_stock, 0), else_=1), Product.created_at.desc())

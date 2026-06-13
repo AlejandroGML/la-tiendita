@@ -52,6 +52,7 @@
           <th>{{ 'order.id' | translate }}</th>
           <th>{{ 'order.date' | translate }}</th>
           <th>{{ 'order.status.title' | translate }}</th>
+          <th>{{ 'order.paymentStatus' | translate }}</th>
           <th>{{ 'order.total' | translate }}</th>
         </tr>
       </ng-template>
@@ -69,6 +70,14 @@
               [ngClass]="getStatusClasses(order.status)"
             >
               {{ getStatusLabel(order.status) | translate }}
+            </span>
+          </td>
+          <td>
+            <span
+              class="px-2 py-1 rounded-full text-xs font-medium"
+              [ngClass]="getPaymentStatusClasses(order.payment_status)"
+            >
+              {{ getPaymentStatusLabel(order.payment_status) | translate }}
             </span>
           </td>
           <td class="font-medium">

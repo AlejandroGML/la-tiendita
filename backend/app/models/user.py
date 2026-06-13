@@ -38,6 +38,8 @@ class User(Base):
     password_hash: Mapped[str | None] = mapped_column(String(255), nullable=True)
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     phone: Mapped[str | None] = mapped_column(String(20), nullable=True)
+    totp_secret: Mapped[str | None] = mapped_column(String(32), nullable=True)
+    totp_enabled: Mapped[bool] = mapped_column(default=False, nullable=False)
     avatar_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
     role: Mapped[UserRole] = mapped_column(
         Enum(UserRole, values_callable=lambda x: [e.value for e in x]), default=UserRole.CUSTOMER, nullable=False

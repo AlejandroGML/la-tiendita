@@ -41,6 +41,37 @@ class _FakeCategoryTrans:
         self.name = name
 
 
+class _FakeVariant:
+    """Fake ProductVariant for testing response serialization.
+
+    ``size`` is wrapped in _FakeSize so ``v.size.value`` works like a
+    ProductSize enum member.
+    """
+
+    class _FakeSize:
+        def __init__(self, value: str):
+            self.value = value
+
+    def __init__(
+        self,
+        variant_id: uuid.UUID | None = None,
+        product_id: uuid.UUID | None = None,
+        size: str | None = None,
+        color: str | None = None,
+        color_hex: str | None = None,
+        stock: int = 10,
+        sku: str = "CHAQ-M-NEG-01",
+    ):
+        self.id = variant_id or uuid.uuid4()
+        self.product_id = product_id or uuid.uuid4()
+        self.size = self._FakeSize(size) if size is not None else None
+        self.color = color
+        self.color_hex = color_hex
+        self.stock = stock
+        self.sku = sku
+        self.deleted_at = None
+
+
 class _FakeCategory:
     def __init__(self, id: int, slug: str, translations: list):
         self.id = id
@@ -56,7 +87,6 @@ class _FakeProduct:
         slug: str,
         price: Decimal,
         category_id: int | None = None,
-        size=None,
         brand: str | None = None,
         condition=None,
         condition_rating: int | None = None,
@@ -71,8 +101,8 @@ class _FakeProduct:
         usage: str | None = None,
         source_dataset: str | None = None,
         image_urls=None,
-        stock: int = 1,
         translations=None,
+        variants=None,
         created_at: datetime | None = None,
         category=None,
     ):
@@ -80,7 +110,6 @@ class _FakeProduct:
         self.slug = slug
         self.price = price
         self.category_id = category_id
-        self.size = size
         self.brand = brand
         self.condition = condition
         self.condition_rating = condition_rating
@@ -95,8 +124,8 @@ class _FakeProduct:
         self.usage = usage
         self.source_dataset = source_dataset
         self.image_urls = image_urls or []
-        self.stock = stock
         self.translations = translations or []
+        self.variants = variants or []
         self.created_at = created_at or datetime(2026, 1, 1, tzinfo=timezone.utc)
         self.category = category
         self.deleted_at = None
@@ -108,17 +137,16 @@ def _make_fake_product(
     category_id=1,
     translations=None,
     product_id=None,
-    size=None,
     condition=None,
+    variants=None,
 ) -> _FakeProduct:
-    from app.models.product import ProductCondition, ProductSize
+    from app.models.product import ProductCondition
 
     return _FakeProduct(
         product_id=product_id or uuid.uuid4(),
         slug=slug,
         price=price,
         category_id=category_id,
-        size=ProductSize.M if size is None else size,
         brand="Levi's",
         condition=ProductCondition.GOOD if condition is None else condition,
         translations=translations
@@ -135,6 +163,7 @@ def _make_fake_product(
                 _FakeCategoryTrans("en", "Jackets"),
             ],
         ),
+        variants=variants or [],
     )
 
 
@@ -316,6 +345,43 @@ class TestProductCatalog:
         client.mock_svc.list_products.return_value = ([], 0)
         r = client.get("/api/products/")
         assert r.status_code == 200, r.text
+
+    def test_product_response_includes_variants_and_count(self, client):
+        """Product response includes variants array and variant_count."""
+        vid = uuid.uuid4()
+        variant = _FakeVariant(variant_id=vid, size="M", color="Negro", stock=10, sku="CHAQ-M-NEG-01")
+        p = _make_fake_product(variants=[variant])
+        client.mock_svc.get_product_by_slug.return_value = p
+        r = client.get("/api/products/chaqueta-denim")
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert "variants" in body
+        assert body["variant_count"] == 1
+        assert len(body["variants"]) == 1
+        assert body["variants"][0]["size"] == "M"
+        assert body["variants"][0]["color"] == "Negro"
+        assert body["variants"][0]["stock"] == 10
+        assert body["variants"][0]["sku"] == "CHAQ-M-NEG-01"
+
+    def test_product_with_no_variants_returns_empty_array(self, client):
+        """Product with no variants returns variants=[] and variant_count=0."""
+        p = _make_fake_product(variants=[])
+        client.mock_svc.get_product_by_slug.return_value = p
+        r = client.get("/api/products/chaqueta-denim")
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert body["variants"] == []
+        assert body["variant_count"] == 0
+
+    def test_list_products_includes_variants(self, client):
+        """List endpoint includes variants in each product."""
+        p = _make_fake_product(slug="p1", variants=[])
+        client.mock_svc.list_products.return_value = ([p], 1)
+        r = client.get("/api/products/")
+        assert r.status_code == 200, r.text
+        body = r.json()
+        assert "variants" in body["data"][0]
+        assert "variant_count" in body["data"][0]
 
 
 # ---------------------------------------------------------------------------

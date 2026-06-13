@@ -1,10 +1,10 @@
 import { Component, OnDestroy, OnInit, signal, inject } from '@angular/core';
-import { Meta, Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
 import type { Product } from '../../shared/models/product.model';
 import type { ProductListResponse } from '../../core/services/product.service';
 import { ProductService } from '../../core/services/product.service';
+import { SeoService } from '../../core/services/seo.service';
 
 @Component({
   selector: 'app-new-arrivals',
@@ -15,8 +15,7 @@ import { ProductService } from '../../core/services/product.service';
 export class NewArrivals implements OnInit, OnDestroy {
   private readonly productService = inject(ProductService);
   private readonly translate = inject(TranslateService);
-  private readonly meta = inject(Meta);
-  private readonly titleService = inject(Title);
+  private readonly seo = inject(SeoService);
 
   private readonly destroy$ = new Subject<void>();
 
@@ -38,8 +37,11 @@ export class NewArrivals implements OnInit, OnDestroy {
     this.loading.set(true);
     this.error.set(null);
 
+    // @todo created_after filter requires backend support — the backend ProductFilter
+    // schema does not yet implement a created_after parameter. When implemented, this
+    // will limit results to products created in the last 30 days.
     this.productService
-      .getProducts({ sort: 'newest', per_page: 24 })
+      .getProducts({ sort: 'newest', per_page: 24, created_after: '30d' })
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res: ProductListResponse) => {
@@ -56,7 +58,7 @@ export class NewArrivals implements OnInit, OnDestroy {
 
   private updateSeo(): void {
     const title = this.translate.instant('nav.newArrivals');
-    this.titleService.setTitle(`${title} | La Tiendita`);
-    this.meta.updateTag({ property: 'og:title', content: `${title} | La Tiendita` });
+    this.seo.setPageTitle(title);
+    this.seo.setDescription(this.translate.instant('home.heroDesc'));
   }
 }

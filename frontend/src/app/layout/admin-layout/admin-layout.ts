@@ -36,6 +36,14 @@ export class AdminLayoutComponent {
     return user?.email ?? '';
   }
 
+  get currentRoute(): string {
+    const url = this.router.url;
+    // Clean up the URL for display
+    const segments = url.split('/').filter(Boolean);
+    if (segments.length === 1 && segments[0] === 'admin') return 'dashboard';
+    return segments.slice(1).join(' / ') || 'dashboard';
+  }
+
   logout(): void {
     this.auth.logout().subscribe({
       next: () => this.router.navigate(['/login']),

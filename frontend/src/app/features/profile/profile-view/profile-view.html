@@ -1,0 +1,163 @@
+<div class="max-w-2xl mx-auto px-4 py-8">
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Mi Perfil</h1>
+
+  <!-- Success message -->
+  <div *ngIf="successMessage"
+       class="mb-4 px-4 py-3 bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300 text-sm rounded-xl flex items-center gap-2">
+    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M20 6 9 17l-5-5"/></svg>
+    {{ successMessage }}
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="errorMessage"
+       class="mb-4 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm rounded-xl">
+    {{ errorMessage }}
+  </div>
+
+  <p-card styleClass="w-full">
+    <form [formGroup]="form" class="space-y-5">
+
+      <!-- Avatar section -->
+      <div class="flex items-center gap-4 pb-5 border-b border-gray-100 dark:border-gray-800">
+        <div class="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xl font-bold shadow-sm">
+          {{ form.get('name')?.value?.charAt(0)?.toUpperCase() || '?' }}
+        </div>
+        <div>
+          <p class="font-semibold text-gray-900 dark:text-gray-100">{{ form.get('name')?.value || 'Usuario' }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400">{{ form.get('email')?.value }}</p>
+        </div>
+      </div>
+
+      <!-- Name -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
+        <input pInputText
+               formControlName="name"
+               class="w-full !rounded-xl"
+               [readonly]="!editing"
+               [class.!bg-gray-50]="!editing"
+               [class.dark:!bg-gray-800]="!editing"
+               [class.dark:!text-gray-400]="!editing" />
+        <small *ngIf="form.get('name')?.hasError('required') && editing" class="p-error block mt-1">El nombre es obligatorio</small>
+      </div>
+
+      <!-- Email (read-only) -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+        <input pInputText
+               formControlName="email"
+               class="w-full !rounded-xl !bg-gray-50 dark:!bg-gray-800 !text-gray-500 dark:!text-gray-400"
+               readonly />
+      </div>
+
+      <!-- Phone -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
+        <input pInputText
+               formControlName="phone"
+               placeholder="+56 9 1234 5678"
+               class="w-full !rounded-xl"
+               [readonly]="!editing"
+               [class.!bg-gray-50]="!editing"
+               [class.dark:!bg-gray-800]="!editing"
+               [class.dark:!text-gray-400]="!editing" />
+      </div>
+
+      <!-- Preferred language -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Idioma preferido</label>
+        <p-select
+          formControlName="preferred_lang"
+          [options]="[{label: 'Español', value: 'es'}, {label: 'English', value: 'en'}, {label: 'Svenska', value: 'sv'}]"
+          optionLabel="label"
+          optionValue="value"
+          [disabled]="!editing"
+          styleClass="w-full"
+          [class.!bg-gray-50]="!editing" />
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex items-center gap-3 pt-2">
+        <button *ngIf="!editing"
+                pButton
+                label="Editar Perfil"
+                icon="pi pi-pencil"
+                (click)="toggleEdit()"
+                severity="secondary"></button>
+
+        <ng-container *ngIf="editing">
+          <button pButton
+                  label="Guardar Cambios"
+                  icon="pi pi-check"
+                  (click)="save()"
+                  [loading]="saving"
+                  [disabled]="form.invalid || saving"
+                  severity="primary"></button>
+          <button pButton
+                  label="Cancelar"
+                  icon="pi pi-times"
+                  (click)="toggleEdit()"
+                  [disabled]="saving"
+                  severity="secondary"
+                  [text]="true"></button>
+        </ng-container>
+      </div>
+
+    </form>
+  </p-card>
+
+  <!-- 2FA Section (admin only) -->
+  <p-card *ngIf="isAdmin" styleClass="w-full mt-6">
+    <div class="flex items-center justify-between">
+      <div>
+        <h3 class="font-semibold text-gray-900 dark:text-gray-100">Autenticación en dos pasos (2FA)</h3>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">
+          {{ totpEnabled ? '2FA está activo. Tu cuenta está protegida.' : 'Añade una capa extra de seguridad a tu cuenta.' }}
+        </p>
+      </div>
+      <span class="px-3 py-1 text-xs font-bold rounded-full"
+            [class.bg-emerald-100]="totpEnabled"
+            [class.text-emerald-700]="totpEnabled"
+            [class.bg-gray-100]="!totpEnabled"
+            [class.text-gray-500]="!totpEnabled">
+        {{ totpEnabled ? 'Activo' : 'Inactivo' }}
+      </span>
+    </div>
+
+    <div *ngIf="totpMessage" class="mt-3 text-sm text-emerald-600 dark:text-emerald-400">{{ totpMessage }}</div>
+
+    <!-- Setup flow -->
+    <div *ngIf="!totpEnabled && !totpSetupSecret" class="mt-4">
+      <button pButton label="Configurar 2FA" icon="pi pi-shield" (click)="setup2fa()" [loading]="totpLoading" severity="secondary"></button>
+    </div>
+
+    <div *ngIf="totpSetupSecret" class="mt-4 space-y-4">
+      <p class="text-sm text-gray-600 dark:text-gray-400">Escanea el código QR con Google Authenticator o similar:</p>
+      <div class="flex justify-center">
+        <img *ngIf="totpQrUrl" [src]="totpQrUrl" alt="Código QR 2FA" class="rounded-xl border border-gray-200 dark:border-gray-700" width="180" height="180" />
+      </div>
+      <div class="text-center">
+        <p class="text-xs text-gray-400 mb-1">O ingresa manualmente esta clave:</p>
+        <code class="px-3 py-1.5 bg-gray-100 dark:bg-gray-800 rounded-lg text-sm font-mono text-gray-700 dark:text-gray-300 select-all">{{ totpSetupSecret }}</code>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Código de verificación</label>
+        <div class="flex gap-2">
+          <input pInputText type="text" [(ngModel)]="totpSetupCode" placeholder="000000" maxlength="6" class="!w-32 !text-center !text-lg !font-bold !tracking-widest" />
+          <button pButton label="Verificar y activar" (click)="enable2fa()" [loading]="totpLoading" [disabled]="totpSetupCode.length < 6"></button>
+          <button pButton label="Cancelar" severity="secondary" [text]="true" (click)="cancel2faSetup()" [disabled]="totpLoading"></button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="totpEnabled" class="mt-4">
+      <button pButton label="Desactivar 2FA" icon="pi pi-trash" (click)="disable2fa()" [loading]="totpLoading" severity="danger" [text]="true"></button>
+    </div>
+  </p-card>
+
+  <!-- Account info -->
+  <div class="mt-6 text-xs text-gray-400 dark:text-gray-500 text-center space-y-1">
+    <p>Miembro desde: {{ currentUser?.created_at ? (currentUser!.created_at | date:'longDate') : '—' }}</p>
+    <p>Rol: {{ currentUser?.role === 'admin' ? 'Administrador' : 'Cliente' }}</p>
+  </div>
+</div>

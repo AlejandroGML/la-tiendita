@@ -15,7 +15,7 @@ Session-scoped shopping cart: add products, adjust quantities, remove items, cle
 | R6 | Cart is user-scoped | MUST |
 
 ### Requirement: Add Product to Cart
-POST `/api/cart` MUST add a product to the authenticated user's cart. Adding an existing product SHALL increment its quantity rather than creating a duplicate item.
+POST `/api/cart` MUST add a product to the authenticated user's cart. The request SHALL accept an optional `variant_id` field to support variant-scoped products. Adding an existing product or variant SHALL increment its quantity rather than creating a duplicate item. Uniqueness is enforced via partial unique indexes: `(user_id, variant_id)` when variant_id is set, and `(user_id, product_id)` with `WHERE variant_id IS NULL` as fallback for variant-less products.
 
 #### Scenario: Add new product to empty cart
 - GIVEN authenticated user with empty cart
@@ -26,6 +26,21 @@ POST `/api/cart` MUST add a product to the authenticated user's cart. Adding an 
 - GIVEN cart already contains product X (qty 1)
 - WHEN POST `/api/cart` with `{product_id: X, quantity: 3}`
 - THEN cart item for product X now has quantity 4
+
+#### Scenario: Add variant to cart
+- GIVEN empty cart and variant v1 (size=M, color=Black)
+- WHEN POST `/api/cart` with `{product_id, variant_id: v1, quantity: 2}`
+- THEN cart item shows size="M", color="Black", quantity 2
+
+#### Scenario: Same variant increments quantity
+- GIVEN cart has variant v1 with quantity 2
+- WHEN POST `/api/cart` with `{product_id, variant_id: v1, quantity: 1}`
+- THEN cart item for variant v1 now has quantity 3
+
+#### Scenario: Variant-less product in cart
+- GIVEN cart item with variant_id=null
+- WHEN checking out
+- THEN the system checks stock against the default variant; no size/color shown in UI
 
 #### Scenario: Invalid quantity rejects
 - GIVEN authenticated user
@@ -67,17 +82,22 @@ DELETE `/api/cart` MUST empty the authenticated user's cart in one operation.
 - THEN cart is empty with total 0
 
 ### Requirement: Get Cart with Subtotals
-GET `/api/cart` MUST return all cart items with line-item subtotals (`quantity × unit_price`) and a `cart_total`.
+GET `/api/cart` MUST return all cart items with line-item subtotals (`quantity × unit_price`) and a `cart_total`. Each item SHALL include `variant_id`, `size`, and `color` fields when the item references a product variant; these fields are null for variant-less items. Items with active promotions SHALL include `sale_price` (discounted unit price), `discount_percent`, and `savings` per item. The cart response SHALL include `savings` — total discount across all items.
 
-#### Scenario: Get cart with multiple items
-- GIVEN cart has item A (qty 2, price 10) and item B (qty 1, price 20)
+#### Scenario: Cart with per-item discounts (UPDATED)
+- GIVEN cart has item A (qty 2, price 50, 20% promo → sale_price=40) and item B (qty 1, price 30, no promo)
 - WHEN GET `/api/cart`
-- THEN items array has subtotals 20 and 20, `cart_total` equals 40
+- THEN items array: item A subtotal=80 (discounted), `sale_price=40`, `discount_percent=20`; item B subtotal=30; `cart_total`=110; `savings`=20
 
-#### Scenario: Get empty cart returns zero total
+#### Scenario: Empty cart returns zero savings
 - GIVEN authenticated user with no cart items
 - WHEN GET `/api/cart`
-- THEN returns 200 with empty items array and `cart_total: 0`
+- THEN returns 200 with empty items array, `cart_total: 0`, `savings: 0`
+
+#### Scenario: Cart displays variant info
+- GIVEN cart contains a variant item (size=M, color=Black)
+- WHEN GET `/api/cart`
+- THEN the item response includes `variant_id`, `size="M"`, `color="Black"`
 
 ### Requirement: Cart Is User-Scoped
 All cart operations SHALL be scoped to the JWT-authenticated user. A user MUST NOT access or modify another user's cart.

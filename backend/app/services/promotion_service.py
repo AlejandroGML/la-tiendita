@@ -63,6 +63,67 @@ class PromotionService:
 
         return [self._to_response(p) for p in promotions]
 
+    async def get_active_promotions_for_products(
+        self, session: AsyncSession, product_ids: list[UUID]
+    ) -> dict[UUID, Promotion]:
+        """Return the best active promotion per product_id.
+
+        Queries all active promotions that match any of *product_ids*
+        (product-scoped) or are store-wide (``product_id IS NULL``).
+        Resolves the best promotion per product in Python using:
+        highest ``discount_percent``, product-scoped over store-wide at
+        equal discount, latest ``end_date`` as final tie-breaker.
+
+        Returns a dict mapping ``product_id → Promotion``. Products
+        with no matching active promotion are absent from the dict.
+        """
+        if not product_ids:
+            return {}
+
+        now = datetime.now(timezone.utc)
+
+        stmt = select(Promotion).where(
+            Promotion.is_active.is_(True),
+            (Promotion.start_date.is_(None)) | (Promotion.start_date <= now),
+            (Promotion.end_date.is_(None)) | (Promotion.end_date >= now),
+            (Promotion.max_uses.is_(None))
+            | (Promotion.current_uses < Promotion.max_uses),
+            (Promotion.product_id.in_(product_ids))
+            | (Promotion.product_id.is_(None)),
+        )
+        result = await session.execute(stmt)
+        candidates = result.scalars().all()
+
+        if not candidates:
+            return {}
+
+        # Group by target product_id (store-wide promotions apply to all requested ids)
+        by_product: dict[UUID, list[Promotion]] = {pid: [] for pid in product_ids}
+        for promo in candidates:
+            if promo.product_id is not None and promo.product_id in by_product:
+                by_product[promo.product_id].append(promo)
+            elif promo.product_id is None:
+                # Store-wide — applies to every requested product
+                for pid in product_ids:
+                    by_product[pid].append(promo)
+
+        # Resolve best per product
+        result_map: dict[UUID, Promotion] = {}
+        for pid, promos in by_product.items():
+            if not promos:
+                continue
+            best = max(
+                promos,
+                key=lambda p: (
+                    p.discount_percent,
+                    1 if p.product_id is not None else 0,  # product-scoped wins tie
+                    p.end_date or datetime.max.replace(tzinfo=timezone.utc),
+                ),
+            )
+            result_map[pid] = best
+
+        return result_map
+
     # ------------------------------------------------------------------
     # Admin CRUD
     # ------------------------------------------------------------------

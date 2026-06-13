@@ -1,4 +1,4 @@
-<h1 class="text-2xl font-bold mb-6">{{ 'admin.dashboard' | translate }}</h1>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">Dashboard</h1>
 
 <p-progressSpinner
   *ngIf="loading()"
@@ -13,7 +13,7 @@
   data-testid="dashboard-error"
 >
   <i class="pi pi-exclamation-circle text-4xl text-red-400 mb-2 block"></i>
-  <p class="text-gray-500">{{ 'admin.dashboardError' | translate }}</p>
+  <p class="text-gray-500 dark:text-gray-400">{{ 'admin.dashboardError' | translate }}</p>
   <p-button
     [outlined]="true"
     [label]="'catalog.retry' | translate"
@@ -25,22 +25,229 @@
 
 <div
   *ngIf="!loading() && !error() && stats()"
-  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
-  data-testid="dashboard-stats"
+  data-testid="dashboard-content"
 >
-  <p-card
-    *ngFor="let card of getStatCards()"
-    styleClass="stat-card"
-    [attr.data-testid]="'stat-' + card.icon"
+  <!-- Stat cards grid -->
+  <div
+    class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5"
+    data-testid="dashboard-stats"
   >
-    <div class="flex items-center gap-4 p-4">
-      <i [class]="card.icon + ' text-3xl text-primary'"></i>
-      <div>
-        <p class="text-sm text-gray-500">{{ card.labelKey | translate }}</p>
-        <p class="text-2xl font-bold">
-          {{ card.icon.includes('dollar') ? ((card.value | currency)) : card.value }}
-        </p>
-      </div>
+    <div *ngFor="let card of statCards()"
+         class="stat-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800 transition-all duration-200"
+         [attr.data-testid]="card.testId">
+      <div class="flex items-center gap-4">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg"
+             [class.bg-emerald-50]="card.color === 'emerald'"
+             [class.text-emerald-600]="card.color === 'emerald'"
+             [class.dark:bg-emerald-900/30]="card.color === 'emerald'"
+             [class.dark:text-emerald-400]="card.color === 'emerald'"
+             [class.bg-pink-50]="card.color === 'pink'"
+             [class.text-pink-600]="card.color === 'pink'"
+             [class.dark:bg-pink-900/30]="card.color === 'pink'"
+             [class.dark:text-pink-400]="card.color === 'pink'"
+             [class.bg-amber-50]="card.color === 'amber'"
+             [class.text-amber-600]="card.color === 'amber'"
+             [class.dark:bg-amber-900/30]="card.color === 'amber'"
+             [class.dark:text-amber-400]="card.color === 'amber'"
+             [class.bg-sky-50]="card.color === 'sky'"
+             [class.text-sky-600]="card.color === 'sky'"
+             [class.dark:bg-sky-900/30]="card.color === 'sky'"
+             [class.dark:text-sky-400]="card.color === 'sky'"
+             [class.bg-violet-50]="card.color === 'violet'"
+             [class.text-violet-600]="card.color === 'violet'"
+             [class.dark:bg-violet-900/30]="card.color === 'violet'"
+             [class.dark:text-violet-400]="card.color === 'violet'"
+             [class.bg-orange-50]="card.color === 'orange'"
+             [class.text-orange-600]="card.color === 'orange'"
+             [class.dark:bg-orange-900/30]="card.color === 'orange'"
+             [class.dark:text-orange-400]="card.color === 'orange'"
+             [class.bg-cyan-50]="card.color === 'cyan'"
+             [class.text-cyan-600]="card.color === 'cyan'"
+             [class.dark:bg-cyan-900/30]="card.color === 'cyan'"
+             [class.dark:text-cyan-400]="card.color === 'cyan'"
+             [class.bg-rose-50]="card.color === 'rose'"
+             [class.text-rose-600]="card.color === 'rose'"
+             [class.dark:bg-rose-900/30]="card.color === 'rose'"
+             [class.dark:text-rose-400]="card.color === 'rose'"
+             [class.bg-teal-50]="card.color === 'teal'"
+             [class.text-teal-600]="card.color === 'teal'"
+             [class.dark:bg-teal-900/30]="card.color === 'teal'"
+             [class.dark:text-teal-400]="card.color === 'teal'">
+          <i [class]="card.icon"></i>
+        </div>
+        <div class="min-w-0">
+          <p class="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">{{ card.labelKey | translate }}</p>
+          <p class="text-2xl font-bold text-gray-900 dark:text-gray-100 mt-0.5">
+            <ng-container *ngIf="card.format === 'rating'; else notRating">
+              {{ card.value | number:'1.1-1' }} ★
+            </ng-container>
+            <ng-template #notRating>
+              {{ card.format === 'currency' ? (card.value | currency) : (card.value | number) }}
+            </ng-template>
+          </p>
     </div>
-  </p-card>
+  </div>
+</div>
+
+<!-- Mini-tables section -->
+  <div
+    class="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6"
+    data-testid="dashboard-tables"
+  >
+    <!-- Recent Orders table -->
+    <div
+      class="mini-table-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
+      data-testid="recent-orders-table"
+    >
+      <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          {{ 'admin.recentOrders' | translate }}
+        </h2>
+      </div>
+
+      <!-- Orders error state -->
+      <div
+        *ngIf="ordersError() && !ordersLoading()"
+        class="text-center py-10"
+        data-testid="orders-error"
+      >
+        <i class="pi pi-exclamation-triangle text-3xl text-red-400 mb-3 block"></i>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+          {{ 'admin.ordersError' | translate }}
+        </p>
+        <p-button
+          [outlined]="true"
+          [label]="'catalog.retry' | translate"
+          (onClick)="loadRecentOrders()"
+          size="small"
+          data-testid="orders-retry"
+        ></p-button>
+      </div>
+
+      <!-- Orders table -->
+      <p-table
+        *ngIf="!ordersError()"
+        [value]="recentOrders()"
+        [loading]="ordersLoading()"
+        styleClass="p-datatable-sm"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ 'admin.user' | translate }}</th>
+            <th>{{ 'order.total' | translate }}</th>
+            <th>{{ 'admin.status' | translate }}</th>
+            <th>{{ 'order.date' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-order>
+          <tr>
+            <td>{{ order.user_name }}</td>
+            <td>{{ order.total | currency }}</td>
+            <td>
+              <span
+                class="status-badge inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+                [class.bg-amber-100]="order.status === 'pending'"
+                [class.text-amber-700]="order.status === 'pending'"
+                [class.bg-sky-100]="order.status === 'confirmed'"
+                [class.text-sky-700]="order.status === 'confirmed'"
+                [class.bg-blue-100]="order.status === 'shipped'"
+                [class.text-blue-700]="order.status === 'shipped'"
+                [class.bg-emerald-100]="order.status === 'delivered'"
+                [class.text-emerald-700]="order.status === 'delivered'"
+                [class.bg-red-100]="order.status === 'cancelled'"
+                [class.text-red-700]="order.status === 'cancelled'"
+              >
+                {{ 'order.status.' + order.status | translate }}
+              </span>
+            </td>
+            <td class="text-sm text-gray-500 dark:text-gray-400">
+              {{ order.created_at | date }}
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-6">
+              {{ 'admin.noOrders' | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <!-- Recent Users table -->
+    <div
+      class="mini-table-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden"
+      data-testid="recent-users-table"
+    >
+      <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
+          {{ 'admin.recentUsers' | translate }}
+        </h2>
+      </div>
+
+      <!-- Users error state -->
+      <div
+        *ngIf="usersError() && !usersLoading()"
+        class="text-center py-10"
+        data-testid="users-error"
+      >
+        <i class="pi pi-exclamation-triangle text-3xl text-red-400 mb-3 block"></i>
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
+          {{ 'admin.usersError' | translate }}
+        </p>
+        <p-button
+          [outlined]="true"
+          [label]="'catalog.retry' | translate"
+          (onClick)="loadRecentUsers()"
+          size="small"
+          data-testid="users-retry"
+        ></p-button>
+      </div>
+
+      <!-- Users table -->
+      <p-table
+        *ngIf="!usersError()"
+        [value]="recentUsers()"
+        [loading]="usersLoading()"
+        styleClass="p-datatable-sm"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th>{{ 'admin.name' | translate }}</th>
+            <th>{{ 'admin.email' | translate }}</th>
+            <th>{{ 'admin.role' | translate }}</th>
+            <th>{{ 'admin.created' | translate }}</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-user>
+          <tr>
+            <td>{{ user.name }}</td>
+            <td class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</td>
+            <td>
+              <span
+                class="status-badge inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
+                [class.bg-emerald-100]="user.role === 'admin'"
+                [class.text-emerald-700]="user.role === 'admin'"
+                [class.bg-sky-100]="user.role === 'customer'"
+                [class.text-sky-700]="user.role === 'customer'"
+              >
+                {{ 'admin.role' + (user.role === 'admin' ? 'Admin' : 'Customer') | translate }}
+              </span>
+            </td>
+            <td class="text-sm text-gray-500 dark:text-gray-400">
+              {{ user.created_at | date }}
+            </td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="text-center text-gray-500 dark:text-gray-400 py-6">
+              {{ 'admin.noUsers' | translate }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
 </div>

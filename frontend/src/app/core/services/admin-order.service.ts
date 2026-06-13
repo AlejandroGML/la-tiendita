@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 export interface OrderAdminItem {
   id: string;
   status: string;
-  total: string;
+  total: number;
   user_name: string;
   created_at: string;
 }

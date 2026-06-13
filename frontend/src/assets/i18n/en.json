@@ -3,10 +3,36 @@
     "products": "Products",
     "cart": "Cart",
     "newArrivals": "New Arrivals",
-    "sale": "Sale"
+    "sale": "Sale",
+    "ofertas": "Sale",
+    "nuevo": "New",
+    "popular": "Most Popular",
+    "ayuda": "Help",
+    "wishlist": "Wishlist",
+    "categorias": "Categories",
+    "search": "Search"
   },
   "header": {
-    "title": "La Tiendita"
+    "title": "La Tiendita",
+    "search": "What are you looking for?",
+    "buscarAria": "Search",
+    "categorias": "Categories",
+    "verPerfil": "View Profile",
+    "cerrarSesion": "Sign Out",
+    "compraSegura": "Safe Shopping",
+    "verTodo": "View All",
+    "iniciarSesion": "Sign In",
+    "iniciarSesionAria": "Sign In",
+    "carritoAria": "Shopping Cart",
+    "favoritosAria": "Wishlist",
+    "cambiarIdioma": "Change language",
+    "cambiarMoneda": "Change currency",
+    "modoClaro": "Light mode",
+    "modoOscuro": "Dark mode",
+    "menu": "Menu",
+    "coleccionPrimavera": "Spring<br/>Collection",
+    "renuevaEstilo": "Renew your style with the best finds of the season.",
+    "hasta40": "Up to 40% OFF"
   },
   "home": {
     "tagline": "Second-hand clothing with style. Find unique treasures.",
@@ -78,6 +104,7 @@
     "noResults": "No products found",
     "notFound": "Product not found",
     "notFoundDesc": "The product you are looking for does not exist or has been removed.",
+    "noProducts": "No products found",
     "backToCatalog": "Back to catalog",
     "retry": "Retry",
     "error": "An error occurred while loading",
@@ -98,6 +125,7 @@
     "totalRevenue": "Total Revenue",
     "dashboardError": "Error loading stats",
     "ordersPending": "Pending Orders",
+    "ordersConfirmed": "Confirmed Orders",
     "ordersShipped": "Shipped Orders",
     "ordersDelivered": "Delivered Orders",
     "reviewsTotal": "Total Reviews",
@@ -183,7 +211,9 @@
     "error": "Error loading cart",
     "view": "View cart",
     "originalSubtotal": "Original subtotal",
-    "savings": "Savings"
+    "savings": "Savings",
+    "paymentCancelled": "Payment was cancelled. Your items are still in the cart.",
+    "dismiss": "Dismiss"
   },
   "checkout": {
     "title": "Checkout",
@@ -203,7 +233,9 @@
     "error": "Error processing order",
     "stockError": "Insufficient stock for some products",
     "orderPlaced": "Order placed successfully",
-    "viewOrder": "View order"
+    "viewOrder": "View order",
+    "redirecting": "Redirecting to payment...",
+    "paymentUnavailable": "Payment service is unavailable. Please try again."
   },
   "reviews": {
     "title": "Reviews",
@@ -288,7 +320,13 @@
     },
     "detail": {
       "title": "Order"
-    }
+    },
+    "paymentStatus": "Payment status",
+    "paymentPending": "Pending",
+    "paymentPaid": "Paid",
+    "paymentFailed": "Failed",
+    "paymentRefunded": "Refunded",
+    "paymentSuccess": "Payment successful! Order confirmed."
   },
   "footer": {
     "brandDesc": "Your favorite second-hand clothing store. Quality, style and sustainability in every garment.",
@@ -312,6 +350,7 @@
     "chest": "Chest",
     "waist": "Waist",
     "hips": "Hips",
-    "disclaimer": "Measurements are approximate and correspond to body measurements in centimeters. We recommend measuring yourself before buying."
+    "disclaimer": "Measurements are approximate and correspond to body measurements in centimeters. We recommend measuring yourself before buying.",
+    "comingSoon": "Size guide coming soon"
   }
 }

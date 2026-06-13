@@ -14,6 +14,7 @@ from app.config import settings
 from app.db.engine import async_session as _async_session_fn
 from app.services.auth_service import AuthService
 from app.schemas.auth import (
+    AdminLoginResponse,
     ForgotPasswordRequest,
     LoginRequest,
     MessageResponse,
@@ -21,12 +22,20 @@ from app.schemas.auth import (
     RegisterRequest,
     ResetPasswordRequest,
     TokenResponse,
+    Verify2faRequest,
 )
 
 
 async def provide_auth_service() -> AuthService:
     """Construct AuthService with the app settings singleton."""
     return AuthService(app_settings=settings)
+
+
+async def provide_email_service() -> "EmailService":
+    """Construct a stateless EmailService."""
+    from app.services.email_service import EmailService
+
+    return EmailService()
 
 
 async def provide_session() -> AsyncSession:
@@ -43,7 +52,7 @@ async def provide_session() -> AsyncSession:
 class AuthController(Controller):
     """Authentication endpoints mounted at ``/auth``."""
 
-    path = "/auth"
+    path = "/api/auth"
     tags = ["auth"]
     dependencies = {
         "auth_service": Provide(provide_auth_service),
@@ -66,6 +75,36 @@ class AuthController(Controller):
                     detail="email already registered", status_code=409
                 ) from exc
             raise
+
+    @post("/admin-login", status_code=200)
+    async def admin_login(
+        self,
+        data: LoginRequest,
+        auth_service: AuthService,
+        session: AsyncSession,
+    ) -> AdminLoginResponse | TokenResponse:
+        """Authenticate an admin. Returns login_token if 2FA is enabled."""
+        try:
+            return await auth_service.admin_login(session, data)
+        except ValueError as exc:
+            raise NotAuthorizedException(
+                detail=str(exc), status_code=401
+            ) from exc
+
+    @post("/verify-2fa", status_code=200)
+    async def verify_2fa(
+        self,
+        data: Verify2faRequest,
+        auth_service: AuthService,
+        session: AsyncSession,
+    ) -> TokenResponse:
+        """Complete 2FA verification and receive access/refresh tokens."""
+        try:
+            return await auth_service.verify_2fa(session, data)
+        except ValueError as exc:
+            raise NotAuthorizedException(
+                detail=str(exc), status_code=401
+            ) from exc
 
     @post("/login", status_code=200)
     async def login(

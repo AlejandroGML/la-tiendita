@@ -9,12 +9,37 @@
     ></p-progressSpinner>
   </div>
 
-  <!-- Error state -->
-  <div *ngIf="error() && !loading()" class="text-center py-8">
-    <p class="text-red-600 text-lg">{{ error() | translate }}</p>
+  <!-- Redirecting overlay -->
+  <div
+    *ngIf="redirecting()"
+    class="fixed inset-0 bg-black/50 z-50 flex flex-col items-center justify-center gap-4"
+    data-testid="checkout-redirecting"
+  >
+    <div class="bg-white rounded-xl shadow-2xl p-10 flex flex-col items-center gap-4">
+      <p-progressSpinner
+        [style]="{ width: '56px', height: '56px' }"
+        strokeWidth="4"
+      ></p-progressSpinner>
+      <p class="text-lg font-medium text-gray-700">
+        {{ 'checkout.redirecting' | translate }}
+      </p>
+    </div>
   </div>
 
-  <ng-container *ngIf="!loading() && !success()">
+  <!-- Error state -->
+  <div *ngIf="error() && !loading()" class="text-center py-8">
+    <p class="text-red-600 text-lg mb-3">{{ error() | translate }}</p>
+    <p-button
+      *ngIf="error()"
+      [label]="'order.retry' | translate"
+      severity="primary"
+      styleClass="mt-2"
+      (onClick)="submitOrder()"
+      data-testid="checkout-retry-button"
+    ></p-button>
+  </div>
+
+  <ng-container *ngIf="!loading() && !redirecting()">
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
       <!-- Shipping form -->
       <div class="lg:col-span-3">
@@ -113,7 +138,7 @@
             severity="primary"
             styleClass="w-full mt-6 py-3 text-lg"
             [loading]="submitting()"
-            [disabled]="submitting() || shippingForm.invalid || items.length === 0"
+            [disabled]="submitting() || redirecting() || shippingForm.invalid || items.length === 0"
             (onClick)="submitOrder()"
             data-testid="confirm-button"
           ></p-button>

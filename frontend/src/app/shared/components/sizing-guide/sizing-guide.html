@@ -10,40 +10,32 @@
   <div class="flex gap-1 mb-4 bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
     <button
       type="button"
+      *ngFor="let tab of ['women', 'men', 'kids', 'unisex']"
       class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors"
-      [class.bg-white]="selectedTab() === 'women'"
-      [class.dark:bg-gray-700]="selectedTab() === 'women'"
-      [class.text-gray-900]="selectedTab() === 'women'"
-      [class.dark:text-gray-100]="selectedTab() === 'women'"
-      [class.shadow-sm]="selectedTab() === 'women'"
-      [class.text-gray-600]="selectedTab() !== 'women'"
-      [class.dark:text-gray-400]="selectedTab() !== 'women'"
-      [class.hover:text-gray-900]="selectedTab() !== 'women'"
-      [class.dark:hover:text-gray-200]="selectedTab() !== 'women'"
-      (click)="selectTab('women')"
+      [class.bg-white]="selectedTab() === tab"
+      [class.dark:bg-gray-700]="selectedTab() === tab"
+      [class.text-gray-900]="selectedTab() === tab"
+      [class.dark:text-gray-100]="selectedTab() === tab"
+      [class.shadow-sm]="selectedTab() === tab"
+      [class.text-gray-600]="selectedTab() !== tab"
+      [class.dark:text-gray-400]="selectedTab() !== tab"
+      [class.hover:text-gray-900]="selectedTab() !== tab"
+      [class.dark:hover:text-gray-200]="selectedTab() !== tab"
+      (click)="selectTab(tab)"
     >
-      {{ 'gender.women' | translate }}
-    </button>
-    <button
-      type="button"
-      class="flex-1 py-2 px-4 text-sm font-medium rounded-md transition-colors"
-      [class.bg-white]="selectedTab() === 'men'"
-      [class.dark:bg-gray-700]="selectedTab() === 'men'"
-      [class.text-gray-900]="selectedTab() === 'men'"
-      [class.dark:text-gray-100]="selectedTab() === 'men'"
-      [class.shadow-sm]="selectedTab() === 'men'"
-      [class.text-gray-600]="selectedTab() !== 'men'"
-      [class.dark:text-gray-400]="selectedTab() !== 'men'"
-      [class.hover:text-gray-900]="selectedTab() !== 'men'"
-      [class.dark:hover:text-gray-200]="selectedTab() !== 'men'"
-      (click)="selectTab('men')"
-    >
-      {{ 'gender.men' | translate }}
+      {{ 'gender.' + tab | translate }}
     </button>
   </div>
 
-  <!-- Size Table -->
-  <div class="overflow-x-auto">
+  <!-- Coming Soon placeholder for kids/unisex -->
+  <div *ngIf="isComingSoon" class="py-16 text-center">
+    <p class="text-gray-400 dark:text-gray-500 text-lg font-medium">
+      {{ 'sizing.comingSoon' | translate }}
+    </p>
+  </div>
+
+  <!-- Size Table (only for women/men) -->
+  <div *ngIf="!isComingSoon" class="overflow-x-auto">
     <table class="w-full text-sm border-collapse">
       <thead>
         <tr class="bg-gray-50 dark:bg-gray-800">
@@ -79,7 +71,7 @@
     </table>
   </div>
 
-  <p class="mt-4 text-xs text-gray-500 dark:text-gray-400">
+  <p *ngIf="!isComingSoon" class="mt-4 text-xs text-gray-500 dark:text-gray-400">
     {{ 'sizing.disclaimer' | translate }}
   </p>
 

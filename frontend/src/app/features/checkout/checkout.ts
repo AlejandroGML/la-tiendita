@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import type { CartResponse, CartItem } from '../../shared/models/cart.model';
-import type { Order, ShippingAddress } from '../../shared/models/order.model';
+import type { CheckoutResponse, ShippingAddress } from '../../shared/models/order.model';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 
@@ -20,8 +20,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   readonly cart = signal<CartResponse | null>(null);
   readonly loading = signal(true);
   readonly submitting = signal(false);
+  readonly redirecting = signal(false);
   readonly error = signal<string | null>(null);
-  readonly success = signal<Order | null>(null);
 
   readonly shippingForm: FormGroup;
 
@@ -76,22 +76,20 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       .checkout(address)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
-        next: (order) => {
-          this.success.set(order);
+        next: (response: CheckoutResponse) => {
           this.submitting.set(false);
-          this.messageService.add({
-            severity: 'success',
-            summary: 'checkout.orderPlaced',
-            detail: 'checkout.viewOrder',
-            life: 8000,
-          });
-          this.cartService.resetState();
-          this.router.navigate(['/perfil/ordenes']);
+          this.redirecting.set(true);
+          // Cart is cleared server-side AFTER successful payment in
+          // finalize_payment.  Clearing it here would destroy the user's
+          // cart if they return from Stripe without completing payment.
+          window.location.href = response.checkout_url;
         },
         error: (err) => {
           this.submitting.set(false);
           if (err?.status === 409) {
             this.error.set('checkout.stockError');
+          } else if (err?.status === 502) {
+            this.error.set('checkout.paymentUnavailable');
           } else {
             this.error.set('checkout.error');
           }

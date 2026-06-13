@@ -43,8 +43,11 @@ jwt_auth = JWTAuth[User](
         "/auth/reset-password",
         "/auth/refresh",
         "/auth/logout",
+        "/auth/admin-login",
+        "/auth/verify-2fa",
         "/auth/oauth/google",
         "/auth/oauth/google/callback",
+        "/api/stripe/webhook",
     ],
 )
 """Configured JWTAuth instance — import and use as ``guards=[jwt_auth]``."""

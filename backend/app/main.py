@@ -6,12 +6,14 @@ from litestar.openapi import OpenAPIConfig
 from litestar.static_files import create_static_files_router
 
 from app.config import settings
-from app.controllers.admin import AdminController
+from app.controllers.admin import AdminController, AdminProductVariantController
 from app.controllers.auth import AuthController
 from app.controllers.cart import CartController
 from app.controllers.categories import AdminCategoryController, CategoryController
 from app.controllers.orders import OrderController
+from app.controllers.stripe import StripeWebhookController
 from app.controllers.products import AdminProductController, ProductController
+from app.controllers.profile import ProfileController
 from app.controllers.promotions import AdminPromotionController, PromotionController
 from app.controllers.reviews import ReviewController
 from app.controllers.upload import UploadController
@@ -58,8 +60,11 @@ app = Litestar(
         CategoryController,
         AdminCategoryController,
         OrderController,
+        StripeWebhookController,
         ProductController,
         AdminProductController,
+        AdminProductVariantController,
+        ProfileController,
         PromotionController,
         ReviewController,
         UploadController,

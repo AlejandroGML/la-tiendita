@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import type { CartResponse, CartItem } from '../../shared/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
@@ -25,13 +25,20 @@ export class CartComponent implements OnInit, OnDestroy {
   readonly items = signal<CartItem[]>([]);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly showCancelledBanner = signal(false);
 
   constructor(
     private readonly cartService: CartService,
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
   ) {}
 
   ngOnInit(): void {
+    this.route.queryParams.subscribe((params) => {
+      if (params['payment'] === 'cancelled') {
+        this.showCancelledBanner.set(true);
+      }
+    });
     this.loadCart();
   }
 
@@ -121,5 +128,9 @@ export class CartComponent implements OnInit, OnDestroy {
   checkout(): void {
     if (this.items().length === 0) return;
     this.router.navigate(['/checkout']);
+  }
+
+  dismissBanner(): void {
+    this.showCancelledBanner.set(false);
   }
 }

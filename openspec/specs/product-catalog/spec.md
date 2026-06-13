@@ -36,15 +36,33 @@ The system MUST provide `GET /api/products` returning a paginated list of PUBLIC
 - WHEN `GET /api/products?search=nonexistent`
 - THEN 200 with empty `data` array, `pagination.total=0`
 
+#### Scenario: Product card shows variant summary
+
+- GIVEN a product with variants in sizes XS, S, M, L and colors Black and White
+- WHEN `GET /api/products` renders product cards
+- THEN the card shows size range (e.g. "XS-L") and color count (e.g. "2 colors") below the product name
+
 #### Scenario: Invalid pagination params
 
 - GIVEN a valid catalog
 - WHEN `GET /api/products?page=-1&per_page=200`
 - THEN 422 with validation error on out-of-range values
 
+#### Scenario: Listing includes sale pricing
+
+- GIVEN 3 products; 1 with active 15% promotion
+- WHEN `GET /api/products?per_page=12`
+- THEN 1 product card shows strike-through base price + `sale_price` + badge; 2 products show base price only
+
+#### Scenario: No promotions active
+
+- GIVEN no active promotions
+- WHEN `GET /api/products`
+- THEN all products return `sale_price=null`; UI shows base prices only — zero behavioral change
+
 ### Requirement: Product Detail by Slug
 
-The system MUST provide `GET /api/products/{slug}` returning full product detail including all translations (`translations` array with lang keys), `image_urls`, `category`, `size`, `condition`, and `price`. MUST return 404 when slug does not exist or product is soft-deleted.
+The system MUST provide `GET /api/products/{slug}` returning full product detail including all translations (`translations` array with lang keys), `image_urls`, `category`, `size`, `condition`, `price`, and `variants` array with per-variant `size`, `color`, `color_hex`, `stock`, and `sku`. MUST return 404 when slug does not exist or product is soft-deleted.
 
 #### Scenario: Product found with translations
 
@@ -65,6 +83,24 @@ The system MUST provide `GET /api/products/{slug}` returning full product detail
 - WHEN `GET /api/products/chaqueta-denim`
 - THEN 404 with "product not found"
 
+#### Scenario: Detail loads variants
+
+- GIVEN "Hoodie" variants: Black-S(stock=5), Black-M(10), White-S(0)
+- WHEN user opens detail
+- THEN S/M buttons render; White-S shows "out of stock"; `variants` array includes size, color, color_hex, stock, and sku per variant
+
+#### Scenario: Add-to-cart gated on variant selection
+
+- GIVEN no size selected on product detail
+- WHEN user clicks "Add to Cart"
+- THEN button is disabled until a size+color combination is selected
+
+#### Scenario: Detail shows discount indicators
+
+- GIVEN product with 25% active promotion
+- WHEN `GET /api/products/chaqueta-denim`
+- THEN response includes `sale_price` (discounted), `discount_label`, `promotion` summary; UI renders "SALE" badge and "You save 25%"
+
 ### Requirement: Category Listing
 
 The system MUST provide `GET /api/categories` returning all categories with translated `name` per `?lang=`. Response SHALL include `id`, `slug`, and `name` in requested language.
@@ -80,3 +116,41 @@ The system MUST provide `GET /api/categories` returning all categories with tran
 - GIVEN a category has no Swedish translation
 - WHEN `GET /api/categories?lang=sv`
 - THEN the category returns its English name as fallback
+
+### Requirement: `has_promotion` Query Filter
+
+`GET /api/products` MUST accept a `has_promotion` boolean query parameter. When `true`, the response MUST include only products that have at least one active promotion. When `false` or absent, the filter has no effect.
+
+#### Scenario: Filter returns only promoted products
+
+- GIVEN 3 products with active promotions and 10 without
+- WHEN `GET /api/products?has_promotion=true`
+- THEN 200 with exactly 3 products, each containing `sale_price` and `promotion` fields
+
+#### Scenario: No promotions active returns empty
+
+- GIVEN no products have active promotions
+- WHEN `GET /api/products?has_promotion=true`
+- THEN 200 with empty `data` array, `pagination.total=0`
+
+#### Scenario: Filter absent has no effect
+
+- GIVEN products with and without promotions
+- WHEN `GET /api/products` (no `has_promotion` param)
+- THEN all non-deleted products are returned (existing behavior preserved)
+
+### Requirement: `order_by` Query Parameter
+
+`GET /api/products` MUST accept an `order_by` parameter with values: `created_at` (default), `price_asc`, `price_desc`. The results SHALL be ordered accordingly.
+
+#### Scenario: order_by price ascending
+
+- GIVEN products with prices 50, 100, 25
+- WHEN `GET /api/products?order_by=price_asc`
+- THEN products are ordered from cheapest to most expensive
+
+#### Scenario: order_by created_at (default)
+
+- GIVEN products created on different dates
+- WHEN `GET /api/products` (no `order_by`)
+- THEN products are ordered newest first (existing default)

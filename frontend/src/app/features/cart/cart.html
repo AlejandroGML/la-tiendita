@@ -3,6 +3,26 @@
     <h1 class="text-2xl font-bold text-gray-900">{{ 'cart.title' | translate }}</h1>
   </div>
 
+  <!-- Cancelled payment banner -->
+  <div
+    *ngIf="showCancelledBanner()"
+    class="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between"
+    data-testid="cart-cancelled-banner"
+  >
+    <div class="flex items-center gap-3">
+      <i class="pi pi-info-circle text-amber-600 text-xl"></i>
+      <p class="text-amber-800 font-medium">{{ 'cart.paymentCancelled' | translate }}</p>
+    </div>
+    <p-button
+      icon="pi pi-times"
+      [rounded]="true"
+      [text]="true"
+      severity="secondary"
+      (onClick)="dismissBanner()"
+      [attr.aria-label]="'cart.dismiss' | translate"
+    ></p-button>
+  </div>
+
   <!-- Loading state -->
   <div *ngIf="loading()" class="flex justify-center py-16">
     <p-progressSpinner
@@ -57,6 +77,14 @@
           <tr>
             <td class="py-3">
               <span class="font-medium">{{ item.product_name }}</span>
+              <span
+                *ngIf="item.size || item.color"
+                class="block text-xs text-gray-500 mt-0.5"
+              >
+                <ng-container *ngIf="item.size">{{ item.size }}</ng-container>
+                <ng-container *ngIf="item.size && item.color"> / </ng-container>
+                <ng-container *ngIf="item.color">{{ item.color }}</ng-container>
+              </span>
             </td>
             <td class="text-center">
               <div class="flex items-center justify-center gap-1">
@@ -81,7 +109,15 @@
                 ></p-button>
               </div>
             </td>
-            <td>{{ item.unit_price | currency }}</td>
+            <td>
+              <ng-container *ngIf="item.savings; else noItemDiscount">
+                <span class="line-through text-gray-400 text-sm block">{{ item.original_unit_price | currency }}</span>
+                <span class="text-red-600 font-medium">{{ item.unit_price | currency }}</span>
+              </ng-container>
+              <ng-template #noItemDiscount>
+                {{ item.unit_price | currency }}
+              </ng-template>
+            </td>
             <td class="font-medium">{{ item.subtotal | currency }}</td>
             <td>
               <p-button
@@ -102,10 +138,26 @@
     <!-- Footer: subtotal + checkout -->
     <div class="mt-6 flex flex-col items-end gap-4">
       <div class="bg-white rounded-lg shadow p-4 text-right min-w-[250px]">
-        <p class="text-lg">
-          <span class="font-medium text-gray-700">{{ 'cart.subtotal' | translate }}: </span>
-          <span class="font-bold text-gray-900">{{ cart()?.subtotal ?? 0 | currency }}</span>
-        </p>
+        <ng-container *ngIf="cart()?.total_savings; else noCartDiscount">
+          <p class="text-sm text-gray-500">
+            <span>{{ 'cart.originalSubtotal' | translate }}: </span>
+            <span class="line-through">{{ cart()?.original_subtotal | currency }}</span>
+          </p>
+          <p class="text-sm text-green-600 font-medium">
+            <span>{{ 'cart.savings' | translate }}: </span>
+            <span>-{{ cart()?.total_savings | currency }}</span>
+          </p>
+          <p class="text-lg font-bold text-gray-900 mt-1 pt-1 border-t border-gray-200">
+            <span>{{ 'cart.subtotal' | translate }}: </span>
+            <span>{{ cart()?.subtotal ?? 0 | currency }}</span>
+          </p>
+        </ng-container>
+        <ng-template #noCartDiscount>
+          <p class="text-lg">
+            <span class="font-medium text-gray-700">{{ 'cart.subtotal' | translate }}: </span>
+            <span class="font-bold text-gray-900">{{ cart()?.subtotal ?? 0 | currency }}</span>
+          </p>
+        </ng-template>
       </div>
 
       <p-button

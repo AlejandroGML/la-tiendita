@@ -65,6 +65,44 @@ The system MUST provide `POST`, `PUT`, `DELETE` for `/api/admin/categories` (adm
 - WHEN `POST /api/admin/categories` with slug, ES/EN/SV translations
 - THEN 201 with category and all translations persisted
 
+### Requirement: Product Variant Management
+
+The system MUST support per-product variants for size/color/stock management. The Product model SHALL have `size` and `stock` columns removed; stock is managed per ProductVariant. The admin product form MUST support dynamic variant rows with size dropdown, color input, color_hex input, and stock input. Variant rows can be added and removed. SKU SHALL be auto-generated (`{slug-prefix}-{size}-{color-abbr}-{seq}`) with DB-level unique constraint; admin MAY override the auto-generated SKU. Products created without explicit variants SHALL auto-create one default variant inheriting stock from the product.
+
+#### Scenario: Admin adds variants to product
+
+- GIVEN admin edits "Hoodie"
+- WHEN adds variant rows: M/Black/stock=10 and L/Black/stock=5
+- THEN both variants are saved with auto-generated SKUs; product detail reflects both variants
+
+#### Scenario: Admin removes variant
+
+- GIVEN product "Hoodie" has variants Black-S and Black-M
+- WHEN admin deletes Black-S
+- THEN variant is soft-deleted; existing cart items referencing that variant keep the reference but show "unavailable"
+
+#### Scenario: Admin overrides auto-SKU
+
+- GIVEN a variant with auto-generated SKU "HOOD-M-BLK-01"
+- WHEN admin manually sets SKU to "HOOD-M-BLACK-01"
+- THEN the custom SKU is persisted and uniqueness is enforced
+
+#### Scenario: Default variant on variant-less product
+
+- GIVEN product "Belt" created without explicit variants
+- WHEN saved
+- THEN a default variant (size=null, color=null) is auto-created with stock from the product
+
+### Requirement: Admin Category CRUD
+
+The system MUST provide `POST`, `PUT`, `DELETE` for `/api/admin/categories` (admin-only). Categories require a `slug` and at least one translation on creation.
+
+#### Scenario: Admin creates category
+
+- GIVEN an authenticated admin
+- WHEN `POST /api/admin/categories` with slug, ES/EN/SV translations
+- THEN 201 with category and all translations persisted
+
 #### Scenario: Admin deletes category
 
 - GIVEN category "pantalones" with no associated products

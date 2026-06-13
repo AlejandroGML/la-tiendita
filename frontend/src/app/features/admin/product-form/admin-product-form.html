@@ -1,304 +1,351 @@
-<div class="admin-product-form-container">
+<div class="max-w-4xl mx-auto">
+  <!-- Header -->
   <header class="flex items-center gap-3 mb-6">
-    <p-button
-      [rounded]="true"
-      [text]="true"
-      [attr.aria-label]="'admin.backToProducts' | translate"
-      icon="pi pi-arrow-left"
-      (onClick)="onCancel()"
-    ></p-button>
-    <h1 class="text-2xl font-bold">{{ pageTitle | translate }}</h1>
-  </header>
-
-  <p-progressBar
-    *ngIf="loading()"
-    mode="indeterminate"
-    styleClass="mb-4"
-  ></p-progressBar>
-
-  <form
-    [formGroup]="form"
-    (ngSubmit)="onSubmit()"
-    class="product-form"
-    data-testid="product-form"
-  >
-    <!-- General Fields -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-      <p-floatLabel variant="on">
-        <p-inputNumber
-          inputId="price"
-          formControlName="price"
-          [min]="1"
-          data-testid="input-price"
-        ></p-inputNumber>
-        <label for="price">{{ 'product.price' | translate }}</label>
-      </p-floatLabel>
-      <small
-        *ngIf="form.get('price')?.touched && form.get('price')?.hasError('required')"
-        class="p-error"
-      >
-        {{ 'catalog.required' | translate }}
-      </small>
-      <small
-        *ngIf="form.get('price')?.touched && form.get('price')?.hasError('min')"
-        class="p-error"
-      >
-        Debe ser mayor a 0
-      </small>
-
-      <p-floatLabel variant="on">
-        <p-select
-          inputId="category_id"
-          [options]="categories()"
-          optionValue="id"
-          formControlName="category_id"
-          appendTo="body"
-          data-testid="select-category"
-        >
-          <ng-template let-cat pTemplate="item">
-            {{ getCategoryName(cat) }}
-          </ng-template>
-          <ng-template let-cat pTemplate="selectedItem">
-            {{ getCategoryName(cat) }}
-          </ng-template>
-        </p-select>
-        <label for="category_id">{{ 'catalog.category' | translate }}</label>
-      </p-floatLabel>
-      <small
-        *ngIf="form.get('category_id')?.touched && form.get('category_id')?.hasError('required')"
-        class="p-error"
-      >
-        {{ 'catalog.required' | translate }}
-      </small>
-
-      <p-floatLabel variant="on">
-        <p-select
-          inputId="condition"
-          [options]="conditions"
-          formControlName="condition"
-          appendTo="body"
-        >
-          <ng-template let-c pTemplate="item">
-            {{ 'condition.' + c | translate }}
-          </ng-template>
-          <ng-template let-c pTemplate="selectedItem">
-            {{ 'condition.' + c | translate }}
-          </ng-template>
-        </p-select>
-        <label for="condition">{{ 'product.condition' | translate }}</label>
-      </p-floatLabel>
-
-      <p-floatLabel variant="on">
-        <p-select
-          inputId="size"
-          [options]="sizes"
-          formControlName="size"
-          appendTo="body"
-          [showClear]="true"
-        >
-          <ng-template let-s pTemplate="selectedItem">
-            {{ s || '—' }}
-          </ng-template>
-        </p-select>
-        <label for="size">{{ 'product.size' | translate }}</label>
-      </p-floatLabel>
-
-      <p-floatLabel variant="on">
-        <input pInputText id="brand" formControlName="brand" data-testid="input-brand" />
-        <label for="brand">{{ 'product.brand' | translate }}</label>
-      </p-floatLabel>
-
-      <p-floatLabel variant="on">
-        <p-inputNumber
-          inputId="stock"
-          formControlName="stock"
-          [min]="0"
-          data-testid="input-stock"
-        ></p-inputNumber>
-        <label for="stock">{{ 'product.stock' | translate }}</label>
-      </p-floatLabel>
-    </div>
-
-    <!-- Translations Tabs -->
-    <p-tabs
-      [value]="selectedTabIndex"
-      (valueChange)="setSelectedTab($event)"
-      styleClass="mb-6"
-    >
-      <p-tablist>
-        <p-tab [value]="0">{{ 'admin.tabES' | translate }}</p-tab>
-        <p-tab [value]="1">{{ 'admin.tabEN' | translate }}</p-tab>
-        <p-tab [value]="2">{{ 'admin.tabSV' | translate }}</p-tab>
-      </p-tablist>
-      <p-tabpanels>
-        <p-tabpanel [value]="0">
-          <div
-            class="tab-content"
-            [formGroup]="$any(translations.controls[0])"
-          >
-            <p-floatLabel variant="on" styleClass="w-full">
-              <input
-                pInputText
-                id="name-es"
-                formControlName="name"
-                data-testid="input-name-es"
-              />
-              <label for="name-es">{{ 'admin.name' | translate }} *</label>
-            </p-floatLabel>
-            <small
-              *ngIf="translations.controls[0].get('name')?.touched && translations.controls[0].get('name')?.hasError('required')"
-              class="p-error"
-            >
-              El nombre en español es obligatorio
-            </small>
-
-            <p-floatLabel variant="on" styleClass="w-full">
-              <textarea
-                pTextarea
-                id="desc-es"
-                formControlName="description"
-                rows="3"
-                data-testid="input-desc-es"
-              ></textarea>
-              <label for="desc-es">{{ 'admin.description' | translate }}</label>
-            </p-floatLabel>
-          </div>
-        </p-tabpanel>
-
-        <p-tabpanel [value]="1">
-          <div
-            class="tab-content"
-            [formGroup]="$any(translations.controls[1])"
-          >
-            <p-floatLabel variant="on" styleClass="w-full">
-              <input
-                pInputText
-                id="name-en"
-                formControlName="name"
-                data-testid="input-name-en"
-              />
-              <label for="name-en">{{ 'admin.name' | translate }}</label>
-            </p-floatLabel>
-
-            <p-floatLabel variant="on" styleClass="w-full">
-              <textarea
-                pTextarea
-                id="desc-en"
-                formControlName="description"
-                rows="3"
-                data-testid="input-desc-en"
-              ></textarea>
-              <label for="desc-en">{{ 'admin.description' | translate }}</label>
-            </p-floatLabel>
-          </div>
-        </p-tabpanel>
-
-        <p-tabpanel [value]="2">
-          <div
-            class="tab-content"
-            [formGroup]="$any(translations.controls[2])"
-          >
-            <p-floatLabel variant="on" styleClass="w-full">
-              <input
-                pInputText
-                id="name-sv"
-                formControlName="name"
-                data-testid="input-name-sv"
-              />
-              <label for="name-sv">{{ 'admin.name' | translate }}</label>
-            </p-floatLabel>
-
-            <p-floatLabel variant="on" styleClass="w-full">
-              <textarea
-                pTextarea
-                id="desc-sv"
-                formControlName="description"
-                rows="3"
-                data-testid="input-desc-sv"
-              ></textarea>
-              <label for="desc-sv">{{ 'admin.description' | translate }}</label>
-            </p-floatLabel>
-          </div>
-        </p-tabpanel>
-      </p-tabpanels>
-    </p-tabs>
-
-    <!-- Slug notice -->
-    <p class="text-sm text-gray-500 mb-4" data-testid="slug-notice">
-      {{ 'admin.slugAutogenerated' | translate }}
-    </p>
-
-    <!-- Image Upload -->
-    <section class="mb-6" data-testid="image-upload-section">
-      <h3 class="text-lg font-medium mb-3">
-        {{ 'admin.imageUpload' | translate }}
-      </h3>
-
-      <div class="image-preview-list mb-3">
-        <div
-          *ngFor="let url of imagePreviewUrls(); let i = index"
-          class="image-preview-item"
-          data-testid="image-preview"
-        >
-          <img [src]="url" alt="Preview" class="image-preview-thumb" />
-          <p-button
-            type="button"
+    <button pButton
             [rounded]="true"
             [text]="true"
-            severity="danger"
-            class="image-remove-btn"
-            [attr.aria-label]="'admin.delete' | translate"
-            icon="pi pi-times"
-            (onClick)="removeImage(i)"
-          ></p-button>
+            severity="secondary"
+            icon="pi pi-arrow-left"
+            (onClick)="onCancel()"
+            class="hover:!bg-emerald-50 dark:hover:!bg-gray-800"></button>
+    <div>
+      <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ pageTitle | translate }}</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400">{{ isEditing ? 'Editando producto' : 'Nuevo producto en La Tiendita' }}</p>
+    </div>
+  </header>
+
+  <p-progressBar *ngIf="loading()" mode="indeterminate" styleClass="mb-6 rounded-full"></p-progressBar>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()" data-testid="product-form">
+
+    <!-- ════════════════════════════════════ -->
+    <!-- Card: Información general           -->
+    <!-- ════════════════════════════════════ -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-6 transition-colors duration-200">
+      <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+        <i class="pi pi-info-circle text-emerald-500"></i>
+        Información General
+      </h2>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <!-- Price -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Precio *</label>
+          <div class="relative">
+            <p-inputNumber
+              formControlName="price"
+              [min]="1"
+              [maxFractionDigits]="0"
+              inputId="price"
+              styleClass="w-full"
+              data-testid="input-price"
+            ></p-inputNumber>
+            <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400 dark:text-gray-500 pointer-events-none">SEK</span>
+          </div>
+          <small *ngIf="form.get('price')?.touched && form.get('price')?.hasError('required')" class="p-error block mt-1">El precio es obligatorio</small>
+          <small *ngIf="form.get('price')?.touched && form.get('price')?.hasError('min')" class="p-error block mt-1">Debe ser mayor a 0</small>
+          <small class="text-xs text-gray-400 dark:text-gray-500 block mt-1">Precio en coronas suecas (SEK)</small>
+        </div>
+
+        <!-- Category -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Categoría *</label>
+          <p-select
+            inputId="category_id"
+            [options]="categories()"
+            optionValue="id"
+            formControlName="category_id"
+            appendTo="body"
+            styleClass="w-full"
+            data-testid="select-category"
+          >
+            <ng-template let-cat pTemplate="item">{{ getCategoryName(cat) }}</ng-template>
+            <ng-template let-cat pTemplate="selectedItem">{{ getCategoryName(cat) }}</ng-template>
+          </p-select>
+          <small *ngIf="form.get('category_id')?.touched && form.get('category_id')?.hasError('required')" class="p-error block mt-1">Selecciona una categoría</small>
+        </div>
+
+        <!-- Condition -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Condición</label>
+          <p-select
+            inputId="condition"
+            [options]="conditions"
+            formControlName="condition"
+            appendTo="body"
+            styleClass="w-full"
+          >
+            <ng-template let-c pTemplate="item">{{ 'condition.' + c | translate }}</ng-template>
+            <ng-template let-c pTemplate="selectedItem">{{ 'condition.' + c | translate }}</ng-template>
+          </p-select>
+        </div>
+
+        <!-- Brand -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Marca</label>
+          <input pInputText id="brand" formControlName="brand" placeholder="Ej: Nike, Zara, Levi's" class="w-full" data-testid="input-brand" />
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- Card: Traducciones                  -->
+    <!-- ════════════════════════════════════ -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-6 transition-colors duration-200">
+      <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+        <i class="pi pi-language text-sky-500"></i>
+        Traducciones
+      </h2>
+
+      <p-tabs [value]="selectedTabIndex" (valueChange)="setSelectedTab($event)">
+        <p-tablist>
+          <p-tab [value]="0">
+            <span class="flex items-center gap-2">🇪🇸 Español</span>
+          </p-tab>
+          <p-tab [value]="1">
+            <span class="flex items-center gap-2">🇬🇧 English</span>
+          </p-tab>
+          <p-tab [value]="2">
+            <span class="flex items-center gap-2">🇸🇪 Svenska</span>
+          </p-tab>
+        </p-tablist>
+
+        <p-tabpanels>
+          <!-- ES -->
+          <p-tabpanel [value]="0">
+            <div class="space-y-4 pt-4" [formGroup]="$any(translations.controls[0])">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nombre *</label>
+                <input pInputText id="name-es" formControlName="name" placeholder="Nombre del producto en español" class="w-full" data-testid="input-name-es" />
+                <small *ngIf="translations.controls[0].get('name')?.touched && translations.controls[0].get('name')?.hasError('required')" class="p-error block mt-1">El nombre en español es obligatorio</small>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Descripción</label>
+                <textarea pTextarea id="desc-es" formControlName="description" rows="4" class="w-full" placeholder="Descripción del producto en español" data-testid="input-desc-es"></textarea>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- EN -->
+          <p-tabpanel [value]="1">
+            <div class="space-y-4 pt-4" [formGroup]="$any(translations.controls[1])">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Name</label>
+                <input pInputText id="name-en" formControlName="name" placeholder="Product name in English" class="w-full" data-testid="input-name-en" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+                <textarea pTextarea id="desc-en" formControlName="description" rows="4" class="w-full" placeholder="Product description in English" data-testid="input-desc-en"></textarea>
+              </div>
+            </div>
+          </p-tabpanel>
+
+          <!-- SV -->
+          <p-tabpanel [value]="2">
+            <div class="space-y-4 pt-4" [formGroup]="$any(translations.controls[2])">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Namn</label>
+                <input pInputText id="name-sv" formControlName="name" placeholder="Produktnamn på svenska" class="w-full" data-testid="input-name-sv" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Beskrivning</label>
+                <textarea pTextarea id="desc-sv" formControlName="description" rows="4" class="w-full" placeholder="Produktbeskrivning på svenska" data-testid="input-desc-sv"></textarea>
+              </div>
+            </div>
+          </p-tabpanel>
+        </p-tabpanels>
+      </p-tabs>
+
+      <p class="text-xs text-gray-400 dark:text-gray-500 mt-3">
+        <i class="pi pi-info-circle mr-1"></i>
+        El slug se genera automáticamente desde el nombre en español.
+      </p>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- Card: Variantes                      -->
+    <!-- ════════════════════════════════════ -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-6 transition-colors duration-200">
+      <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+        <i class="pi pi-tags text-purple-500"></i>
+        {{ 'product.variants' | translate }}
+      </h2>
+
+      <p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
+        <i class="pi pi-info-circle mr-1"></i>
+        Cada variante combina talla y color con su propio stock y SKU.
+      </p>
+
+      <!-- Variant table -->
+      <div *ngIf="variants().length > 0" class="overflow-x-auto mb-4">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-gray-200 dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
+              <th class="pb-2 pr-3 font-medium">{{ 'product.size' | translate }}</th>
+              <th class="pb-2 pr-3 font-medium">{{ 'product.color' | translate }}</th>
+              <th class="pb-2 pr-3 font-medium w-24">Hex</th>
+              <th class="pb-2 pr-3 font-medium w-20">{{ 'product.stock' | translate }}</th>
+              <th class="pb-2 pr-3 font-medium">{{ 'product.variantSKU' | translate }}</th>
+              <th class="pb-2 w-12"></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let v of variants(); let i = index" class="border-b border-gray-100 dark:border-gray-800">
+              <!-- Size -->
+              <td class="py-2 pr-3">
+                <p-select
+                  [options]="sizes"
+                  [ngModel]="v.size"
+                  (ngModelChange)="updateVariant(i, 'size', $event)"
+                  appendTo="body"
+                  [showClear]="true"
+                  styleClass="w-full text-sm"
+                  placeholder="—"
+                >
+                  <ng-template let-s pTemplate="selectedItem">{{ s || '—' }}</ng-template>
+                </p-select>
+              </td>
+              <!-- Color -->
+              <td class="py-2 pr-3">
+                <input
+                  pInputText
+                  class="w-full text-sm"
+                  [ngModel]="v.color"
+                  (ngModelChange)="updateVariant(i, 'color', $event)"
+                  placeholder="Negro"
+                />
+              </td>
+              <!-- Color hex -->
+              <td class="py-2 pr-3">
+                <div class="flex items-center gap-1">
+                  <span
+                    class="w-5 h-5 rounded-full border border-gray-300 flex-shrink-0"
+                    [style.background-color]="v.color_hex || '#ccc'"
+                  ></span>
+                  <input
+                    pInputText
+                    class="w-20 text-sm font-mono"
+                    [ngModel]="v.color_hex"
+                    (ngModelChange)="updateVariant(i, 'color_hex', $event)"
+                    placeholder="#000"
+                  />
+                </div>
+              </td>
+              <!-- Stock -->
+              <td class="py-2 pr-3">
+                <p-inputNumber
+                  [min]="0"
+                  [ngModel]="v.stock"
+                  (ngModelChange)="updateVariant(i, 'stock', $event)"
+                  styleClass="w-20 text-sm"
+                ></p-inputNumber>
+              </td>
+              <!-- SKU -->
+              <td class="py-2 pr-3">
+                <input
+                  pInputText
+                  class="w-full text-sm font-mono"
+                  [ngModel]="v.sku"
+                  (ngModelChange)="updateVariant(i, 'sku', $event)"
+                  placeholder="AUTO"
+                />
+              </td>
+              <!-- Delete -->
+              <td class="py-2 text-center">
+                <button
+                  pButton
+                  type="button"
+                  [rounded]="true"
+                  [text]="true"
+                  severity="danger"
+                  icon="pi pi-trash"
+                  (click)="removeVariant(i)"
+                  [disabled]="variants().length <= 1"
+                  [attr.aria-label]="'product.removeVariant' | translate"
+                ></button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Add variant button -->
+      <button
+        pButton
+        type="button"
+        [outlined]="true"
+        icon="pi pi-plus"
+        [label]="'product.addVariant' | translate"
+        severity="secondary"
+        (click)="addVariant()"
+        class="text-sm"
+      ></button>
+    </div>
+
+    <!-- ════════════════════════════════════ -->
+    <!-- Card: Imágenes                       -->
+    <!-- ════════════════════════════════════ -->
+    <div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-6 transition-colors duration-200">
+      <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+        <i class="pi pi-image text-pink-500"></i>
+        Imágenes
+      </h2>
+
+      <!-- Preview grid -->
+      <div *ngIf="imagePreviewUrls().length > 0" class="grid grid-cols-4 sm:grid-cols-6 gap-3 mb-4">
+        <div *ngFor="let url of imagePreviewUrls(); let i = index"
+             class="relative group aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+          <img [src]="url" alt="Preview" class="w-full h-full object-cover" />
+          <button type="button"
+                  (click)="removeImage(i)"
+                  class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs hover:bg-red-500">
+            <i class="pi pi-times"></i>
+          </button>
         </div>
       </div>
 
-      <p-button
-        type="button"
-        [outlined]="true"
-        icon="pi pi-images"
-        [label]="'admin.selectImage' | translate"
-        (onClick)="fileInput.click()"
-        data-testid="btn-select-image"
-      ></p-button>
-      <input
-        #fileInput
-        type="file"
-        accept="image/jpeg,image/png,image/webp"
-        multiple
-        hidden
-        (change)="onFileSelected($event)"
-        data-testid="file-input"
-      />
-    </section>
+      <!-- Upload button -->
+      <div class="flex items-center gap-3">
+        <button pButton type="button" [outlined]="true" icon="pi pi-cloud-upload" label="Seleccionar imágenes" (onClick)="fileInput.click()" [disabled]="imagePreviewUrls().length >= 10" data-testid="btn-select-image"></button>
+        <span class="text-xs text-gray-400 dark:text-gray-500">
+          {{ imagePreviewUrls().length }}/10 imágenes · JPEG, PNG o WebP · Máx 5MB c/u
+        </span>
+      </div>
+      <p *ngIf="imagePreviewUrls().length < 5 && !submitting()" class="text-xs text-amber-500 dark:text-amber-400 mt-2">
+        <i class="pi pi-info-circle mr-1"></i>
+        Se recomienda al menos 5 fotos para mejor presentación del producto.
+      </p>
+      <input #fileInput type="file" accept="image/jpeg,image/png,image/webp" multiple hidden (change)="onFileSelected($event)" data-testid="file-input" />
+    </div>
 
-    <!-- Form Errors -->
-    <div
-      *ngIf="form.hasError('esNameRequired') && form.touched"
-      class="text-red-600 text-sm mb-4"
-      data-testid="form-error"
-    >
+    <!-- ════════════════════════════════════ -->
+    <!-- Form errors                         -->
+    <!-- ════════════════════════════════════ -->
+    <div *ngIf="form.hasError('esNameRequired') && form.touched"
+         class="mb-6 px-4 py-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm rounded-xl flex items-center gap-2">
+      <i class="pi pi-exclamation-circle"></i>
       El nombre en español es obligatorio
     </div>
 
-    <!-- Actions -->
-    <div class="flex gap-3">
-      <p-button
-        type="submit"
-        [disabled]="submitting()"
-        icon="pi pi-save"
-        [label]="'admin.save' | translate"
-        data-testid="btn-save"
-      ></p-button>
-      <p-button
-        type="button"
-        [outlined]="true"
-        [label]="'admin.cancel' | translate"
-        (onClick)="onCancel()"
-        data-testid="btn-cancel"
-      ></p-button>
+    <!-- ════════════════════════════════════ -->
+    <!-- Actions                              -->
+    <!-- ════════════════════════════════════ -->
+    <div class="flex items-center gap-3 pb-8">
+      <button pButton type="submit"
+              [disabled]="submitting()"
+              [loading]="submitting()"
+              icon="pi pi-check"
+              label="Guardar Producto"
+              severity="primary"
+              data-testid="btn-save"></button>
+      <button pButton type="button"
+              [outlined]="true"
+              severity="secondary"
+              label="Cancelar"
+              (onClick)="onCancel()"
+              data-testid="btn-cancel"></button>
     </div>
+
   </form>
 
   <p-toast position="bottom-right"></p-toast>

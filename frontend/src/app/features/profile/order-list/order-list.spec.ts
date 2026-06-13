@@ -24,6 +24,7 @@ const mockOrders: Order[] = [
       phone: '+56912345678',
     },
     items: [],
+    payment_status: 'paid',
     created_at: '2026-06-01T00:00:00Z',
     updated_at: '2026-06-01T00:00:00Z',
   },
@@ -38,6 +39,7 @@ const mockOrders: Order[] = [
       phone: '+56987654321',
     },
     items: [],
+    payment_status: 'pending',
     created_at: '2026-06-05T00:00:00Z',
     updated_at: '2026-06-05T00:00:00Z',
   },
@@ -101,9 +103,13 @@ describe('OrderListComponent', () => {
 
   it('should display status badges with correct class', () => {
     const chips = fixture.nativeElement.querySelectorAll('.rounded-full');
-    expect(chips.length).toBe(2);
+    // 2 status chips + 2 payment status chips = 4
+    expect(chips.length).toBe(4);
     expect(chips[0].classList.contains('bg-blue-100')).toBe(true);
-    expect(chips[1].classList.contains('bg-purple-100')).toBe(true);
+    expect(chips[2].classList.contains('bg-purple-100')).toBe(true);
+    // Payment status: first order is paid (emerald), second is pending (amber)
+    expect(chips[1].classList.contains('bg-emerald-100')).toBe(true);
+    expect(chips[3].classList.contains('bg-amber-100')).toBe(true);
   });
 
   it('should display total amounts', () => {

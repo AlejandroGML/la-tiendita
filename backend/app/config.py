@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     MAX_IMAGE_SIZE: int = Field(default=5 * 1024 * 1024)  # 5 MB
     MAX_IMAGE_DIMENSION: int = Field(default=1200)
 
+    # Stripe
+    STRIPE_SECRET_KEY: str = Field(default="")
+    STRIPE_WEBHOOK_SECRET: str = Field(default="")
+    FRONTEND_URL: str = Field(default="http://localhost:4200")
+
     # Email
     EMAIL_MODE: str = Field(default="log")  # "log" | "smtp"
     SMTP_HOST: str = Field(default="")

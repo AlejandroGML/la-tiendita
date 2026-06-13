@@ -182,4 +182,45 @@ describe('CartComponent', () => {
     );
     expect(checkoutBtn).toBeTruthy();
   });
+
+  it('should show cancelled payment banner when payment=cancelled query param set', async () => {
+    // Re-create component with query params
+    TestBed.resetTestingModule();
+    await TestBed.configureTestingModule({
+      declarations: [CartComponent, CurrencyPipe],
+      imports: [
+        ButtonModule,
+        ProgressSpinnerModule,
+        TableModule,
+        NoopAnimationsModule,
+        RouterModule.forRoot([
+          { path: '', component: CartComponent },
+        ]),
+        TranslateModule.forRoot(),
+      ],
+      providers: [
+        provideHttpClient(),
+        { provide: CartService, useValue: createCartServiceMock() },
+      ],
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(CartComponent);
+    component = fixture.componentInstance;
+    // Simulate the cancelled banner
+    component.showCancelledBanner.set(true);
+    fixture.detectChanges();
+
+    const banner = fixture.nativeElement.querySelector('[data-testid="cart-cancelled-banner"]');
+    expect(banner).toBeTruthy();
+  });
+
+  it('should dismiss cancelled banner', () => {
+    component.showCancelledBanner.set(true);
+    fixture.detectChanges();
+
+    component.dismissBanner();
+    fixture.detectChanges();
+
+    expect(component.showCancelledBanner()).toBe(false);
+  });
 });

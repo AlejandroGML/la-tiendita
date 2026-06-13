@@ -1,1 +1,102 @@
-/* Header reusa clases de Tailwind — sin estilos Material */
+/* ═══════════════════════════════════════════════
+   Header — TiendaVirtual
+   Mega menu marketplace con paleta primaveral
+   ═══════════════════════════════════════════════ */
+
+/* ── Mega menu entrance animation ── */
+:host ::ng-deep .mega-panel-enter {
+  animation: megaFadeIn 0.2s ease-out;
+  transform-origin: top center;
+}
+
+@keyframes megaFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* ── Mobile menu slide ── */
+:host ::ng-deep .mobile-slide {
+  animation: mobileSlideDown 0.25s ease-out;
+}
+
+@keyframes mobileSlideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 80vh;
+  }
+}
+
+/* ── Hide scrollbar on category row (desktop) ── */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+/* ── Smooth badge bounce ── */
+:host ::ng-deep .badge-bounce {
+  animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badgePop {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+/* ── Icon button hover glow ── */
+.icon-btn {
+  @apply relative transition-all duration-200;
+
+  &::after {
+    content: '';
+    @apply absolute inset-0 rounded-lg opacity-0 transition-opacity duration-200;
+  }
+
+  &:hover::after {
+    @apply opacity-100;
+  }
+}
+
+/* ── Search input focus ring (p-inputtext override) ── */
+:host ::ng-deep input[pinputtext]:focus {
+  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15) !important;
+  border-color: #059669 !important;
+}
+
+/* ── Mega menu column link hover ── */
+.mega-link {
+  @apply relative overflow-hidden;
+
+  &::before {
+    content: '';
+    @apply absolute inset-0 bg-emerald-50 opacity-0 transition-opacity duration-150 rounded-lg;
+  }
+
+  &:hover::before {
+    @apply opacity-100;
+  }
+}
+
+/* ── Responsive tweaks ── */
+
+/* Tablet: reduce mega menu width */
+@media (max-width: 1024px) {
+  :host ::ng-deep .mega-panel {
+    width: 600px !important;
+  }
+}
+
+/* Dark mode adjustments handled by Tailwind dark: */

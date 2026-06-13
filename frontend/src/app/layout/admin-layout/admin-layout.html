@@ -1,51 +1,80 @@
-<div class="flex h-screen">
-  <aside class="w-60 bg-slate-50 border-r flex flex-col" data-testid="admin-sidenav">
-    <div class="sidenav-header border-b border-slate-200">
-      <h2 class="text-lg font-bold px-4 py-3">{{ 'header.title' | translate }}</h2>
-      <span class="text-xs text-gray-500 px-4 pb-3 block">{{ 'admin.panel' | translate }}</span>
+<div class="flex h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+
+  <!-- ════════════════════════ -->
+  <!-- Sidebar                  -->
+  <!-- ════════════════════════ -->
+  <aside class="w-64 bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 flex flex-col flex-shrink-0 transition-colors duration-200">
+
+    <!-- Sidebar Header -->
+    <div class="bg-gradient-to-r from-emerald-500 to-emerald-600 px-5 py-4">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white font-extrabold text-sm">
+          LT
+        </div>
+        <div>
+          <h2 class="text-sm font-bold text-white leading-tight">La Tiendita</h2>
+          <span class="text-[10px] text-emerald-100 font-medium tracking-wide uppercase">Panel Admin</span>
+        </div>
+      </div>
     </div>
 
-    <nav class="flex-1 pt-2">
-      <a
-        *ngFor="let item of navItems"
-        [routerLink]="item.route"
-        routerLinkActive="active-nav-item"
-        [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
-        [attr.data-testid]="'nav-' + item.icon"
-        class="flex items-center gap-3 px-4 py-3 text-sm hover:bg-black/5 border-l-3 border-transparent"
-      >
-        <i [class]="item.icon"></i>
+    <!-- Navigation -->
+    <nav class="flex-1 pt-3 pb-4 px-3 space-y-0.5 overflow-y-auto">
+      <a *ngFor="let item of navItems"
+         [routerLink]="item.route"
+         routerLinkActive="active-nav-item"
+         [routerLinkActiveOptions]="{ exact: item.route === '/admin' }"
+         [attr.data-testid]="'nav-' + item.icon.replace('pi pi-', '')"
+         class="nav-link flex items-center gap-3 px-3 py-2.5 text-sm font-medium rounded-xl transition-all duration-150">
+        <i [class]="item.icon + ' text-base w-5 text-center'"></i>
         <span>{{ item.label | translate }}</span>
       </a>
     </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="border-t border-gray-100 dark:border-gray-800 px-3 py-3">
+      <a routerLink="/"
+         class="flex items-center gap-3 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 rounded-xl hover:bg-emerald-50 dark:hover:bg-gray-800 transition-colors">
+        <i class="pi pi-arrow-left text-base w-5 text-center"></i>
+        Volver a la tienda
+      </a>
+    </div>
   </aside>
 
+  <!-- ════════════════════════ -->
+  <!-- Main content             -->
+  <!-- ════════════════════════ -->
   <div class="flex-1 flex flex-col min-w-0">
-    <p-toolbar styleClass="sticky top-0 z-10">
-      <ng-template pTemplate="start">
-        <span class="font-medium">{{ 'admin.panel' | translate }}</span>
-      </ng-template>
-      <ng-template pTemplate="end">
-        <div class="flex items-center gap-3" data-testid="user-info">
-          <i class="pi pi-user"></i>
-          <div class="hidden sm:flex flex-col text-sm leading-tight">
-            <span class="font-medium">{{ userName }}</span>
-            <span class="text-xs opacity-75">{{ userEmail }}</span>
-          </div>
-          <p-button
-            icon="pi pi-sign-out"
-            [rounded]="true"
-            [text]="true"
-            [attr.aria-label]="'admin.logout' | translate"
-            (onClick)="logout()"
-            data-testid="btn-logout"
-          ></p-button>
-        </div>
-      </ng-template>
-    </p-toolbar>
 
-    <div class="flex-1 overflow-y-auto p-6 bg-slate-100">
+    <!-- Top Toolbar -->
+    <header class="sticky top-0 z-10 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 px-6 py-3 flex items-center justify-between transition-colors duration-200">
+      <div class="flex items-center gap-3">
+        <span class="text-sm font-semibold text-gray-500 dark:text-gray-400">/ {{ currentRoute }}</span>
+      </div>
+      <div class="flex items-center gap-4" data-testid="user-info">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-white text-xs font-bold shadow-sm">
+            {{ userName.charAt(0)?.toUpperCase() || 'A' }}
+          </div>
+          <div class="hidden sm:flex flex-col text-sm leading-tight">
+            <span class="font-semibold text-gray-900 dark:text-gray-100">{{ userName }}</span>
+            <span class="text-xs text-gray-400 dark:text-gray-500">{{ userEmail }}</span>
+          </div>
+        </div>
+        <button pButton
+                icon="pi pi-sign-out"
+                [rounded]="true"
+                [text]="true"
+                severity="secondary"
+                (onClick)="logout()"
+                data-testid="btn-logout"
+                class="hover:!text-red-500 hover:!bg-red-50 dark:hover:!bg-red-900/20"></button>
+      </div>
+    </header>
+
+    <!-- Page Content -->
+    <main class="flex-1 overflow-y-auto p-6 lg:p-8">
       <router-outlet></router-outlet>
-    </div>
+    </main>
   </div>
 </div>

@@ -200,7 +200,6 @@ describe('ProductCardComponent', () => {
     const saleProduct: Product = {
       ...mockProduct,
       sale_price: '19990',
-      discount_label: '-33%',
     };
     fixture = TestBed.createComponent(ProductCardComponent);
     component = fixture.componentInstance;
@@ -209,7 +208,8 @@ describe('ProductCardComponent', () => {
     fixture.detectChanges();
     const badges = fixture.nativeElement.querySelectorAll('.flex.flex-col.gap-1 > span');
     expect(badges.length).toBe(2);
-    expect(badges[0]?.textContent).toContain('-33%');
+    // discount_label is no longer sent by the backend; frontend falls back to translate
+    expect(badges[0]?.textContent).toContain('product.sale');
     expect(badges[1]?.textContent).toContain('product.bestseller');
   });
 

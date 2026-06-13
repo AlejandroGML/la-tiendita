@@ -13,7 +13,10 @@ export interface ProductFilter {
   condition?: string;
   min_price?: number;
   max_price?: number;
+  has_promotion?: boolean;
   sort?: string;
+  /** @todo Requires backend support — filter products created after N days ago (e.g. '30d') */
+  created_after?: string;
 }
 
 export interface PaginationMeta {
@@ -47,7 +50,9 @@ export class ProductService {
     if (filters.condition) params = params.set('condition', filters.condition);
     if (filters.min_price != null) params = params.set('min_price', String(filters.min_price));
     if (filters.max_price != null) params = params.set('max_price', String(filters.max_price));
+    if (filters.has_promotion != null) params = params.set('has_promotion', String(filters.has_promotion));
     if (filters.sort) params = params.set('sort', filters.sort);
+    if (filters.created_after) params = params.set('created_after', filters.created_after);
 
     return this.http
       .get<ProductListResponse>('/api/products', { params })
