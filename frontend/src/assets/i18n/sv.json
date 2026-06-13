@@ -221,6 +221,7 @@
     "checkout": "Till kassan",
     "empty": "Din varukorg är tom",
     "continueShopping": "Fortsätt handla",
+    "totalItems": "Totalt antal",
     "retry": "Försök igen",
     "error": "Fel vid laddning av varukorg",
     "view": "Visa varukorg",

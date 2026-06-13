@@ -28,6 +28,7 @@ export class CartComponent implements OnInit, OnDestroy {
   readonly error = signal<string | null>(null);
   readonly showCancelledBanner = signal(false);
   readonly isGuest = computed(() => !this.authService.isAuthenticated());
+  readonly totalItems = computed(() => this.items().reduce((sum, item) => sum + item.quantity, 0));
 
   constructor(
     private readonly cartService: CartService,

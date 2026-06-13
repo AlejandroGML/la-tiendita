@@ -221,6 +221,7 @@
     "checkout": "Ir a Pagar",
     "empty": "Tu carrito está vacío",
     "continueShopping": "Seguir comprando",
+    "totalItems": "Total artículos",
     "retry": "Reintentar",
     "error": "Error al cargar el carrito",
     "view": "Ver carrito",

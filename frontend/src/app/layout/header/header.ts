@@ -140,7 +140,7 @@ export class Header implements OnInit, OnDestroy {
 
   private setupCounters(): void {
     this.cartSub = this.cartService.cart$.subscribe(
-      (cart) => (this.cartCount = cart?.items?.length ?? 0),
+      (cart) => (this.cartCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0),
     );
     this.wishlistSub = this.wishlistService.wishlist$.subscribe(
       (wishlist) => (this.wishlistCount = wishlist?.items?.length ?? 0),
