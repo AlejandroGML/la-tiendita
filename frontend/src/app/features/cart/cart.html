@@ -1,6 +1,6 @@
 <div class="cart-page min-h-screen" data-testid="cart-page">
   <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900">{{ 'cart.title' | translate }}</h1>
+    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ 'cart.title' | translate }}</h1>
   </div>
 
   <!-- Guest ephemeral cart warning -->
@@ -67,8 +67,8 @@
     class="text-center py-16"
     data-testid="cart-empty"
   >
-    <i class="pi pi-shopping-cart text-6xl text-gray-300 mb-4 block"></i>
-    <p class="text-gray-500 text-lg">{{ 'cart.empty' | translate }}</p>
+    <i class="pi pi-shopping-cart text-6xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
+    <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'cart.empty' | translate }}</p>
     <a
       pButton
       severity="primary"
@@ -81,7 +81,7 @@
 
   <!-- Cart table -->
   <div *ngIf="!loading() && !error() && items().length > 0" data-testid="cart-table">
-    <div class="overflow-x-auto bg-white rounded-lg shadow">
+    <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow">
       <p-table [value]="items()" styleClass="w-full">
         <ng-template pTemplate="header">
           <tr>
@@ -98,7 +98,7 @@
               <span class="font-medium">{{ item.product_name }}</span>
               <span
                 *ngIf="item.size || item.color"
-                class="block text-xs text-gray-500 mt-0.5"
+                class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5"
               >
                 <ng-container *ngIf="item.size">{{ item.size }}</ng-container>
                 <ng-container *ngIf="item.size && item.color"> / </ng-container>
@@ -130,7 +130,7 @@
             </td>
             <td>
               <ng-container *ngIf="item.savings; else noItemDiscount">
-                <span class="line-through text-gray-400 text-sm block">{{ item.original_unit_price | currency }}</span>
+                <span class="line-through text-gray-400 dark:text-gray-500 text-sm block">{{ item.original_unit_price | currency }}</span>
                 <span class="text-red-600 font-medium">{{ item.unit_price | currency }}</span>
               </ng-container>
               <ng-template #noItemDiscount>
@@ -156,9 +156,9 @@
 
     <!-- Footer: subtotal + checkout -->
     <div class="mt-6 flex flex-col items-end gap-4">
-      <div class="bg-white rounded-lg shadow p-4 text-right min-w-[250px]">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 text-right min-w-[250px]">
         <ng-container *ngIf="cart()?.total_savings; else noCartDiscount">
-          <p class="text-sm text-gray-500">
+          <p class="text-sm text-gray-500 dark:text-gray-400">
             <span>{{ 'cart.originalSubtotal' | translate }}: </span>
             <span class="line-through">{{ cart()?.original_subtotal | currency }}</span>
           </p>
@@ -166,15 +166,15 @@
             <span>{{ 'cart.savings' | translate }}: </span>
             <span>-{{ cart()?.total_savings | currency }}</span>
           </p>
-          <p class="text-lg font-bold text-gray-900 mt-1 pt-1 border-t border-gray-200">
+          <p class="text-lg font-bold text-gray-900 dark:text-gray-100 mt-1 pt-1 border-t border-gray-200 dark:border-gray-700">
             <span>{{ 'cart.subtotal' | translate }}: </span>
             <span>{{ cart()?.subtotal ?? 0 | currency }}</span>
           </p>
         </ng-container>
         <ng-template #noCartDiscount>
           <p class="text-lg">
-            <span class="font-medium text-gray-700">{{ 'cart.subtotal' | translate }}: </span>
-            <span class="font-bold text-gray-900">{{ cart()?.subtotal ?? 0 | currency }}</span>
+            <span class="font-medium text-gray-700 dark:text-gray-300">{{ 'cart.subtotal' | translate }}: </span>
+            <span class="font-bold text-gray-900 dark:text-gray-100">{{ cart()?.subtotal ?? 0 | currency }}</span>
           </p>
         </ng-template>
       </div>
