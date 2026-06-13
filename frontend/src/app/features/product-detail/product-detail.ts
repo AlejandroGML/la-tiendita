@@ -288,9 +288,17 @@ export class ProductDetail implements OnDestroy {
     if (!p) return '';
     const lang = this.translate.currentLang || 'es';
     const t = p.translations?.find((t) => t.lang === lang);
-    if (t) return t.name;
+    if (t?.name) return t.name;
     const fallback = p.translations?.find((t) => t.lang === 'en');
-    return fallback?.name ?? '';
+    if (fallback?.name) return fallback.name;
+    // Fallback: format slug as readable name
+    const slug = p.slug ?? '';
+    if (!slug) return '';
+    const cleaned = slug.replace(/[-\s][a-z0-9]{4,8}$/, '');
+    return cleaned
+      .split('-')
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(' ');
   }
 
   get displayDescription(): string {
