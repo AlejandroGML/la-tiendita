@@ -44,6 +44,7 @@ from app.services.admin_user_service import (
     SelfDemotionError,
 )
 from app.services.dashboard_service import DashboardService
+from app.services.product_service import ProductService
 
 
 # ---------------------------------------------------------------------------
@@ -240,10 +241,8 @@ class AdminController(Controller):
 # ---------------------------------------------------------------------------
 
 
-async def provide_product_service() -> "ProductService":
+async def provide_product_service() -> ProductService:
     """Construct a stateless ProductService for variant CRUD."""
-    from app.services.product_service import ProductService
-
     return ProductService()
 
 
@@ -271,7 +270,7 @@ class AdminProductVariantController(Controller):
     async def list_variants(
         self,
         product_id: UUID,
-        service: "ProductService",
+        service: ProductService,
         session: AsyncSession,
     ) -> dict:
         """List all non-deleted variants for a product."""
@@ -292,7 +291,7 @@ class AdminProductVariantController(Controller):
         self,
         product_id: UUID,
         data: ProductVariantCreate,
-        service: "ProductService",
+        service: ProductService,
         session: AsyncSession,
     ) -> dict:
         """Create a new variant for a product."""
@@ -311,7 +310,7 @@ class AdminProductVariantController(Controller):
         product_id: UUID,
         variant_id: UUID,
         data: ProductVariantUpdate,
-        service: "ProductService",
+        service: ProductService,
         session: AsyncSession,
     ) -> dict:
         """Update an existing variant (partial)."""
@@ -334,7 +333,7 @@ class AdminProductVariantController(Controller):
         self,
         product_id: UUID,
         variant_id: UUID,
-        service: "ProductService",
+        service: ProductService,
         session: AsyncSession,
     ) -> None:
         """Soft-delete a variant (blocks if referenced by cart items)."""

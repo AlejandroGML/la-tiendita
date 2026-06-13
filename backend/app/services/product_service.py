@@ -68,7 +68,7 @@ class ProductService:
         stmt = stmt.options(
             selectinload(Product.translations),
             selectinload(Product.category).selectinload(Category.translations),
-            selectinload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
+            selectinload(Product.variants),
         )
 
         items, total = await paginate(stmt, session, page=page, per_page=per_page)
@@ -88,7 +88,7 @@ class ProductService:
             .options(
                 selectinload(Product.translations),
                 selectinload(Product.category).selectinload(Category.translations),
-                selectinload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
+                selectinload(Product.variants),
             )
         )
         items, total = await paginate(stmt, session, page=page, per_page=per_page)
@@ -107,7 +107,7 @@ class ProductService:
             .options(
                 joinedload(Product.translations),
                 joinedload(Product.category).joinedload(Category.translations),
-                joinedload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
+                joinedload(Product.variants),
             )
         )
         result = await session.execute(stmt)
@@ -270,7 +270,7 @@ class ProductService:
             .options(
                 selectinload(Product.translations),
                 selectinload(Product.category).selectinload(Category.translations),
-                selectinload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
+                selectinload(Product.variants),
             )
         )
         result = await session.execute(stmt)
@@ -658,7 +658,7 @@ class ProductService:
             .options(
                 selectinload(Product.translations),
                 selectinload(Product.category).selectinload(Category.translations),
-                selectinload(Product.variants).and_(ProductVariant.deleted_at.is_(None)),
+                selectinload(Product.variants),
             )
         )
         result = await session.execute(stmt)
