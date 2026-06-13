@@ -15,10 +15,11 @@ User authentication: registration, login, JWT session management, Google OAuth, 
 | R5 | Logout (token revocation) | MUST |
 | R6 | Google OAuth2 sign-in | SHOULD |
 | R7 | Password reset flow | SHOULD |
-| R8 | JWT guard (authenticated) | MUST |
+| R8 | JWT guard (authenticated & optional dual-mode) | MUST |
 | R9 | Admin guard (role-based) | MUST |
 | R10 | Auth rate limiting | MUST |
 | R11 | i18n language detection | SHOULD |
+| R12 | Optional JWT Auth for Dual-Mode Endpoints | MUST |
 
 ### Requirement: User Registration
 
@@ -149,9 +150,10 @@ The system MUST issue access tokens (15min, HS256, claims: `sub`, `role`, `exp`,
 - AND token is invalidated
 - AND user can login with new password
 
-### Requirement: JWT Guard
+### Requirement: JWT Guard (UPDATED)
 
-The system MUST provide a guard that validates JWT from the `Authorization: Bearer <token>` header. Protected endpoints SHALL return 401 when token is missing, expired, or invalid. On success, `request.user` SHALL be populated. Public endpoints (`/api/products`, `/api/categories`, `/uploads/`) MUST be excluded from JWT validation; requests to these routes SHALL proceed without authentication.
+The system MUST provide a guard that validates JWT from the `Authorization: Bearer <token>` header. Protected endpoints SHALL return 401 on missing/invalid/expired token. On success, `request.user` SHALL be populated. Public endpoints (`/api/products`, `/api/categories`, `/uploads/`, `/api/cart`, `/api/checkout`) MUST be excluded from mandatory JWT validation. Dual-mode endpoints (`/api/cart`, `/api/checkout`) SHALL apply optional JWT extraction (see R12).
+(Previously: public exclude list did not include /api/cart or /api/checkout.)
 
 #### Scenario: Protected endpoint with valid token
 
@@ -164,6 +166,11 @@ The system MUST provide a guard that validates JWT from the `Authorization: Bear
 - GIVEN no `Authorization` header
 - WHEN a request hits a protected endpoint
 - THEN 401 Unauthorized
+
+#### Scenario: Cart endpoint without token
+- GIVEN no Authorization header, X-Session-Id: abc-123
+- WHEN GET /api/cart
+- THEN 200 (no auth required); request.user is None
 
 #### Scenario: Public product endpoint without token
 
@@ -183,6 +190,24 @@ The system MUST provide a guard that validates JWT from the `Authorization: Bear
 - GIVEN no `Authorization` header
 - WHEN `POST /api/admin/products`
 - THEN 401 Unauthorized (admin routes NOT in exclude list)
+
+### Requirement: Optional JWT Auth for Dual-Mode Endpoints (ADDED)
+The JWT guard SHALL support optional authentication mode for /api/cart and /api/checkout. When a valid Authorization token is present, request.user SHALL be populated. When absent or expired, request.user SHALL be None without returning 401. These endpoints MUST work for both authenticated and guest users.
+
+#### Scenario: Authenticated request with valid token
+- GIVEN valid JWT in Authorization header
+- WHEN GET /api/cart
+- THEN request.user = User object; cart scoped by user_id
+
+#### Scenario: Guest request without token
+- GIVEN no Authorization header, X-Session-Id present
+- WHEN POST /api/checkout
+- THEN request.user = None; order processes as guest
+
+#### Scenario: Expired token on dual-mode endpoint
+- GIVEN expired JWT in Authorization header
+- WHEN GET /api/cart
+- THEN request.user = None (no 401); falls back to X-Session-Id scope
 
 ### Requirement: Admin Guard
 

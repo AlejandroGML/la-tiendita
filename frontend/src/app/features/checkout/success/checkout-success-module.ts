@@ -1,19 +1,17 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { MessageService } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared-module';
-import { WishlistComponent } from './wishlist';
+import { CheckoutSuccessComponent } from './checkout-success';
 
 @NgModule({
-  declarations: [WishlistComponent],
+  declarations: [CheckoutSuccessComponent],
   imports: [
     CommonModule,
     SharedModule,
     RouterModule.forChild([
-      { path: '', component: WishlistComponent, canActivate: [] },
+      { path: '', component: CheckoutSuccessComponent },
     ]),
   ],
-  providers: [MessageService],
 })
-export class WishlistModule {}
+export class CheckoutSuccessModule {}

@@ -16,6 +16,7 @@ class CheckoutRequest(BaseModel):
     """Payload for POST /api/checkout — convert cart to order."""
 
     shipping_address: dict
+    guest_email: str | None = None
 
 
 # ---------------------------------------------------------------------------

@@ -213,7 +213,9 @@
     "originalSubtotal": "Subtotal original",
     "savings": "Ahorro",
     "paymentCancelled": "El pago fue cancelado. Tus productos siguen en el carrito.",
-    "dismiss": "Cerrar"
+    "dismiss": "Cerrar",
+    "guestWarning": "Tu carrito es temporal — regístrate para guardarlo y acceder desde cualquier dispositivo",
+    "createAccount": "Crear cuenta"
   },
   "checkout": {
     "title": "Finalizar Compra",
@@ -235,7 +237,14 @@
     "orderPlaced": "Pedido realizado con éxito",
     "viewOrder": "Ver pedido",
     "redirecting": "Redirigiendo al pago...",
-    "paymentUnavailable": "El servicio de pago no está disponible. Intenta nuevamente."
+    "paymentUnavailable": "El servicio de pago no está disponible. Intenta nuevamente.",
+    "email": "Email (opcional)",
+    "emailInvalid": "Formato de email inválido",
+    "successTitle": "¡Pedido realizado con éxito!",
+    "successOrderId": "N° de pedido:",
+    "successGuestPrompt": "Crea una cuenta para hacer seguimiento a tu pedido y acceder a tu historial de compras",
+    "successCreateAccount": "Crear cuenta",
+    "successContinueShopping": "Seguir comprando"
   },
   "reviews": {
     "title": "Reseñas",
@@ -262,7 +271,11 @@
     "removed": "Producto eliminado de favoritos",
     "removeError": "Error al eliminar de favoritos",
     "removeAria": "Eliminar {{name}} de favoritos",
-    "error": "Error al cargar favoritos"
+    "error": "Error al cargar favoritos",
+    "loginTitle": "Inicia sesión para ver tu lista de deseos",
+    "loginDescription": "Guarda tus productos favoritos y accede a ellos desde cualquier dispositivo",
+    "loginButton": "Iniciar sesión",
+    "registerButton": "Crear cuenta"
   },
   "promotions": {
     "title": "Promociones",

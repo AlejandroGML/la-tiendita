@@ -1,7 +1,7 @@
 # wishlist Specification
 
 ## Purpose
-User favorites/wishlist. JWT-protected CRUD with composite PK (user_id, product_id).
+User favorites/wishlist. Backend: JWT-protected CRUD with composite PK (user_id, product_id). Frontend: public /wishlist route shows login prompt for unauthenticated users.
 
 ## Requirements
 
@@ -57,10 +57,21 @@ DELETE `/api/wishlist/{product_id}` MUST remove the product. Returns 204 on succ
 - WHEN DELETE `/api/wishlist/{product_id}`
 - THEN returns 404
 
-### Requirement: Wishlist is User-Scoped
-All operations scoped to JWT user. Unauthenticated requests return 401.
+### Requirement: Wishlist is User-Scoped with Frontend Login Prompt (UPDATED)
+Backend: All operations remain scoped to JWT user. Unauthenticated requests SHALL return 401 (unchanged). Frontend: the public /wishlist route SHALL display a login prompt card instead of redirecting to /login. The authenticated /perfil/wishlist route SHALL remain under authGuard.
+(Previously: unauthenticated access redirected to /login on frontend.)
 
-#### Scenario: Unauthenticated access
+#### Scenario: Unauthenticated backend access returns 401
 - GIVEN no JWT token
-- WHEN GET `/api/wishlist`
-- THEN returns 401
+- WHEN GET /api/wishlist
+- THEN returns 401 (backend unchanged)
+
+#### Scenario: Public wishlist route shows login prompt
+- GIVEN unauthenticated user navigates to /wishlist
+- WHEN Angular router loads the page
+- THEN UI displays login prompt card; no redirect to /login
+
+#### Scenario: Authenticated /perfil/wishlist unchanged
+- GIVEN authenticated user navigates to /perfil/wishlist
+- WHEN Angular router loads the page under authGuard
+- THEN wishlist items display normally

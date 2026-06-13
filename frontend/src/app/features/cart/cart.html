@@ -3,6 +3,25 @@
     <h1 class="text-2xl font-bold text-gray-900">{{ 'cart.title' | translate }}</h1>
   </div>
 
+  <!-- Guest ephemeral cart warning -->
+  <div
+    *ngIf="isGuest()"
+    class="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between"
+    data-testid="cart-guest-banner"
+  >
+    <div class="flex items-center gap-3">
+      <i class="pi pi-info-circle text-amber-600 text-xl"></i>
+      <p class="text-amber-800 font-medium">{{ 'cart.guestWarning' | translate }}</p>
+    </div>
+    <a
+      pButton
+      severity="warning"
+      [routerLink]="['/register']"
+    >
+      {{ 'cart.createAccount' | translate }}
+    </a>
+  </div>
+
   <!-- Cancelled payment banner -->
   <div
     *ngIf="showCancelledBanner()"

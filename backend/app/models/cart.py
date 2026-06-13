@@ -1,4 +1,4 @@
-"""CartItem ORM model — shopping cart state per user."""
+"""CartItem ORM model — dual-scope shopping cart (user or guest session)."""
 
 import uuid
 from datetime import datetime
@@ -13,6 +13,7 @@ from sqlalchemy import (
     Integer,
     Numeric,
     String,
+    Uuid,
     text,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
@@ -27,11 +28,18 @@ if TYPE_CHECKING:
 
 
 class CartItem(Base):
-    """A product line in a user's shopping cart.
+    """A product line in a shopping cart — scoped to either a registered
+    user OR an anonymous guest session, never both.
 
-    Identity uses two partial unique indexes:
-    - ``(user_id, product_id) WHERE variant_id IS NULL`` for variant-less items
-    - ``(user_id, variant_id) WHERE variant_id IS NOT NULL`` for variant items
+    Scope is enforced by a XOR CHECK constraint: exactly one of
+    ``user_id`` or ``session_id`` must be non-null.
+
+    Identity uses four partial unique indexes — two per scope — so the
+    same product can exist independently in a user cart and a guest cart:
+    - user + product (no variant)
+    - user + variant
+    - session + product (no variant)
+    - session + variant
 
     Duplicate adds increment quantity instead of inserting a new row.
     """
@@ -43,20 +51,50 @@ class CartItem(Base):
             "user_id",
             "product_id",
             unique=True,
-            postgresql_where=text("variant_id IS NULL"),
+            postgresql_where=text(
+                "user_id IS NOT NULL AND variant_id IS NULL"
+            ),
         ),
         Index(
             "uq_cart_user_variant",
             "user_id",
             "variant_id",
             unique=True,
-            postgresql_where=text("variant_id IS NOT NULL"),
+            postgresql_where=text(
+                "user_id IS NOT NULL AND variant_id IS NOT NULL"
+            ),
+        ),
+        Index(
+            "uq_cart_session_product",
+            "session_id",
+            "product_id",
+            unique=True,
+            postgresql_where=text(
+                "session_id IS NOT NULL AND variant_id IS NULL"
+            ),
+        ),
+        Index(
+            "uq_cart_session_variant",
+            "session_id",
+            "variant_id",
+            unique=True,
+            postgresql_where=text(
+                "session_id IS NOT NULL AND variant_id IS NOT NULL"
+            ),
         ),
         CheckConstraint("quantity > 0", name="ck_cart_quantity_positive"),
+        CheckConstraint(
+            "(user_id IS NOT NULL AND session_id IS NULL)"
+            " OR (user_id IS NULL AND session_id IS NOT NULL)",
+            name="ck_cart_xor_scope",
+        ),
     )
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id"), nullable=False, index=True
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id"), nullable=True, index=True
+    )
+    session_id: Mapped[uuid.UUID | None] = mapped_column(
+        Uuid, nullable=True, index=True
     )
     product_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("products.id"), nullable=False, index=True
@@ -74,6 +112,6 @@ class CartItem(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
 
-    user: Mapped["User"] = relationship("User")
+    user: Mapped["User | None"] = relationship("User")
     product: Mapped["Product"] = relationship("Product")
     variant: Mapped["ProductVariant | None"] = relationship("ProductVariant")

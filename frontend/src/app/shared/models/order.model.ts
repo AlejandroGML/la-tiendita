@@ -44,6 +44,7 @@ export interface Order {
 
 export interface CheckoutRequest {
   shipping_address: ShippingAddress;
+  guest_email?: string;
 }
 
 export interface CheckoutResponse {

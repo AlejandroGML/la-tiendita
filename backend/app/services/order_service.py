@@ -22,6 +22,7 @@ from app.schemas.order import (
     OrderItemResponse,
     OrderResponse,
 )
+from app.services.stripe_service import StripeError
 
 logger = logging.getLogger(__name__)
 
@@ -44,31 +45,49 @@ class OrderService:
     async def checkout(
         self,
         session: AsyncSession,
-        user_id: UUID,
-        user_email: str,
+        user_id: UUID | None,
+        session_id: UUID | None,
+        customer_email: str | None,
+        guest_email: str | None,
         shipping_address: dict,
     ) -> CheckoutResponse:
-        """Convert the user's cart into an order and create a Stripe session.
+        """Convert the cart into an order and create a Stripe session.
+
+        Dual-scope: supports authenticated users (``user_id``) and guest
+        sessions (``session_id``). Exactly one scope must be provided.
 
         Flow:
-        1. Load cart items with product data
+        1. Load cart items by scope (user_id or session_id)
         2. Validate cart is not empty
         3. Begin nested transaction (savepoint)
         4. Build order items data (stock is NOT deducted — deferred to webhook)
         5. Create Order + OrderItems with product snapshots
-        6. Clear cart
-        7. Create Stripe Checkout session
+           (sets ``user_id`` for users, ``guest_email`` for guests)
+        6. Clear cart by scope
+        7. Create Stripe Checkout session (guest-aware success_url)
         8. Commit savepoint
 
         Stock deduction happens later in ``finalize_payment()``, called by
         the Stripe webhook handler upon ``checkout.session.completed``.
 
         Raises:
+            ValueError: if neither or both scope identifiers are provided
             CartEmptyError: cart has no items → 400
             StripeError: Stripe API call fails → 502 (rolls back entire order)
         """
+        # Validate scope XOR
+        has_user = user_id is not None
+        has_session = session_id is not None
+        if has_user == has_session:
+            raise ValueError(
+                "Exactly one of user_id or session_id must be provided"
+            )
+        is_guest = has_session
+
         # 1. Load cart items with product translations for snapshots
-        cart_items = await self._load_cart_with_products(session, user_id)
+        cart_items = await self._load_cart_with_products(
+            session, user_id, session_id
+        )
 
         # 2. Validate
         if not cart_items:
@@ -82,9 +101,10 @@ class OrderService:
                 session, cart_items
             )
 
-            # 5. Create order
+            # 5. Create order — set user_id for users, guest_email for guests
             order = Order(
                 user_id=user_id,
+                guest_email=guest_email if is_guest else None,
                 total=total,
                 shipping_address=shipping_address,
             )
@@ -103,26 +123,36 @@ class OrderService:
                 session.add(order_item)
             await session.flush()
 
-            # 6. Clear cart
-            await session.execute(
-                delete(CartItem).where(CartItem.user_id == user_id)
-            )
+            # 6. Clear cart by scope
+            if user_id is not None:
+                await session.execute(
+                    delete(CartItem).where(CartItem.user_id == user_id)
+                )
+            else:
+                await session.execute(
+                    delete(CartItem).where(CartItem.session_id == session_id)
+                )
 
-            # 7. Create Stripe checkout session
-            from app.services.stripe_service import StripeService, StripeError
+            # 7. Create Stripe checkout session (guest-aware)
+            from app.services.stripe_service import StripeService
 
             stripe_svc = StripeService()
             checkout_url = await stripe_svc.create_checkout_session(
-                session, order, cart_items, user_email, user_id
+                session,
+                order,
+                cart_items,
+                user_email=customer_email,
+                user_id=user_id,
+                is_guest=is_guest,
             )
 
             # 8. Commit savepoint
             await savepoint.commit()
 
             logger.info(
-                "Checkout complete — order %s for user %s",
+                "Checkout complete — order %s for %s",
                 order.id,
-                user_id,
+                f"user {user_id}" if not is_guest else f"guest session {session_id}",
             )
             return CheckoutResponse(
                 checkout_url=checkout_url, order_id=order.id
@@ -293,12 +323,24 @@ class OrderService:
     # ------------------------------------------------------------------
 
     async def _load_cart_with_products(
-        self, session: AsyncSession, user_id: UUID
+        self,
+        session: AsyncSession,
+        user_id: UUID | None,
+        session_id: UUID | None,
     ) -> list[CartItem]:
-        """Load cart items with product translations and variant for snapshot building."""
+        """Load cart items with product translations and variant for snapshot building.
+
+        Scopes to either ``user_id`` (authenticated) or ``session_id`` (guest).
+        Exactly one scope identifier must be provided.
+        """
+        if user_id is not None:
+            scope = CartItem.user_id == user_id
+        else:
+            scope = CartItem.session_id == session_id
+
         stmt = (
             select(CartItem)
-            .where(CartItem.user_id == user_id)
+            .where(scope)
             .options(
                 selectinload(CartItem.product).selectinload(
                     Product.translations
@@ -471,15 +513,23 @@ class OrderService:
     async def _send_confirmation_email(
         self,
         session: AsyncSession,
-        user_id: UUID,
+        user_id: UUID | None,
         order: Order,
         order_items_data: list[dict],
     ) -> None:
         """Delegate order confirmation email to EmailService.
 
         Called *after* the checkout savepoint commits so that email
-        failures do not roll back the order.
+        failures do not roll back the order.  Skips silently for guest
+        orders (``user_id is None``) — guests receive the post-checkout
+        registration prompt via the frontend success page instead.
         """
+        if user_id is None:
+            logger.info(
+                "Skipping confirmation email for guest order %s", order.id
+            )
+            return
+
         from app.services.email_service import EmailService
 
         email_svc = EmailService()

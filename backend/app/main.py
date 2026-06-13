@@ -20,6 +20,7 @@ from app.controllers.upload import UploadController
 from app.controllers.wishlist import WishlistController
 from app.guards.jwt_guard import jwt_auth
 from app.middleware.i18n import I18nMiddleware
+from app.middleware.optional_user import OptionalUserMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
 
 cors_config = CORSConfig(
@@ -72,7 +73,7 @@ app = Litestar(
         uploads_router,
     ],
     on_app_init=[jwt_auth.on_app_init],
-    middleware=[RateLimitMiddleware, I18nMiddleware],
+    middleware=[RateLimitMiddleware, OptionalUserMiddleware, I18nMiddleware],
     cors_config=cors_config,
     openapi_config=OpenAPIConfig(
         title="La Tiendita API",

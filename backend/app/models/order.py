@@ -49,8 +49,11 @@ class Order(Base):
 
     __tablename__ = "orders"
 
-    user_id: Mapped[uuid.UUID] = mapped_column(
-        ForeignKey("users.id"), nullable=False, index=True
+    user_id: Mapped[uuid.UUID | None] = mapped_column(
+        ForeignKey("users.id"), nullable=True, index=True
+    )
+    guest_email: Mapped[str | None] = mapped_column(
+        String(255), nullable=True
     )
     status: Mapped[OrderStatus] = mapped_column(
         Enum(OrderStatus, values_callable=lambda x: [e.value for e in x]), default=OrderStatus.PENDING, nullable=False
@@ -80,7 +83,7 @@ class Order(Base):
         nullable=False,
     )
 
-    user: Mapped["User"] = relationship("User")
+    user: Mapped["User | None"] = relationship("User")
     items: Mapped[list["OrderItem"]] = relationship(
         "OrderItem", back_populates="order", cascade="all, delete-orphan"
     )

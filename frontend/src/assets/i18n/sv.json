@@ -213,7 +213,9 @@
     "originalSubtotal": "Ursprunglig delsumma",
     "savings": "Besparing",
     "paymentCancelled": "Betalningen avbröts. Dina varor finns kvar i varukorgen.",
-    "dismiss": "Stäng"
+    "dismiss": "Stäng",
+    "guestWarning": "Din varukorg är tillfällig — skapa ett konto för att spara den och komma åt från vilken enhet som helst",
+    "createAccount": "Skapa konto"
   },
   "checkout": {
     "title": "Kassa",
@@ -235,7 +237,14 @@
     "orderPlaced": "Beställning genomförd",
     "viewOrder": "Visa beställning",
     "redirecting": "Omdirigerar till betalning...",
-    "paymentUnavailable": "Betaltjänsten är inte tillgänglig. Försök igen."
+    "paymentUnavailable": "Betaltjänsten är inte tillgänglig. Försök igen.",
+    "email": "E-post (valfritt)",
+    "emailInvalid": "Ogiltigt e-postformat",
+    "successTitle": "Beställning genomförd!",
+    "successOrderId": "Order #:",
+    "successGuestPrompt": "Skapa ett konto för att spåra din beställning och se din köphistorik",
+    "successCreateAccount": "Skapa konto",
+    "successContinueShopping": "Fortsätt handla"
   },
   "reviews": {
     "title": "Recensioner",
@@ -262,7 +271,11 @@
     "removed": "Produkt borttagen från favoriter",
     "removeError": "Fel vid borttagning från favoriter",
     "removeAria": "Ta bort {{name}} från favoriter",
-    "error": "Fel vid laddning av favoriter"
+    "error": "Fel vid laddning av favoriter",
+    "loginTitle": "Logga in för att se din önskelista",
+    "loginDescription": "Spara dina favoritprodukter och få åtkomst från vilken enhet som helst",
+    "loginButton": "Logga in",
+    "registerButton": "Skapa konto"
   },
   "promotions": {
     "title": "Kampanjer",

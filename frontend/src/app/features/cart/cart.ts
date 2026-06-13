@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import type { CartResponse, CartItem } from '../../shared/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-cart',
@@ -26,14 +27,17 @@ export class CartComponent implements OnInit, OnDestroy {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly showCancelledBanner = signal(false);
+  readonly isGuest = computed(() => !this.authService.isAuthenticated());
 
   constructor(
     private readonly cartService: CartService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
+    private readonly authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    this.cartService.init();
     this.route.queryParams.subscribe((params) => {
       if (params['payment'] === 'cancelled') {
         this.showCancelledBanner.set(true);

@@ -145,9 +145,13 @@ export class Header implements OnInit, OnDestroy {
     this.wishlistSub = this.wishlistService.wishlist$.subscribe(
       (wishlist) => (this.wishlistCount = wishlist?.items?.length ?? 0),
     );
-    // Initial fetch — fails silently if not authenticated
-    this.cartService.getCart().subscribe();
-    this.wishlistService.getWishlist().subscribe();
+    // Only fetch cart/wishlist if user is authenticated — otherwise the
+    // error interceptor catches the 401, tries a token refresh, and on
+    // failure redirects to /login even on public pages.
+    if (this.authService.isAuthenticated()) {
+      this.cartService.getCart().subscribe();
+      this.wishlistService.getWishlist().subscribe();
+    }
   }
 
   onSearch(term: string): void {

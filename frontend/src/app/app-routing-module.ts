@@ -132,16 +132,34 @@ const routes: Routes = [
   },
   {
     path: 'carrito',
-    canActivate: [authGuard],
     loadChildren: () =>
       import('./features/cart/cart-module').then((m) => m.CartModule),
   },
   {
     path: 'checkout',
-    canActivate: [authGuard],
+    children: [
+      {
+        path: 'success',
+        loadChildren: () =>
+          import('./features/checkout/success/checkout-success-module').then(
+            (m) => m.CheckoutSuccessModule,
+          ),
+      },
+      {
+        path: '',
+        loadChildren: () =>
+          import('./features/checkout/checkout-module').then(
+            (m) => m.CheckoutModule,
+          ),
+      },
+    ],
+  },
+  {
+    path: 'wishlist',
+    canActivate: [],
     loadChildren: () =>
-      import('./features/checkout/checkout-module').then(
-        (m) => m.CheckoutModule,
+      import('./features/profile/wishlist/wishlist-module').then(
+        (m) => m.WishlistModule,
       ),
   },
   {

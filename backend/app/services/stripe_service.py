@@ -43,13 +43,18 @@ class StripeService:
         session: AsyncSession,
         order: Order,
         cart_items: list[CartItem],
-        user_email: str,
-        user_id: UUID,
+        user_email: str | None,
+        user_id: UUID | None,
+        is_guest: bool = False,
     ) -> str:
         """Create a Stripe hosted Checkout session and link it to the order.
 
         Builds line items from the cart items in SEK (öre = unit_price × 100).
         Saves ``stripe_session_id`` on the order and flushes.
+
+        When *is_guest* is True the success URL points to the guest-facing
+        ``/checkout/success`` page instead of the authenticated order detail.
+        ``customer_email`` is passed to Stripe only when *user_email* is set.
 
         Returns the session URL the frontend must redirect the user to.
 
@@ -59,34 +64,45 @@ class StripeService:
         try:
             line_items = self._build_line_items(cart_items)
 
-            stripe_session = stripe.checkout.Session.create(
-                mode="payment",
-                line_items=line_items,
-                customer_email=user_email,
-                idempotency_key=str(order.id),
-                success_url=(
+            if is_guest:
+                success_url = (
+                    f"{settings.FRONTEND_URL}/checkout/success"
+                    f"?order_id={order.id}&guest=1"
+                )
+            else:
+                success_url = (
                     f"{settings.FRONTEND_URL}/perfil/ordenes/"
                     f"{order.id}?payment=success"
-                ),
-                cancel_url=f"{settings.FRONTEND_URL}/carrito?payment=cancelled",
-                metadata={"order_id": str(order.id)},
-            )
+                )
+
+            session_kwargs: dict = {
+                "mode": "payment",
+                "line_items": line_items,
+                "idempotency_key": str(order.id),
+                "success_url": success_url,
+                "cancel_url": f"{settings.FRONTEND_URL}/carrito?payment=cancelled",
+                "metadata": {"order_id": str(order.id)},
+            }
+            if user_email is not None:
+                session_kwargs["customer_email"] = user_email
+
+            stripe_session = stripe.checkout.Session.create(**session_kwargs)
 
             order.stripe_session_id = stripe_session.id
             await session.flush()
 
             logger.info(
-                "Stripe session %s created for order %s — user %s",
+                "Stripe session %s created for order %s — %s",
                 stripe_session.id,
                 order.id,
-                user_id,
+                f"user {user_id}" if not is_guest else f"guest session",
             )
             return stripe_session.url  # type: ignore[no-any-return]
 
         except stripe.StripeError as exc:
             logger.error(
-                "Stripe session creation failed for user %s: %s",
-                user_id,
+                "Stripe session creation failed for %s: %s",
+                f"user {user_id}" if not is_guest else "guest",
                 exc.user_message or str(exc),
             )
             raise StripeError(

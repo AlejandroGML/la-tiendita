@@ -40,6 +40,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         return throwError(() => error);
       }
 
+      // Snapshot whether the user was authenticated BEFORE the refresh
+      // attempt.  If they never had a token (guest visitor) and the
+      // refresh fails, we must NOT redirect to /login — that would trap
+      // guests browsing public routes like /carrito or /wishlist.
+      const hadToken = !!localStorage.getItem('access_token');
+
       if (!refreshInProgress) {
         refreshInProgress = auth.refresh().pipe(share());
       }
@@ -56,7 +62,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         catchError((refreshError: unknown) => {
           refreshInProgress = null;
           auth.clearTokens();
-          router.navigate(['/login']);
+          // Only redirect to login if the user was previously authenticated.
+          // Guests without a token just get the error silently (the
+          // component can handle the 401 how it sees fit — e.g. show a
+          // login prompt on the wishlist page).
+          if (hadToken) {
+            router.navigate(['/login']);
+          }
           return throwError(() => refreshError);
         }),
       );

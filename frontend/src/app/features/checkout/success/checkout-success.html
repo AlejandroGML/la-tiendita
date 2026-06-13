@@ -1,0 +1,44 @@
+<div class="checkout-success-container max-w-2xl mx-auto p-6">
+  <div
+    *ngIf="isGuest"
+    class="text-center py-16"
+    data-testid="checkout-success-guest"
+  >
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow border border-gray-200 p-8">
+      <i class="pi pi-check-circle text-5xl text-green-500 mb-4 block"></i>
+      <h1 class="text-2xl font-bold mb-2">
+        {{ 'checkout.successTitle' | translate }}
+      </h1>
+      <p
+        *ngIf="orderId"
+        class="text-gray-500 mb-4"
+        data-testid="checkout-success-order-id"
+      >
+        {{ 'checkout.successOrderId' | translate }} {{ orderId }}
+      </p>
+      <p class="text-gray-600 mb-6">
+        {{ 'checkout.successGuestPrompt' | translate }}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a
+          pButton
+          severity="primary"
+          [routerLink]="'/register'"
+          [queryParams]="{ order_id: orderId }"
+          data-testid="btn-success-register"
+        >
+          {{ 'checkout.successCreateAccount' | translate }}
+        </a>
+        <a
+          pButton
+          severity="secondary"
+          [outlined]="true"
+          [routerLink]="'/'"
+          data-testid="btn-success-continue"
+        >
+          {{ 'checkout.successContinueShopping' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

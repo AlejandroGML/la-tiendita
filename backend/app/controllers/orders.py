@@ -1,15 +1,19 @@
-"""OrderController — checkout and order history (JWT-protected).
+"""OrderController — checkout and order history.
 
-Checkout: POST /api/checkout — atomically converts cart to order.
-Orders: GET /api/orders, GET /api/orders/{id} — user-scoped history.
+Checkout: POST /api/checkout — dual-scope (user or guest session).
+Orders: GET /api/orders, GET /api/orders/{id} — user-scoped, JWT-protected.
 
-All endpoints are automatically JWT-protected because the paths are
-NOT listed in ``jwt_auth.exclude``.
+The ``/api/checkout`` path is excluded from mandatory JWT auth.
+``OptionalUserMiddleware`` injects ``request.user`` (User or None).
+Scope is resolved same as CartController:
+- JWT valid → ``user_id = request.user.id``, guest header ignored
+- JWT absent → ``X-Session-Id`` header required for guest scope
+- Neither → 400 ``Missing X-Session-Id header``
 """
 
 from uuid import UUID
 
-from litestar import Controller, get, post
+from litestar import Controller, Response, get, post
 from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import (
@@ -73,6 +77,54 @@ class OrderController(Controller):
         "session": Provide(provide_session, sync_to_thread=False),
     }
 
+    # ------------------------------------------------------------------
+    # Scope resolution (same pattern as CartController)
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _resolve_scope(
+        request: ASGIConnection,
+    ) -> tuple[UUID | None, UUID | None]:
+        """Resolve checkout scope from JWT user or X-Session-Id header.
+
+        Precedence: JWT > X-Session-Id. Raises ``HTTPException(400)``
+        when neither is available.
+        """
+        user = getattr(request, "user", None)
+        if user is not None:
+            return (user.id, None)
+
+        session_id_str = request.headers.get("X-Session-Id")
+        if session_id_str:
+            try:
+                return (None, UUID(session_id_str))
+            except ValueError:
+                raise HTTPException(
+                    status_code=400,
+                    detail="Invalid X-Session-Id header: must be a valid UUID",
+                )
+
+        raise HTTPException(
+            status_code=400,
+            detail="Missing X-Session-Id header",
+        )
+
+    @staticmethod
+    def _with_response_headers(
+        result: CheckoutResponse, session_id: UUID | None
+    ) -> Response | CheckoutResponse:
+        """Wrap the result with ``X-Session-Id`` header when in guest scope."""
+        if session_id is not None:
+            return Response(
+                content=result,
+                headers={"X-Session-Id": str(session_id)},
+            )
+        return result
+
+    # ------------------------------------------------------------------
+    # Endpoints
+    # ------------------------------------------------------------------
+
     @post("/checkout", status_code=201)
     async def checkout(
         self,
@@ -81,22 +133,32 @@ class OrderController(Controller):
         service: OrderService,
         session: AsyncSession,
     ) -> CheckoutResponse:
-        """Convert the authenticated user's cart into an order.
+        """Convert the cart into an order and create a Stripe hosted Checkout session.
 
-        Creates a Stripe hosted Checkout session and returns the URL
-        the frontend must redirect the user to. Stock is NOT deducted
-        at checkout — it is deducted when the Stripe webhook confirms
-        the payment.
-
+        Supports both authenticated users and guest sessions.
         Returns 201 with ``{ checkout_url, order_id }``.
         """
+        # Resolve scope
+        user_id, session_id = self._resolve_scope(request)
+
+        # Determine checkout email for Stripe customer_email and Order model
+        if user_id is not None:
+            customer_email = request.user.email  # type: ignore[union-attr]
+            guest_email_val = None
+        else:
+            customer_email = data.guest_email or None
+            guest_email_val = data.guest_email or None
+
         try:
-            return await service.checkout(
+            result = await service.checkout(
                 session,
-                user_id=request.user.id,
-                user_email=request.user.email,
+                user_id=user_id,
+                session_id=session_id,
+                customer_email=customer_email,
+                guest_email=guest_email_val,
                 shipping_address=data.shipping_address,
             )
+            return self._with_response_headers(result, session_id)
         except CartEmptyError as exc:
             raise ValidationException(detail=str(exc)) from exc
         except StockInsufficientError as exc:

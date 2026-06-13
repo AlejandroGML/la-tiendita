@@ -1,14 +1,16 @@
 """CartService — business logic for shopping cart CRUD.
 
 Async methods accept SQLAlchemy AsyncSession injection at call time.
-All operations are scoped to a single user via ``user_id``.
+All operations are dual-scope: scoped to either a registered user
+(``user_id``) or an anonymous guest session (``session_id``).
+Exactly one scope identifier must be provided (XOR).
 """
 
 import logging
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import ColumnElement, delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -41,20 +43,52 @@ class CartService:
         self._promotion_service = promotion_service
 
     # ------------------------------------------------------------------
+    # Scope helpers
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _validate_scope(
+        user_id: UUID | None, session_id: UUID | None
+    ) -> None:
+        """Validate exactly one scope identifier is provided (XOR)."""
+        has_user = user_id is not None
+        has_session = session_id is not None
+        if has_user == has_session:
+            raise ValueError(
+                "Exactly one of user_id or session_id must be provided"
+            )
+
+    @staticmethod
+    def _scope_filter(
+        user_id: UUID | None, session_id: UUID | None,
+    ) -> ColumnElement[bool]:
+        """Return a SQLAlchemy WHERE filter clause for the active scope.
+
+        Exactly one of *user_id* or *session_id* must be non-None.
+        """
+        CartService._validate_scope(user_id, session_id)
+        if user_id is not None:
+            return CartItem.user_id == user_id
+        return CartItem.session_id == session_id
+
+    # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
 
     async def get_cart(
-        self, session: AsyncSession, user_id: UUID
+        self,
+        session: AsyncSession,
+        user_id: UUID | None,
+        session_id: UUID | None,
     ) -> CartResponse:
-        """Return the authenticated user's cart with line-item subtotals.
+        """Return a cart with line-item subtotals, scoped to user or session.
 
         Cart items are eager-loaded with product translations so the
         response can include a resolved product name per item.
         Active promotions are resolved in batch and applied to items,
         producing sale pricing, savings, and original-subtotal aggregates.
         """
-        cart_items = await self._load_cart_items(session, user_id)
+        cart_items = await self._load_cart_items(session, user_id, session_id)
 
         # Resolve active promotions for all cart item products
         product_ids = list({ci.product_id for ci in cart_items})
@@ -87,17 +121,22 @@ class CartService:
         )
 
     async def add_item(
-        self, session: AsyncSession, user_id: UUID, data: AddToCartRequest
+        self,
+        session: AsyncSession,
+        user_id: UUID | None,
+        session_id: UUID | None,
+        data: AddToCartRequest,
     ) -> CartResponse:
         """Add a product to the cart (or increment quantity if already present).
+
+        Scoped by *user_id* OR *session_id* (XOR). The unique lookup
+        uses the correct partial unique index depending on scope.
 
         When ``variant_id`` is provided:
           - Validates the variant exists, belongs to the product, and has
             stock >= 1 before allowing add-to-cart.
-          - Merges on the partial unique index ``(user_id, variant_id)``.
 
         When ``variant_id`` is None:
-          - Merges on the partial unique index ``(user_id, product_id)``.
           - Falls back to the first non-deleted variant's stock for
             validation if the product has variants.
 
@@ -125,7 +164,7 @@ class CartService:
 
         # Check if item already exists (handled by partial unique indexes)
         existing = await self._find_existing_item(
-            session, user_id, data.product_id, data.variant_id
+            session, user_id, session_id, data.product_id, data.variant_id
         )
 
         if existing is not None:
@@ -144,6 +183,7 @@ class CartService:
 
             cart_item = CartItem(
                 user_id=user_id,
+                session_id=session_id,
                 product_id=data.product_id,
                 variant_id=data.variant_id,
                 size=variant.size.value if (variant and variant.size) else None,
@@ -154,20 +194,24 @@ class CartService:
             session.add(cart_item)
             await session.flush()
 
-        return await self.get_cart(session, user_id)
+        return await self.get_cart(session, user_id, session_id)
 
     async def update_quantity(
         self,
         session: AsyncSession,
-        user_id: UUID,
+        user_id: UUID | None,
+        session_id: UUID | None,
         item_id: UUID,
         data: UpdateCartItemRequest,
     ) -> CartResponse:
-        """Update the quantity of a cart item. Setting quantity to 0 removes it.
+        """Update the quantity of a cart item scoped to user or session.
 
-        Validates variant stock for the new quantity when variant_id is set.
+        Setting quantity to 0 removes it. Validates variant stock for the
+        new quantity when variant_id is set.
         """
-        cart_item = await self._get_own_item(session, user_id, item_id)
+        cart_item = await self._get_own_item(
+            session, user_id, session_id, item_id
+        )
 
         if data.quantity == 0:
             await session.delete(cart_item)
@@ -186,25 +230,33 @@ class CartService:
             cart_item.quantity = data.quantity
             await session.flush()
 
-        return await self.get_cart(session, user_id)
+        return await self.get_cart(session, user_id, session_id)
 
     async def remove_item(
-        self, session: AsyncSession, user_id: UUID, item_id: UUID
+        self,
+        session: AsyncSession,
+        user_id: UUID | None,
+        session_id: UUID | None,
+        item_id: UUID,
     ) -> CartResponse:
-        """Remove a specific item from the user's cart."""
-        cart_item = await self._get_own_item(session, user_id, item_id)
+        """Remove a specific item from a user or session cart."""
+        cart_item = await self._get_own_item(
+            session, user_id, session_id, item_id
+        )
         await session.delete(cart_item)
         await session.flush()
 
-        return await self.get_cart(session, user_id)
+        return await self.get_cart(session, user_id, session_id)
 
     async def clear_cart(
-        self, session: AsyncSession, user_id: UUID
+        self,
+        session: AsyncSession,
+        user_id: UUID | None,
+        session_id: UUID | None,
     ) -> CartResponse:
-        """Remove all items from the user's cart in one operation."""
-        await session.execute(
-            delete(CartItem).where(CartItem.user_id == user_id)
-        )
+        """Remove all items from a user or session cart in one operation."""
+        scope = self._scope_filter(user_id, session_id)
+        await session.execute(delete(CartItem).where(scope))
         await session.flush()
 
         return CartResponse(items=[], subtotal=Decimal("0"))
@@ -214,12 +266,19 @@ class CartService:
     # ------------------------------------------------------------------
 
     async def _load_cart_items(
-        self, session: AsyncSession, user_id: UUID
+        self,
+        session: AsyncSession,
+        user_id: UUID | None,
+        session_id: UUID | None,
     ) -> list[CartItem]:
-        """Load all cart items for a user with eager-loaded product and variant."""
+        """Load all cart items scoped to user or session.
+
+        Eager-loads product translations and variant for response building.
+        """
+        scope = self._scope_filter(user_id, session_id)
         stmt = (
             select(CartItem)
-            .where(CartItem.user_id == user_id)
+            .where(scope)
             .options(
                 selectinload(CartItem.product).selectinload(
                     Product.translations
@@ -232,15 +291,20 @@ class CartService:
         return list(result.scalars().unique().all())
 
     async def _get_own_item(
-        self, session: AsyncSession, user_id: UUID, item_id: UUID
+        self,
+        session: AsyncSession,
+        user_id: UUID | None,
+        session_id: UUID | None,
+        item_id: UUID,
     ) -> CartItem:
-        """Fetch a cart item by ID, ensuring it belongs to *user_id*.
+        """Fetch a cart item by ID, scoped to user or session.
 
         Raises ``ValueError`` if not found (controller maps to 404).
         """
+        scope = self._scope_filter(user_id, session_id)
         stmt = select(CartItem).where(
             CartItem.id == item_id,
-            CartItem.user_id == user_id,
+            scope,
         )
         result = await session.execute(stmt)
         cart_item = result.scalar_one_or_none()
@@ -318,24 +382,25 @@ class CartService:
     @staticmethod
     async def _find_existing_item(
         session: AsyncSession,
-        user_id: UUID,
+        user_id: UUID | None,
+        session_id: UUID | None,
         product_id: UUID,
         variant_id: UUID | None,
     ) -> CartItem | None:
-        """Find an existing cart item matching the partial unique index.
+        """Find an existing cart item matching the scope + partial unique index.
 
-        When ``variant_id`` is provided, matches on ``(user_id, variant_id)``.
-        When ``variant_id`` is None, matches on ``(user_id, product_id)``
-        with ``variant_id IS NULL``.
+        Uses the correct unique index depending on scope (user or session)
+        and whether a variant is specified.
         """
+        scope = CartService._scope_filter(user_id, session_id)
         if variant_id is not None:
             stmt = select(CartItem).where(
-                CartItem.user_id == user_id,
+                scope,
                 CartItem.variant_id == variant_id,
             )
         else:
             stmt = select(CartItem).where(
-                CartItem.user_id == user_id,
+                scope,
                 CartItem.product_id == product_id,
                 CartItem.variant_id.is_(None),
             )

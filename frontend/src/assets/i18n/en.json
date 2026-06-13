@@ -213,7 +213,9 @@
     "originalSubtotal": "Original subtotal",
     "savings": "Savings",
     "paymentCancelled": "Payment was cancelled. Your items are still in the cart.",
-    "dismiss": "Dismiss"
+    "dismiss": "Dismiss",
+    "guestWarning": "Your cart is temporary — create an account to save it and access from any device",
+    "createAccount": "Create account"
   },
   "checkout": {
     "title": "Checkout",
@@ -235,7 +237,14 @@
     "orderPlaced": "Order placed successfully",
     "viewOrder": "View order",
     "redirecting": "Redirecting to payment...",
-    "paymentUnavailable": "Payment service is unavailable. Please try again."
+    "paymentUnavailable": "Payment service is unavailable. Please try again.",
+    "email": "Email (optional)",
+    "emailInvalid": "Invalid email format",
+    "successTitle": "Order placed successfully!",
+    "successOrderId": "Order #:",
+    "successGuestPrompt": "Create an account to track your order and access your purchase history",
+    "successCreateAccount": "Create account",
+    "successContinueShopping": "Continue shopping"
   },
   "reviews": {
     "title": "Reviews",
@@ -262,7 +271,11 @@
     "removed": "Item removed from wishlist",
     "removeError": "Error removing from wishlist",
     "removeAria": "Remove {{name}} from wishlist",
-    "error": "Error loading wishlist"
+    "error": "Error loading wishlist",
+    "loginTitle": "Sign in to view your wishlist",
+    "loginDescription": "Save your favorite products and access them from any device",
+    "loginButton": "Sign in",
+    "registerButton": "Create account"
   },
   "promotions": {
     "title": "Promotions",

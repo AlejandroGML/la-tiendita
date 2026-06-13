@@ -3,6 +3,43 @@
     <h1 class="text-2xl font-bold">{{ 'wishlist.title' | translate }}</h1>
   </header>
 
+  <!-- Guest Login Prompt -->
+  <div
+    *ngIf="isGuest()"
+    class="text-center py-16"
+    data-testid="wishlist-login-prompt"
+  >
+    <div class="max-w-md mx-auto bg-white rounded-lg shadow border border-gray-200 p-8">
+      <i class="pi pi-heart text-5xl text-primary mb-4 block"></i>
+      <h2 class="text-xl font-semibold mb-2">
+        {{ 'wishlist.loginTitle' | translate }}
+      </h2>
+      <p class="text-gray-500 mb-6">
+        {{ 'wishlist.loginDescription' | translate }}
+      </p>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <a
+          pButton
+          severity="primary"
+          [routerLink]="'/login'"
+          data-testid="btn-wishlist-login"
+        >
+          {{ 'wishlist.loginButton' | translate }}
+        </a>
+        <a
+          pButton
+          severity="secondary"
+          [outlined]="true"
+          [routerLink]="'/register'"
+          data-testid="btn-wishlist-register"
+        >
+          {{ 'wishlist.registerButton' | translate }}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <ng-container *ngIf="!isGuest()">
   <p-progressBar
     *ngIf="loading()"
     mode="indeterminate"
@@ -91,4 +128,5 @@
   </div>
 
   <p-toast position="bottom-right"></p-toast>
+  </ng-container>
 </div>

@@ -10,7 +10,7 @@ import { ProductDetail } from './product-detail';
     CommonModule,
     SharedModule,
     RouterModule.forChild([
-      { path: ':slug', component: ProductDetail },
+      { path: '', component: ProductDetail },
     ]),
   ],
 })

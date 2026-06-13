@@ -47,6 +47,20 @@
           <h2 class="text-xl font-semibold mb-4">{{ 'checkout.shipping' | translate }}</h2>
 
           <form [formGroup]="shippingForm" (ngSubmit)="submitOrder()" data-testid="shipping-form">
+            <!-- Guest email — only visible when not authenticated -->
+            <div class="mb-4" *ngIf="isGuest()">
+              <p-floatLabel variant="on" styleClass="w-full">
+                <input pInputText formControlName="guestEmail" data-testid="input-guest-email" type="email" class="w-full" />
+                <label>{{ 'checkout.email' | translate }}</label>
+              </p-floatLabel>
+              <small
+                *ngIf="shippingForm.get('guestEmail')?.invalid && shippingForm.get('guestEmail')?.touched"
+                class="p-error block mt-1"
+              >
+                {{ 'checkout.emailInvalid' | translate }}
+              </small>
+            </div>
+
             <div class="mb-4">
               <p-floatLabel variant="on" styleClass="w-full">
                 <input pInputText formControlName="name" data-testid="input-name" class="w-full" />

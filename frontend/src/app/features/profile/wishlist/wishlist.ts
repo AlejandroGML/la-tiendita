@@ -1,8 +1,9 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { WishlistService } from '../../../core/services/wishlist.service';
+import { AuthService } from '../../../core/services/auth.service';
 import type { WishlistItem } from '../../../shared/models/wishlist.model';
 
 @Component({
@@ -17,14 +18,20 @@ export class WishlistComponent implements OnInit, OnDestroy {
   readonly items = signal<WishlistItem[]>([]);
   readonly loading = signal(false);
   readonly error = signal(false);
+  readonly isGuest = computed(() => !this.authService.isAuthenticated());
 
   constructor(
     private readonly wishlistService: WishlistService,
     private readonly router: Router,
     private readonly messageService: MessageService,
+    private readonly authService: AuthService,
   ) {}
 
   ngOnInit(): void {
+    if (this.isGuest()) {
+      this.loading.set(false);
+      return;
+    }
     this.loadWishlist();
   }
 
