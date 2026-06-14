@@ -1,6 +1,7 @@
 import { Component, OnDestroy, OnInit, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
+import { Location } from '@angular/common';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -86,7 +87,7 @@ export class ProductList implements OnInit, OnDestroy {
 
   private translate = inject(TranslateService);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
+  private readonly location = inject(Location);
   private readonly langKey = signal(0);
 
   readonly categoryDropdownOptions = computed(() => {
@@ -250,19 +251,16 @@ export class ProductList implements OnInit, OnDestroy {
 
   private syncUrl(): void {
     const f = this.filters();
-    const queryParams: Record<string, string> = {};
-    if (f.category_id) queryParams['category_id'] = String(f.category_id);
+    const params = new URLSearchParams();
+    if (f.category_id) params.set('category_id', String(f.category_id));
     if (f.target_gender) {
       const reverseMap: Record<string, string> = { Ladies: 'women', Men: 'men', Kids: 'kids', Unisex: 'unisex' };
-      queryParams['gender'] = reverseMap[f.target_gender] || f.target_gender;
+      params.set('gender', reverseMap[f.target_gender] || f.target_gender);
     }
-    if (f.sort) queryParams['sort'] = f.sort;
-    this.router.navigate([], {
-      relativeTo: this.route,
-      queryParams,
-      queryParamsHandling: 'merge',
-      replaceUrl: true,
-    });
+    if (f.sort) params.set('sort', f.sort);
+    const qs = params.toString();
+    const url = qs ? `${window.location.pathname}?${qs}` : window.location.pathname;
+    this.location.replaceState(url);
   }
 
   clearFilters(): void {
@@ -283,6 +281,7 @@ export class ProductList implements OnInit, OnDestroy {
     });
     this.searchTerm.set('');
     this.page.set(1);
+    this.syncUrl();
     this.loadProducts();
   }
 
