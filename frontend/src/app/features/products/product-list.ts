@@ -1,5 +1,6 @@
 import { Component, OnDestroy, OnInit, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
@@ -84,6 +85,8 @@ export class ProductList implements OnInit, OnDestroy {
   });
 
   private translate = inject(TranslateService);
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly langKey = signal(0);
 
   readonly categoryDropdownOptions = computed(() => {
@@ -158,6 +161,18 @@ export class ProductList implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCategories();
+    // Sync filters from URL query params
+    const params = this.route.snapshot.queryParamMap;
+    const categoryId = params.get('category_id');
+    const gender = params.get('gender');
+    if (categoryId) {
+      this.filters.update(f => ({ ...f, category_id: Number(categoryId) }));
+    }
+    if (gender) {
+      // Map frontend gender values to backend target_gender values
+      const genderMap: Record<string, string> = { women: 'Ladies', men: 'Men', kids: 'Kids', unisex: 'Unisex' };
+      this.filters.update(f => ({ ...f, target_gender: genderMap[gender] || null }));
+    }
     this.loadProducts();
     this.translate.onLangChange.subscribe(() => this.langKey.update(v => v + 1));
   }
@@ -229,7 +244,25 @@ export class ProductList implements OnInit, OnDestroy {
   onFilterChange(key: keyof FilterState, value: string | number | boolean | string[] | null): void {
     this.filters.update((f) => ({ ...f, [key]: value }));
     this.page.set(1);
+    this.syncUrl();
     this.loadProducts();
+  }
+
+  private syncUrl(): void {
+    const f = this.filters();
+    const queryParams: Record<string, string> = {};
+    if (f.category_id) queryParams['category_id'] = String(f.category_id);
+    if (f.target_gender) {
+      const reverseMap: Record<string, string> = { Ladies: 'women', Men: 'men', Kids: 'kids', Unisex: 'unisex' };
+      queryParams['gender'] = reverseMap[f.target_gender] || f.target_gender;
+    }
+    if (f.sort) queryParams['sort'] = f.sort;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
   }
 
   clearFilters(): void {
