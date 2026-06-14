@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, OnDestroy } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -102,6 +102,18 @@ export class Header implements OnInit, OnDestroy {
   }
 
   // ── Mega menú hover logic ──
+
+  /** Close megamenu when clicking outside the header */
+  @HostListener('document:click', ['$event'])
+  protected onDocumentClick(event: MouseEvent): void {
+    if (this.megaOpen) {
+      const target = event.target as HTMLElement;
+      if (!target.closest('app-header')) {
+        this.megaOpen = false;
+        this.clearMegaTimeout();
+      }
+    }
+  }
 
   protected onMegaEnter(): void {
     this.clearMegaTimeout();

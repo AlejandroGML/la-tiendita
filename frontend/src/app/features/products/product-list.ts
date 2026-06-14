@@ -320,7 +320,7 @@ export class ProductList implements OnInit, OnDestroy {
     const cat = this.categories().find((c) => c.id === categoryId);
     if (!cat) return '';
     const t = cat.translations?.find((t) => t.lang === 'es');
-    return t?.name ?? cat.translations?.[0]?.name ?? '';
+    return t?.name ?? cat.translations?.[0]?.name ?? cat.name ?? '';
   }
 
   private updateSeo(): void {
