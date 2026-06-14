@@ -273,7 +273,7 @@
                        [queryParams]="{category_id: cat.id}"
                        class="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
                       <span class="text-base flex-shrink-0">{{ getCategoryIcon(cat.slug) }}</span>
-                      <span class="truncate">{{ cat.name || cat.slug }}</span>
+                      <span class="truncate">{{ 'category.' + cat.slug | translate }}</span>
                     </a>
                   </div>
                 </div>
