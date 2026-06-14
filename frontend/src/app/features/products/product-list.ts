@@ -33,6 +33,17 @@ const COLOR_MAP: Record<string, string> = {
   Beige: '#F5F5DC', Gold: '#D4AF37', Silver: '#C0C0C0', Multi: 'linear-gradient(90deg,red,orange,yellow,green,blue,purple)',
 };
 
+const CATEGORY_ICONS: Record<string, string> = {
+  'accessories': '💍', 'bag': '👜', 'belt': '🔗', 'blazer': '🧥',
+  'blouse': '👚', 'boots': '🥾', 'cardigan': '🧶', 'coat': '🧥',
+  'dress': '👗', 'hat': '🧢', 'heels': '👠', 'jacket': '🧥',
+  'jeans': '👖', 'jumpsuit': '🦺', 'pants': '👖', 'playsuit': '🦺',
+  'poncho': '🧣', 'sandals': '🩴', 'scarf': '🧣', 'shirt': '👔',
+  'shoes': '👟', 'shorts': '🩳', 'skirt': '👗', 'sneakers': '👟',
+  'sweater': '🧶', 't-shirt': '👕', 'tank-top': '🎽', 'top': '👚',
+  'tunic': '👚', 'vest': '🦺',
+};
+
 @Component({
   selector: 'app-product-list',
   templateUrl: './product-list.html',
@@ -94,8 +105,10 @@ export class ProductList implements OnInit, OnDestroy {
     this.langKey();
     const all = { label: this.translate.instant('catalog.allCategories'), value: null };
     const items = this.categories().map((cat) => ({
-      label: this.getCategoryName(cat.id),
+      label: this.translate.instant('category.' + cat.slug),
       value: cat.id,
+      icon: CATEGORY_ICONS[cat.slug] || '🏷️',
+      slug: cat.slug,
     }));
     return [all, ...items];
   });

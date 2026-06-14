@@ -42,7 +42,14 @@
             [ngModel]="filters().category_id"
             (onChange)="onFilterChange('category_id', $event.value)"
             [placeholder]="'catalog.allCategories' | translate"
-          ></p-select>
+          >
+            <ng-template let-option pTemplate="item">
+              <div class="flex items-center gap-2">
+                <span class="text-base shrink-0">{{ option.icon }}</span>
+                <span>{{ option.label }}</span>
+              </div>
+            </ng-template>
+          </p-select>
         </div>
 
         <!-- Gender -->
