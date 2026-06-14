@@ -162,20 +162,19 @@ export class ProductList implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCategories();
-    // Sync filters from URL query params
-    const params = this.route.snapshot.queryParamMap;
-    const categoryId = params.get('category_id');
-    const gender = params.get('gender');
-    if (categoryId) {
-      this.filters.update(f => ({ ...f, category_id: Number(categoryId) }));
-    }
-    if (gender) {
-      // Map frontend gender values to backend target_gender values
-      const genderMap: Record<string, string> = { women: 'Ladies', men: 'Men', kids: 'Kids', unisex: 'Unisex' };
-      this.filters.update(f => ({ ...f, target_gender: genderMap[gender] || null }));
-    }
-    this.loadProducts();
     this.translate.onLangChange.subscribe(() => this.langKey.update(v => v + 1));
+
+    // Listen for URL query param changes (e.g. from megamenu clicks)
+    this.route.queryParamMap.subscribe((params) => {
+      const categoryId = params.get('category_id');
+      const gender = params.get('gender');
+      this.filters.update(f => ({
+        ...f,
+        category_id: categoryId ? Number(categoryId) : null,
+        target_gender: gender ? ({ women: 'Ladies', men: 'Men', kids: 'Kids', unisex: 'Unisex' }[gender] || null) : null,
+      }));
+      this.loadProducts();
+    });
   }
 
   ngOnDestroy(): void {
