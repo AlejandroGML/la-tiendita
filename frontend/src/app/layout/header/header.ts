@@ -3,13 +3,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
-import { AuthService } from '../../core/services/auth.service';
-import { AuthStateService } from '../../core/services/auth-state.service';
-import { TOKEN_STORAGE, type TokenStorage } from '../../core/services/token-storage.service';
 import { CartService } from '../../core/services/cart.service';
 import { CategoryService, type CategoryItem, type CategoryGroup } from '../../core/services/category.service';
-import { WishlistService } from '../../core/services/wishlist.service';
-import { rawSvg, svgIcon } from '../../shared/utils/svg-icons';
+import { svgIcon } from '../../shared/utils/svg-icons';
 
 const CATEGORY_ICONS: Record<string, string> = {
   'accessories': '💍', 'bag': '👜', 'belt': '🔗', 'blazer': '🧥',
@@ -32,26 +28,18 @@ export class Header implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly translate = inject(TranslateService);
-  private readonly authService = inject(AuthService);
-  private readonly authState = inject(AuthStateService);
-  private readonly tokenStorage: TokenStorage = inject(TOKEN_STORAGE);
   private readonly cartService = inject(CartService);
-  private readonly wishlistService = inject(WishlistService);
   private readonly categoryService = inject(CategoryService);
 
   mobileOpen = false;
   showMobileSearch = false;
   megaOpen = false;
-  userMenuOpen = false;
   private megaTimeout: ReturnType<typeof setTimeout> | null = null;
-  private userMenuTimeout: ReturnType<typeof setTimeout> | null = null;
 
   searchTerm = '';
   cartCount = 0;
-  wishlistCount = 0;
   categories: CategoryItem[] = [];
   private cartSub: Subscription | null = null;
-  private wishlistSub: Subscription | null = null;
 
   /** Agrupa categorías en 3 columnas para el mega menú */
   protected get categoryGroups(): CategoryGroup[] {
@@ -74,9 +62,7 @@ export class Header implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearMegaTimeout();
-    if (this.userMenuTimeout !== null) clearTimeout(this.userMenuTimeout);
     this.cartSub?.unsubscribe();
-    this.wishlistSub?.unsubscribe();
   }
 
   // ── Mega menú hover logic ──
@@ -133,15 +119,8 @@ export class Header implements OnInit, OnDestroy {
     this.cartSub = this.cartService.cart$.subscribe(
       (cart) => (this.cartCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0),
     );
-    this.wishlistSub = this.wishlistService.wishlist$.subscribe(
-      (wishlist) => (this.wishlistCount = wishlist?.items?.length ?? 0),
-    );
-    // Fetch cart for both guests and authenticated users.
-    // The CartService sends X-Session-Id for guests; backend handles both.
     this.cartService.getCart().subscribe();
-    if (this.authState.isAuthenticated()) {
-      this.wishlistService.getWishlist().subscribe();
-    }
+    // WishlistBadgeComponent handles its own subscription and initial fetch.
   }
 
   onSearch(term: string): void {
@@ -170,41 +149,6 @@ export class Header implements OnInit, OnDestroy {
     this.translate.use(lang);
   }
 
-  // ── Auth ──
-
-  protected get currentUser() {
-    return this.authState.currentUser();
-  }
-
-  protected get isLoggedIn(): boolean {
-    return this.authState.isAuthenticated();
-  }
-
-  protected get userName(): string {
-    return this.currentUser?.name || '';
-  }
-
-  protected onUserMenuEnter(): void {
-    if (this.userMenuTimeout !== null) {
-      clearTimeout(this.userMenuTimeout);
-      this.userMenuTimeout = null;
-    }
-    this.userMenuOpen = true;
-  }
-
-  protected onUserMenuLeave(): void {
-    this.userMenuTimeout = setTimeout(() => {
-      this.userMenuOpen = false;
-    }, 200);
-  }
-
-  protected clearUserMenuTimeout(): void {
-    if (this.userMenuTimeout !== null) {
-      clearTimeout(this.userMenuTimeout);
-      this.userMenuTimeout = null;
-    }
-  }
-
   // ── Gender tabs ──
 
   protected readonly GENDER_TABS = [
@@ -226,30 +170,10 @@ export class Header implements OnInit, OnDestroy {
     this.router.navigate(['/productos'], { queryParams: { gender }, queryParamsHandling: 'merge' });
   }
 
-  protected logout(): void {
-    this.userMenuOpen = false;
-    this.cartService.resetState();
-    this.wishlistService.resetState();
-    this.authService.logout().subscribe({
-      next: () => this.router.navigate(['/']),
-      error: () => {
-        // Even if the server call fails, clear local tokens
-        this.tokenStorage.clear();
-        this.authState.clearUser();
-        this.router.navigate(['/']);
-      },
-    });
-  }
-
   // ── SVG system: Lucide icons inline ──
 
   /** Get a sanitized SVG icon for use in [innerHTML] bindings. */
   protected svg(name: string, className = 'w-5 h-5'): SafeHtml {
     return svgIcon(name, className, this.sanitizer) as SafeHtml;
-  }
-
-  /** Get the raw SVG string without sanitization (used in badges). */
-  protected svgRaw(name: string): string {
-    return rawSvg(name);
   }
 }

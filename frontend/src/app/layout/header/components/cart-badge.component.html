@@ -1,0 +1,10 @@
+<a routerLink="/carrito"
+   (click)="navigateToCart()"
+   class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800 active:bg-emerald-100 dark:active:bg-gray-700"
+   [attr.aria-label]="'Carrito'">
+  <span [innerHTML]="svg('cart')"></span>
+  <span *ngIf="cartCount > 0"
+        class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm ring-2 ring-white dark:ring-gray-950">
+    {{ cartCount > 99 ? '99+' : cartCount }}
+  </span>
+</a>
