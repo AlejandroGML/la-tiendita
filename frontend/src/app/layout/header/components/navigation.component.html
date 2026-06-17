@@ -1,0 +1,65 @@
+<!-- ════════════════════════════════════════════ -->
+<!-- ROW 2 — Categories + Quick Links + Trust     -->
+<!-- ════════════════════════════════════════════ -->
+<div class="hidden lg:block bg-white dark:bg-gray-950">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center h-12 gap-0.5">
+
+      <app-mega-menu></app-mega-menu>
+
+      <!-- Quick links -->
+      <a routerLink="/productos" [queryParams]="{oferta: true}"
+         class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+        <span [innerHTML]="svg('tag', 'w-4 h-4')"></span>
+        {{ 'nav.ofertas' | translate }}
+      </a>
+      <a routerLink="/productos" [queryParams]="{sort: 'newest'}"
+         class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+        <span [innerHTML]="svg('sparkles', 'w-4 h-4')"></span>
+        {{ 'nav.nuevo' | translate }}
+      </a>
+      <a routerLink="/productos" [queryParams]="{sort: 'popular'}"
+         class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+        <span [innerHTML]="svg('trendingUp', 'w-4 h-4')"></span>
+        {{ 'nav.popular' | translate }}
+      </a>
+
+      <!-- Spacer -->
+      <div class="flex-1"></div>
+
+      <!-- Trust Badge -->
+      <div class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+        <span [innerHTML]="svg('shield', 'w-3.5 h-3.5')"></span>
+        {{ 'header.compraSegura' | translate }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════════ -->
+<!-- ROW 3 — Gender Tabs                         -->
+<!-- ════════════════════════════════════════════ -->
+<div class="hidden lg:block bg-gray-50 dark:bg-gray-900 border-b border-gray-100 dark:border-gray-800">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex items-center h-10 gap-0">
+      <button
+        type="button"
+        *ngFor="let tab of GENDER_TABS"
+        (click)="navigateByGender(tab.value)"
+        class="relative px-4 h-full flex items-center text-sm font-medium transition-colors"
+        [class.text-emerald-600]="isGenderActive(tab.value)"
+        [class.dark:text-emerald-400]="isGenderActive(tab.value)"
+        [class.text-gray-500]="!isGenderActive(tab.value)"
+        [class.dark:text-gray-400]="!isGenderActive(tab.value)"
+        [class.hover:text-gray-900]="!isGenderActive(tab.value)"
+        [class.dark:hover:text-gray-200]="!isGenderActive(tab.value)"
+      >
+        {{ tab.label | translate }}
+        <span
+          *ngIf="isGenderActive(tab.value)"
+          class="absolute bottom-0 left-4 right-4 h-0.5 bg-emerald-500 dark:bg-emerald-400 rounded-full"
+        ></span>
+      </button>
+    </div>
+  </div>
+</div>

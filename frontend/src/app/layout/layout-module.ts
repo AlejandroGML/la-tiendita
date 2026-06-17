@@ -10,6 +10,8 @@ import { UserMenuComponent } from './header/components/user-menu.component';
 import { ThemeToggleComponent } from './header/components/theme-toggle.component';
 import { LanguageSwitcherComponent } from './header/components/language-switcher.component';
 import { CurrencySwitcherComponent } from './header/components/currency-switcher.component';
+import { NavigationComponent } from './header/components/navigation.component';
+import { MegaMenuComponent } from './header/components/mega-menu.component';
 
 @NgModule({
   declarations: [
@@ -21,6 +23,8 @@ import { CurrencySwitcherComponent } from './header/components/currency-switcher
     ThemeToggleComponent,
     LanguageSwitcherComponent,
     CurrencySwitcherComponent,
+    NavigationComponent,
+    MegaMenuComponent,
   ],
   imports: [CommonModule, SharedModule, RouterModule],
   exports: [Header, Footer],
