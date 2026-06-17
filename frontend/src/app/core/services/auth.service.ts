@@ -1,7 +1,14 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, catchError, throwError, finalize, share } from 'rxjs';
+
+import { TOKEN_STORAGE, type TokenStorage } from './token-storage.service';
+import { AuthStateService } from './auth-state.service';
+
+// ---------------------------------------------------------------------------
+// Shared models
+// ---------------------------------------------------------------------------
 
 export interface UserResponse {
   id: string;
@@ -20,21 +27,72 @@ export interface TokenResponse {
   user: UserResponse;
 }
 
-const ACCESS_TOKEN_KEY = 'access_token';
-const REFRESH_TOKEN_KEY = 'refresh_token';
-const USER_KEY = 'user';
+// ---------------------------------------------------------------------------
+// Service
+// ---------------------------------------------------------------------------
 
+/**
+ * Central authentication service.
+ *
+ * Provides login, register, logout, token refresh, and user-info operations.
+ * Delegates token persistence to `TokenStorage` and reactive auth state to
+ * `AuthStateService`.
+ *
+ * ## Refresh coalescing
+ *
+ * `refreshToken()` uses a shared observable guarded by a module-level
+ * reference so that concurrent 401 responses trigger only **one** HTTP
+ * refresh call. All subscribers receive the same result.
+ *
+ * ## Deprecated methods
+ *
+ * Several methods (marked `@deprecated`) are retained for one sprint to
+ * avoid breaking existing consumers. They delegate to the new services
+ * under the hood. These will be removed after Phase 3 consumer migration.
+ */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
+  private readonly tokenStorage: TokenStorage = inject(TOKEN_STORAGE);
+  private readonly authState = inject(AuthStateService);
 
+  /** Shared refresh observable — `null` when no refresh is in flight. */
+  private refreshing$: Observable<TokenResponse> | null = null;
+
+  // -- Login ---------------------------------------------------------------
+
+  /**
+   * Authenticate with email and password.
+   *
+   * On success, the tokens are persisted via `TokenStorage` and the user
+   * profile is pushed to `AuthStateService`.
+   *
+   * If 2FA is required, the response includes `{ requires2fa, twoFactorToken }`
+   * and **no** tokens are stored — the consumer must hand off to
+   * `TwoFactorService.validate()`.
+   */
   login(email: string, password: string): Observable<TokenResponse> {
     return this.http
       .post<TokenResponse>('/api/auth/login', { email, password })
-      .pipe(tap((res) => this.storeTokens(res)));
+      .pipe(
+        tap((res) => {
+          if (!this.is2faResponse(res)) {
+            this.tokenStorage.setTokens(res.access_token, res.refresh_token);
+            this.authState.setUser(res.user);
+          }
+        }),
+      );
   }
 
+  // -- Register ------------------------------------------------------------
+
+  /**
+   * Register a new user account.
+   *
+   * On success, behaves identically to `login` — tokens are stored and the
+   * user is authenticated.
+   */
   register(data: {
     email: string;
     password: string;
@@ -42,63 +100,159 @@ export class AuthService {
   }): Observable<TokenResponse> {
     return this.http
       .post<TokenResponse>('/api/auth/register', data)
-      .pipe(tap((res) => this.storeTokens(res)));
+      .pipe(
+        tap((res) => {
+          this.tokenStorage.setTokens(res.access_token, res.refresh_token);
+          this.authState.setUser(res.user);
+        }),
+      );
   }
 
-  refresh(): Observable<TokenResponse> {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-    return this.http
-      .post<TokenResponse>('/api/auth/refresh', {
-        refresh_token: refreshToken,
-      })
-      .pipe(tap((res) => this.storeTokens(res)));
-  }
+  // -- Logout --------------------------------------------------------------
 
+  /**
+   * Log out the current user.
+   *
+   * Clears tokens via `TokenStorage` and resets `AuthStateService` before
+   * notifying the server, so the UI is immediately responsive.
+   */
   logout(): Observable<void> {
-    const refreshToken = localStorage.getItem(REFRESH_TOKEN_KEY);
-    this.clearTokens();
+    const refreshToken = this.tokenStorage.getRefreshToken();
+    this.tokenStorage.clear();
+    this.authState.clearUser();
     return this.http.post<void>('/api/auth/logout', {
       refresh_token: refreshToken,
     });
   }
 
-  getCurrentUser(): UserResponse | null {
-    const raw = localStorage.getItem(USER_KEY);
-    if (!raw) return null;
-    try {
-      return JSON.parse(raw) as UserResponse;
-    } catch {
-      return null;
+  // -- Refresh token -------------------------------------------------------
+
+  /**
+   * Refresh the access token using the stored refresh token.
+   *
+   * **Coalescing**: If a refresh is already in flight, new callers receive
+   * the same shared observable — only one HTTP request is made.
+   *
+   * On success the new tokens are stored and the user state is refreshed.
+   * On failure (e.g. revoked refresh token), tokens and user state are
+   * cleared.
+   */
+  refreshToken(): Observable<TokenResponse> {
+    if (!this.refreshing$) {
+      const refreshToken = this.tokenStorage.getRefreshToken();
+      this.refreshing$ = this.http
+        .post<TokenResponse>('/api/auth/refresh', {
+          refresh_token: refreshToken,
+        })
+        .pipe(
+          tap((res) => {
+            this.tokenStorage.setTokens(res.access_token, res.refresh_token);
+            this.authState.setUser(res.user);
+          }),
+          catchError((err) => {
+            this.tokenStorage.clear();
+            this.authState.clearUser();
+            return throwError(() => err);
+          }),
+          finalize(() => {
+            this.refreshing$ = null;
+          }),
+          share(),
+        );
     }
+    return this.refreshing$;
   }
 
-  isAuthenticated(): boolean {
-    return !!localStorage.getItem(ACCESS_TOKEN_KEY);
+  // -- Get current user (Observable) ---------------------------------------
+
+  /**
+   * Fetch the current user profile from the server.
+   *
+   * On success, updates `AuthStateService.currentUser`.
+   *
+   * Prefer reading `AuthStateService.currentUser()` synchronously for
+   * template bindings; use this method when you need a fresh server
+   * response (e.g. after profile update).
+   */
+  fetchCurrentUser(): Observable<UserResponse> {
+    return this.http
+      .get<UserResponse>('/api/auth/me')
+      .pipe(tap((user) => this.authState.setUser(user)));
   }
 
+  // -- Deprecated helpers --------------------------------------------------
+
+  /**
+   * Returns the current user synchronously from `AuthStateService`.
+   *
+   * @deprecated Use `AuthStateService.currentUser()` or
+   * `AuthService.fetchCurrentUser()` instead. Will be removed after
+   * Phase 3 consumer migration.
+   */
+  getCurrentUser(): UserResponse | null {
+    return this.authState.currentUser();
+  }
+
+  /**
+   * @deprecated Use `AuthStateService.isAdmin()` directly.
+   * Will be removed after Phase 3 consumer migration.
+   */
   isAdmin(): boolean {
-    const user = this.getCurrentUser();
-    return user?.role === 'admin';
+    return this.authState.currentUser()?.role === 'admin';
   }
 
-  getAccessToken(): string | null {
-    return localStorage.getItem(ACCESS_TOKEN_KEY);
+  /**
+   * Check whether a user is currently authenticated.
+   *
+   * @deprecated Use `AuthStateService.isAuthenticated()` instead.
+   * Will be removed after Phase 3 consumer migration.
+   */
+  isAuthenticated(): boolean {
+    return this.tokenStorage.getAccessToken() !== null;
   }
 
-  /** Store tokens + user from a successful login response. */
-  handleLoginResponse(res: TokenResponse): void {
-    this.storeTokens(res);
-  }
-
+  /**
+   * Clear all stored tokens and user state.
+   *
+   * @deprecated Use `TokenStorage.clear()` + `AuthStateService.clearUser()`
+   * directly. Will be removed after Phase 3 consumer migration.
+   */
   clearTokens(): void {
-    localStorage.removeItem(ACCESS_TOKEN_KEY);
-    localStorage.removeItem(REFRESH_TOKEN_KEY);
-    localStorage.removeItem(USER_KEY);
+    this.tokenStorage.clear();
+    this.authState.clearUser();
   }
 
-  private storeTokens(res: TokenResponse): void {
-    localStorage.setItem(ACCESS_TOKEN_KEY, res.access_token);
-    localStorage.setItem(REFRESH_TOKEN_KEY, res.refresh_token);
-    localStorage.setItem(USER_KEY, JSON.stringify(res.user));
+  /**
+   * Store tokens and user from a login response.
+   *
+   * @deprecated Use `login()` or `TwoFactorService.validate()` which
+   * handle this automatically. Will be removed after Phase 3 consumer
+   * migration.
+   */
+  handleLoginResponse(res: TokenResponse): void {
+    this.tokenStorage.setTokens(res.access_token, res.refresh_token);
+    this.authState.setUser(res.user);
+  }
+
+  /**
+   * Return the stored access token, or `null`.
+   *
+   * Used by the `errorInterceptor` to read the new token after a refresh.
+   */
+  getAccessToken(): string | null {
+    return this.tokenStorage.getAccessToken();
+  }
+
+  // -- Private helpers -----------------------------------------------------
+
+  /**
+   * Detect a 2FA-required response. Such responses contain a
+   * `twoFactorToken` but no `access_token`, so we must NOT store
+   * partial tokens or set the user as authenticated.
+   */
+  private is2faResponse(
+    res: TokenResponse,
+  ): res is TokenResponse & { requires2fa: true } {
+    return 'requires2fa' in res && (res as Record<string, unknown>)['requires2fa'] === true;
   }
 }

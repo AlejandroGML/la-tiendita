@@ -13,6 +13,8 @@ import { AdminLayoutModule } from './layout/admin-layout/admin-layout-module';
 import { App } from './app';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { provideTokenStorage } from './core/services/token-storage.service';
+import { USE_REACTIVE_AUTH_STATE } from './core/services/auth-state.service';
 
 @NgModule({
   declarations: [App],
@@ -27,6 +29,8 @@ import { errorInterceptor } from './core/interceptors/error.interceptor';
     provideBrowserGlobalErrorListeners(),
     provideAnimations(),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
+    provideTokenStorage(),
+    { provide: USE_REACTIVE_AUTH_STATE, useValue: true },
     provideTranslateHttpLoader(),
     providePrimeNG({
       theme: {

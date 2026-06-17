@@ -4,23 +4,20 @@ import {
 } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
-import {
-  type Observable,
-  catchError,
-  share,
-  switchMap,
-  throwError,
-} from 'rxjs';
+import { type Observable, catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 
 /**
  * Catches 401 responses and attempts a silent token refresh.
- * If refresh succeeds the original request is retried with the
- * new access token.  If refresh fails, stored tokens are cleared
- * and the user is redirected to `/login`.
+ *
+ * Refresh coalescing is delegated to `AuthService.refreshToken()`, which
+ * ensures that concurrent 401s share a single refresh HTTP call.
+ *
+ * If refresh succeeds the original request is retried with the new access
+ * token. If refresh fails, the user is redirected to `/login` only if they
+ * were previously authenticated (guests browsing public pages are not
+ * redirected).
  */
-let refreshInProgress: Observable<unknown> | null = null;
-
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -46,13 +43,8 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // guests browsing public routes like /carrito or /wishlist.
       const hadToken = !!localStorage.getItem('access_token');
 
-      if (!refreshInProgress) {
-        refreshInProgress = auth.refresh().pipe(share());
-      }
-
-      return refreshInProgress.pipe(
+      return auth.refreshToken().pipe(
         switchMap(() => {
-          refreshInProgress = null;
           const newToken = auth.getAccessToken();
           const retryReq = req.clone({
             setHeaders: { Authorization: `Bearer ${newToken}` },
@@ -60,8 +52,6 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
           return next(retryReq);
         }),
         catchError((refreshError: unknown) => {
-          refreshInProgress = null;
-          auth.clearTokens();
           // Only redirect to login if the user was previously authenticated.
           // Guests without a token just get the error silently (the
           // component can handle the 401 how it sees fit — e.g. show a

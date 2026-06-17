@@ -1,177 +1,463 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { provideHttpClient } from '@angular/common/http';
 import {
   provideHttpClientTesting,
   HttpTestingController,
 } from '@angular/common/http/testing';
-import { AuthService, type TokenResponse } from './auth.service';
-import { authInterceptor } from '../interceptors/auth.interceptor';
-import { errorInterceptor } from '../interceptors/error.interceptor';
 
-// Vitest environments may lack a global localStorage. Provide a minimal
-// in-memory fallback that all tests can safely use.
-const store = new Map<string, string>();
-const mockLocalStorage = {
-  getItem: (key: string) => store.get(key) ?? null,
-  setItem: (key: string, value: string) => void store.set(key, value),
-  removeItem: (key: string) => void store.delete(key),
-  clear: () => void store.clear(),
-  get length() { return store.size; },
-  key: (index: number) => [...store.keys()][index] ?? null,
-};
+import { AuthService, type TokenResponse } from './auth.service';
+import { AuthStateService } from './auth-state.service';
+import {
+  TOKEN_STORAGE,
+  type TokenStorage,
+} from './token-storage.service';
+
+// ---------------------------------------------------------------------------
+// Fake TokenStorage for tests
+// ---------------------------------------------------------------------------
+
+class FakeTokenStorage implements TokenStorage {
+  private access: string | null = null;
+  private refresh: string | null = null;
+
+  getAccessToken(): string | null {
+    return this.access;
+  }
+  getRefreshToken(): string | null {
+    return this.refresh;
+  }
+  setTokens(access: string, refresh: string): void {
+    this.access = access;
+    this.refresh = refresh;
+  }
+  clear(): void {
+    this.access = null;
+    this.refresh = null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Suite
+// ---------------------------------------------------------------------------
 
 describe('AuthService', () => {
   let service: AuthService;
   let httpMock: HttpTestingController;
-
-  beforeAll(() => {
-    Object.defineProperty(globalThis, 'localStorage', {
-      value: mockLocalStorage,
-      writable: true,
-      configurable: true,
-    });
-  });
+  let tokenStorage: FakeTokenStorage;
+  let authState: AuthStateService;
 
   beforeEach(() => {
-    store.clear();
-
     TestBed.configureTestingModule({
       providers: [
-        provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
+        provideHttpClient(),
         provideHttpClientTesting(),
+        { provide: TOKEN_STORAGE, useClass: FakeTokenStorage },
       ],
     });
 
     service = TestBed.inject(AuthService);
     httpMock = TestBed.inject(HttpTestingController);
+    tokenStorage = TestBed.inject(TOKEN_STORAGE) as unknown as FakeTokenStorage;
+    authState = TestBed.inject(AuthStateService);
   });
 
   afterEach(() => {
     httpMock.verify();
-    store.clear();
+    tokenStorage.clear();
+    authState.clearUser();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should return false from isAuthenticated when no token is stored', () => {
-    expect(service.isAuthenticated()).toBe(false);
-  });
+  // -- isAuthenticated (deprecated) ----------------------------------------
 
-  it('should return true from isAuthenticated when a token is stored', () => {
-    store.set('access_token', 'test-token');
-    expect(service.isAuthenticated()).toBe(true);
-  });
-
-  it('should return false from isAdmin when no user is stored', () => {
-    expect(service.isAdmin()).toBe(false);
-  });
-
-  it('should return true from isAdmin when user role is admin', () => {
-    const user = { id: '1', email: 'a@b.com', name: 'A', role: 'admin' as const, preferred_lang: 'en', is_verified: true, created_at: '2026-01-01T00:00:00Z' };
-    store.set('user', JSON.stringify(user));
-    expect(service.isAdmin()).toBe(true);
-  });
-
-  it('should POST login and store tokens on success', () => {
-    const mockResponse: TokenResponse = {
-      access_token: 'at',
-      refresh_token: 'rt',
-      token_type: 'bearer',
-      user: { id: '1', email: 'a@b.com', name: 'A', role: 'customer', preferred_lang: 'en', is_verified: false, created_at: '2026-01-01T00:00:00Z' },
-    };
-
-    service.login('a@b.com', 'password').subscribe((res) => {
-      expect(res.access_token).toBe('at');
+  describe('isAuthenticated (deprecated)', () => {
+    it('returns false when no token is stored', () => {
+      expect(service.isAuthenticated()).toBe(false);
     });
 
-    const req = httpMock.expectOne('/api/auth/login');
-    expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual({ email: 'a@b.com', password: 'password' });
-    req.flush(mockResponse);
-
-    expect(store.get('access_token')).toBe('at');
-    expect(store.get('refresh_token')).toBe('rt');
-    expect(JSON.parse(store.get('user')!).email).toBe('a@b.com');
+    it('returns true when an access token is stored in TokenStorage', () => {
+      tokenStorage.setTokens('some-token', 'some-refresh');
+      expect(service.isAuthenticated()).toBe(true);
+    });
   });
 
-  it('should POST register and store tokens on success', () => {
-    const mockResponse: TokenResponse = {
-      access_token: 'at2',
-      refresh_token: 'rt2',
-      token_type: 'bearer',
-      user: { id: '2', email: 'b@c.com', name: 'B', role: 'customer', preferred_lang: 'es', is_verified: true, created_at: '2026-01-01T00:00:00Z' },
-    };
+  // -- isAdmin (deprecated) ------------------------------------------------
 
-    service.register({ name: 'B', email: 'b@c.com', password: 'pwd' }).subscribe((res) => {
-      expect(res.access_token).toBe('at2');
+  describe('isAdmin (deprecated)', () => {
+    it('returns false when no user is set', () => {
+      expect(service.isAdmin()).toBe(false);
     });
 
-    const req = httpMock.expectOne('/api/auth/register');
-    expect(req.request.method).toBe('POST');
-    req.flush(mockResponse);
-    expect(store.get('access_token')).toBe('at2');
-  });
-
-  it('should POST refresh and store new tokens on success', () => {
-    store.set('refresh_token', 'old-rt');
-    const mockResponse: TokenResponse = {
-      access_token: 'new-at',
-      refresh_token: 'new-rt',
-      token_type: 'bearer',
-      user: { id: '1', email: 'a@b.com', name: 'A', role: 'customer', preferred_lang: 'en', is_verified: false, created_at: '2026-01-01T00:00:00Z' },
-    };
-
-    service.refresh().subscribe((res) => {
-      expect(res.access_token).toBe('new-at');
+    it('returns true when admin user is set in AuthState', () => {
+      authState.setUser({
+        id: '1',
+        email: 'admin@b.com',
+        name: 'Admin',
+        role: 'admin',
+        preferred_lang: 'en',
+        is_verified: true,
+        created_at: '2026-01-01T00:00:00Z',
+      });
+      expect(service.isAdmin()).toBe(true);
     });
 
-    const req = httpMock.expectOne('/api/auth/refresh');
-    expect(req.request.body).toEqual({ refresh_token: 'old-rt' });
-    req.flush(mockResponse);
-    expect(store.get('access_token')).toBe('new-at');
-    expect(store.get('refresh_token')).toBe('new-rt');
+    it('returns false for customer user', () => {
+      authState.setUser({
+        id: '2',
+        email: 'cust@b.com',
+        name: 'Cust',
+        role: 'customer',
+        preferred_lang: 'en',
+        is_verified: true,
+        created_at: '2026-01-01T00:00:00Z',
+      });
+      expect(service.isAdmin()).toBe(false);
+    });
   });
 
-  it('should POST logout and clear tokens', () => {
-    store.set('access_token', 'at');
-    store.set('refresh_token', 'rt');
-    store.set('user', '{}');
+  // -- login ---------------------------------------------------------------
 
-    service.logout().subscribe();
+  describe('login', () => {
+    it('POSTs to /api/auth/login and stores tokens via TokenStorage + AuthState', () => {
+      const mockResponse: TokenResponse = {
+        access_token: 'at',
+        refresh_token: 'rt',
+        token_type: 'bearer',
+        user: {
+          id: '1',
+          email: 'a@b.com',
+          name: 'A',
+          role: 'customer',
+          preferred_lang: 'en',
+          is_verified: false,
+          created_at: '2026-01-01T00:00:00Z',
+        },
+      };
 
-    const req = httpMock.expectOne('/api/auth/logout');
-    expect(req.request.method).toBe('POST');
-    req.flush(null);
+      expect(authState.currentUser()).toBeNull();
 
-    expect(localStorage.getItem('access_token')).toBeNull();
-    expect(localStorage.getItem('refresh_token')).toBeNull();
-    expect(localStorage.getItem('user')).toBeNull();
+      service.login('a@b.com', 'password').subscribe((res) => {
+        expect(res.access_token).toBe('at');
+      });
+
+      const req = httpMock.expectOne('/api/auth/login');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({
+        email: 'a@b.com',
+        password: 'password',
+      });
+      req.flush(mockResponse);
+
+      // Tokens stored via TokenStorage (not localStorage)
+      expect(tokenStorage.getAccessToken()).toBe('at');
+      expect(tokenStorage.getRefreshToken()).toBe('rt');
+      // AuthState updated
+      expect(authState.currentUser()).toEqual(mockResponse.user);
+    });
+
+    it('does NOT store tokens or update state when 2FA is required', () => {
+      const twoFactorResponse: Record<string, unknown> = {
+        requires2fa: true,
+        twoFactorToken: 'pending-2fa-token',
+      };
+
+      service.login('admin@b.com', 'password').subscribe((res) => {
+        expect((res as unknown as Record<string, unknown>)['requires2fa']).toBe(true);
+      });
+
+      const req = httpMock.expectOne('/api/auth/login');
+      req.flush(twoFactorResponse);
+
+      // No tokens stored
+      expect(tokenStorage.getAccessToken()).toBeNull();
+      // AuthState not updated
+      expect(authState.currentUser()).toBeNull();
+    });
   });
 
-  it('getCurrentUser should return parsed user from localStorage', () => {
-    const user = { id: 1, email: 'a@b.com', name: 'A', role: 'admin', preferred_lang: 'en' };
-    store.set('user', JSON.stringify(user));
-    expect(service.getCurrentUser()?.email).toBe('a@b.com');
+  // -- register ------------------------------------------------------------
+
+  describe('register', () => {
+    it('POSTs to /api/auth/register and stores tokens + updates AuthState', () => {
+      const mockResponse: TokenResponse = {
+        access_token: 'at2',
+        refresh_token: 'rt2',
+        token_type: 'bearer',
+        user: {
+          id: '2',
+          email: 'b@c.com',
+          name: 'B',
+          role: 'customer',
+          preferred_lang: 'es',
+          is_verified: true,
+          created_at: '2026-01-01T00:00:00Z',
+        },
+      };
+
+      service
+        .register({ name: 'B', email: 'b@c.com', password: 'pwd' })
+        .subscribe((res) => {
+          expect(res.access_token).toBe('at2');
+        });
+
+      const req = httpMock.expectOne('/api/auth/register');
+      expect(req.request.method).toBe('POST');
+      req.flush(mockResponse);
+
+      expect(tokenStorage.getAccessToken()).toBe('at2');
+      expect(tokenStorage.getRefreshToken()).toBe('rt2');
+      expect(authState.currentUser()).toEqual(mockResponse.user);
+    });
   });
 
-  it('getCurrentUser should return null when no user is stored', () => {
-    expect(service.getCurrentUser()).toBeNull();
+  // -- logout --------------------------------------------------------------
+
+  describe('logout', () => {
+    it('clears tokens and AuthState BEFORE notifying the server', () => {
+      // Simulate logged-in state
+      tokenStorage.setTokens('at', 'rt');
+      authState.setUser({
+        id: '1',
+        email: 'a@b.com',
+        name: 'A',
+        role: 'customer',
+        preferred_lang: 'en',
+        is_verified: false,
+        created_at: '2026-01-01T00:00:00Z',
+      });
+
+      expect(authState.currentUser()).not.toBeNull();
+      expect(tokenStorage.getAccessToken()).not.toBeNull();
+
+      service.logout().subscribe();
+
+      // Tokens and state cleared immediately (before server response)
+      expect(tokenStorage.getAccessToken()).toBeNull();
+      expect(tokenStorage.getRefreshToken()).toBeNull();
+      expect(authState.currentUser()).toBeNull();
+
+      const req = httpMock.expectOne('/api/auth/logout');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ refresh_token: 'rt' });
+      req.flush(null);
+    });
+
+    it('sends null refresh_token when no token is stored', () => {
+      service.logout().subscribe();
+
+      const req = httpMock.expectOne('/api/auth/logout');
+      expect(req.request.body).toEqual({ refresh_token: null });
+      req.flush(null);
+    });
   });
 
-  it('getAccessToken should return stored token', () => {
-    store.set('access_token', 'my-token');
-    expect(service.getAccessToken()).toBe('my-token');
+  // -- refreshToken --------------------------------------------------------
+
+  describe('refreshToken', () => {
+    it('POSTs to /api/auth/refresh and stores new tokens + updates AuthState', () => {
+      tokenStorage.setTokens('old-at', 'old-rt');
+
+      const mockResponse: TokenResponse = {
+        access_token: 'new-at',
+        refresh_token: 'new-rt',
+        token_type: 'bearer',
+        user: {
+          id: '1',
+          email: 'a@b.com',
+          name: 'A',
+          role: 'customer',
+          preferred_lang: 'en',
+          is_verified: false,
+          created_at: '2026-01-01T00:00:00Z',
+        },
+      };
+
+      service.refreshToken().subscribe((res) => {
+        expect(res.access_token).toBe('new-at');
+      });
+
+      const req = httpMock.expectOne('/api/auth/refresh');
+      expect(req.request.method).toBe('POST');
+      expect(req.request.body).toEqual({ refresh_token: 'old-rt' });
+      req.flush(mockResponse);
+
+      expect(tokenStorage.getAccessToken()).toBe('new-at');
+      expect(tokenStorage.getRefreshToken()).toBe('new-rt');
+      expect(authState.currentUser()).toEqual(mockResponse.user);
+    });
+
+    it('coalesces concurrent calls into a single HTTP request', () => {
+      tokenStorage.setTokens('old-at', 'old-rt');
+
+      const mockResponse: TokenResponse = {
+        access_token: 'coalesced-at',
+        refresh_token: 'coalesced-rt',
+        token_type: 'bearer',
+        user: {
+          id: '1',
+          email: 'a@b.com',
+          name: 'A',
+          role: 'customer',
+          preferred_lang: 'en',
+          is_verified: false,
+          created_at: '2026-01-01T00:00:00Z',
+        },
+      };
+
+      // Two concurrent refresh calls
+      const results: string[] = [];
+      service.refreshToken().subscribe((res) => results.push(res.access_token));
+      service.refreshToken().subscribe((res) => results.push(res.access_token));
+
+      // Only ONE HTTP request should be made
+      const req = httpMock.expectOne('/api/auth/refresh');
+      req.flush(mockResponse);
+
+      // Both subscribers received the same result
+      expect(results).toEqual(['coalesced-at', 'coalesced-at']);
+      expect(tokenStorage.getAccessToken()).toBe('coalesced-at');
+    });
+
+    it('clears tokens and AuthState on refresh failure', () => {
+      tokenStorage.setTokens('old-at', 'old-rt');
+      authState.setUser({
+        id: '1',
+        email: 'a@b.com',
+        name: 'A',
+        role: 'admin',
+        preferred_lang: 'en',
+        is_verified: true,
+        created_at: '2026-01-01T00:00:00Z',
+      });
+
+      const errors: unknown[] = [];
+      service.refreshToken().subscribe({
+        error: (err) => errors.push(err),
+      });
+
+      const req = httpMock.expectOne('/api/auth/refresh');
+      req.flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      // Tokens cleared
+      expect(tokenStorage.getAccessToken()).toBeNull();
+      expect(tokenStorage.getRefreshToken()).toBeNull();
+      // AuthState cleared
+      expect(authState.currentUser()).toBeNull();
+    });
   });
 
-  it('clearTokens should remove all auth entries from localStorage', () => {
-    store.set('access_token', 'at');
-    store.set('refresh_token', 'rt');
-    store.set('user', '{}');
-    service.clearTokens();
-    expect(localStorage.getItem('access_token')).toBeNull();
-    expect(localStorage.getItem('refresh_token')).toBeNull();
-    expect(localStorage.getItem('user')).toBeNull();
+  // -- fetchCurrentUser ----------------------------------------------------
+
+  describe('fetchCurrentUser', () => {
+    it('fetches /api/auth/me and updates AuthState', () => {
+      const mockUser = {
+        id: '1',
+        email: 'a@b.com',
+        name: 'A',
+        role: 'admin' as const,
+        preferred_lang: 'en',
+        is_verified: true,
+        created_at: '2026-01-01T00:00:00Z',
+      };
+
+      service.fetchCurrentUser().subscribe((user) => {
+        expect(user.email).toBe('a@b.com');
+      });
+
+      const req = httpMock.expectOne('/api/auth/me');
+      expect(req.request.method).toBe('GET');
+      req.flush(mockUser);
+
+      // AuthState updated
+      expect(authState.currentUser()).toEqual(mockUser);
+    });
+  });
+
+  // -- getCurrentUser (deprecated) -----------------------------------------
+
+  describe('getCurrentUser (deprecated)', () => {
+    it('returns null when no user is set in AuthState', () => {
+      expect(service.getCurrentUser()).toBeNull();
+    });
+
+    it('returns user from AuthState', () => {
+      const mockUser = {
+        id: '1',
+        email: 'a@b.com',
+        name: 'A',
+        role: 'admin' as const,
+        preferred_lang: 'en',
+        is_verified: true,
+        created_at: '2026-01-01T00:00:00Z',
+      };
+      authState.setUser(mockUser);
+      expect(service.getCurrentUser()).toEqual(mockUser);
+    });
+  });
+
+  // -- clearTokens (deprecated) --------------------------------------------
+
+  describe('clearTokens (deprecated)', () => {
+    it('clears both TokenStorage and AuthState', () => {
+      tokenStorage.setTokens('at', 'rt');
+      authState.setUser({
+        id: '1',
+        email: 'a@b.com',
+        name: 'A',
+        role: 'customer',
+        preferred_lang: 'en',
+        is_verified: false,
+        created_at: '2026-01-01T00:00:00Z',
+      });
+
+      service.clearTokens();
+
+      expect(tokenStorage.getAccessToken()).toBeNull();
+      expect(tokenStorage.getRefreshToken()).toBeNull();
+      expect(authState.currentUser()).toBeNull();
+    });
+  });
+
+  // -- handleLoginResponse (deprecated) ------------------------------------
+
+  describe('handleLoginResponse (deprecated)', () => {
+    it('stores tokens and updates AuthState from a TokenResponse', () => {
+      const mockResponse: TokenResponse = {
+        access_token: 'at',
+        refresh_token: 'rt',
+        token_type: 'bearer',
+        user: {
+          id: '1',
+          email: 'a@b.com',
+          name: 'A',
+          role: 'customer',
+          preferred_lang: 'en',
+          is_verified: false,
+          created_at: '2026-01-01T00:00:00Z',
+        },
+      };
+
+      service.handleLoginResponse(mockResponse);
+
+      expect(tokenStorage.getAccessToken()).toBe('at');
+      expect(tokenStorage.getRefreshToken()).toBe('rt');
+      expect(authState.currentUser()).toEqual(mockResponse.user);
+    });
+  });
+
+  // -- getAccessToken ------------------------------------------------------
+
+  describe('getAccessToken', () => {
+    it('returns null when no token is stored', () => {
+      expect(service.getAccessToken()).toBeNull();
+    });
+
+    it('returns the stored access token from TokenStorage', () => {
+      tokenStorage.setTokens('my-at', 'my-rt');
+      expect(service.getAccessToken()).toBe('my-at');
+    });
   });
 });
