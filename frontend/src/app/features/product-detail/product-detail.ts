@@ -5,11 +5,8 @@ import { switchMap } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import type { Product, ProductVariant } from '../../shared/models/product.model';
-import type { Review } from '../../shared/models/review.model';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
-import { ReviewService } from '../../core/services/review.service';
-import { AuthStateService } from '../../core/services/auth-state.service';
 import { SeoService } from '../../core/services/seo.service';
 import { SizingGuideComponent } from '../../shared/components/sizing-guide/sizing-guide';
 
@@ -47,29 +44,9 @@ export class ProductDetail implements OnDestroy {
   readonly error = signal<string | null>(null);
   readonly notFound = signal(false);
   readonly addingToCart = signal(false);
-  readonly activeImageIndex = signal(0);
 
   readonly selectedSize = signal<string | null>(null);
   readonly selectedColor = signal<string | null>(null);
-
-  // Reviews state
-  readonly reviews = signal<Review[]>([]);
-  readonly avgRating = signal(0);
-  readonly totalReviews = signal(0);
-  readonly reviewPage = signal(1);
-  readonly reviewsLoading = signal(false);
-  readonly reviewsError = signal<string | null>(null);
-  readonly showWriteForm = signal(false);
-  readonly newRating = signal(0);
-  readonly newComment = signal('');
-  readonly submitting = signal(false);
-  readonly submitError = signal<string | null>(null);
-
-  readonly galleriaResponsiveOptions = [
-    { breakpoint: '1024px', numVisible: 5 },
-    { breakpoint: '768px', numVisible: 3 },
-    { breakpoint: '560px', numVisible: 2 },
-  ];
 
   /** Unique sizes across all variants, sorted naturally */
   readonly availableSizes = computed(() => {
@@ -160,18 +137,6 @@ export class ProductDetail implements OnDestroy {
     return v !== null && v.stock > 0;
   });
 
-  /** Human-readable stock label for the selected variant */
-  readonly stockLabel = computed<string>(() => {
-    const variants = this.product()?.variants ?? [];
-    if (variants.length === 0) return 'product.inStock';
-    const v = this.selectedVariant();
-    if (!v) {
-      const totalStock = variants.reduce((sum, v2) => sum + v2.stock, 0);
-      return totalStock > 0 ? 'product.inStock' : 'product.outOfStock';
-    }
-    return v.stock > 0 ? 'product.inStock' : 'product.outOfStock';
-  });
-
   readonly stockClasses = computed<string>(() => {
     const variants = this.product()?.variants ?? [];
     if (variants.length === 0) return 'text-green-700';
@@ -191,9 +156,6 @@ export class ProductDetail implements OnDestroy {
     return v.stock > 0 ? 'product.inStock' : 'product.outOfStock';
   });
 
-  /** Whether the product has an active sale price */
-  readonly hasDiscount = computed(() => !!this.product()?.sale_price);
-
   /** Savings percentage: (1 - sale_price / price) * 100, rounded */
   readonly savingsPercent = computed(() => {
     const p = this.product();
@@ -201,18 +163,13 @@ export class ProductDetail implements OnDestroy {
     return Math.round((1 - parseFloat(p.sale_price) / parseFloat(p.price)) * 100);
   });
 
-
   private sub: Subscription;
-  private reviewSub: Subscription | null = null;
-  private submitReviewSub: Subscription | null = null;
 
   constructor(
     private route: ActivatedRoute,
     private productService: ProductService,
     private translate: TranslateService,
     private cartService: CartService,
-    private reviewService: ReviewService,
-    public authState: AuthStateService,
     private seoService: SeoService,
     private messageService: MessageService,
   ) {
@@ -223,20 +180,8 @@ export class ProductDetail implements OnDestroy {
           this.error.set(null);
           this.notFound.set(false);
           this.product.set(null);
-          this.activeImageIndex.set(0);
           this.selectedSize.set(null);
           this.selectedColor.set(null);
-          this.reviews.set([]);
-          this.avgRating.set(0);
-          this.totalReviews.set(0);
-          this.reviewPage.set(1);
-          this.reviewsLoading.set(false);
-          this.reviewsError.set(null);
-          this.showWriteForm.set(false);
-          this.newRating.set(0);
-          this.newComment.set('');
-          this.submitting.set(false);
-          this.submitError.set('');
           return this.productService.getProductBySlug(params['slug']);
         }),
       )
@@ -245,7 +190,6 @@ export class ProductDetail implements OnDestroy {
           this.product.set(product);
           this.loading.set(false);
           this.updateSeo();
-          this.loadReviews();
         },
         error: (err) => {
           this.loading.set(false);
@@ -278,8 +222,6 @@ export class ProductDetail implements OnDestroy {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
-    this.reviewSub?.unsubscribe();
-    this.submitReviewSub?.unsubscribe();
     this.seoService.removeStructuredData();
   }
 
@@ -315,15 +257,6 @@ export class ProductDetail implements OnDestroy {
     return this.product()?.image_urls ?? [];
   }
 
-  get mainImage(): string {
-    const imgs = this.images;
-    return imgs.length > 0 ? imgs[this.activeImageIndex()] : '';
-  }
-
-  selectImage(index: number): void {
-    this.activeImageIndex.set(index);
-  }
-
   selectSize(size: string): void {
     this.selectedSize.set(size);
     // If the current color is not available in the new size, reset color
@@ -350,7 +283,7 @@ export class ProductDetail implements OnDestroy {
     this.addingToCart.set(true);
     this.error.set(null);
 
-        this.cartService.addItem(p.id, 1, variantId).subscribe({
+    this.cartService.addItem(p.id, 1, variantId).subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -393,82 +326,12 @@ export class ProductDetail implements OnDestroy {
     return c ? map[c] : '';
   }
 
-  // ── Reviews ──────────────────────────────────────────────
-
-  loadReviews(page = 1): void {
-    const p = this.product();
-    if (!p?.slug) return;
-
-    // Unsubscribe previous to avoid race conditions
-    this.reviewSub?.unsubscribe();
-
-    this.reviewsLoading.set(true);
-    this.reviewsError.set(null);
-    this.reviewSub = this.reviewService.getProductReviews(p.slug, page, 12).subscribe({
-      next: (res) => {
-        this.reviews.set(res.reviews);
-        this.avgRating.set(res.avg_rating);
-        this.totalReviews.set(res.total_reviews);
-        this.reviewPage.set(res.page);
-        this.reviewsLoading.set(false);
-      },
-      error: () => {
-        this.reviewsError.set('reviews.loadError');
-        this.reviewsLoading.set(false);
-      },
+  /** Called when the reviews component emits a successful submission */
+  onReviewSubmitted(): void {
+    this.messageService.add({
+      severity: 'success',
+      summary: this.translate.instant('reviews.submitted'),
+      life: 4000,
     });
-  }
-
-  onReviewPageChange(page: number): void {
-    this.loadReviews(page);
-  }
-
-  submitReview(): void {
-    if (this.newRating() < 1) {
-      this.submitError.set('reviews.ratingRequired');
-      return;
-    }
-
-    const p = this.product();
-    if (!p) return;
-
-    this.submitting.set(true);
-    this.submitError.set(null);
-
-    const payload = {
-      rating: this.newRating(),
-      comment: this.newComment().trim() || undefined,
-    };
-
-    this.submitReviewSub?.unsubscribe();
-    this.submitReviewSub = this.reviewService.createReview(p.id, payload).subscribe({
-      next: () => {
-        this.submitting.set(false);
-        this.resetWriteForm();
-        this.loadReviews();
-        this.messageService.add({
-          severity: 'success',
-          summary: this.translate.instant('reviews.submitted'),
-          life: 4000,
-        });
-      },
-      error: (err) => {
-        this.submitting.set(false);
-        if (err?.status === 409) {
-          this.submitError.set('reviews.duplicate');
-        } else if (err?.status === 403) {
-          this.submitError.set('reviews.nonBuyer');
-        } else {
-          this.submitError.set('reviews.error');
-        }
-      },
-    });
-  }
-
-  resetWriteForm(): void {
-    this.showWriteForm.set(false);
-    this.newRating.set(0);
-    this.newComment.set('');
-    this.submitError.set(null);
   }
 }

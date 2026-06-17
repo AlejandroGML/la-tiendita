@@ -1,0 +1,38 @@
+<div class="border-t border-gray-200 dark:border-gray-700 pt-4 mb-6">
+  <div class="flex items-center gap-2 text-sm" *ngIf="brand">
+    <span class="font-semibold text-gray-700 dark:text-gray-300 min-w-16">{{ 'product.brand' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ brand }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-sm" *ngIf="material">
+    <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.material' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ material }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-sm" *ngIf="colors?.length">
+    <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.colors' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ colors!.join(', ') }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-sm" *ngIf="pattern">
+    <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.pattern' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ pattern }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-sm" *ngIf="cut?.length">
+    <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.cut' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ cut!.join(', ') }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-sm" *ngIf="trend">
+    <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.trend' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ trend }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-sm" *ngIf="season">
+    <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.season' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ season }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-sm" *ngIf="target_gender">
+    <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.gender' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ target_gender }}</span>
+  </div>
+  <div class="flex items-center gap-2 text-sm" *ngIf="usage">
+    <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.usage' | translate }}:</span>
+    <span class="text-gray-600 dark:text-gray-400">{{ usage }}</span>
+  </div>
+</div>

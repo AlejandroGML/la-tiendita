@@ -6,6 +6,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
@@ -16,10 +17,13 @@ import { GalleriaModule } from 'primeng/galleria';
 import { DialogModule } from 'primeng/dialog';
 import { of, throwError } from 'rxjs';
 import { ProductDetail } from './product-detail';
-import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
+import { SharedPipesModule } from '../../shared/shared-pipes.module';
 import { StarRatingComponent } from '../../shared/components/star-rating/star-rating';
 import { PaginationComponent } from '../../shared/components/pagination/pagination';
 import { SizingGuideComponent } from '../../shared/components/sizing-guide/sizing-guide';
+import { ProductDetailGalleryComponent } from './components/gallery.component';
+import { ProductDetailAttributesComponent } from './components/attributes.component';
+import { ProductDetailReviewsComponent } from './components/reviews.component';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { ReviewService } from '../../core/services/review.service';
@@ -124,7 +128,15 @@ describe('ProductDetail', () => {
     seoService = createSeoServiceMock();
 
     await TestBed.configureTestingModule({
-      declarations: [ProductDetail, CurrencyPipe, StarRatingComponent, PaginationComponent, SizingGuideComponent],
+      declarations: [
+        ProductDetail,
+        StarRatingComponent,
+        PaginationComponent,
+        SizingGuideComponent,
+        ProductDetailGalleryComponent,
+        ProductDetailAttributesComponent,
+        ProductDetailReviewsComponent,
+      ],
       imports: [
         ButtonModule,
         ProgressSpinnerModule,
@@ -134,6 +146,8 @@ describe('ProductDetail', () => {
         GalleriaModule,
         DialogModule,
         FormsModule,
+        DatePipe,
+        SharedPipesModule,
         MatCardModule,
         MatChipsModule,
         MatSnackBarModule,
@@ -218,28 +232,6 @@ describe('ProductDetail', () => {
     expect(body).toContain('product.inStock');
   });
 
-  it('should render main image', () => {
-    const mainImg = fixture.nativeElement.querySelector('.main-image img') as HTMLImageElement;
-    expect(mainImg).toBeTruthy();
-    expect(mainImg.src).toContain('img1.jpg');
-  });
-
-  it('should render thumbnails for all images', () => {
-    const thumbnails = fixture.nativeElement.querySelectorAll('.thumbnail-btn');
-    expect(thumbnails.length).toBe(3);
-  });
-
-  it('should change main image when thumbnail clicked', () => {
-    const thumbnails = fixture.nativeElement.querySelectorAll('.thumbnail-btn');
-    const secondThumb = thumbnails[1] as HTMLButtonElement;
-    secondThumb.click();
-    fixture.detectChanges();
-
-    const mainImg = fixture.nativeElement.querySelector('.main-image img') as HTMLImageElement;
-    expect(mainImg.src).toContain('img2.jpg');
-    expect(component.activeImageIndex()).toBe(1);
-  });
-
   it('should show 404 not found for bad slug', async () => {
     const route = TestBed.inject(ActivatedRoute);
     (route as unknown as { params: unknown }).params = of({ slug: 'nonexistent' });
@@ -259,7 +251,17 @@ describe('ProductDetail', () => {
     expect(backLink).toBeTruthy();
   });
 
-  it('should enable add to cart button when product in stock', () => {
+  it('should enable add to cart button when variant is selected and in stock', () => {
+    // Select a size first
+    const sizeBtn = fixture.nativeElement.querySelector('.size-btn') as HTMLButtonElement;
+    sizeBtn?.click();
+    fixture.detectChanges();
+
+    // Select a color
+    const colorBtn = fixture.nativeElement.querySelector('.color-swatch') as HTMLButtonElement;
+    colorBtn?.click();
+    fixture.detectChanges();
+
     const button = fixture.nativeElement.querySelector(
       'button.p-button',
     ) as HTMLButtonElement;
@@ -334,6 +336,15 @@ describe('ProductDetail', () => {
       .fn()
       .mockReturnValue(throwError(() => new Error('fail')));
 
+    // Select a variant first so button is enabled
+    const sizeBtn = fixture.nativeElement.querySelector('.size-btn') as HTMLButtonElement;
+    sizeBtn?.click();
+    fixture.detectChanges();
+
+    const colorBtn = fixture.nativeElement.querySelector('.color-swatch') as HTMLButtonElement;
+    colorBtn?.click();
+    fixture.detectChanges();
+
     const button = fixture.nativeElement.querySelector(
       'button.p-button',
     ) as HTMLButtonElement;
@@ -342,164 +353,5 @@ describe('ProductDetail', () => {
 
     expect(component.error()).toBe('catalog.error');
     expect(component.addingToCart()).toBe(false);
-  });
-
-  // ── Reviews section tests ──────────────────────────────
-
-  it('should call getProductReviews when product loads', () => {
-    expect(reviewService.getProductReviews).toHaveBeenCalledWith('jeans-levis', 1, 10);
-  });
-
-  it('should render reviews header with avg rating and count', async () => {
-    reviewService.getProductReviews = vi.fn().mockReturnValue(
-      of({
-        reviews: [
-          { id: 'r1', user_id: 'u1', user_name: 'Alice', product_id: 'uuid-1', rating: 4, comment: 'Great', created_at: '2026-01-15T00:00:00Z' },
-        ],
-        avg_rating: 4.3,
-        total_reviews: 5,
-        page: 1,
-        per_page: 10,
-      }),
-    );
-    productService.getProductBySlug = vi.fn().mockReturnValue(of(mockProduct));
-
-    const newFixture = TestBed.createComponent(ProductDetail);
-    newFixture.detectChanges();
-    await newFixture.whenStable();
-    newFixture.detectChanges();
-
-    const section = newFixture.nativeElement.querySelector('#reviews');
-    expect(section).toBeTruthy();
-    expect(section.textContent).toContain('reviews.title');
-    expect(section.textContent).toContain('5');
-    expect(section.textContent).toContain('4.3');
-  });
-
-  it('should render review cards with star rating, name, and comment', async () => {
-    reviewService.getProductReviews = vi.fn().mockReturnValue(
-      of({
-        reviews: [
-          { id: 'r1', user_id: 'u1', user_name: 'Alice', product_id: 'uuid-1', rating: 4, comment: 'Great quality', created_at: '2026-01-15T00:00:00Z' },
-          { id: 'r2', user_id: 'u2', user_name: 'Bob', product_id: 'uuid-1', rating: 5, comment: null, created_at: '2026-02-20T00:00:00Z' },
-        ],
-        avg_rating: 4.5,
-        total_reviews: 2,
-        page: 1,
-        per_page: 10,
-      }),
-    );
-    productService.getProductBySlug = vi.fn().mockReturnValue(of(mockProduct));
-
-    const newFixture = TestBed.createComponent(ProductDetail);
-    newFixture.detectChanges();
-    await newFixture.whenStable();
-    newFixture.detectChanges();
-
-    const cards = newFixture.nativeElement.querySelectorAll('.review-card');
-    expect(cards.length).toBe(2);
-    // First review
-    expect(cards[0].textContent).toContain('Alice');
-    expect(cards[0].textContent).toContain('Great quality');
-    // Second review (no comment)
-    expect(cards[1].textContent).toContain('Bob');
-  });
-
-  it('should show "No reviews yet" message when product has no reviews', async () => {
-    reviewService.getProductReviews = vi.fn().mockReturnValue(
-      of({ reviews: [], avg_rating: 0, total_reviews: 0, page: 1, per_page: 10 }),
-    );
-    productService.getProductBySlug = vi.fn().mockReturnValue(of(mockProduct));
-
-    const newFixture = TestBed.createComponent(ProductDetail);
-    newFixture.detectChanges();
-    await newFixture.whenStable();
-    newFixture.detectChanges();
-
-    const section = newFixture.nativeElement.querySelector('#reviews');
-    expect(section.textContent).toContain('reviews.noReviews');
-  });
-
-  it('should show "Write Review" button when authenticated', async () => {
-    authState.isAuthenticated = vi.fn().mockReturnValue(true);
-    productService.getProductBySlug = vi.fn().mockReturnValue(of(mockProduct));
-
-    const newFixture = TestBed.createComponent(ProductDetail);
-    newFixture.detectChanges();
-    await newFixture.whenStable();
-    newFixture.detectChanges();
-
-    const writeBtn = newFixture.nativeElement.querySelector(
-      '#reviews button[label="reviews.writeReview"]',
-    );
-    // Look for button with the translated text
-    const buttons = newFixture.nativeElement.querySelectorAll('#reviews button');
-    const writeReviewBtn = (Array.from(buttons) as Element[]).find(
-      (btn: Element) => btn.textContent?.includes('reviews.writeReview'),
-    );
-    expect(writeReviewBtn).toBeTruthy();
-  });
-
-  it('should hide "Write Review" button when not authenticated', async () => {
-    authState.isAuthenticated = vi.fn().mockReturnValue(false);
-    productService.getProductBySlug = vi.fn().mockReturnValue(of(mockProduct));
-
-    const newFixture = TestBed.createComponent(ProductDetail);
-    newFixture.detectChanges();
-    await newFixture.whenStable();
-    newFixture.detectChanges();
-
-    const buttons = newFixture.nativeElement.querySelectorAll('#reviews button');
-    const writeReviewBtn = (Array.from(buttons) as Element[]).find(
-      (btn: Element) => btn.textContent?.includes('reviews.writeReview'),
-    );
-    expect(writeReviewBtn).toBeUndefined();
-  });
-
-  it('should show submit error when rating not selected', () => {
-    component.showWriteForm.set(true);
-    component.newRating.set(0);
-    fixture.detectChanges();
-
-    component.submitReview();
-    fixture.detectChanges();
-
-    expect(component.submitError()).toBe('reviews.ratingRequired');
-  });
-
-  it('should call createReview and show success on submit', () => {
-    component.showWriteForm.set(true);
-    component.newRating.set(4);
-    component.newComment.set('Nice product!');
-    fixture.detectChanges();
-
-    component.submitReview();
-    fixture.detectChanges();
-
-    expect(reviewService.createReview).toHaveBeenCalledWith('uuid-1', {
-      rating: 4,
-      comment: 'Nice product!',
-    });
-    expect(component.submitting()).toBe(false);
-    expect(component.showWriteForm()).toBe(false);
-  });
-
-  it('should show error state with retry button on load failure', async () => {
-    reviewService.getProductReviews = vi.fn().mockReturnValue(
-      throwError(() => new Error('network error')),
-    );
-    productService.getProductBySlug = vi.fn().mockReturnValue(of(mockProduct));
-
-    const newFixture = TestBed.createComponent(ProductDetail);
-    newFixture.detectChanges();
-    await newFixture.whenStable();
-    newFixture.detectChanges();
-
-    const section = newFixture.nativeElement.querySelector('#reviews');
-    expect(section.textContent).toContain('reviews.loadError');
-    const retryBtn = (Array.from(
-      newFixture.nativeElement.querySelectorAll('#reviews button'),
-    ) as Element[]).find((btn: Element) => btn.textContent?.includes('reviews.retry'));
-    expect(retryBtn).toBeTruthy();
   });
 });

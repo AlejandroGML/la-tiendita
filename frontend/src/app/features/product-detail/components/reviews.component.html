@@ -1,0 +1,121 @@
+<section id="reviews" class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+  <!-- Reviews header -->
+  <div class="flex items-center justify-between mb-6">
+    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
+      {{ 'reviews.title' | translate }} ({{ totalReviews() }})
+      <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+        ⭐ {{ avgRating() }}
+      </span>
+    </h2>
+    <button
+      *ngIf="authState.isAuthenticated()"
+      pButton
+      severity="secondary"
+      size="small"
+      [disabled]="showWriteForm()"
+      (click)="showWriteForm.set(true)"
+    >
+      {{ 'reviews.writeReview' | translate }}
+    </button>
+  </div>
+
+  <!-- Write Review Form -->
+  <div *ngIf="showWriteForm()" class="mb-8 bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-xl p-5">
+    <div class="flex items-center gap-3 mb-4">
+      <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'reviews.rating' | translate }}:</span>
+      <app-star-rating
+        [rating]="newRating()"
+        [readonly]="false"
+        (ratingChange)="newRating.set($event)"
+      ></app-star-rating>
+    </div>
+    <div class="mb-4">
+      <textarea
+        [(ngModel)]="newComment"
+        rows="3"
+        class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 outline-none resize-y bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
+        [placeholder]="'reviews.comment' | translate"
+      ></textarea>
+    </div>
+    <div class="flex items-center gap-3">
+      <button
+        pButton
+        severity="primary"
+        size="small"
+        [disabled]="submitting()"
+        (click)="submitReview()"
+      >
+        <p-progressSpinner
+          *ngIf="submitting()"
+          [style]="{width: '16px', height: '16px'}"
+          strokeWidth="4"
+        ></p-progressSpinner>
+        <span [class.invisible]="submitting()">{{ 'reviews.submit' | translate }}</span>
+      </button>
+      <button
+        pButton
+        severity="secondary"
+        size="small"
+        [disabled]="submitting()"
+        (click)="resetWriteForm()"
+      >
+        {{ 'reviews.cancel' | translate }}
+      </button>
+    </div>
+    <p *ngIf="submitError()" class="text-red-600 dark:text-red-400 text-sm mt-3">
+      {{ submitError() | translate }}
+    </p>
+  </div>
+
+  <!-- Loading spinner -->
+  <div *ngIf="loading()" class="flex justify-center py-8">
+    <p-progressSpinner [style]="{width: '48px', height: '48px'}"></p-progressSpinner>
+  </div>
+
+  <!-- Error state -->
+  <div *ngIf="error() && !loading()" class="text-center py-8">
+    <p class="text-red-600 dark:text-red-400 mb-3">{{ error() | translate }}</p>
+    <button pButton severity="secondary" size="small" (click)="loadReviews(reviewPage())">
+      {{ 'reviews.retry' | translate }}
+    </button>
+  </div>
+
+  <!-- Empty state -->
+  <div
+    *ngIf="!loading() && !error() && totalReviews() === 0"
+    class="text-center py-8 text-gray-500 dark:text-gray-400"
+  >
+    {{ 'reviews.noReviews' | translate }}
+  </div>
+
+  <!-- Reviews list -->
+  <div
+    *ngIf="!loading() && !error() && totalReviews() > 0"
+    class="reviews-list space-y-4"
+  >
+    <div *ngFor="let review of reviews()" class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl p-4 hover:border-gray-300 dark:hover:border-gray-600">
+      <div class="flex items-center gap-2 mb-1">
+        <app-star-rating [rating]="review.rating" [readonly]="true"></app-star-rating>
+      </div>
+      <p *ngIf="review.comment" class="text-gray-700 dark:text-gray-300 text-sm mb-2">{{ review.comment }}</p>
+      <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
+        <span class="font-medium">{{ review.user_name }}</span>
+        <span>·</span>
+        <span>{{ review.created_at | date:'mediumDate' }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  <div
+    *ngIf="!loading() && !error() && totalReviews() > 10"
+    class="mt-6"
+  >
+    <app-pagination
+      [page]="reviewPage()"
+      [perPage]="12"
+      [total]="totalReviews()"
+      (pageChange)="onReviewPageChange($event)"
+    ></app-pagination>
+  </div>
+</section>

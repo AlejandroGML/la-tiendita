@@ -30,28 +30,7 @@
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Image Gallery -->
       <div class="gallery flex-1">
-        <p-galleria
-          *ngIf="images.length > 0"
-          [value]="images"
-          [responsiveOptions]="galleriaResponsiveOptions"
-          [showThumbnails]="images.length > 1"
-          [circular]="true"
-          [showIndicators]="true"
-          [containerStyle]="{'max-width': '100%'}"
-        >
-          <ng-template pTemplate="item" let-item>
-            <img [src]="item" [alt]="displayName" class="w-full h-64 md:h-96 object-contain bg-gray-50 rounded-lg" />
-          </ng-template>
-          <ng-template pTemplate="thumbnail" let-item>
-            <div class="w-16 h-16 rounded overflow-hidden border-2 border-gray-200 dark:border-gray-700">
-              <img [src]="item" [alt]="displayName" class="w-full h-full object-cover" />
-            </div>
-          </ng-template>
-        </p-galleria>
-        <!-- Single image fallback -->
-        <div *ngIf="images.length === 0" class="rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-700">
-          <img [src]="mainImage" [alt]="displayName" class="w-full h-64 md:h-96 object-contain" loading="eager" />
-        </div>
+        <app-product-detail-gallery [images]="images" [alt]="displayName" />
       </div>
 
       <!-- Product Info -->
@@ -95,157 +74,126 @@
         </p>
 
         <!-- Attributes -->
-        <div class="attributes space-y-3 mb-8">
-          <div class="flex items-center gap-2 text-sm">
-            <span class="font-semibold text-gray-700 dark:text-gray-300 min-w-16">{{ 'product.brand' | translate }}:</span>
-            <span class="text-gray-600 dark:text-gray-400">{{ p.brand || '-' }}</span>
+        <app-product-detail-attributes
+          [brand]="p.brand"
+          [material]="p.material"
+          [colors]="p.colors"
+          [pattern]="p.pattern"
+          [cut]="p.cut"
+          [trend]="p.trend"
+          [season]="p.season"
+          [target_gender]="p.target_gender"
+          [usage]="p.usage"
+        />
+
+        <!-- Condition Details -->
+        <div *ngIf="p.condition_rating || p.condition_details" class="mb-8 pt-2 border-t border-gray-100 dark:border-gray-700">
+          <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm block mb-2">{{ 'product.conditionDetails' | translate }}</span>
+          <div class="flex items-center gap-2 text-sm" *ngIf="p.condition_rating">
+            <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.rating' | translate }}:</span>
+            <span class="text-yellow-600">{{ '★'.repeat(p.condition_rating) }}{{ '☆'.repeat(5 - p.condition_rating) }}</span>
           </div>
-
-          <!-- Variant selector section -->
-          <ng-container *ngIf="p.variants?.length">
-            <!-- Size selector -->
-            <div *ngIf="availableSizes().length > 0" class="variant-section">
-              <div class="flex items-center justify-between mb-2">
-                <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm">
-                  {{ 'product.selectSize' | translate }}
-                </span>
-                <button
-                  type="button"
-                  class="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors"
-                  (click)="sizingGuide.open()"
-                >
-                  {{ 'sizing.title' | translate }}
-                </button>
-              </div>
-              <div class="flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  *ngFor="let size of availableSizes()"
-                  class="size-btn px-4 py-2 text-sm font-medium rounded-lg border transition-colors"
-                  [class.bg-gray-900]="selectedSize() === size"
-                  [class.text-white]="selectedSize() === size"
-                  [class.border-gray-300]="selectedSize() !== size"
-                  [class.dark:border-gray-600]="selectedSize() !== size"
-                  [class.text-gray-700 dark:text-gray-300]="selectedSize() !== size"
-                  [class.bg-white]="selectedSize() !== size"
-                  [class.dark:bg-gray-800]="selectedSize() !== size"
-                  [class.hover:border-gray-900]="selectedSize() !== size"
-                  [class.opacity-50]="selectedSize() && selectedSize() !== size && !hasStockForSize(size)"
-                  [class.cursor-not-allowed]="selectedSize() && selectedSize() !== size && !hasStockForSize(size)"
-                  [disabled]="selectedSize() && selectedSize() !== size && !hasStockForSize(size)"
-                  (click)="selectSize(size)"
-                >
-                  {{ size }}
-                </button>
-              </div>
-            </div>
-
-            <!-- Color selector (shown when a size is selected) -->
-            <div *ngIf="availableColors().length > 0" class="variant-section">
-              <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm block mb-2">
-                {{ 'product.selectColor' | translate }}
-              </span>
-              <div class="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  *ngFor="let c of availableColors()"
-                  class="color-swatch w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center text-xs font-bold"
-                  [style.background-color]="c.hex"
-                  [class.border-gray-900]="selectedColor() === c.color"
-                  [class.dark:border-gray-300]="selectedColor() === c.color"
-                  [class.ring-2]="selectedColor() === c.color"
-                  [class.ring-gray-400]="selectedColor() === c.color"
-                  [class.dark:ring-gray-500]="selectedColor() === c.color"
-                  [class.ring-offset-2]="selectedColor() === c.color"
-                  [class.border-gray-300]="selectedColor() !== c.color"
-                  [class.dark:border-gray-600]="selectedColor() !== c.color"
-                  [class.opacity-40]="!c.inStock"
-                  [class.cursor-not-allowed]="!c.inStock"
-                  [attr.aria-label]="c.color"
-                  [disabled]="!c.inStock"
-                  (click)="selectColor(c.color)"
-                >
-                  <span *ngIf="!c.hex || c.hex === '#ccc'" class="text-gray-500 dark:text-gray-400">
-                    {{ c.color.charAt(0) }}
-                  </span>
-                </button>
-              </div>
-            </div>
-
-            <!-- Stock display -->
-            <div *ngIf="selectedVariant()" class="flex items-center gap-2 text-sm">
-              <span class="font-semibold text-gray-700 dark:text-gray-300 min-w-16">{{ 'product.stock' | translate }}:</span>
-              <span [class]="stockClasses() + ' font-medium'">
-                {{ inStockText() | translate }}
-              </span>
-              <span *ngIf="currentStock() > 0" class="text-gray-500 dark:text-gray-400 text-xs">
-                ({{ currentStock() }})
-              </span>
-            </div>
-          </ng-container>
-
-          <!-- No variants: show generic availability -->
-          <ng-container *ngIf="!p.variants?.length">
-            <div class="flex items-center gap-2 text-sm">
-              <span class="font-semibold text-gray-700 dark:text-gray-300 min-w-16">{{ 'product.size' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ 'product.oneSize' | translate }}</span>
-            </div>
-          </ng-container>
-
-          <!-- Condition Details -->
-          <div *ngIf="p.condition_rating || p.condition_details" class="pt-2 border-t border-gray-100 dark:border-gray-700">
-            <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm block mb-2">{{ 'product.conditionDetails' | translate }}</span>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.condition_rating">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.rating' | translate }}:</span>
-              <span class="text-yellow-600">{{ '★'.repeat(p.condition_rating) }}{{ '☆'.repeat(5 - p.condition_rating) }}</span>
-            </div>
-            <div *ngIf="p.condition_details?.pilling" class="flex items-center gap-2 text-sm">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.pilling' | translate }}:</span>
-              <span class="text-yellow-600">{{ '★'.repeat(p.condition_details.pilling) }}</span>
-            </div>
-            <div *ngIf="p.condition_details?.damage" class="flex items-center gap-2 text-sm">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.damage' | translate }}:</span>
-              <span class="text-red-600 dark:text-red-400">{{ p.condition_details.damage }}</span>
-            </div>
+          <div *ngIf="p.condition_details?.pilling" class="flex items-center gap-2 text-sm">
+            <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.pilling' | translate }}:</span>
+            <span class="text-yellow-600">{{ '★'.repeat(p.condition_details.pilling) }}</span>
           </div>
-
-          <!-- Product Details -->
-          <div *ngIf="p.material || p.colors || p.pattern || p.cut || p.trend || p.season || p.target_gender || p.usage" class="pt-2 border-t border-gray-100 dark:border-gray-700">
-            <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm block mb-2">{{ 'product.details' | translate }}</span>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.material">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.material' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ p.material }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.colors?.length">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.colors' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ p.colors.join(', ') }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.pattern">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.pattern' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ p.pattern }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.cut?.length">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.cut' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ p.cut.join(', ') }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.trend">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.trend' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ p.trend }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.season">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.season' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ p.season }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.target_gender">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.gender' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ p.target_gender }}</span>
-            </div>
-            <div class="flex items-center gap-2 text-sm" *ngIf="p.usage">
-              <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.usage' | translate }}:</span>
-              <span class="text-gray-600 dark:text-gray-400">{{ p.usage }}</span>
-            </div>
+          <div *ngIf="p.condition_details?.damage" class="flex items-center gap-2 text-sm">
+            <span class="text-gray-500 dark:text-gray-400 min-w-16">{{ 'product.damage' | translate }}:</span>
+            <span class="text-red-600 dark:text-red-400">{{ p.condition_details.damage }}</span>
           </div>
         </div>
+
+        <!-- Variant selector section -->
+        <ng-container *ngIf="p.variants?.length">
+          <!-- Size selector -->
+          <div *ngIf="availableSizes().length > 0" class="variant-section">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm">
+                {{ 'product.selectSize' | translate }}
+              </span>
+              <button
+                type="button"
+                class="text-xs font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 underline underline-offset-2 transition-colors"
+                (click)="sizingGuide.open()"
+              >
+                {{ 'sizing.title' | translate }}
+              </button>
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                *ngFor="let size of availableSizes()"
+                class="size-btn px-4 py-2 text-sm font-medium rounded-lg border transition-colors"
+                [class.bg-gray-900]="selectedSize() === size"
+                [class.text-white]="selectedSize() === size"
+                [class.border-gray-300]="selectedSize() !== size"
+                [class.dark:border-gray-600]="selectedSize() !== size"
+                [class.text-gray-700]="selectedSize() !== size"
+                  [class.dark:text-gray-300]="selectedSize() !== size"
+                [class.bg-white]="selectedSize() !== size"
+                [class.dark:bg-gray-800]="selectedSize() !== size"
+                [class.hover:border-gray-900]="selectedSize() !== size"
+                [class.opacity-50]="selectedSize() && selectedSize() !== size && !hasStockForSize(size)"
+                [class.cursor-not-allowed]="selectedSize() && selectedSize() !== size && !hasStockForSize(size)"
+                [disabled]="selectedSize() && selectedSize() !== size && !hasStockForSize(size)"
+                (click)="selectSize(size)"
+              >
+                {{ size }}
+              </button>
+            </div>
+          </div>
+
+          <!-- Color selector (shown when a size is selected) -->
+          <div *ngIf="availableColors().length > 0" class="variant-section">
+            <span class="font-semibold text-gray-700 dark:text-gray-300 text-sm block mb-2">
+              {{ 'product.selectColor' | translate }}
+            </span>
+            <div class="flex flex-wrap gap-3">
+              <button
+                type="button"
+                *ngFor="let c of availableColors()"
+                class="color-swatch w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center text-xs font-bold"
+                [style.background-color]="c.hex"
+                [class.border-gray-900]="selectedColor() === c.color"
+                [class.dark:border-gray-300]="selectedColor() === c.color"
+                [class.ring-2]="selectedColor() === c.color"
+                [class.ring-gray-400]="selectedColor() === c.color"
+                [class.dark:ring-gray-500]="selectedColor() === c.color"
+                [class.ring-offset-2]="selectedColor() === c.color"
+                [class.border-gray-300]="selectedColor() !== c.color"
+                [class.dark:border-gray-600]="selectedColor() !== c.color"
+                [class.opacity-40]="!c.inStock"
+                [class.cursor-not-allowed]="!c.inStock"
+                [attr.aria-label]="c.color"
+                [disabled]="!c.inStock"
+                (click)="selectColor(c.color)"
+              >
+                <span *ngIf="!c.hex || c.hex === '#ccc'" class="text-gray-500 dark:text-gray-400">
+                  {{ c.color.charAt(0) }}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Stock display -->
+          <div *ngIf="selectedVariant()" class="flex items-center gap-2 text-sm">
+            <span class="font-semibold text-gray-700 dark:text-gray-300 min-w-16">{{ 'product.stock' | translate }}:</span>
+            <span [class]="stockClasses() + ' font-medium'">
+              {{ inStockText() | translate }}
+            </span>
+            <span *ngIf="currentStock() > 0" class="text-gray-500 dark:text-gray-400 text-xs">
+              ({{ currentStock() }})
+            </span>
+          </div>
+        </ng-container>
+
+        <!-- No variants: show generic availability -->
+        <ng-container *ngIf="!p.variants?.length">
+          <div class="flex items-center gap-2 text-sm">
+            <span class="font-semibold text-gray-700 dark:text-gray-300 min-w-16">{{ 'product.size' | translate }}:</span>
+            <span class="text-gray-600 dark:text-gray-400">{{ 'product.oneSize' | translate }}</span>
+          </div>
+        </ng-container>
 
         <!-- Add to Cart -->
         <button
@@ -260,127 +208,11 @@
     </div>
 
     <!-- Reviews Section -->
-    <section id="reviews" class="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
-      <!-- Reviews header -->
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">
-          {{ 'reviews.title' | translate }} ({{ totalReviews() }})
-          <span class="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
-            ⭐ {{ avgRating() }}
-          </span>
-        </h2>
-        <button
-          *ngIf="authState.isAuthenticated()"
-          pButton
-          severity="secondary"
-          size="small"
-          [disabled]="showWriteForm()"
-          (click)="showWriteForm.set(true)"
-        >
-          {{ 'reviews.writeReview' | translate }}
-        </button>
-      </div>
-
-      <!-- Write Review Form -->
-      <div *ngIf="showWriteForm()" class="review-form mb-8">
-        <div class="flex items-center gap-3 mb-4">
-          <span class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'reviews.rating' | translate }}:</span>
-          <app-star-rating
-            [rating]="newRating()"
-            [readonly]="false"
-            (ratingChange)="newRating.set($event)"
-          ></app-star-rating>
-        </div>
-        <div class="mb-4">
-          <textarea
-            [(ngModel)]="newComment"
-            rows="3"
-            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg text-sm focus:border-blue-500 dark:focus:border-blue-400 focus:ring-1 focus:ring-blue-500 dark:focus:ring-blue-400 outline-none resize-y bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100"
-            [placeholder]="'reviews.comment' | translate"
-          ></textarea>
-        </div>
-        <div class="flex items-center gap-3">
-          <button
-            pButton
-            severity="primary"
-            size="small"
-            [disabled]="submitting()"
-            (click)="submitReview()"
-          >
-            <p-progressSpinner
-              *ngIf="submitting()"
-              [style]="{width: '16px', height: '16px'}"
-              strokeWidth="4"
-            ></p-progressSpinner>
-            <span [class.invisible]="submitting()">{{ 'reviews.submit' | translate }}</span>
-          </button>
-          <button
-            pButton
-            severity="secondary"
-            size="small"
-            [disabled]="submitting()"
-            (click)="resetWriteForm()"
-          >
-            {{ 'reviews.cancel' | translate }}
-          </button>
-        </div>
-        <p *ngIf="submitError()" class="text-red-600 dark:text-red-400 text-sm mt-3">
-          {{ submitError() | translate }}
-        </p>
-      </div>
-
-      <!-- Loading spinner -->
-      <div *ngIf="reviewsLoading()" class="flex justify-center py-8">
-        <p-progressSpinner [style]="{width: '48px', height: '48px'}"></p-progressSpinner>
-      </div>
-
-      <!-- Error state -->
-      <div *ngIf="reviewsError() && !reviewsLoading()" class="text-center py-8">
-        <p class="text-red-600 dark:text-red-400 mb-3">{{ reviewsError() | translate }}</p>
-        <button pButton severity="secondary" size="small" (click)="loadReviews(reviewPage())">
-          {{ 'reviews.retry' | translate }}
-        </button>
-      </div>
-
-      <!-- Empty state -->
-      <div
-        *ngIf="!reviewsLoading() && !reviewsError() && totalReviews() === 0"
-        class="text-center py-8 text-gray-500 dark:text-gray-400"
-      >
-        {{ 'reviews.noReviews' | translate }}
-      </div>
-
-      <!-- Reviews list -->
-      <div
-        *ngIf="!reviewsLoading() && !reviewsError() && totalReviews() > 0"
-        class="reviews-list space-y-4"
-      >
-        <div *ngFor="let review of reviews()" class="review-card">
-          <div class="flex items-center gap-2 mb-1">
-            <app-star-rating [rating]="review.rating" [readonly]="true"></app-star-rating>
-          </div>
-          <p *ngIf="review.comment" class="text-gray-700 dark:text-gray-300 text-sm mb-2">{{ review.comment }}</p>
-          <div class="flex items-center gap-3 text-xs text-gray-500 dark:text-gray-400">
-            <span class="font-medium">{{ review.user_name }}</span>
-            <span>·</span>
-            <span>{{ review.created_at | date:'mediumDate' }}</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Pagination -->
-      <div
-        *ngIf="!reviewsLoading() && !reviewsError() && totalReviews() > 10"
-        class="mt-6"
-      >
-        <app-pagination
-          [page]="reviewPage()"
-          [perPage]="12"
-          [total]="totalReviews()"
-          (pageChange)="onReviewPageChange($event)"
-        ></app-pagination>
-      </div>
-    </section>
+    <app-product-detail-reviews
+      [productId]="p.id"
+      [productSlug]="p.slug"
+      (reviewSubmitted)="onReviewSubmitted()"
+    />
 
     <p-toast position="bottom-right"></p-toast>
 
