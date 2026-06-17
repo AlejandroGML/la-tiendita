@@ -17,6 +17,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.engine import async_session as _async_session_fn
 from app.guards.admin_guard import admin_guard
+from app.repositories.product_repository import ProductRepository
 from app.schemas.common import ProductFilter
 from app.schemas.product import (
     CreateProductRequest,
@@ -34,6 +35,10 @@ from app.services.product_service import ProductService
 
 async def provide_product_service() -> ProductService:
     return ProductService()
+
+
+async def provide_product_repository() -> ProductRepository:
+    return ProductRepository()
 
 
 async def provide_session() -> AsyncSession:
@@ -155,6 +160,7 @@ class ProductController(Controller):
     tags = ["products"]
     dependencies = {
         "service": Provide(provide_product_service, sync_to_thread=False),
+        "repo": Provide(provide_product_repository, sync_to_thread=False),
         "session": Provide(provide_session, sync_to_thread=False),
     }
 
@@ -265,6 +271,7 @@ class ProductController(Controller):
         self,
         identifier: str,
         service: ProductService,
+        repo: ProductRepository,
         session: AsyncSession,
     ) -> dict:
         """Product detail by slug. If *identifier* is a UUID, redirect
@@ -277,15 +284,7 @@ class ProductController(Controller):
             product = await service.get_product_by_slug(session, identifier)
         else:
             # Resolve by ID first, then redirect to slug
-            from sqlalchemy import select
-            from app.models.product import Product
-
-            result = await session.execute(
-                select(Product).where(
-                    Product.id == product_id, Product.deleted_at.is_(None)
-                )
-            )
-            product = result.scalar_one_or_none()
+            product = await repo.get_by_id_for_resolve(session, product_id)
             if product is not None:
                 return Redirect(
                     path=f"/api/products/{product.slug}",

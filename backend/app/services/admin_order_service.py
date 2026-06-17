@@ -10,6 +10,8 @@ from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.core.event_bus import event_bus
+from app.core.events import OrderShippedEvent
 from app.models.order import Order, OrderStatus, PaymentStatus
 from app.schemas.order import OrderAdminListItem
 
@@ -170,14 +172,12 @@ class AdminOrderService:
             .options(selectinload(Order.user))
         )
 
-        # Fire-and-forget shipping notification
+        # Fire-and-forget shipping notification via event bus
         if target == OrderStatus.SHIPPED:
-            from app.services.email_service import EmailService
-
-            email_svc = EmailService()
-            await email_svc.send_order_shipped(
-                session, order.user.id, order
-            )
+            event_bus.emit(OrderShippedEvent(
+                user_id=order.user.id,
+                order_id=order.id,
+            ))
 
         return OrderAdminListItem(
             id=order.id,

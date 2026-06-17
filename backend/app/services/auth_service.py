@@ -8,6 +8,7 @@ import logging
 import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
+from uuid import UUID
 
 import bcrypt
 import pyotp
@@ -16,9 +17,12 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, settings
+from app.core.event_bus import event_bus
+from app.core.events import PasswordResetEvent, WelcomeEmailEvent
 from app.models.password_reset import PasswordResetToken
 from app.models.refresh_token import RefreshToken
 from app.models.user import User, UserRole
+from app.repositories.user_repository import UserRepository
 from app.schemas.auth import (
     AdminLoginResponse,
     LoginRequest,
@@ -35,13 +39,19 @@ logger = logging.getLogger(__name__)
 class AuthService:
     """Encapsulates all authentication business logic.
 
-    Constructor receives the global settings singleton. The async session
-    is injected per-call via Litestar's dependency injection, not stored
-    on the instance, so the service remains thread/request-safe.
+    Constructor receives the global settings singleton and an optional
+    ``UserRepository``.  The async session is injected per-call via
+    Litestar's dependency injection, not stored on the instance, so the
+    service remains thread/request-safe.
     """
 
-    def __init__(self, app_settings: Settings = settings) -> None:
+    def __init__(
+        self,
+        app_settings: Settings = settings,
+        user_repo: UserRepository | None = None,
+    ) -> None:
         self._settings = app_settings
+        self._user_repo = user_repo or UserRepository()
 
     # ------------------------------------------------------------------
     # Public API
@@ -52,10 +62,8 @@ class AuthService:
     ) -> TokenResponse:
         """Hash password, create User, issue token pair. Raises ValueError on
         duplicate email so the controller can return 409."""
-        existing = await session.execute(
-            select(User).where(User.email == data.email)
-        )
-        if existing.scalar_one_or_none() is not None:
+        existing = await self._user_repo.get_by_email(session, data.email)
+        if existing is not None:
             raise ValueError("email already registered")
 
         password_hash = self._hash_password(data.password)
@@ -70,11 +78,8 @@ class AuthService:
         session.add(user)
         await session.flush()
 
-        # Fire-and-forget welcome email (non-critical)
-        from app.services.email_service import EmailService
-
-        email_svc = EmailService()
-        await email_svc.send_welcome(session, user.id)
+        # Fire-and-forget welcome email via event bus (non-critical)
+        event_bus.emit(WelcomeEmailEvent(user_id=user.id))
 
         access_token = self._create_access_token(str(user.id), user.role.value)
         refresh_token = await self._create_refresh_token(session, str(user.id))
@@ -90,10 +95,7 @@ class AuthService:
     ) -> TokenResponse:
         """Verify credentials and issue token pair. Raises ValueError on
         unknown email or wrong password — controller maps to 401."""
-        result = await session.execute(
-            select(User).where(User.email == data.email)
-        )
-        user = result.scalar_one_or_none()
+        user = await self._user_repo.get_by_email(session, data.email)
         if user is None or user.password_hash is None:
             raise ValueError("invalid email or password")
 
@@ -117,10 +119,7 @@ class AuthService:
         If 2FA is enabled for this admin, returns a login_token (short-lived JWT)
         and ``require_2fa: true``. If 2FA is disabled, returns tokens directly.
         """
-        result = await session.execute(
-            select(User).where(User.email == data.email)
-        )
-        user = result.scalar_one_or_none()
+        user = await self._user_repo.get_by_email(session, data.email)
         if user is None or user.password_hash is None:
             raise ValueError("invalid email or password")
 
@@ -164,10 +163,7 @@ class AuthService:
         if user_id is None:
             raise ValueError("invalid login token")
 
-        result = await session.execute(
-            select(User).where(User.id == user_id)
-        )
-        user = result.scalar_one_or_none()
+        user = await self._user_repo.get_by_id(session, UUID(user_id))
         if user is None:
             raise ValueError("user not found")
 
@@ -205,10 +201,7 @@ class AuthService:
             raise ValueError("invalid refresh token")
 
         # Find user
-        user_result = await session.execute(
-            select(User).where(User.id == user_id)
-        )
-        user = user_result.scalar_one_or_none()
+        user = await self._user_repo.get_by_id(session, user_id)
         if user is None:
             raise ValueError("invalid refresh token")
 
@@ -272,11 +265,7 @@ class AuthService:
         """Generate a reset token, persist its bcrypt hash, and send the
         raw token via email.  Returns silently if the email is not
         registered (prevents user enumeration)."""
-        result = await session.execute(
-            select(User).where(User.email == email)
-        )
-        user = result.scalar_one_or_none()
-
+        user = await self._user_repo.get_by_email(session, email)
         if user is None:
             return
 
@@ -296,10 +285,7 @@ class AuthService:
             f"http://localhost:4200/reset-password?token={reset_token}"
         )
 
-        from app.services.email_service import EmailService
-
-        email_svc = EmailService()
-        await email_svc.send_password_reset(session, user.id, reset_link)
+        event_bus.emit(PasswordResetEvent(user_id=user.id, reset_link=reset_link))
 
     async def reset_password(
         self, session: AsyncSession, token: str, new_password: str

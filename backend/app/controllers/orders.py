@@ -27,13 +27,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.engine import async_session as _async_session_fn
 from app.models.user import UserRole
+from app.repositories.order_repository import OrderRepository
 from app.schemas.order import CheckoutRequest, CheckoutResponse, OrderResponse
+from app.exceptions import StripeError
 from app.services.order_service import (
     CartEmptyError,
     OrderService,
     StockInsufficientError,
 )
-from app.services.stripe_service import StripeError
 
 
 # ---------------------------------------------------------------------------
@@ -43,6 +44,10 @@ from app.services.stripe_service import StripeError
 
 async def provide_order_service() -> OrderService:
     return OrderService()
+
+
+async def provide_order_repository() -> OrderRepository:
+    return OrderRepository()
 
 
 async def provide_email_service() -> "EmailService":
@@ -74,6 +79,7 @@ class OrderController(Controller):
     tags = ["orders"]
     dependencies = {
         "service": Provide(provide_order_service, sync_to_thread=False),
+        "order_repo": Provide(provide_order_repository, sync_to_thread=False),
         "session": Provide(provide_session, sync_to_thread=False),
     }
 
@@ -186,6 +192,7 @@ class OrderController(Controller):
         order_id: UUID,
         request: ASGIConnection,
         service: OrderService,
+        order_repo: OrderRepository,
         session: AsyncSession,
     ) -> OrderResponse:
         """Return full order detail. Owner or admin only."""
@@ -193,19 +200,7 @@ class OrderController(Controller):
 
         # Admins can view any order — bypass user scope
         if user.role == UserRole.ADMIN:
-            # Re-fetch without user_id filter
-            from sqlalchemy import select
-            from sqlalchemy.orm import selectinload
-
-            from app.models.order import Order
-
-            stmt = (
-                select(Order)
-                .where(Order.id == order_id)
-                .options(selectinload(Order.items))
-            )
-            result = await session.execute(stmt)
-            order = result.unique().scalar_one_or_none()
+            order = await order_repo.get_with_items(session, order_id)
             if order is None:
                 raise NotFoundException(detail="Order not found")
 

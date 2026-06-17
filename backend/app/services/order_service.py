@@ -2,6 +2,9 @@
 
 Checkout creates an order + Stripe Checkout session atomically.
 Stock is deducted at webhook time (``finalize_payment``), not at checkout.
+Data access is delegated to ``OrderRepository`` — the service only
+handles business logic (checkout orchestration, Stripe integration,
+stock deduction, promotion consumption).
 """
 
 import logging
@@ -16,19 +19,18 @@ from app.models.cart import CartItem
 from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product, ProductTranslation
 from app.models.product_variant import ProductVariant
+from app.repositories.order_repository import OrderRepository
+from app.core.event_bus import event_bus
+from app.core.events import OrderConfirmationEvent
 from app.schemas.order import (
     CheckoutRequest,
     CheckoutResponse,
     OrderItemResponse,
     OrderResponse,
 )
-from app.services.stripe_service import StripeError
+from app.exceptions import StripeError, StockInsufficientError
 
 logger = logging.getLogger(__name__)
-
-
-class StockInsufficientError(ValueError):
-    """Raised when one or more cart items exceed available stock."""
 
 
 class CartEmptyError(ValueError):
@@ -36,7 +38,14 @@ class CartEmptyError(ValueError):
 
 
 class OrderService:
-    """Encapsulates checkout and order history business logic."""
+    """Encapsulates checkout and order history business logic.
+
+    Injects ``OrderRepository`` for data access.  If no repository is
+    provided, a default instance is created (backward-compatible).
+    """
+
+    def __init__(self, order_repo: OrderRepository | None = None) -> None:
+        self._repo = order_repo or OrderRepository()
 
     # ------------------------------------------------------------------
     # Public API
@@ -166,34 +175,18 @@ class OrderService:
         self, session: AsyncSession, user_id: UUID
     ) -> list[OrderResponse]:
         """Return all orders for the authenticated user, newest first."""
-        stmt = (
-            select(Order)
-            .where(Order.user_id == user_id)
-            .options(selectinload(Order.items))
-            .order_by(Order.created_at.desc())
-        )
-        result = await session.execute(stmt)
-        orders = result.unique().scalars().all()
-
-        return [
-            self._order_to_response(o) for o in orders
-        ]
+        orders = await self._repo.get_by_user(session, user_id)
+        return [self._order_to_response(o) for o in orders]
 
     async def get_order(
         self, session: AsyncSession, user_id: UUID, order_id: UUID
     ) -> OrderResponse:
         """Return full order detail. Owner or admin only (caller enforces)."""
-        stmt = (
-            select(Order)
-            .where(Order.id == order_id, Order.user_id == user_id)
-            .options(selectinload(Order.items))
+        order = await self._repo.get_with_items_by_user(
+            session, order_id, user_id
         )
-        result = await session.execute(stmt)
-        order = result.unique().scalar_one_or_none()
-
         if order is None:
             raise ValueError("Order not found")
-
         return self._order_to_response(order)
 
     # ------------------------------------------------------------------
@@ -293,25 +286,15 @@ class OrderService:
             await savepoint.rollback()
             raise
 
-        # Send confirmation email (OUTSIDE savepoint — failure is non-fatal)
-        order_items_data = [
-            {
-                "product_id": item.product_id,
-                "product_snapshot": item.product_snapshot,
-                "quantity": item.quantity,
-                "price": item.price,
-            }
-            for item in order.items
-        ]
-        try:
-            await self._send_confirmation_email(
-                session, order.user_id, order, order_items_data
-            )
-        except Exception as exc:
-            logger.error(
-                "Failed to send confirmation email for order %s: %s",
-                order.id,
-                exc,
+        # Emit confirmation event via event bus (fire-and-forget)
+        if order.user_id is not None:
+            event_bus.emit(OrderConfirmationEvent(
+                user_id=order.user_id,
+                order_id=order.id,
+            ))
+        else:
+            logger.info(
+                "Skipping confirmation email for guest order %s", order.id
             )
 
         logger.info(
@@ -510,29 +493,4 @@ class OrderService:
             updated_at=order.updated_at,
         )
 
-    async def _send_confirmation_email(
-        self,
-        session: AsyncSession,
-        user_id: UUID | None,
-        order: Order,
-        order_items_data: list[dict],
-    ) -> None:
-        """Delegate order confirmation email to EmailService.
 
-        Called *after* the checkout savepoint commits so that email
-        failures do not roll back the order.  Skips silently for guest
-        orders (``user_id is None``) — guests receive the post-checkout
-        registration prompt via the frontend success page instead.
-        """
-        if user_id is None:
-            logger.info(
-                "Skipping confirmation email for guest order %s", order.id
-            )
-            return
-
-        from app.services.email_service import EmailService
-
-        email_svc = EmailService()
-        await email_svc.send_order_confirmation(
-            session, user_id, order, order_items_data
-        )

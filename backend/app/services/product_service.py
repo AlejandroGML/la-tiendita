@@ -1,30 +1,25 @@
 """ProductService — business logic for product catalog CRUD.
 
 Async methods accept SQLAlchemy AsyncSession injection at call time.
+Data access is delegated to ``ProductRepository`` — the service only
+handles business logic (slug generation, SKU generation, promotion
+resolution, variant orchestration).
 """
 
 import logging
-import math
 import re
 import unicodedata
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import and_, case, exists, func, or_, select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload, selectinload
 
-from app.models.category import Category, CategoryTranslation
-from app.models.product import (
-    Product,
-    ProductCondition,
-    ProductSize,
-    ProductTranslation,
-)
+from app.models.product import Product, ProductCondition, ProductSize, ProductTranslation
 from app.models.product_variant import ProductVariant
-from app.models.promotion import Promotion
 from app.models.cart import CartItem
+from app.repositories.product_repository import ProductRepository
 from app.schemas.common import ProductFilter
 from app.schemas.product import (
     CreateProductRequest,
@@ -36,13 +31,20 @@ from app.schemas.product_variant import (
     ProductVariantCreate,
     ProductVariantUpdate,
 )
-from app.utils.pagination import paginate
 
 logger = logging.getLogger(__name__)
 
 
 class ProductService:
-    """Encapsulates all product catalog business logic."""
+    """Encapsulates all product catalog business logic.
+
+    Injects ``ProductRepository`` for data access.  If no repository is
+    provided, a default instance is created (backward-compatible for
+    direct instantiation in tests).
+    """
+
+    def __init__(self, product_repo: ProductRepository | None = None) -> None:
+        self._repo = product_repo or ProductRepository()
 
     # ------------------------------------------------------------------
     # Public read
@@ -55,24 +57,9 @@ class ProductService:
     ) -> tuple[list[Product], int]:
         """Return a paginated list of non-deleted products matching *filters*.
 
-        Translations are eager-loaded via ``selectinload`` to avoid N+1
-        on the translations relationship and the category relationship.
+        Delegates filtering + eager loading + pagination to the repository.
         """
-        page = filters.page
-        per_page = filters.per_page
-        lang = filters.lang
-
-        stmt = self._build_list_query(filters)
-
-        # Eager-load translations + category + variants to avoid N+1 in serialisation
-        stmt = stmt.options(
-            selectinload(Product.translations),
-            selectinload(Product.category).selectinload(Category.translations),
-            selectinload(Product.variants),
-        )
-
-        items, total = await paginate(stmt, session, page=page, per_page=per_page)
-        return items, total
+        return await self._repo.get_with_filters(session, filters)
 
     async def list_admin_products(
         self,
@@ -82,36 +69,13 @@ class ProductService:
     ) -> tuple[list[Product], int]:
         """Return a paginated list of ALL products (including soft-deleted)
         for the admin panel."""
-        stmt = (
-            select(Product)
-            .order_by(Product.created_at.desc())
-            .options(
-                selectinload(Product.translations),
-                selectinload(Product.category).selectinload(Category.translations),
-                selectinload(Product.variants),
-            )
-        )
-        items, total = await paginate(stmt, session, page=page, per_page=per_page)
-        return items, total
+        return await self._repo.get_all_admin(session, page=page, per_page=per_page)
 
     async def get_product_by_slug(
         self, session: AsyncSession, slug: str
     ) -> Product | None:
-        """Return a single non-deleted product by slug with all translations.
-
-        Uses ``joinedload`` for the single-row detail query.
-        """
-        stmt = (
-            select(Product)
-            .where(Product.slug == slug, Product.deleted_at.is_(None))
-            .options(
-                joinedload(Product.translations),
-                joinedload(Product.category).joinedload(Category.translations),
-                joinedload(Product.variants),
-            )
-        )
-        result = await session.execute(stmt)
-        return result.unique().scalar_one_or_none()
+        """Return a single non-deleted product by slug with all relationships."""
+        return await self._repo.get_by_slug(session, slug)
 
     async def _apply_promotions(
         self, session: AsyncSession, products: list[Product]
@@ -264,18 +228,8 @@ class ProductService:
 
         Returns the updated product or None if not found / soft-deleted.
         """
-        stmt = (
-            select(Product)
-            .where(Product.id == product_id, Product.deleted_at.is_(None))
-            .options(
-                selectinload(Product.translations),
-                selectinload(Product.category).selectinload(Category.translations),
-                selectinload(Product.variants),
-            )
-        )
-        result = await session.execute(stmt)
-        product = result.scalar_one_or_none()
-        if product is None:
+        product = await self._repo.get_by_id_with_detail(session, product_id)
+        if product is None or product.deleted_at is not None:
             return None
 
         # Scalar fields
@@ -396,11 +350,9 @@ class ProductService:
         Returns ``True`` if a product was deleted, ``False`` if already
         deleted or not found.
         """
-        stmt = select(Product).where(
-            Product.id == product_id, Product.deleted_at.is_(None)
+        product = await self._repo.find_one(
+            session, Product.id == product_id, Product.deleted_at.is_(None)
         )
-        result = await session.execute(stmt)
-        product = result.scalar_one_or_none()
         if product is None:
             return False
 
@@ -438,8 +390,10 @@ class ProductService:
         Validates the product exists and is not soft-deleted.
         Auto-generates SKU if not provided.
         """
-        product = await session.get(Product, product_id)
-        if product is None or product.deleted_at is not None:
+        product = await self._repo.find_one(
+            session, Product.id == product_id, Product.deleted_at.is_(None)
+        )
+        if product is None:
             raise ValueError("product not found")
 
         sku = data.sku
@@ -652,120 +606,7 @@ class ProductService:
         self, session: AsyncSession, product_id: UUID
     ) -> Product:
         """Re-fetch a product with eager-loaded relationships."""
-        stmt = (
-            select(Product)
-            .where(Product.id == product_id)
-            .options(
-                selectinload(Product.translations),
-                selectinload(Product.category).selectinload(Category.translations),
-                selectinload(Product.variants),
-            )
-        )
-        result = await session.execute(stmt)
-        return result.scalar_one()
-
-    def _build_list_query(self, filters: ProductFilter) -> "select":
-        """Build a base select statement from filter criteria."""
-        stmt = select(Product).where(Product.deleted_at.is_(None))
-
-        if filters.category is not None:
-            stmt = stmt.where(Product.category_id == filters.category)
-        if filters.size is not None:
-            stmt = stmt.where(
-                exists().where(
-                    ProductVariant.product_id == Product.id,
-                    ProductVariant.size == filters.size,
-                    ProductVariant.deleted_at.is_(None),
-                )
-            )
-        if filters.condition is not None:
-            stmt = stmt.where(Product.condition == filters.condition)
-        if filters.condition_rating is not None:
-            stmt = stmt.where(Product.condition_rating == filters.condition_rating)
-        if filters.brand is not None:
-            stmt = stmt.where(Product.brand.ilike(f"%{filters.brand}%"))
-        if filters.target_gender is not None:
-            stmt = stmt.where(Product.target_gender == filters.target_gender)
-        if filters.colors is not None:
-            color_list = [c.strip() for c in filters.colors.split(",") if c.strip()]
-            if color_list:
-                stmt = stmt.where(
-                    exists().where(
-                        ProductVariant.product_id == Product.id,
-                        ProductVariant.color.in_(color_list),
-                        ProductVariant.deleted_at.is_(None),
-                    )
-                )
-        if filters.material is not None:
-            stmt = stmt.where(Product.material.ilike(f"%{filters.material}%"))
-        if filters.trend is not None:
-            stmt = stmt.where(Product.trend == filters.trend)
-        if filters.pattern is not None:
-            stmt = stmt.where(Product.pattern == filters.pattern)
-        if filters.season is not None:
-            stmt = stmt.where(Product.season == filters.season)
-        if filters.usage is not None:
-            stmt = stmt.where(Product.usage == filters.usage)
-        if filters.min_price is not None:
-            stmt = stmt.where(Product.price >= filters.min_price)
-        if filters.max_price is not None:
-            stmt = stmt.where(Product.price <= filters.max_price)
-
-        # has_promotion filter: EXISTS subquery on active promotions
-        if filters.has_promotion is True:
-            now = datetime.now(timezone.utc)
-            promo_exists = exists().where(
-                (Promotion.product_id == Product.id) | (Promotion.product_id.is_(None)),
-                Promotion.is_active == True,
-                or_(
-                    Promotion.start_date.is_(None),
-                    Promotion.start_date <= now,
-                ),
-                or_(
-                    Promotion.end_date.is_(None),
-                    Promotion.end_date >= now,
-                ),
-                or_(
-                    Promotion.max_uses.is_(None),
-                    Promotion.current_uses < Promotion.max_uses,
-                ),
-            )
-            stmt = stmt.where(promo_exists)
-
-        # Full-text search on translations (name OR description)
-        if filters.q:
-            escaped = filters.q.replace("%", r"\%").replace("_", r"\_")
-            search_term = f"%{escaped}%"
-            stmt = stmt.join(
-                ProductTranslation,
-                and_(
-                    ProductTranslation.product_id == Product.id,
-                    ProductTranslation.language_code == filters.lang,
-                ),
-                isouter=True,
-            ).where(
-                or_(
-                    ProductTranslation.name.ilike(search_term, escape="\\"),
-                    ProductTranslation.description.ilike(search_term, escape="\\"),
-                )
-            )
-
-        # Build ordering: sort param overrides default stock-priority ordering
-        if filters.sort == "newest":
-            return stmt.order_by(Product.created_at.desc())
-        if filters.sort == "price_asc":
-            return stmt.order_by(Product.price.asc())
-        if filters.sort == "price_desc":
-            return stmt.order_by(Product.price.desc())
-
-        # Default: products with stock > 0 first, then by created_at DESC
-        in_stock = (
-            exists()
-            .where(
-                ProductVariant.product_id == Product.id,
-                ProductVariant.stock > 0,
-                ProductVariant.deleted_at.is_(None),
-            )
-            .correlate(Product)
-        )
-        return stmt.order_by(case((in_stock, 0), else_=1), Product.created_at.desc())
+        product = await self._repo.get_by_id_with_detail(session, product_id)
+        if product is None:
+            raise ValueError(f"product {product_id} not found after creation")
+        return product

@@ -18,6 +18,7 @@ from app.controllers.promotions import AdminPromotionController, PromotionContro
 from app.controllers.reviews import ReviewController
 from app.controllers.upload import UploadController
 from app.controllers.wishlist import WishlistController
+from app.db.engine import async_session
 from app.guards.jwt_guard import jwt_auth
 from app.middleware.i18n import I18nMiddleware
 from app.middleware.optional_user import OptionalUserMiddleware
@@ -50,7 +51,36 @@ uploads_router = create_static_files_router(
     name="uploads",
 )
 
+
+# ---------------------------------------------------------------------------
+# Lifespan — wire up the event bus on startup
+# ---------------------------------------------------------------------------
+
+
+async def on_startup() -> None:
+    """Initialise the event bus and subscribe email handlers."""
+    from app.core.event_bus import event_bus
+    from app.core.email_handler import EmailHandler
+
+    EmailHandler(event_bus=event_bus, session_factory=async_session)
+
+
+async def on_shutdown() -> None:
+    """Clean shutdown of the event bus."""
+    from app.core.event_bus import event_bus
+
+    event_bus._subscribers.clear()
+    event_bus._any_subscribers.clear()
+
+
+# ---------------------------------------------------------------------------
+# App
+# ---------------------------------------------------------------------------
+
+
 app = Litestar(
+    on_startup=[on_startup],
+    on_shutdown=[on_shutdown],
     route_handlers=[
         health_check,
         protected_endpoint,

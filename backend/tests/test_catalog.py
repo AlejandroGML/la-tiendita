@@ -21,6 +21,8 @@ from app.controllers.products import AdminProductController, ProductController
 from app.controllers.upload import UploadController
 from app.guards.admin_guard import admin_guard
 from app.middleware.i18n import I18nMiddleware
+from app.repositories.product_repository import ProductRepository
+from app.repositories.category_repository import CategoryRepository
 
 
 # ---------------------------------------------------------------------------
@@ -236,11 +238,15 @@ class TestProductCatalog:
         svc.list_products = AsyncMock()
         svc.get_product_by_slug = AsyncMock()
 
+        repo = MagicMock(spec=ProductRepository)
+        repo.get_by_id_for_resolve = AsyncMock()
+
         mock_session = _make_mock_session()
 
         _orig = ProductController.dependencies
         ProductController.dependencies = {
             "service": Provide(lambda: svc, sync_to_thread=False),
+            "repo": Provide(lambda: repo, sync_to_thread=False),
             "session": Provide(lambda: mock_session, sync_to_thread=False),
         }
 
@@ -252,6 +258,7 @@ class TestProductCatalog:
         try:
             with TestClient(app=app, raise_server_exceptions=False) as tc:
                 tc.mock_svc = svc
+                tc.mock_repo = repo
                 tc.mock_session = mock_session
                 yield tc
         finally:
@@ -333,10 +340,7 @@ class TestProductCatalog:
         pid = uuid.UUID("12345678-1234-1234-1234-123456789abc")
         p1 = _make_fake_product(product_id=pid)
         client.mock_svc.get_product_by_slug.return_value = None
-
-        mock_result = MagicMock()
-        mock_result.scalar_one_or_none.return_value = p1
-        client.mock_session.execute.return_value = mock_result
+        client.mock_repo.get_by_id_for_resolve.return_value = p1
 
         r = client.get(f"/api/products/{pid}", follow_redirects=False)
         assert r.status_code in (307, 302), f"Expected redirect, got {r.status_code}"
@@ -512,10 +516,14 @@ class TestCategoryCatalog:
 
     @pytest.fixture
     def client(self):
+        repo = MagicMock(spec=CategoryRepository)
+        repo.list_all_with_translations = AsyncMock()
+
         mock_session = _make_mock_session()
 
         _orig = CategoryController.dependencies
         CategoryController.dependencies = {
+            "repo": Provide(lambda: repo, sync_to_thread=False),
             "session": Provide(lambda: mock_session, sync_to_thread=False),
         }
 
@@ -526,19 +534,15 @@ class TestCategoryCatalog:
 
         try:
             with TestClient(app=app, raise_server_exceptions=False) as tc:
+                tc.mock_repo = repo
                 tc.mock_session = mock_session
                 yield tc
         finally:
             CategoryController.dependencies = _orig
 
-    def _mock_result(self, mock_session, categories):
-        mock_result = MagicMock()
-        mock_result.scalars.return_value.all.return_value = categories
-        mock_session.execute.return_value = mock_result
-
     def test_list_categories_returns_translated_names(self, client):
         cats = [_make_fake_category(1, "chaquetas"), _make_fake_category(2, "pantalones")]
-        self._mock_result(client.mock_session, cats)
+        client.mock_repo.list_all_with_translations.return_value = cats
         r = client.get("/api/categories/?lang=es")
         assert r.status_code == 200, r.text
         body = r.json()
@@ -550,14 +554,14 @@ class TestCategoryCatalog:
             _FakeCategoryTrans("es", "Prueba"),
             _FakeCategoryTrans("en", "Test"),
         ])]
-        self._mock_result(client.mock_session, cats)
+        client.mock_repo.list_all_with_translations.return_value = cats
         r = client.get("/api/categories/?lang=sv")
         assert r.status_code == 200, r.text
         assert r.json()[0]["name"] == "Test"
 
     def test_list_categories_default_lang_es(self, client):
         cats = [_make_fake_category()]
-        self._mock_result(client.mock_session, cats)
+        client.mock_repo.list_all_with_translations.return_value = cats
         r = client.get("/api/categories/")
         assert r.status_code == 200, r.text
         assert r.json()[0]["name"] == "Chaquetas"
@@ -573,11 +577,16 @@ class TestAdminCategories:
 
     @pytest.fixture
     def client(self):
+        repo = MagicMock(spec=CategoryRepository)
+        repo.slug_exists = AsyncMock()
+        repo.get_by_id = AsyncMock()
+
         mock_session = _make_mock_session()
         test_jwt_auth = _make_test_jwt_auth()
 
         _orig = AdminCategoryController.dependencies
         AdminCategoryController.dependencies = {
+            "repo": Provide(lambda: repo, sync_to_thread=False),
             "session": Provide(lambda: mock_session, sync_to_thread=False),
         }
 
@@ -589,6 +598,7 @@ class TestAdminCategories:
 
         try:
             with TestClient(app=app, raise_server_exceptions=False) as tc:
+                tc.mock_repo = repo
                 tc.mock_session = mock_session
                 yield tc
         finally:
@@ -618,14 +628,9 @@ class TestAdminCategories:
         assert r.status_code == 403, r.text
 
     def test_create_category_admin_201(self, client):
-        slug_check = MagicMock()
-        slug_check.scalar_one_or_none.return_value = None
-
-        reload_result = MagicMock()
+        client.mock_repo.slug_exists.return_value = False
         cat = _make_fake_category(1, "chaquetas")
-        reload_result.scalar_one.return_value = cat
-
-        client.mock_session.execute = AsyncMock(side_effect=[slug_check, reload_result])
+        client.mock_repo.get_by_id.return_value = cat
 
         r = client.post(
             "/api/admin/categories/",
@@ -644,9 +649,7 @@ class TestAdminCategories:
         assert len(body["translations"]) == 2
 
     def test_create_category_duplicate_slug_409(self, client):
-        slug_check = MagicMock()
-        slug_check.scalar_one_or_none.return_value = 1
-        client.mock_session.execute = AsyncMock(return_value=slug_check)
+        client.mock_repo.slug_exists.return_value = True
 
         r = client.post(
             "/api/admin/categories/",

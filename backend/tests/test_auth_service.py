@@ -16,11 +16,23 @@ from app.services.auth_service import AuthService
 # Helpers
 # ---------------------------------------------------------------------------
 
+def _make_unique_mock(**kwargs):
+    """Build a mock that supports ``.unique()`` returning itself.
+
+    The repo base methods call ``result.unique().scalar_one_or_none()`` or
+    ``result.unique().scalars().all()``.  This helper ensures ``.unique()``
+    returns the same mock so downstream calls resolve correctly.
+    """
+    m = MagicMock(**kwargs)
+    m.unique = MagicMock(return_value=m)
+    return m
+
+
 def _make_scalar_result(items):
     """Build a mock that supports ``.scalars().all()`` returning a list."""
     mock_scalars = MagicMock()
     mock_scalars.all.return_value = items
-    mock_result = MagicMock()
+    mock_result = _make_unique_mock()
     mock_result.scalars.return_value = mock_scalars
     return mock_result
 
@@ -34,6 +46,7 @@ def _make_execute_mock(scalar_one_or_none_values=None, scalar_results=None):
     mock = AsyncMock()
 
     if scalar_one_or_none_values:
+        mock.return_value = _make_unique_mock()
         mock.return_value.scalar_one_or_none = AsyncMock(
             side_effect=scalar_one_or_none_values
         )
@@ -199,20 +212,20 @@ class TestReplayDetection:
 
         # Mock: first execute → user found, second execute → no matching token
         execute_calls = []
-        # call 0: find user
-        call_0 = AsyncMock()
+        # call 0: find user via UserRepository.get_by_id
+        call_0 = _make_unique_mock()
         call_0.scalar_one_or_none = AsyncMock(return_value=user)
         execute_calls.append(call_0)
 
         # call 1: find active tokens (returns empty)
-        call_1 = MagicMock()
+        call_1 = _make_unique_mock()
         call_1_scalars = MagicMock()
         call_1_scalars.all.return_value = []
         call_1.scalars.return_value = call_1_scalars
         execute_calls.append(call_1)
 
         # call 2: revoke_all → select tokens for user
-        call_2 = MagicMock()
+        call_2 = _make_unique_mock()
         call_2_scalars = MagicMock()
         call_2_scalars.all.return_value = []
         call_2.scalars.return_value = call_2_scalars

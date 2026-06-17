@@ -17,11 +17,9 @@ from app.config import settings
 from app.models.cart import CartItem
 from app.models.order import Order, OrderStatus, PaymentStatus
 
+from app.exceptions import StripeError, StockInsufficientError
+
 logger = logging.getLogger(__name__)
-
-
-class StripeError(RuntimeError):
-    """Raised when a Stripe API call fails."""
 
 
 class StripeWebhookError(ValueError):

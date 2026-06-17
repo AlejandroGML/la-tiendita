@@ -1,6 +1,11 @@
-import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+
+import { SharedUiModule } from './shared-ui.module';
+import { SharedPipesModule } from './shared-pipes.module';
+import { SharedFormsModule } from './shared-forms.module';
+
+// Legacy imports kept for backwards compatibility
+import { PrimeNgModule } from './primeng-module';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -23,14 +28,8 @@ import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { TranslateModule } from '@ngx-translate/core';
-
-import { PrimeNgModule } from './primeng-module';
-import { CurrencyPipe } from './pipes/currency.pipe';
-import { ProductCardComponent } from './components/product-card/product-card';
-import { SearchBarComponent } from './components/search-bar/search-bar';
-import { PaginationComponent } from './components/pagination/pagination';
-import { StarRatingComponent } from './components/star-rating/star-rating';
-import { SizingGuideComponent } from './components/sizing-guide/sizing-guide';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -56,18 +55,26 @@ const MATERIAL_MODULES = [
   MatToolbarModule,
 ];
 
-const SHARED_COMPONENTS = [
-  CurrencyPipe,
-  ProductCardComponent,
-  SearchBarComponent,
-  PaginationComponent,
-  StarRatingComponent,
-  SizingGuideComponent,
-];
-
 @NgModule({
-  declarations: SHARED_COMPONENTS,
-  imports: [CommonModule, FormsModule, PrimeNgModule, ...MATERIAL_MODULES, TranslateModule],
-  exports: [CommonModule, FormsModule, PrimeNgModule, ...MATERIAL_MODULES, TranslateModule, ...SHARED_COMPONENTS],
+  imports: [
+    CommonModule,
+    SharedUiModule,
+    SharedPipesModule,
+    SharedFormsModule,
+    PrimeNgModule,
+    ...MATERIAL_MODULES,
+    TranslateModule,
+    FormsModule,
+  ],
+  exports: [
+    SharedUiModule,
+    SharedPipesModule,
+    SharedFormsModule,
+    PrimeNgModule,
+    ...MATERIAL_MODULES,
+    TranslateModule,
+    CommonModule,
+    FormsModule,
+  ],
 })
 export class SharedModule {}

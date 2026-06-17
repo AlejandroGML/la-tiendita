@@ -47,7 +47,7 @@ class StripeWebhookController(Controller):
         # affected by the JWT exemption.  Use the same pattern as the
         # JWT guard's retrieve_user_handler.
         from app.db.engine import async_session
-        from app.services.order_service import StockInsufficientError
+        from app.exceptions import StockInsufficientError
 
         async with async_session() as session:
             try:

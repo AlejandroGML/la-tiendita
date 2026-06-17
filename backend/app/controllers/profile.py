@@ -2,6 +2,9 @@
 
 Mounted at ``/api/profile``. Requires a valid JWT (handled by
 ``jwt_auth.on_app_init`` — no per-route guard needed).
+
+Data access is delegated to ``UserRepository`` — the controller handles
+HTTP concerns only.
 """
 
 import pyotp
@@ -11,17 +14,21 @@ from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import HTTPException, NotAuthorizedException
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.engine import async_session as _async_session_fn
 from app.models.user import User
+from app.repositories.user_repository import UserRepository
 from app.schemas.user import (
     Enable2faRequest,
     Setup2faResponse,
     UserResponse,
     UserUpdate,
 )
+
+
+async def provide_user_repository() -> UserRepository:
+    return UserRepository()
 
 
 async def provide_session() -> AsyncSession:
@@ -41,20 +48,19 @@ class ProfileController(Controller):
     path = "/api/profile"
     tags = ["profile"]
     dependencies = {
+        "repo": Provide(provide_user_repository),
         "session": Provide(provide_session),
     }
 
     @get("/", status_code=200)
     async def get_profile(
         self,
+        repo: UserRepository,
         session: AsyncSession,
         request: ASGIConnection,
     ) -> UserResponse:
         """Return the authenticated user's profile."""
-        result = await session.execute(
-            select(User).where(User.id == request.user.id)
-        )
-        db_user = result.scalar_one_or_none()
+        db_user = await repo.get_by_id(session, request.user.id)
         if db_user is None:
             raise HTTPException(detail="User not found", status_code=404)
         return UserResponse.model_validate(db_user)
@@ -62,6 +68,7 @@ class ProfileController(Controller):
     @put("/", status_code=200)
     async def update_profile(
         self,
+        repo: UserRepository,
         session: AsyncSession,
         request: ASGIConnection,
         data: UserUpdate,
@@ -70,10 +77,7 @@ class ProfileController(Controller):
 
         Only provided fields (non-None) are updated: name, phone, preferred_lang.
         """
-        result = await session.execute(
-            select(User).where(User.id == request.user.id)
-        )
-        db_user = result.scalar_one_or_none()
+        db_user = await repo.get_by_id(session, request.user.id)
         if db_user is None:
             raise HTTPException(detail="User not found", status_code=404)
 
@@ -96,6 +100,7 @@ class ProfileController(Controller):
     @post("/2fa/setup", status_code=200)
     async def setup_2fa(
         self,
+        repo: UserRepository,
         request: ASGIConnection,
     ) -> Setup2faResponse:
         """Generate a TOTP secret for 2FA. Only for admin users.
@@ -116,10 +121,7 @@ class ProfileController(Controller):
         # Store the secret immediately (user must verify to enable)
         from app.db.engine import async_session as session_fn
         async with session_fn() as session:
-            result = await session.execute(
-                select(User).where(User.id == user.id)
-            )
-            db_user = result.scalar_one_or_none()
+            db_user = await repo.get_by_id(session, user.id)
             if db_user:
                 db_user.totp_secret = secret
                 db_user.totp_enabled = False
@@ -135,6 +137,7 @@ class ProfileController(Controller):
     @post("/2fa/enable", status_code=200)
     async def enable_2fa(
         self,
+        repo: UserRepository,
         session: AsyncSession,
         request: ASGIConnection,
         data: Enable2faRequest,
@@ -144,10 +147,7 @@ class ProfileController(Controller):
         if user.role != "admin":
             raise NotAuthorizedException(detail="Only admins can enable 2FA")
 
-        result = await session.execute(
-            select(User).where(User.id == user.id)
-        )
-        db_user = result.scalar_one_or_none()
+        db_user = await repo.get_by_id(session, user.id)
         if db_user is None:
             raise HTTPException(detail="User not found", status_code=404)
 
@@ -173,6 +173,7 @@ class ProfileController(Controller):
     @post("/2fa/disable", status_code=200)
     async def disable_2fa(
         self,
+        repo: UserRepository,
         session: AsyncSession,
         request: ASGIConnection,
     ) -> UserResponse:
@@ -181,10 +182,7 @@ class ProfileController(Controller):
         if user.role != "admin":
             raise NotAuthorizedException(detail="Only admins can disable 2FA")
 
-        result = await session.execute(
-            select(User).where(User.id == user.id)
-        )
-        db_user = result.scalar_one_or_none()
+        db_user = await repo.get_by_id(session, user.id)
         if db_user is None:
             raise HTTPException(detail="User not found", status_code=404)
 

@@ -2,6 +2,9 @@
 
 CategoryController: public catalog — no auth required.
 AdminCategoryController: admin CRUD with ``guards=[jwt_auth, admin_guard]``.
+
+Data access is delegated to ``CategoryRepository`` — controllers only
+handle HTTP concerns (request parsing, response building, error mapping).
 """
 
 from litestar import Controller, get, post, put, delete
@@ -14,18 +17,22 @@ from litestar.exceptions import (
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.db.engine import async_session as _async_session_fn
 from app.guards.admin_guard import admin_guard
 from app.models.category import Category, CategoryTranslation
 from app.models.product import Product
+from app.repositories.category_repository import CategoryRepository
 from app.schemas.category import CreateCategoryRequest
 
 
 # ---------------------------------------------------------------------------
 # DI providers
 # ---------------------------------------------------------------------------
+
+
+async def provide_category_repository() -> CategoryRepository:
+    return CategoryRepository()
 
 
 async def provide_session() -> AsyncSession:
@@ -90,24 +97,19 @@ class CategoryController(Controller):
     path = "/api/categories"
     tags = ["categories"]
     dependencies = {
+        "repo": Provide(provide_category_repository, sync_to_thread=False),
         "session": Provide(provide_session, sync_to_thread=False),
     }
 
     @get("/")
     async def list_categories(
         self,
+        repo: CategoryRepository,
         lang: str = "es",
         session: AsyncSession = None,
     ) -> list[dict]:
         """List all categories with translated name per ``?lang=``."""
-        stmt = (
-            select(Category)
-            .options(selectinload(Category.translations))
-            .order_by(Category.id)
-        )
-        result = await session.execute(stmt)
-        categories = result.scalars().all()
-
+        categories = await repo.list_all_with_translations(session)
         return [_build_category_list_item(c, lang) for c in categories]
 
 
@@ -123,6 +125,7 @@ class AdminCategoryController(Controller):
     tags = ["admin-categories"]
     guards = [admin_guard]
     dependencies = {
+        "repo": Provide(provide_category_repository, sync_to_thread=False),
         "session": Provide(provide_session, sync_to_thread=False),
     }
 
@@ -130,14 +133,12 @@ class AdminCategoryController(Controller):
     async def create_category(
         self,
         data: CreateCategoryRequest,
+        repo: CategoryRepository,
         session: AsyncSession,
     ) -> dict:
         """Create a category with translations."""
         # Check slug uniqueness
-        existing = await session.execute(
-            select(Category.id).where(Category.slug == data.slug)
-        )
-        if existing.scalar_one_or_none() is not None:
+        if await repo.slug_exists(session, data.slug):
             raise HTTPException(
                 status_code=409,
                 detail=f"category slug '{data.slug}' already exists",
@@ -161,29 +162,25 @@ class AdminCategoryController(Controller):
         await session.flush()
 
         # Reload with translations
-        stmt = (
-            select(Category)
-            .where(Category.id == category.id)
-            .options(selectinload(Category.translations))
+        result = await repo.get_by_id(
+            session, category.id, options=[Category.translations]
         )
-        result = await session.execute(stmt)
-        return _build_category_response(result.scalar_one())
+        if result is None:
+            raise HTTPException(status_code=500, detail="category not found after creation")
+        return _build_category_response(result)
 
     @put("/{category_id:int}", status_code=200)
     async def update_category(
         self,
         category_id: int,
         data: CreateCategoryRequest,
+        repo: CategoryRepository,
         session: AsyncSession,
     ) -> dict:
         """Update a category and its translations (upsert)."""
-        stmt = (
-            select(Category)
-            .where(Category.id == category_id)
-            .options(selectinload(Category.translations))
+        category = await repo.get_by_id(
+            session, category_id, options=[Category.translations]
         )
-        result = await session.execute(stmt)
-        category = result.scalar_one_or_none()
         if category is None:
             raise NotFoundException(detail="category not found")
 
@@ -211,6 +208,7 @@ class AdminCategoryController(Controller):
     async def delete_category(
         self,
         category_id: int,
+        repo: CategoryRepository,
         session: AsyncSession,
     ) -> None:
         """Hard-delete a category. Fails with 409 if products are linked."""
@@ -227,9 +225,7 @@ class AdminCategoryController(Controller):
                 detail="category has associated products",
             )
 
-        stmt = select(Category).where(Category.id == category_id)
-        result = await session.execute(stmt)
-        category = result.scalar_one_or_none()
+        category = await repo.get_by_id(session, category_id)
         if category is None:
             raise NotFoundException(detail="category not found")
 
