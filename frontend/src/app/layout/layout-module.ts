@@ -4,9 +4,12 @@ import { RouterModule } from '@angular/router';
 import { SharedModule } from '../shared/shared-module';
 import { Header } from './header/header';
 import { Footer } from './footer/footer';
+import { ThemeToggleComponent } from './header/components/theme-toggle.component';
+import { LanguageSwitcherComponent } from './header/components/language-switcher.component';
+import { CurrencySwitcherComponent } from './header/components/currency-switcher.component';
 
 @NgModule({
-  declarations: [Header, Footer],
+  declarations: [Header, Footer, ThemeToggleComponent, LanguageSwitcherComponent, CurrencySwitcherComponent],
   imports: [CommonModule, SharedModule, RouterModule],
   exports: [Header, Footer],
 })

@@ -117,95 +117,11 @@
             </div>
           </div>
 
-          <!-- Language Dropdown -->
-          <div class="relative"
-               (mouseenter)="langOpen = true"
-               (mouseleave)="onLangLeave()">
-            <button type="button"
-                    (click)="langOpen = !langOpen"
-                    class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors rounded-lg hover:bg-sky-50 dark:hover:bg-gray-800 active:bg-sky-100 dark:active:bg-gray-700"
-                    [attr.aria-label]="'header.cambiarIdioma' | translate">
-              <span [innerHTML]="svg('globe')"></span>
-              <span class="absolute -bottom-0.5 -right-0.5 text-[8px] font-bold text-sky-600 dark:text-sky-400 bg-white dark:bg-gray-800 rounded-sm px-0.5 leading-tight shadow-sm border border-sky-200 dark:border-sky-700">
-                {{ currentLang | uppercase }}
-              </span>
-            </button>
+          <app-language-switcher></app-language-switcher>
 
-            <!-- Language Dropdown menu -->
-            <div *ngIf="langOpen"
-                 (mouseenter)="clearLangTimeout(); langOpen = true"
-                 (mouseleave)="langOpen = false"
-                 class="absolute top-full right-0 mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-gray-900/80 border border-gray-100 dark:border-gray-700 py-1 z-50 overflow-hidden">
-              <button *ngFor="let lang of LANG_CYCLE"
-                      type="button"
-                      (click)="setLang(lang)"
-                      class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors"
-                      [class.text-sky-600]="lang === currentLang"
-                      [class.font-semibold]="lang === currentLang"
-                      [class.text-gray-700]="lang !== currentLang"
-                      [class.dark:text-sky-400]="lang === currentLang"
-                      [class.dark:text-gray-300]="lang !== currentLang"
-                      [class.hover:bg-sky-50]="lang !== currentLang"
-                      [class.dark:hover:bg-gray-800]="lang !== currentLang">
-                <span class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
-                      [class.bg-sky-100]="lang === currentLang"
-                      [class.text-sky-600]="lang === currentLang"
-                      [class.bg-gray-100]="lang !== currentLang"
-                      [class.text-gray-500]="lang !== currentLang"
-                      [class.dark:bg-sky-900/40]="lang === currentLang"
-                      [class.dark:bg-gray-700]="lang !== currentLang"
-                      [class.dark:text-sky-400]="lang === currentLang"
-                      [class.dark:text-gray-400]="lang !== currentLang">
-                  {{ lang | uppercase }}
-                </span>
-                <span>{{ LANG_NAMES[lang] }}</span>
-                <span *ngIf="lang === currentLang" class="ml-auto text-sky-500 dark:text-sky-400" [innerHTML]="svg('check', 'w-3.5 h-3.5')"></span>
-              </button>
-            </div>
-          </div>
+          <app-currency-switcher></app-currency-switcher>
 
-          <!-- Currency Dropdown -->
-          <div class="relative"
-               (mouseenter)="currencyOpen = true"
-               (mouseleave)="onCurrencyLeave()">
-            <button type="button"
-                    (click)="currencyOpen = !currencyOpen"
-                    class="relative px-2 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800"
-                    [attr.aria-label]="'header.cambiarMoneda' | translate">
-              <span>{{ currencyService.symbol }}</span>
-            </button>
-
-            <div *ngIf="currencyOpen"
-                 (mouseenter)="clearCurrencyTimeout(); currencyOpen = true"
-                 (mouseleave)="currencyOpen = false"
-                 class="absolute top-full right-0 mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-gray-900/80 border border-gray-100 dark:border-gray-700 py-1 z-50 overflow-hidden">
-              <button *ngFor="let c of currencyService.availableCurrencies"
-                      type="button"
-                      (click)="currencyService.setCurrency(c.code); currencyOpen = false"
-                      class="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left transition-colors"
-                      [class.text-emerald-600]="c.code === currencyService.currency()"
-                      [class.font-semibold]="c.code === currencyService.currency()"
-                      [class.text-gray-700]="c.code !== currencyService.currency()"
-                      [class.dark:text-emerald-400]="c.code === currencyService.currency()"
-                      [class.dark:text-gray-300]="c.code !== currencyService.currency()"
-                      [class.hover:bg-emerald-50]="c.code !== currencyService.currency()"
-                      [class.dark:hover:bg-gray-800]="c.code !== currencyService.currency()">
-                <span class="text-base w-6 text-center">{{ c.flag }}</span>
-                <span class="flex-1">{{ c.code }}</span>
-                <span *ngIf="c.code === currencyService.currency()" class="text-emerald-500 dark:text-emerald-400">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
-                </span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Theme Toggle -->
-          <button type="button"
-                  (click)="toggleTheme()"
-                  class="p-2 text-gray-500 dark:text-gray-400 hover:text-amber-500 dark:hover:text-amber-400 transition-colors rounded-lg hover:bg-amber-50 dark:hover:bg-gray-800 active:bg-amber-100 dark:active:bg-gray-700"
-                  [attr.aria-label]="isDark ? ('header.modoClaro' | translate) : ('header.modoOscuro' | translate)"
-                  [innerHTML]="svg(themeIcon)">
-          </button>
+          <app-theme-toggle></app-theme-toggle>
 
           <!-- Hamburger — Mobile -->
           <button type="button"

@@ -26,6 +26,7 @@ import {
  */
 @Directive({
   selector: '[appHoverDelay]',
+  standalone: false,
 })
 export class HoverDelayDirective implements OnDestroy {
   /**

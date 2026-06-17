@@ -8,8 +8,6 @@ import { AuthStateService } from '../../core/services/auth-state.service';
 import { TOKEN_STORAGE, type TokenStorage } from '../../core/services/token-storage.service';
 import { CartService } from '../../core/services/cart.service';
 import { CategoryService, type CategoryItem, type CategoryGroup } from '../../core/services/category.service';
-import { CurrencyService, type CurrencyCode } from '../../core/services/currency.service';
-import { ThemeService } from '../../core/services/theme.service';
 import { WishlistService } from '../../core/services/wishlist.service';
 import { rawSvg, svgIcon } from '../../shared/utils/svg-icons';
 
@@ -32,25 +30,20 @@ const CATEGORY_ICONS: Record<string, string> = {
 export class Header implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly themeService = inject(ThemeService);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly translate = inject(TranslateService);
   private readonly authService = inject(AuthService);
   private readonly authState = inject(AuthStateService);
   private readonly tokenStorage: TokenStorage = inject(TOKEN_STORAGE);
   private readonly cartService = inject(CartService);
-  protected readonly currencyService = inject(CurrencyService);
   private readonly wishlistService = inject(WishlistService);
   private readonly categoryService = inject(CategoryService);
 
   mobileOpen = false;
   showMobileSearch = false;
   megaOpen = false;
-  langOpen = false;
-  currencyOpen = false;
   userMenuOpen = false;
   private megaTimeout: ReturnType<typeof setTimeout> | null = null;
-  private langTimeout: ReturnType<typeof setTimeout> | null = null;
   private userMenuTimeout: ReturnType<typeof setTimeout> | null = null;
 
   searchTerm = '';
@@ -59,14 +52,6 @@ export class Header implements OnInit, OnDestroy {
   categories: CategoryItem[] = [];
   private cartSub: Subscription | null = null;
   private wishlistSub: Subscription | null = null;
-
-  protected get themeIcon(): string {
-    return this.themeService.isDark() ? 'moon' : 'sun';
-  }
-
-  protected get isDark(): boolean {
-    return this.themeService.isDark();
-  }
 
   /** Agrupa categorías en 3 columnas para el mega menú */
   protected get categoryGroups(): CategoryGroup[] {
@@ -89,7 +74,6 @@ export class Header implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearMegaTimeout();
-    this.clearLangTimeout();
     if (this.userMenuTimeout !== null) clearTimeout(this.userMenuTimeout);
     this.cartSub?.unsubscribe();
     this.wishlistSub?.unsubscribe();
@@ -171,10 +155,6 @@ export class Header implements OnInit, OnDestroy {
     return CATEGORY_ICONS[slug] || '🏷️';
   }
 
-  protected toggleTheme(): void {
-    this.themeService.toggle();
-  }
-
   protected get currentLang(): string {
     return this.translate.currentLang || 'es';
   }
@@ -188,32 +168,6 @@ export class Header implements OnInit, OnDestroy {
 
   protected setLang(lang: string): void {
     this.translate.use(lang);
-    this.langOpen = false;
-  }
-
-  protected onLangLeave(): void {
-    this.langTimeout = setTimeout(() => {
-      this.langOpen = false;
-    }, 200);
-  }
-
-  protected clearLangTimeout(): void {
-    if (this.langTimeout !== null) {
-      clearTimeout(this.langTimeout);
-      this.langTimeout = null;
-    }
-  }
-
-  // ── Currency ──
-
-  protected onCurrencyLeave(): void {
-    setTimeout(() => {
-      this.currencyOpen = false;
-    }, 200);
-  }
-
-  protected clearCurrencyTimeout(): void {
-    this.currencyOpen = true;
   }
 
   // ── Auth ──
