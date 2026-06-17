@@ -6,6 +6,7 @@ import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { type Observable, catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
+import { TOKEN_STORAGE, type TokenStorage } from '../services/token-storage.service';
 
 /**
  * Catches 401 responses and attempts a silent token refresh.
@@ -21,6 +22,7 @@ import { AuthService } from '../services/auth.service';
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
+  const tokenStorage: TokenStorage = inject(TOKEN_STORAGE);
 
   return next(req).pipe(
     catchError((error: unknown) => {
@@ -41,7 +43,7 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
       // attempt.  If they never had a token (guest visitor) and the
       // refresh fails, we must NOT redirect to /login — that would trap
       // guests browsing public routes like /carrito or /wishlist.
-      const hadToken = !!localStorage.getItem('access_token');
+      const hadToken = tokenStorage.getAccessToken() !== null;
 
       return auth.refreshToken().pipe(
         switchMap(() => {

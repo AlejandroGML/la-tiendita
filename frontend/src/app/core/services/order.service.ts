@@ -7,13 +7,13 @@ import type {
   CheckoutResponse,
   ShippingAddress,
 } from '../../shared/models/order.model';
-import { AuthService } from './auth.service';
+import { AuthStateService } from './auth-state.service';
 import { getSessionId } from '../utils/session-id.util';
 
 @Injectable({ providedIn: 'root' })
 export class OrderService {
   private readonly http = inject(HttpClient);
-  private readonly auth = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
 
   /**
    * Builds request headers for checkout API calls.
@@ -22,7 +22,7 @@ export class OrderService {
    */
   private checkoutHeaders(): { headers: HttpHeaders } {
     let headers = new HttpHeaders();
-    if (!this.auth.isAuthenticated()) {
+    if (!this.authState.isAuthenticated()) {
       headers = headers.set('X-Session-Id', getSessionId());
     }
     return { headers };

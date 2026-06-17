@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthStateService } from '../../core/services/auth-state.service';
 import { AuthService } from '../../core/services/auth.service';
 
 interface NavItem {
@@ -15,7 +16,8 @@ interface NavItem {
   standalone: false,
 })
 export class AdminLayoutComponent {
-  private readonly auth = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
+  private readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   readonly navItems: NavItem[] = [
@@ -26,13 +28,15 @@ export class AdminLayoutComponent {
     { label: 'admin.categories', icon: 'pi pi-tags', route: '/admin/categorias' },
   ];
 
+  readonly isAdmin = this.authState.isAdmin;
+
   get userName(): string {
-    const user = this.auth.getCurrentUser();
+    const user = this.authState.currentUser();
     return user?.name ?? '';
   }
 
   get userEmail(): string {
-    const user = this.auth.getCurrentUser();
+    const user = this.authState.currentUser();
     return user?.email ?? '';
   }
 
@@ -45,10 +49,10 @@ export class AdminLayoutComponent {
   }
 
   logout(): void {
-    this.auth.logout().subscribe({
+    this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),
       error: () => {
-        this.auth.clearTokens();
+        this.authService.clearTokens();
         this.router.navigate(['/login']);
       },
     });

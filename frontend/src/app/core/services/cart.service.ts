@@ -6,13 +6,13 @@ import type {
   AddToCartRequest,
   UpdateCartItemRequest,
 } from '../../shared/models/cart.model';
-import { AuthService } from './auth.service';
+import { AuthStateService } from './auth-state.service';
 import { getSessionId } from '../utils/session-id.util';
 
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly http = inject(HttpClient);
-  private readonly auth = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
 
   private readonly cartSubject = new BehaviorSubject<CartResponse | null>(null);
   readonly cart$ = this.cartSubject.asObservable();
@@ -25,7 +25,7 @@ export class CartService {
    */
   private cartHeaders(): { headers: HttpHeaders } {
     let headers = new HttpHeaders();
-    if (!this.auth.isAuthenticated()) {
+    if (!this.authState.isAuthenticated()) {
       headers = headers.set('X-Session-Id', getSessionId());
     }
     return { headers };
@@ -78,7 +78,7 @@ export class CartService {
   /** Ensure guest session ID is generated before first cart API call.
    *  No-op for authenticated users; eager UUID generation for guests. */
   init(): void {
-    if (!this.auth.isAuthenticated()) {
+    if (!this.authState.isAuthenticated()) {
       getSessionId();
     }
   }

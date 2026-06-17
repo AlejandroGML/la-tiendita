@@ -1,7 +1,9 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
-import { AuthService, UserResponse } from '../../../core/services/auth.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
+import { TwoFactorService } from '../../../core/services/two-factor.service';
+import { type UserResponse } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-profile-view',
@@ -11,7 +13,8 @@ import { AuthService, UserResponse } from '../../../core/services/auth.service';
 export class ProfileView implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
+  private readonly twoFactorService = inject(TwoFactorService);
 
   editing = false;
   saving = false;
@@ -34,7 +37,7 @@ export class ProfileView implements OnInit {
   });
 
   get currentUser(): UserResponse | null {
-    return this.authService.getCurrentUser();
+    return this.authState.currentUser();
   }
 
   ngOnInit(): void {
@@ -55,7 +58,6 @@ export class ProfileView implements OnInit {
         });
       },
       error: () => {
-        // Fallback to localStorage data
         const u = this.currentUser;
         if (u) {
           this.form.patchValue({
@@ -73,7 +75,6 @@ export class ProfileView implements OnInit {
     this.successMessage = null;
     this.errorMessage = null;
     if (!this.editing) {
-      // Cancel: reload original data
       this.loadProfile();
     }
   }
@@ -96,11 +97,10 @@ export class ProfileView implements OnInit {
         this.saving = false;
         this.editing = false;
         this.successMessage = 'Perfil actualizado correctamente';
-        // Update local storage with new user data
-        const current = this.authService.getCurrentUser();
+        // Update auth state with new user data
+        const current = this.authState.currentUser();
         if (current) {
-          const updated = { ...current, name: user.name, preferred_lang: user.preferred_lang };
-          localStorage.setItem('user', JSON.stringify(updated));
+          this.authState.setUser({ ...current, name: user.name, preferred_lang: user.preferred_lang });
         }
       },
       error: (err) => {
@@ -113,7 +113,7 @@ export class ProfileView implements OnInit {
   // ── 2FA ──
 
   protected get isAdmin(): boolean {
-    return this.authService.isAdmin();
+    return this.authState.isAdmin();
   }
 
   load2faStatus(): void {
@@ -125,11 +125,11 @@ export class ProfileView implements OnInit {
   setup2fa(): void {
     this.totpLoading = true;
     this.totpMessage = null;
-    this.http.post<any>('/api/profile/2fa/setup', {}).subscribe({
+    this.twoFactorService.requestSetup().subscribe({
       next: (res) => {
         this.totpLoading = false;
         this.totpSetupSecret = res.secret;
-        this.totpQrUrl = res.qr_code_url;
+        this.totpQrUrl = res.qrCodeUrl;
       },
       error: (err) => {
         this.totpLoading = false;
@@ -142,7 +142,7 @@ export class ProfileView implements OnInit {
     if (!this.totpSetupCode || this.totpSetupCode.length < 6) return;
     this.totpLoading = true;
     this.totpMessage = null;
-    this.http.post<any>('/api/profile/2fa/enable', { code: this.totpSetupCode }).subscribe({
+    this.twoFactorService.verifySetup(this.totpSetupCode).subscribe({
       next: () => {
         this.totpLoading = false;
         this.totpEnabled = true;
@@ -161,7 +161,14 @@ export class ProfileView implements OnInit {
   disable2fa(): void {
     if (!confirm('¿Desactivar 2FA? Tu cuenta será menos segura.')) return;
     this.totpLoading = true;
-    this.http.post<any>('/api/profile/2fa/disable', {}).subscribe({
+    // The TwoFactorService.disable requires the user's password as confirmation.
+    // Prompt the user for it since the old endpoint didn't require one.
+    const password = prompt('Ingresa tu contraseña para confirmar:');
+    if (!password) {
+      this.totpLoading = false;
+      return;
+    }
+    this.twoFactorService.disable(password).subscribe({
       next: () => {
         this.totpLoading = false;
         this.totpEnabled = false;

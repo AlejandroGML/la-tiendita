@@ -10,6 +10,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { WishlistComponent } from './wishlist';
 import { WishlistService } from '../../../core/services/wishlist.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
 import type { WishlistItem, WishlistResponse } from '../../../shared/models/wishlist.model';
 
 const mockItems: WishlistItem[] = [
@@ -64,6 +65,14 @@ describe('WishlistComponent', () => {
       providers: [
         MessageService,
         { provide: WishlistService, useValue: wishlistService },
+        {
+          provide: AuthStateService,
+          useValue: {
+            isAuthenticated: vi.fn().mockReturnValue(true),
+            currentUser: vi.fn().mockReturnValue({ id: '1', email: 'test@test.com', name: 'Test', role: 'customer', preferred_lang: 'es', is_verified: true, created_at: '2025-01-01T00:00:00Z' }),
+            isAdmin: vi.fn().mockReturnValue(false),
+          },
+        },
       ],
     }).compileComponents();
 

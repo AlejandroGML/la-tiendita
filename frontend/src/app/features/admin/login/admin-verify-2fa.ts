@@ -1,13 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputOtpModule } from 'primeng/inputotp';
-import { AuthService } from '../../../core/services/auth.service';
+import { TwoFactorService } from '../../../core/services/two-factor.service';
 
 @Component({
   selector: 'app-admin-verify-2fa',
@@ -36,8 +35,7 @@ import { AuthService } from '../../../core/services/auth.service';
 })
 export class AdminVerify2fa {
   private readonly fb = inject(FormBuilder);
-  private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
+  private readonly twoFactorService = inject(TwoFactorService);
   private readonly router = inject(Router);
 
   readonly form = this.fb.group({
@@ -59,14 +57,11 @@ export class AdminVerify2fa {
       return;
     }
 
-    this.http.post<any>('/api/auth/verify-2fa', {
-      login_token: loginToken,
-      code: this.form.value.code,
-    }).subscribe({
-      next: (res) => {
+    const code = this.form.value.code ?? '';
+    this.twoFactorService.validate(code, loginToken).subscribe({
+      next: () => {
         this.loading = false;
         sessionStorage.removeItem('login_token');
-        this.authService.handleLoginResponse(res);
         this.router.navigate(['/admin']);
       },
       error: (err) => {

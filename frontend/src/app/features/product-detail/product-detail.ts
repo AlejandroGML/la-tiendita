@@ -9,7 +9,7 @@ import type { Review } from '../../shared/models/review.model';
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { ReviewService } from '../../core/services/review.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthStateService } from '../../core/services/auth-state.service';
 import { SeoService } from '../../core/services/seo.service';
 import { SizingGuideComponent } from '../../shared/components/sizing-guide/sizing-guide';
 
@@ -212,7 +212,7 @@ export class ProductDetail implements OnDestroy {
     private translate: TranslateService,
     private cartService: CartService,
     private reviewService: ReviewService,
-    public authService: AuthService,
+    public authState: AuthStateService,
     private seoService: SeoService,
     private messageService: MessageService,
   ) {

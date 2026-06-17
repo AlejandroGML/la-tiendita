@@ -23,7 +23,7 @@ import { SizingGuideComponent } from '../../shared/components/sizing-guide/sizin
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { ReviewService } from '../../core/services/review.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthStateService } from '../../core/services/auth-state.service';
 import { SeoService } from '../../core/services/seo.service';
 import type { Product } from '../../shared/models/product.model';
 
@@ -88,10 +88,11 @@ function createReviewServiceMock() {
   };
 }
 
-function createAuthServiceMock(isAuth = true) {
+function createAuthStateServiceMock(isAuth = true) {
   return {
     isAuthenticated: vi.fn().mockReturnValue(isAuth),
-    getCurrentUser: vi.fn().mockReturnValue(null),
+    currentUser: vi.fn().mockReturnValue(null),
+    isAdmin: vi.fn().mockReturnValue(false),
   };
 }
 
@@ -111,7 +112,7 @@ describe('ProductDetail', () => {
   let productService: ReturnType<typeof createProductServiceMock>;
   let cartService: ReturnType<typeof createCartServiceMock>;
   let reviewService: ReturnType<typeof createReviewServiceMock>;
-  let authService: ReturnType<typeof createAuthServiceMock>;
+  let authState: ReturnType<typeof createAuthStateServiceMock>;
   let seoService: ReturnType<typeof createSeoServiceMock>;
   let translate: TranslateService;
 
@@ -119,7 +120,7 @@ describe('ProductDetail', () => {
     productService = createProductServiceMock();
     cartService = createCartServiceMock();
     reviewService = createReviewServiceMock();
-    authService = createAuthServiceMock();
+    authState = createAuthStateServiceMock();
     seoService = createSeoServiceMock();
 
     await TestBed.configureTestingModule({
@@ -144,7 +145,7 @@ describe('ProductDetail', () => {
         { provide: ProductService, useValue: productService },
         { provide: CartService, useValue: cartService },
         { provide: ReviewService, useValue: reviewService },
-        { provide: AuthService, useValue: authService },
+        { provide: AuthStateService, useValue: authState },
         { provide: SeoService, useValue: seoService },
         { provide: MessageService, useValue: { add: vi.fn() } },
         {
@@ -420,7 +421,7 @@ describe('ProductDetail', () => {
   });
 
   it('should show "Write Review" button when authenticated', async () => {
-    authService.isAuthenticated = vi.fn().mockReturnValue(true);
+    authState.isAuthenticated = vi.fn().mockReturnValue(true);
     productService.getProductBySlug = vi.fn().mockReturnValue(of(mockProduct));
 
     const newFixture = TestBed.createComponent(ProductDetail);
@@ -440,7 +441,7 @@ describe('ProductDetail', () => {
   });
 
   it('should hide "Write Review" button when not authenticated', async () => {
-    authService.isAuthenticated = vi.fn().mockReturnValue(false);
+    authState.isAuthenticated = vi.fn().mockReturnValue(false);
     productService.getProductBySlug = vi.fn().mockReturnValue(of(mockProduct));
 
     const newFixture = TestBed.createComponent(ProductDetail);

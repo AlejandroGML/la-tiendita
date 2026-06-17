@@ -1,6 +1,6 @@
+import { inject } from '@angular/core';
 import { type HttpInterceptorFn } from '@angular/common/http';
-
-const ACCESS_TOKEN_KEY = 'access_token';
+import { TOKEN_STORAGE } from '../services/token-storage.service';
 
 /**
  * Attaches `Authorization: Bearer <token>` to every outgoing request
@@ -8,7 +8,8 @@ const ACCESS_TOKEN_KEY = 'access_token';
  * that endpoint receives its token in the request body.
  */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  const tokenStorage = inject(TOKEN_STORAGE);
+  const token = tokenStorage.getAccessToken();
 
   if (token && !req.url.includes('/api/auth/refresh')) {
     req = req.clone({

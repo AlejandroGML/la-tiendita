@@ -7,7 +7,7 @@ import type { CartResponse, CartItem } from '../../shared/models/cart.model';
 import type { CheckoutResponse, ShippingAddress } from '../../shared/models/order.model';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthStateService } from '../../core/services/auth-state.service';
 
 @Component({
   selector: 'app-checkout',
@@ -32,7 +32,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private readonly orderService: OrderService,
     private readonly router: Router,
     private readonly messageService: MessageService,
-    private readonly authService: AuthService,
+    private readonly authState: AuthStateService,
     fb: FormBuilder,
   ) {
     this.shippingForm = fb.group({
@@ -45,7 +45,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.isGuest.set(!this.authService.isAuthenticated());
+    this.isGuest.set(!this.authState.isAuthenticated());
     this.cartService
       .getCart()
       .pipe(takeUntil(this.destroy$))

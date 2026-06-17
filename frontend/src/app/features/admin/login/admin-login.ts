@@ -7,7 +7,9 @@ import { ButtonModule } from 'primeng/button';
 import { CardModule } from 'primeng/card';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
-import { AuthService } from '../../../core/services/auth.service';
+import { TOKEN_STORAGE } from '../../../core/services/token-storage.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
+import { TwoFactorService } from '../../../core/services/two-factor.service';
 
 @Component({
   selector: 'app-admin-login',
@@ -36,7 +38,9 @@ import { AuthService } from '../../../core/services/auth.service';
 export class AdminLogin {
   private readonly fb = inject(FormBuilder);
   private readonly http = inject(HttpClient);
-  private readonly authService = inject(AuthService);
+  private readonly tokenStorage = inject(TOKEN_STORAGE);
+  private readonly authState = inject(AuthStateService);
+  private readonly twoFactorService = inject(TwoFactorService);
   private readonly router = inject(Router);
 
   readonly form = this.fb.group({
@@ -57,11 +61,11 @@ export class AdminLogin {
       next: (res) => {
         this.loading = false;
         if (res.require_2fa) {
-          // Store login_token and redirect to 2FA verification
           sessionStorage.setItem('login_token', res.login_token);
           this.router.navigate(['/admin/login/verify-2fa']);
         } else {
-          this.authService.handleLoginResponse(res);
+          this.tokenStorage.setTokens(res.access_token, res.refresh_token);
+          this.authState.setUser(res.user);
           this.router.navigate(['/admin']);
         }
       },

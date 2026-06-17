@@ -1,51 +1,34 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router, type ActivatedRouteSnapshot, type RouterStateSnapshot } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import { AuthStateService } from '../services/auth-state.service';
 import { authGuard } from './auth.guard';
-
-// In-memory localStorage shim
-const store = new Map<string, string>();
-const mockLocalStorage = {
-  getItem: (key: string) => store.get(key) ?? null,
-  setItem: (key: string, value: string) => void store.set(key, value),
-  removeItem: (key: string) => void store.delete(key),
-  clear: () => void store.clear(),
-  get length() { return store.size; },
-  key: (index: number) => [...store.keys()][index] ?? null,
-};
 
 const fakeRoute = {} as ActivatedRouteSnapshot;
 const fakeState = {} as RouterStateSnapshot;
 
 describe('authGuard', () => {
-  let auth: AuthService;
+  let authState: AuthStateService;
   let router: Router;
 
-  beforeAll(() => {
-    Object.defineProperty(globalThis, 'localStorage', {
-      value: mockLocalStorage,
-      writable: true,
-      configurable: true,
-    });
-  });
-
   beforeEach(() => {
-    store.clear();
-
     TestBed.configureTestingModule({
       providers: [provideRouter([])],
     });
 
-    auth = TestBed.inject(AuthService);
+    authState = TestBed.inject(AuthStateService);
     router = TestBed.inject(Router);
   });
 
-  afterEach(() => {
-    store.clear();
-  });
-
   it('should return true when user is authenticated', () => {
-    vi.spyOn(auth, 'isAuthenticated').mockReturnValue(true);
+    authState.setUser({
+      id: '1',
+      email: 'test@example.com',
+      name: 'Test',
+      role: 'customer',
+      preferred_lang: 'es',
+      is_verified: true,
+      created_at: '2025-01-01T00:00:00Z',
+    });
 
     const result = TestBed.runInInjectionContext(() => authGuard(fakeRoute, fakeState));
 
@@ -53,7 +36,7 @@ describe('authGuard', () => {
   });
 
   it('should redirect to /login when user is not authenticated', () => {
-    vi.spyOn(auth, 'isAuthenticated').mockReturnValue(false);
+    authState.clearUser();
 
     const result = TestBed.runInInjectionContext(() => authGuard(fakeRoute, fakeState));
 

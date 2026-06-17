@@ -5,6 +5,7 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
+import { AuthStateService } from '../../core/services/auth-state.service';
 import { CartService } from '../../core/services/cart.service';
 import { CurrencyService, type CurrencyCode } from '../../core/services/currency.service';
 import { ThemeService } from '../../core/services/theme.service';
@@ -45,6 +46,7 @@ export class Header implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly translate = inject(TranslateService);
   private readonly authService = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
   private readonly cartService = inject(CartService);
   protected readonly currencyService = inject(CurrencyService);
   private readonly wishlistService = inject(WishlistService);
@@ -160,7 +162,7 @@ export class Header implements OnInit, OnDestroy {
     // Fetch cart for both guests and authenticated users.
     // The CartService sends X-Session-Id for guests; backend handles both.
     this.cartService.getCart().subscribe();
-    if (this.authService.isAuthenticated()) {
+    if (this.authState.isAuthenticated()) {
       this.wishlistService.getWishlist().subscribe();
     }
   }
@@ -224,11 +226,11 @@ export class Header implements OnInit, OnDestroy {
   // ── Auth ──
 
   protected get currentUser() {
-    return this.authService.getCurrentUser();
+    return this.authState.currentUser();
   }
 
   protected get isLoggedIn(): boolean {
-    return this.authService.isAuthenticated();
+    return this.authState.isAuthenticated();
   }
 
   protected get userName(): string {

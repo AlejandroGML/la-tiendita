@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { WishlistService } from '../../../core/services/wishlist.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
 import type { WishlistItem } from '../../../shared/models/wishlist.model';
 
 @Component({
@@ -18,13 +18,13 @@ export class WishlistComponent implements OnInit, OnDestroy {
   readonly items = signal<WishlistItem[]>([]);
   readonly loading = signal(false);
   readonly error = signal(false);
-  readonly isGuest = computed(() => !this.authService.isAuthenticated());
+  readonly isGuest = computed(() => !this.authState.isAuthenticated());
 
   constructor(
     private readonly wishlistService: WishlistService,
     private readonly router: Router,
     private readonly messageService: MessageService,
-    private readonly authService: AuthService,
+    private readonly authState: AuthStateService,
   ) {}
 
   ngOnInit(): void {

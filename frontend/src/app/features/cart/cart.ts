@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import type { CartResponse, CartItem } from '../../shared/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthStateService } from '../../core/services/auth-state.service';
 
 @Component({
   selector: 'app-cart',
@@ -27,14 +27,14 @@ export class CartComponent implements OnInit, OnDestroy {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
   readonly showCancelledBanner = signal(false);
-  readonly isGuest = computed(() => !this.authService.isAuthenticated());
+  readonly isGuest = computed(() => !this.authState.isAuthenticated());
   readonly totalItems = computed(() => this.items().reduce((sum, item) => sum + item.quantity, 0));
 
   constructor(
     private readonly cartService: CartService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-    private readonly authService: AuthService,
+    private readonly authState: AuthStateService,
   ) {}
 
   ngOnInit(): void {

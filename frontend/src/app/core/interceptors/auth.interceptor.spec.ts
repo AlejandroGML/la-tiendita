@@ -4,38 +4,27 @@ import {
   provideHttpClientTesting,
   HttpTestingController,
 } from '@angular/common/http/testing';
+import { TOKEN_STORAGE, type TokenStorage } from '../services/token-storage.service';
 import { authInterceptor } from './auth.interceptor';
-
-// In-memory localStorage shim for Vitest environments without jsdom
-const store = new Map<string, string>();
-const mockLocalStorage = {
-  getItem: (key: string) => store.get(key) ?? null,
-  setItem: (key: string, value: string) => void store.set(key, value),
-  removeItem: (key: string) => void store.delete(key),
-  clear: () => void store.clear(),
-  get length() { return store.size; },
-  key: (index: number) => [...store.keys()][index] ?? null,
-};
 
 describe('authInterceptor', () => {
   let http: HttpClient;
   let httpMock: HttpTestingController;
-
-  beforeAll(() => {
-    Object.defineProperty(globalThis, 'localStorage', {
-      value: mockLocalStorage,
-      writable: true,
-      configurable: true,
-    });
-  });
+  let mockTokenStorage: TokenStorage;
 
   beforeEach(() => {
-    store.clear();
+    mockTokenStorage = {
+      getAccessToken: () => null,
+      getRefreshToken: () => null,
+      setTokens: () => {},
+      clear: () => {},
+    };
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([authInterceptor])),
         provideHttpClientTesting(),
+        { provide: TOKEN_STORAGE, useValue: mockTokenStorage },
       ],
     });
 
@@ -45,11 +34,10 @@ describe('authInterceptor', () => {
 
   afterEach(() => {
     httpMock.verify();
-    store.clear();
   });
 
   it('should attach Bearer token when one is stored', () => {
-    store.set('access_token', 'test-jwt');
+    mockTokenStorage.getAccessToken = () => 'test-jwt';
 
     http.get('/api/products').subscribe();
 
@@ -65,7 +53,7 @@ describe('authInterceptor', () => {
   });
 
   it('should skip refresh endpoint even when token exists', () => {
-    store.set('access_token', 'test-jwt');
+    mockTokenStorage.getAccessToken = () => 'test-jwt';
 
     http.post('/api/auth/refresh', { refresh_token: 'rt' }).subscribe();
 
