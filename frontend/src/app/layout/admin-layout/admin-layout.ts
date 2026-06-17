@@ -2,6 +2,7 @@ import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthStateService } from '../../core/services/auth-state.service';
 import { AuthService } from '../../core/services/auth.service';
+import { TOKEN_STORAGE, type TokenStorage } from '../../core/services/token-storage.service';
 
 interface NavItem {
   label: string;
@@ -18,6 +19,7 @@ interface NavItem {
 export class AdminLayoutComponent {
   private readonly authState = inject(AuthStateService);
   private readonly authService = inject(AuthService);
+  private readonly tokenStorage: TokenStorage = inject(TOKEN_STORAGE);
   private readonly router = inject(Router);
 
   readonly navItems: NavItem[] = [
@@ -52,7 +54,8 @@ export class AdminLayoutComponent {
     this.authService.logout().subscribe({
       next: () => this.router.navigate(['/login']),
       error: () => {
-        this.authService.clearTokens();
+        this.tokenStorage.clear();
+        this.authState.clearUser();
         this.router.navigate(['/login']);
       },
     });

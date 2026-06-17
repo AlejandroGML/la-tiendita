@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { AuthStateService } from '../../core/services/auth-state.service';
+import { TOKEN_STORAGE, type TokenStorage } from '../../core/services/token-storage.service';
 import { CartService } from '../../core/services/cart.service';
 import { CurrencyService, type CurrencyCode } from '../../core/services/currency.service';
 import { ThemeService } from '../../core/services/theme.service';
@@ -47,6 +48,7 @@ export class Header implements OnInit, OnDestroy {
   private readonly translate = inject(TranslateService);
   private readonly authService = inject(AuthService);
   private readonly authState = inject(AuthStateService);
+  private readonly tokenStorage: TokenStorage = inject(TOKEN_STORAGE);
   private readonly cartService = inject(CartService);
   protected readonly currencyService = inject(CurrencyService);
   private readonly wishlistService = inject(WishlistService);
@@ -287,7 +289,8 @@ export class Header implements OnInit, OnDestroy {
       next: () => this.router.navigate(['/']),
       error: () => {
         // Even if the server call fails, clear local tokens
-        this.authService.clearTokens();
+        this.tokenStorage.clear();
+        this.authState.clearUser();
         this.router.navigate(['/']);
       },
     });

@@ -1,13 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { provideHttpClient } from '@angular/common/http';
-import { provideHttpClientTesting } from '@angular/common/http/testing';
-import { Router } from '@angular/router';
 
-
-import {
-  AuthStateService,
-  USE_REACTIVE_AUTH_STATE,
-} from './auth-state.service';
+import { AuthStateService } from './auth-state.service';
 import { type UserResponse } from './auth.service';
 
 // ---------------------------------------------------------------------------
@@ -35,10 +28,10 @@ const mockAdmin: UserResponse = {
 };
 
 // ---------------------------------------------------------------------------
-// Reactive path (USE_REACTIVE_AUTH_STATE = true — default)
+// Suite
 // ---------------------------------------------------------------------------
 
-describe('AuthStateService (reactive, default)', () => {
+describe('AuthStateService', () => {
   let service: AuthStateService;
 
   beforeEach(() => {
@@ -164,54 +157,5 @@ describe('AuthStateService (reactive, default)', () => {
       service.clearUser();
       expect(service.isAdmin()).toBe(false);
     });
-  });
-});
-
-// ---------------------------------------------------------------------------
-// Feature flag: USE_REACTIVE_AUTH_STATE = false (R6)
-// ---------------------------------------------------------------------------
-
-describe('AuthStateService (feature flag OFF)', () => {
-  let service: AuthStateService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({
-      providers: [
-        { provide: USE_REACTIVE_AUTH_STATE, useValue: false },
-        provideHttpClient(),
-        provideHttpClientTesting(),
-        { provide: Router, useValue: { url: '/', navigate: () => Promise.resolve(true) } },
-      ],
-    });
-    service = TestBed.inject(AuthStateService);
-  });
-
-  describe('signal behavior (same as flag-on, derived from currentUser)', () => {
-    it('isAuthenticated returns false initially, true after setUser', () => {
-      expect(service.isAuthenticated()).toBe(false);
-      service.setUser(mockUser);
-      expect(service.isAuthenticated()).toBe(true);
-    });
-
-    it('isAdmin returns true for admin user via setUser', () => {
-      service.setUser(mockAdmin);
-      expect(service.isAdmin()).toBe(true);
-    });
-
-    it('isAdmin returns false when no user on AuthState', () => {
-      expect(service.isAdmin()).toBe(false);
-    });
-  });
-
-  it('setUser still updates currentUser signal', () => {
-    expect(service.currentUser()).toBeNull();
-    service.setUser(mockUser);
-    expect(service.currentUser()).toEqual(mockUser);
-  });
-
-  it('clearUser still clears currentUser signal', () => {
-    service.setUser(mockUser);
-    service.clearUser();
-    expect(service.currentUser()).toBeNull();
   });
 });

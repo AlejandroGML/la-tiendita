@@ -1,34 +1,6 @@
-import {
-  computed,
-  inject,
-  Injectable,
-  InjectionToken,
-  signal,
-  type Signal,
-  type WritableSignal,
-} from '@angular/core';
+import { computed, Injectable, signal, type Signal, type WritableSignal } from '@angular/core';
 
 import { type UserResponse } from './auth.service';
-
-/**
- * Injection token that gates the reactive auth state path.
- *
- * - `true`  (default): `AuthStateService` computes `isAuthenticated` and
- *   `isAdmin` as derived signals from `currentUser`.
- * - `false`: the computed signals still derive from `currentUser`, but
- *   `setUser`/`clearUser` will NOT be called by `AuthService` — the
- *   fallback to `AuthService.isAuthenticated()` is handled via the
- *   deprecated `AuthService` methods which read `TokenStorage` directly.
- *
- * Provide explicitly in `AppModule`:
- * ```ts
- * providers: [{ provide: USE_REACTIVE_AUTH_STATE, useValue: false }]
- * ```
- */
-export const USE_REACTIVE_AUTH_STATE = new InjectionToken<boolean>(
-  'USE_REACTIVE_AUTH_STATE',
-  { factory: () => true },
-);
 
 /**
  * Reactive, read-only view of the current authentication state.
@@ -54,10 +26,6 @@ export class AuthStateService {
   readonly isAdmin: Signal<boolean>;
 
   constructor() {
-    // Both flag-on and flag-off paths use the same reactive computations
-    // derived from `currentUser`. The flag-off path primarily serves as a
-    // signal to `AuthService` to skip `setUser`/`clearUser` calls, avoiding
-    // a circular dependency (AuthStateService ⇆ AuthService).
     this.isAuthenticated = computed(() => this.currentUser() !== null);
     this.isAdmin = computed(() => this.currentUser()?.role === 'admin');
   }

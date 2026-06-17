@@ -43,12 +43,6 @@ export interface TokenResponse {
  * `refreshToken()` uses a shared observable guarded by a module-level
  * reference so that concurrent 401 responses trigger only **one** HTTP
  * refresh call. All subscribers receive the same result.
- *
- * ## Deprecated methods
- *
- * Several methods (marked `@deprecated`) are retained for one sprint to
- * avoid breaking existing consumers. They delegate to the new services
- * under the hood. These will be removed after Phase 3 consumer migration.
  */
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -178,60 +172,6 @@ export class AuthService {
     return this.http
       .get<UserResponse>('/api/auth/me')
       .pipe(tap((user) => this.authState.setUser(user)));
-  }
-
-  // -- Deprecated helpers --------------------------------------------------
-
-  /**
-   * Returns the current user synchronously from `AuthStateService`.
-   *
-   * @deprecated Use `AuthStateService.currentUser()` or
-   * `AuthService.fetchCurrentUser()` instead. Will be removed after
-   * Phase 3 consumer migration.
-   */
-  getCurrentUser(): UserResponse | null {
-    return this.authState.currentUser();
-  }
-
-  /**
-   * @deprecated Use `AuthStateService.isAdmin()` directly.
-   * Will be removed after Phase 3 consumer migration.
-   */
-  isAdmin(): boolean {
-    return this.authState.currentUser()?.role === 'admin';
-  }
-
-  /**
-   * Check whether a user is currently authenticated.
-   *
-   * @deprecated Use `AuthStateService.isAuthenticated()` instead.
-   * Will be removed after Phase 3 consumer migration.
-   */
-  isAuthenticated(): boolean {
-    return this.tokenStorage.getAccessToken() !== null;
-  }
-
-  /**
-   * Clear all stored tokens and user state.
-   *
-   * @deprecated Use `TokenStorage.clear()` + `AuthStateService.clearUser()`
-   * directly. Will be removed after Phase 3 consumer migration.
-   */
-  clearTokens(): void {
-    this.tokenStorage.clear();
-    this.authState.clearUser();
-  }
-
-  /**
-   * Store tokens and user from a login response.
-   *
-   * @deprecated Use `login()` or `TwoFactorService.validate()` which
-   * handle this automatically. Will be removed after Phase 3 consumer
-   * migration.
-   */
-  handleLoginResponse(res: TokenResponse): void {
-    this.tokenStorage.setTokens(res.access_token, res.refresh_token);
-    this.authState.setUser(res.user);
   }
 
   /**

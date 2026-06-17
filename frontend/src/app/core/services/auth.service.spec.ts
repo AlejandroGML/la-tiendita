@@ -71,53 +71,6 @@ describe('AuthService', () => {
     expect(service).toBeTruthy();
   });
 
-  // -- isAuthenticated (deprecated) ----------------------------------------
-
-  describe('isAuthenticated (deprecated)', () => {
-    it('returns false when no token is stored', () => {
-      expect(service.isAuthenticated()).toBe(false);
-    });
-
-    it('returns true when an access token is stored in TokenStorage', () => {
-      tokenStorage.setTokens('some-token', 'some-refresh');
-      expect(service.isAuthenticated()).toBe(true);
-    });
-  });
-
-  // -- isAdmin (deprecated) ------------------------------------------------
-
-  describe('isAdmin (deprecated)', () => {
-    it('returns false when no user is set', () => {
-      expect(service.isAdmin()).toBe(false);
-    });
-
-    it('returns true when admin user is set in AuthState', () => {
-      authState.setUser({
-        id: '1',
-        email: 'admin@b.com',
-        name: 'Admin',
-        role: 'admin',
-        preferred_lang: 'en',
-        is_verified: true,
-        created_at: '2026-01-01T00:00:00Z',
-      });
-      expect(service.isAdmin()).toBe(true);
-    });
-
-    it('returns false for customer user', () => {
-      authState.setUser({
-        id: '2',
-        email: 'cust@b.com',
-        name: 'Cust',
-        role: 'customer',
-        preferred_lang: 'en',
-        is_verified: true,
-        created_at: '2026-01-01T00:00:00Z',
-      });
-      expect(service.isAdmin()).toBe(false);
-    });
-  });
-
   // -- login ---------------------------------------------------------------
 
   describe('login', () => {
@@ -373,78 +326,6 @@ describe('AuthService', () => {
 
       // AuthState updated
       expect(authState.currentUser()).toEqual(mockUser);
-    });
-  });
-
-  // -- getCurrentUser (deprecated) -----------------------------------------
-
-  describe('getCurrentUser (deprecated)', () => {
-    it('returns null when no user is set in AuthState', () => {
-      expect(service.getCurrentUser()).toBeNull();
-    });
-
-    it('returns user from AuthState', () => {
-      const mockUser = {
-        id: '1',
-        email: 'a@b.com',
-        name: 'A',
-        role: 'admin' as const,
-        preferred_lang: 'en',
-        is_verified: true,
-        created_at: '2026-01-01T00:00:00Z',
-      };
-      authState.setUser(mockUser);
-      expect(service.getCurrentUser()).toEqual(mockUser);
-    });
-  });
-
-  // -- clearTokens (deprecated) --------------------------------------------
-
-  describe('clearTokens (deprecated)', () => {
-    it('clears both TokenStorage and AuthState', () => {
-      tokenStorage.setTokens('at', 'rt');
-      authState.setUser({
-        id: '1',
-        email: 'a@b.com',
-        name: 'A',
-        role: 'customer',
-        preferred_lang: 'en',
-        is_verified: false,
-        created_at: '2026-01-01T00:00:00Z',
-      });
-
-      service.clearTokens();
-
-      expect(tokenStorage.getAccessToken()).toBeNull();
-      expect(tokenStorage.getRefreshToken()).toBeNull();
-      expect(authState.currentUser()).toBeNull();
-    });
-  });
-
-  // -- handleLoginResponse (deprecated) ------------------------------------
-
-  describe('handleLoginResponse (deprecated)', () => {
-    it('stores tokens and updates AuthState from a TokenResponse', () => {
-      const mockResponse: TokenResponse = {
-        access_token: 'at',
-        refresh_token: 'rt',
-        token_type: 'bearer',
-        user: {
-          id: '1',
-          email: 'a@b.com',
-          name: 'A',
-          role: 'customer',
-          preferred_lang: 'en',
-          is_verified: false,
-          created_at: '2026-01-01T00:00:00Z',
-        },
-      };
-
-      service.handleLoginResponse(mockResponse);
-
-      expect(tokenStorage.getAccessToken()).toBe('at');
-      expect(tokenStorage.getRefreshToken()).toBe('rt');
-      expect(authState.currentUser()).toEqual(mockResponse.user);
     });
   });
 
