@@ -3,6 +3,7 @@ import { NgModule } from '@angular/core';
 import { SharedUiModule } from './shared-ui.module';
 import { SharedPipesModule } from './shared-pipes.module';
 import { SharedFormsModule } from './shared-forms.module';
+import { HoverDelayDirective } from './directives/hover-delay.directive';
 
 // Legacy imports kept for backwards compatibility
 import { PrimeNgModule } from './primeng-module';
@@ -56,6 +57,7 @@ const MATERIAL_MODULES = [
 ];
 
 @NgModule({
+  declarations: [HoverDelayDirective],
   imports: [
     CommonModule,
     SharedUiModule,
@@ -71,6 +73,7 @@ const MATERIAL_MODULES = [
     SharedPipesModule,
     SharedFormsModule,
     PrimeNgModule,
+    HoverDelayDirective,
     ...MATERIAL_MODULES,
     TranslateModule,
     CommonModule,
