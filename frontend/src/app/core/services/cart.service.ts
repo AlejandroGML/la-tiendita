@@ -1,41 +1,35 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, BehaviorSubject, tap } from 'rxjs';
-import type {
-  CartResponse,
-  AddToCartRequest,
-  UpdateCartItemRequest,
-} from '../../shared/models/cart.model';
-import { AuthStateService } from './auth-state.service';
-import { getSessionId } from '../utils/session-id.util';
+import { Observable, tap } from 'rxjs';
 
+import type { CartResponse } from '../../shared/models/cart.model';
+import { CartApiService } from './cart-api.service';
+import { CartStateService } from './cart-state.service';
+
+/**
+ * Facade over CartApiService (HTTP) + CartStateService (state).
+ *
+ * Preserves the same public API as the original god-node CartService so
+ * all 7 existing consumers compile and work without changes.
+ *
+ * New consumers should prefer injecting CartStateService directly for
+ * reactive reads (cart$, totalItems$) and CartApiService for HTTP-only
+ * operations.
+ */
 @Injectable({ providedIn: 'root' })
 export class CartService {
-  private readonly http = inject(HttpClient);
-  private readonly authState = inject(AuthStateService);
+  private readonly cartApi = inject(CartApiService);
+  private readonly cartState = inject(CartStateService);
 
-  private readonly cartSubject = new BehaviorSubject<CartResponse | null>(null);
-  readonly cart$ = this.cartSubject.asObservable();
+  /** Observable stream of the full cart response, or null when empty. */
+  readonly cart$ = this.cartState.cart$;
 
-  /**
-   * Builds request headers for cart API calls.
-   * Authenticated requests rely on the auth interceptor's Authorization header.
-   * Guest requests attach an X-Session-Id header so the backend can scope carts
-   * by session instead of by user.
-   */
-  private cartHeaders(): { headers: HttpHeaders } {
-    let headers = new HttpHeaders();
-    if (!this.authState.isAuthenticated()) {
-      headers = headers.set('X-Session-Id', getSessionId());
-    }
-    return { headers };
-  }
+  // ── HTTP + state sync ──────────────────────────────────────────────
 
-  /** Fetch current cart state and update the subject */
+  /** Fetch current cart state and update the subject. */
   getCart(): Observable<CartResponse> {
-    return this.http
-      .get<CartResponse>('/api/cart', this.cartHeaders())
-      .pipe(tap((res) => this.cartSubject.next(res)));
+    return this.cartApi
+      .getCart()
+      .pipe(tap((res) => this.cartState.setCart(res)));
   }
 
   /** Add a product to the cart (quantity defaults to 1). Optionally pass a variantId. */
@@ -44,47 +38,41 @@ export class CartService {
     quantity: number = 1,
     variantId?: string,
   ): Observable<CartResponse> {
-    const body: AddToCartRequest = { product_id: productId, quantity };
-    if (variantId) {
-      body.variant_id = variantId;
-    }
-    return this.http
-      .post<CartResponse>('/api/cart', body, this.cartHeaders())
-      .pipe(tap((res) => this.cartSubject.next(res)));
+    return this.cartApi
+      .addItem(productId, quantity, variantId)
+      .pipe(tap((res) => this.cartState.setCart(res)));
   }
 
   /** Update line-item quantity. Setting quantity to 0 removes the item. */
   updateQuantity(itemId: string, quantity: number): Observable<CartResponse> {
-    const body: UpdateCartItemRequest = { quantity };
-    return this.http
-      .put<CartResponse>(`/api/cart/${itemId}`, body, this.cartHeaders())
-      .pipe(tap((res) => this.cartSubject.next(res)));
+    return this.cartApi
+      .updateQuantity(itemId, quantity)
+      .pipe(tap((res) => this.cartState.setCart(res)));
   }
 
-  /** Remove a single item from the cart */
+  /** Remove a single item from the cart. */
   removeItem(itemId: string): Observable<CartResponse> {
-    return this.http
-      .delete<CartResponse>(`/api/cart/${itemId}`, this.cartHeaders())
-      .pipe(tap((res) => this.cartSubject.next(res)));
+    return this.cartApi
+      .removeItem(itemId)
+      .pipe(tap((res) => this.cartState.setCart(res)));
   }
 
-  /** Empty the entire cart */
+  /** Empty the entire cart — emits null on success. */
   clearCart(): Observable<CartResponse> {
-    return this.http
-      .delete<CartResponse>('/api/cart', this.cartHeaders())
-      .pipe(tap(() => this.cartSubject.next(null)));
+    return this.cartApi
+      .clearCart()
+      .pipe(tap(() => this.cartState.setCart(null)));
   }
 
-  /** Ensure guest session ID is generated before first cart API call.
-   *  No-op for authenticated users; eager UUID generation for guests. */
+  // ── Lifecycle (one-line delegation) ────────────────────────────────
+
+  /** Ensure guest session ID is generated before the first cart API call. */
   init(): void {
-    if (!this.authState.isAuthenticated()) {
-      getSessionId();
-    }
+    this.cartState.init();
   }
 
-  /** Reset local state without an API call (e.g. after logout) */
+  /** Reset local state without an API call (e.g. after logout). */
   resetState(): void {
-    this.cartSubject.next(null);
+    this.cartState.resetState();
   }
 }

@@ -1,8 +1,16 @@
-import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  OnDestroy,
+  OnInit,
+} from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { CartService } from '../../../core/services/cart.service';
+
+import { CartStateService } from '../../../core/services/cart-state.service';
 import { svgIcon } from '../../../shared/utils/svg-icons';
 
 @Component({
@@ -12,7 +20,7 @@ import { svgIcon } from '../../../shared/utils/svg-icons';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CartBadgeComponent implements OnInit, OnDestroy {
-  private readonly cartService = inject(CartService);
+  private readonly cartState = inject(CartStateService);
   private readonly router = inject(Router);
   private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
@@ -21,8 +29,8 @@ export class CartBadgeComponent implements OnInit, OnDestroy {
   private cartSub: Subscription | null = null;
 
   ngOnInit(): void {
-    this.cartSub = this.cartService.cart$.subscribe((cart) => {
-      this.cartCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+    this.cartSub = this.cartState.totalItems$.subscribe((count) => {
+      this.cartCount = count;
       this.cdr.markForCheck();
     });
   }

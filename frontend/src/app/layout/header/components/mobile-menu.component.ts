@@ -14,7 +14,8 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { CartService } from '../../../core/services/cart.service';
+
+import { CartStateService } from '../../../core/services/cart-state.service';
 import { type CategoryItem } from '../../../core/services/category.service';
 import { svgIcon } from '../../../shared/utils/svg-icons';
 
@@ -66,7 +67,7 @@ export class MobileMenuComponent implements OnInit, OnDestroy {
   private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly translate = inject(TranslateService);
-  private readonly cartService = inject(CartService);
+  private readonly cartState = inject(CartStateService);
 
   cartCount = 0;
   searchTerm = '';
@@ -80,8 +81,8 @@ export class MobileMenuComponent implements OnInit, OnDestroy {
   };
 
   ngOnInit(): void {
-    this.cartSub = this.cartService.cart$.subscribe((cart) => {
-      this.cartCount = cart?.items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0;
+    this.cartSub = this.cartState.totalItems$.subscribe((count) => {
+      this.cartCount = count;
       this.cdr.markForCheck();
     });
   }
