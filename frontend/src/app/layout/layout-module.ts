@@ -12,6 +12,7 @@ import { LanguageSwitcherComponent } from './header/components/language-switcher
 import { CurrencySwitcherComponent } from './header/components/currency-switcher.component';
 import { NavigationComponent } from './header/components/navigation.component';
 import { MegaMenuComponent } from './header/components/mega-menu.component';
+import { MobileMenuComponent } from './header/components/mobile-menu.component';
 
 @NgModule({
   declarations: [
@@ -25,6 +26,7 @@ import { MegaMenuComponent } from './header/components/mega-menu.component';
     CurrencySwitcherComponent,
     NavigationComponent,
     MegaMenuComponent,
+    MobileMenuComponent,
   ],
   imports: [CommonModule, SharedModule, RouterModule],
   exports: [Header, Footer],

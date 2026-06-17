@@ -1,0 +1,87 @@
+<div data-mobile-menu
+     *ngIf="isOpen"
+     class="lg:hidden border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-950 shadow-inner max-h-[80vh] overflow-y-auto mobile-slide">
+  <div class="px-4 py-3 space-y-1">
+
+    <!-- Mobile Search inline -->
+    <div class="relative mb-3">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500" [innerHTML]="svg('search', 'w-4 h-4')"></div>
+      <input
+        pInputText
+        type="text"
+        [placeholder]="'header.search' | translate"
+        [ngModel]="searchTerm"
+        (ngModelChange)="onSearch($event)"
+        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-sm dark:text-gray-100 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-100/60 dark:focus:ring-emerald-900/60 transition-all"
+      />
+    </div>
+
+    <!-- Categorías title -->
+    <p class="text-xs font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider px-3 mb-2">{{ 'header.categorias' | translate }}</p>
+    <div class="flex flex-wrap gap-1.5 mb-4 px-3">
+      <a *ngFor="let cat of categories"
+         pButton [text]="true"
+         [routerLink]="['/productos']"
+         [queryParams]="{category_id: cat.id}"
+         class="!px-3 !py-1 !text-xs !rounded-full !font-medium !text-gray-600 dark:!text-gray-400 hover:!bg-emerald-50 dark:hover:!bg-gray-800 hover:!text-emerald-700 dark:hover:!text-emerald-400"
+         (click)="closed.emit()">
+        {{ getCategoryIcon(cat.slug) }} {{ cat.name || cat.slug }}
+      </a>
+    </div>
+
+    <hr class="border-gray-100 dark:border-gray-800 my-2" />
+
+    <!-- Nav links -->
+    <a pButton [text]="true" routerLink="/productos"
+       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
+       (click)="closed.emit()">
+      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="svg('tag', 'w-4 h-4')"></span>
+      {{ 'nav.ofertas' | translate }}
+    </a>
+    <a pButton [text]="true" routerLink="/productos" [queryParams]="{sort: 'newest'}"
+       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
+       (click)="closed.emit()">
+      <span class="mr-3 text-amber-500 dark:text-amber-400" [innerHTML]="svg('sparkles', 'w-4 h-4')"></span>
+      {{ 'nav.nuevo' | translate }}
+    </a>
+    <a pButton [text]="true" routerLink="/productos" [queryParams]="{sort: 'popular'}"
+       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
+       (click)="closed.emit()">
+      <span class="mr-3 text-pink-500 dark:text-pink-400" [innerHTML]="svg('trendingUp', 'w-4 h-4')"></span>
+      {{ 'nav.popular' | translate }}
+    </a>
+
+    <hr class="border-gray-100 dark:border-gray-800 my-2" />
+
+    <!-- Account links -->
+    <a pButton [text]="true" routerLink="/perfil/wishlist"
+       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
+       (click)="closed.emit()">
+      <span class="mr-3 text-pink-500 dark:text-pink-400" [innerHTML]="svg('heart', 'w-4 h-4')"></span>
+      {{ 'nav.wishlist' | translate }}
+    </a>
+    <a pButton [text]="true" routerLink="/carrito"
+       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
+       (click)="closed.emit()">
+      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="svg('cart', 'w-4 h-4')"></span>
+      {{ 'nav.cart' | translate }}
+      <span *ngIf="cartCount > 0" class="ml-auto bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ cartCount }}</span>
+    </a>
+    <a pButton [text]="true" routerLink="/login"
+       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
+       (click)="closed.emit()">
+      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="svg('user', 'w-4 h-4')"></span>
+      {{ 'header.iniciarSesion' | translate }}
+    </a>
+
+    <hr class="border-gray-100 dark:border-gray-800 my-2" />
+
+    <!-- Language toggle mobile -->
+    <button pButton [text]="true"
+            (click)="setLang(LANG_CYCLE[(LANG_CYCLE.indexOf(currentLang) + 1) % LANG_CYCLE.length])"
+            class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300">
+      <span class="mr-3 text-sky-500 dark:text-sky-400" [innerHTML]="svg('globe', 'w-4 h-4')"></span>
+      {{ LANG_NAMES[currentLang] || currentLang }}
+    </button>
+  </div>
+</div>
