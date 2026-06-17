@@ -45,13 +45,11 @@
         </span>
       </div>
       <!-- Condition badge (top-right) -->
-      <span
+      <app-product-condition-badge
         *ngIf="product.condition"
-        class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm"
-        [class]="conditionBadgeClass"
-      >
-        {{ 'condition.' + conditionLabel | translate }}
-      </span>
+        [condition]="product.condition"
+        variant="badge"
+      />
       <!-- Stock badge -->
       <span
         *ngIf="isOutOfStock"
@@ -70,27 +68,17 @@
       </h3>
 
       <!-- Color swatches row (below product name) -->
-      <div *ngIf="displayColors.length > 0" class="flex items-center gap-1">
-        <a
-          *ngFor="let swatch of displayColors"
-          class="cursor-pointer inline-block w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600 hover:border-gray-500 dark:hover:border-gray-400 transition-colors"
-          [style.background-color]="swatch.hex"
-          [title]="swatch.color"
-          (click)="navigateToDetail($event)"
-          (keydown.enter)="navigateToDetail($event)"
-          role="button"
-          [attr.aria-label]="swatch.color"
-          tabindex="0"
-        ></a>
-        <span *ngIf="colorOverflow > 0" class="text-xs text-gray-400 dark:text-gray-500">
-          +{{ colorOverflow }}
-        </span>
-      </div>
+      <app-product-color-swatches
+        *ngIf="displayColors.length > 0"
+        [colors]="displayColors"
+        [maxVisible]="5"
+      />
 
       <!-- Rating display -->
-      <div *ngIf="hasRating" class="text-xs text-gray-500 dark:text-gray-400 mt-1">
-        ⭐ {{ formatRating }} ({{ totalReviews() }})
-      </div>
+      <app-product-rating
+        [avgRating]="avgRating()"
+        [totalReviews]="totalReviews()"
+      />
 
       <!-- Variant summary -->
       <p *ngIf="hasVariants" class="text-xs text-gray-500 dark:text-gray-400">
@@ -109,19 +97,10 @@
 
       <div class="flex items-end justify-between gap-2">
         <div>
-          <ng-container *ngIf="product.sale_price != null; else normalPrice">
-            <p class="text-sm text-gray-400 dark:text-gray-500 line-through">
-              {{ product.price | currency }}
-            </p>
-            <p class="text-lg font-extrabold text-red-600">
-              {{ product.sale_price | currency }}
-            </p>
-          </ng-container>
-          <ng-template #normalPrice>
-            <p class="text-lg font-extrabold text-gray-900 dark:text-gray-100">
-              {{ product.price | currency }}
-            </p>
-          </ng-template>
+          <app-product-price
+            [price]="product.price"
+            [salePrice]="product.sale_price ?? null"
+          />
           <p *ngIf="product.material" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
             {{ product.material }}
           </p>

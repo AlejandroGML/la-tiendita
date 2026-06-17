@@ -1,0 +1,12 @@
+<div *ngIf="isVisible" class="flex items-center gap-1">
+  <span
+    *ngFor="let swatch of visibleColors"
+    class="inline-block w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600"
+    [style.background-color]="resolveHex(swatch)"
+    [title]="swatch.color"
+    [attr.aria-label]="swatch.color"
+  ></span>
+  <span *ngIf="overflowCount > 0" class="text-xs text-gray-400 dark:text-gray-500">
+    +{{ overflowCount }}
+  </span>
+</div>

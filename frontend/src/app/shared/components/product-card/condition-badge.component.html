@@ -1,0 +1,16 @@
+<ng-container [ngSwitch]="variant">
+  <span
+    *ngSwitchCase="'badge'"
+    class="absolute top-3 right-3 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm"
+    [class]="badgeClasses"
+  >
+    {{ 'condition.' + condition | translate }}
+  </span>
+  <span
+    *ngSwitchDefault
+    class="inline-flex px-2 py-0.5 rounded text-xs font-medium border"
+    [class]="chipClasses"
+  >
+    {{ 'condition.' + condition | translate }}
+  </span>
+</ng-container>

@@ -1,0 +1,13 @@
+<ng-container *ngIf="hasDiscount; else normalPrice">
+  <p class="text-sm text-gray-400 dark:text-gray-500 line-through">
+    {{ price | currency }}
+  </p>
+  <p class="text-lg font-extrabold text-red-600">
+    {{ salePrice | currency }}
+  </p>
+</ng-container>
+<ng-template #normalPrice>
+  <p class="text-lg font-extrabold text-gray-900 dark:text-gray-100">
+    {{ price | currency }}
+  </p>
+</ng-template>
