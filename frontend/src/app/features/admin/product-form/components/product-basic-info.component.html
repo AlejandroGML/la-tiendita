@@ -1,0 +1,66 @@
+<div [formGroup]="formGroup" class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-6 transition-colors duration-200">
+  <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+    <i class="pi pi-info-circle text-emerald-500"></i>
+    Información General
+  </h2>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+    <!-- Price -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Precio *</label>
+      <div class="relative">
+        <p-inputNumber
+          formControlName="price"
+          [min]="1"
+          [maxFractionDigits]="0"
+          inputId="price"
+          styleClass="w-full"
+          data-testid="input-price"
+        ></p-inputNumber>
+        <span class="absolute right-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400 dark:text-gray-500 pointer-events-none">SEK</span>
+      </div>
+      <small *ngIf="formGroup.get('price')?.touched && formGroup.get('price')?.hasError('required')" class="p-error block mt-1">El precio es obligatorio</small>
+      <small *ngIf="formGroup.get('price')?.touched && formGroup.get('price')?.hasError('min')" class="p-error block mt-1">Debe ser mayor a 0</small>
+      <small class="text-xs text-gray-400 dark:text-gray-500 block mt-1">Precio en coronas suecas (SEK)</small>
+    </div>
+
+    <!-- Category -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Categoría *</label>
+      <p-select
+        inputId="category_id"
+        [options]="categories"
+        optionValue="id"
+        formControlName="category_id"
+        appendTo="body"
+        styleClass="w-full"
+        data-testid="select-category"
+      >
+        <ng-template let-cat pTemplate="item">{{ getCategoryName(cat) }}</ng-template>
+        <ng-template let-cat pTemplate="selectedItem">{{ getCategoryName(cat) }}</ng-template>
+      </p-select>
+      <small *ngIf="formGroup.get('category_id')?.touched && formGroup.get('category_id')?.hasError('required')" class="p-error block mt-1">Selecciona una categoría</small>
+    </div>
+
+    <!-- Condition -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Condición</label>
+      <p-select
+        inputId="condition"
+        [options]="conditions"
+        formControlName="condition"
+        appendTo="body"
+        styleClass="w-full"
+      >
+        <ng-template let-c pTemplate="item">{{ 'condition.' + c | translate }}</ng-template>
+        <ng-template let-c pTemplate="selectedItem">{{ 'condition.' + c | translate }}</ng-template>
+      </p-select>
+    </div>
+
+    <!-- Brand -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Marca</label>
+      <input pInputText id="brand" formControlName="brand" placeholder="Ej: Nike, Zara, Levi's" class="w-full" data-testid="input-brand" />
+    </div>
+  </div>
+</div>

@@ -1,0 +1,109 @@
+<p class="text-xs text-gray-400 dark:text-gray-500 mb-4">
+  <i class="pi pi-info-circle mr-1"></i>
+  Cada variante combina talla y color con su propio stock y SKU.
+</p>
+
+<!-- Variant table -->
+<div *ngIf="variants.length > 0" class="overflow-x-auto mb-4">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-gray-200 dark:border-gray-700 text-left text-gray-500 dark:text-gray-400">
+        <th class="pb-2 pr-3 font-medium">{{ 'product.size' | translate }}</th>
+        <th class="pb-2 pr-3 font-medium">{{ 'product.color' | translate }}</th>
+        <th class="pb-2 pr-3 font-medium w-24">Hex</th>
+        <th class="pb-2 pr-3 font-medium w-20">{{ 'product.stock' | translate }}</th>
+        <th class="pb-2 pr-3 font-medium">{{ 'product.variantSKU' | translate }}</th>
+        <th class="pb-2 w-12"></th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let v of variants; let i = index" class="border-b border-gray-100 dark:border-gray-800">
+        <!-- Size -->
+        <td class="py-2 pr-3">
+          <p-select
+            [options]="sizes"
+            [ngModel]="v.size"
+            (ngModelChange)="updateVariant(i, 'size', $event)"
+            appendTo="body"
+            [showClear]="true"
+            styleClass="w-full text-sm"
+            placeholder="—"
+          >
+            <ng-template let-s pTemplate="selectedItem">{{ s || '—' }}</ng-template>
+          </p-select>
+        </td>
+        <!-- Color -->
+        <td class="py-2 pr-3">
+          <input
+            pInputText
+            class="w-full text-sm"
+            [ngModel]="v.color"
+            (ngModelChange)="updateVariant(i, 'color', $event)"
+            placeholder="Negro"
+          />
+        </td>
+        <!-- Color hex -->
+        <td class="py-2 pr-3">
+          <div class="flex items-center gap-1">
+            <span
+              class="w-5 h-5 rounded-full border border-gray-300 flex-shrink-0"
+              [style.background-color]="v.color_hex || '#ccc'"
+            ></span>
+            <input
+              pInputText
+              class="w-20 text-sm font-mono"
+              [ngModel]="v.color_hex"
+              (ngModelChange)="updateVariant(i, 'color_hex', $event)"
+              placeholder="#000"
+            />
+          </div>
+        </td>
+        <!-- Stock -->
+        <td class="py-2 pr-3">
+          <p-inputNumber
+            [min]="0"
+            [ngModel]="v.stock"
+            (ngModelChange)="updateVariant(i, 'stock', $event)"
+            styleClass="w-20 text-sm"
+          ></p-inputNumber>
+        </td>
+        <!-- SKU -->
+        <td class="py-2 pr-3">
+          <input
+            pInputText
+            class="w-full text-sm font-mono"
+            [ngModel]="v.sku"
+            (ngModelChange)="updateVariant(i, 'sku', $event)"
+            placeholder="AUTO"
+          />
+        </td>
+        <!-- Delete -->
+        <td class="py-2 text-center">
+          <button
+            pButton
+            type="button"
+            [rounded]="true"
+            [text]="true"
+            severity="danger"
+            icon="pi pi-trash"
+            (click)="removeVariant(i)"
+            [disabled]="variants.length <= 1"
+            [attr.aria-label]="'product.removeVariant' | translate"
+          ></button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Add variant button -->
+<button
+  pButton
+  type="button"
+  [outlined]="true"
+  icon="pi pi-plus"
+  [label]="'product.addVariant' | translate"
+  severity="secondary"
+  (click)="addVariant()"
+  class="text-sm"
+></button>

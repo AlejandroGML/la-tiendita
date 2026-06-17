@@ -1,0 +1,25 @@
+<!-- Preview grid -->
+<div *ngIf="previewUrls.length > 0" class="grid grid-cols-4 sm:grid-cols-6 gap-3 mb-4">
+  <div *ngFor="let url of previewUrls; let i = index"
+       class="relative group aspect-square rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
+    <img [src]="url" alt="Preview" class="w-full h-full object-cover" />
+    <button type="button"
+            (click)="removeImage(i)"
+            class="absolute top-1 right-1 w-6 h-6 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs hover:bg-red-500">
+      <i class="pi pi-times"></i>
+    </button>
+  </div>
+</div>
+
+<!-- Upload button -->
+<div class="flex items-center gap-3">
+  <button pButton type="button" [outlined]="true" icon="pi pi-cloud-upload" label="Seleccionar imágenes" (onClick)="fileInput.click()" [disabled]="previewUrls.length >= 10" data-testid="btn-select-image"></button>
+  <span class="text-xs text-gray-400 dark:text-gray-500">
+    {{ previewUrls.length }}/10 imágenes · JPEG, PNG o WebP · Máx 5MB c/u
+  </span>
+</div>
+<p *ngIf="previewUrls.length < 5 && !submitting" class="text-xs text-amber-500 dark:text-amber-400 mt-2">
+  <i class="pi pi-info-circle mr-1"></i>
+  Se recomienda al menos 5 fotos para mejor presentación del producto.
+</p>
+<input #fileInput type="file" accept="image/jpeg,image/png,image/webp" multiple hidden (change)="onFileSelected($event)" data-testid="file-input" />

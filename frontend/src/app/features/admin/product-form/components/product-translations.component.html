@@ -1,0 +1,79 @@
+<div class="bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-6 mb-6 transition-colors duration-200">
+  <h2 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-5 flex items-center gap-2">
+    <i class="pi pi-language text-sky-500"></i>
+    Traducciones
+  </h2>
+
+  <p-tabs [value]="selectedTabIndex()" (valueChange)="setSelectedTab($event)">
+    <p-tablist>
+      <p-tab [value]="0">
+        <span class="flex items-center gap-2">
+          🇪🇸 Español
+          <i *ngIf="isTranslationValid(0)" class="pi pi-check text-green-500 text-xs"></i>
+        </span>
+      </p-tab>
+      <p-tab [value]="1">
+        <span class="flex items-center gap-2">
+          🇬🇧 English
+          <i *ngIf="isTranslationValid(1)" class="pi pi-check text-green-500 text-xs"></i>
+        </span>
+      </p-tab>
+      <p-tab [value]="2">
+        <span class="flex items-center gap-2">
+          🇸🇪 Svenska
+          <i *ngIf="isTranslationValid(2)" class="pi pi-check text-green-500 text-xs"></i>
+        </span>
+      </p-tab>
+    </p-tablist>
+
+    <p-tabpanels>
+      <!-- ES -->
+      <p-tabpanel [value]="0">
+        <div class="space-y-4 pt-4" [formGroup]="$any(translations.controls[0])">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Nombre *</label>
+            <input pInputText id="name-es" formControlName="name" placeholder="Nombre del producto en español" class="w-full" data-testid="input-name-es" />
+            <small *ngIf="translations.controls[0].get('name')?.touched && translations.controls[0].get('name')?.hasError('required')" class="p-error block mt-1">El nombre en español es obligatorio</small>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Descripción</label>
+            <textarea pTextarea id="desc-es" formControlName="description" rows="4" class="w-full" placeholder="Descripción del producto en español" data-testid="input-desc-es"></textarea>
+          </div>
+        </div>
+      </p-tabpanel>
+
+      <!-- EN -->
+      <p-tabpanel [value]="1">
+        <div class="space-y-4 pt-4" [formGroup]="$any(translations.controls[1])">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Name</label>
+            <input pInputText id="name-en" formControlName="name" placeholder="Product name in English" class="w-full" data-testid="input-name-en" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Description</label>
+            <textarea pTextarea id="desc-en" formControlName="description" rows="4" class="w-full" placeholder="Product description in English" data-testid="input-desc-en"></textarea>
+          </div>
+        </div>
+      </p-tabpanel>
+
+      <!-- SV -->
+      <p-tabpanel [value]="2">
+        <div class="space-y-4 pt-4" [formGroup]="$any(translations.controls[2])">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Namn</label>
+            <input pInputText id="name-sv" formControlName="name" placeholder="Produktnamn på svenska" class="w-full" data-testid="input-name-sv" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Beskrivning</label>
+            <textarea pTextarea id="desc-sv" formControlName="description" rows="4" class="w-full" placeholder="Produktbeskrivning på svenska" data-testid="input-desc-sv"></textarea>
+          </div>
+        </div>
+      </p-tabpanel>
+    </p-tabpanels>
+  </p-tabs>
+
+  <p class="text-xs text-gray-400 dark:text-gray-500 mt-3">
+    <i class="pi pi-info-circle mr-1"></i>
+    El slug se genera automáticamente desde el nombre en español.
+  </p>
+</div>

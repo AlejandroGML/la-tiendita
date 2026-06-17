@@ -38,10 +38,6 @@ export interface VariantFormEntry {
   sku: string;
 }
 
-function emptyVariant(): VariantFormEntry {
-  return { size: null, color: null, color_hex: null, stock: 1, sku: '' };
-}
-
 @Component({
   selector: 'app-admin-product-form',
   templateUrl: './admin-product-form.html',
@@ -57,23 +53,14 @@ export class AdminProductForm implements OnInit, OnDestroy {
   readonly loading = signal(false);
   readonly submitting = signal(false);
   readonly categories = signal<Category[]>([]);
-  readonly imagePreviewUrls = signal<string[]>([]);
+  readonly existingUrls = signal<string[]>([]);
   readonly imageFiles = signal<File[]>([]);
-
-  readonly conditions = ['new', 'like_new', 'good', 'fair'];
-  readonly sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-
-  /** Dynamic variant rows */
   readonly variants = signal<VariantFormEntry[]>([]);
 
   private editSlug: string | null = null;
 
   get translations(): FormArray {
     return this.form.get('translations') as FormArray;
-  }
-
-  get selectedTabIndex(): number {
-    return this.form.get('selectedTab')?.value ?? 0;
   }
 
   constructor(
@@ -90,7 +77,6 @@ export class AdminProductForm implements OnInit, OnDestroy {
         category_id: [null, Validators.required],
         brand: [''],
         condition: ['good'],
-        selectedTab: [0],
         translations: this.fb.array([
           this.createTranslationGroup('es'),
           this.createTranslationGroup('en'),
@@ -117,17 +103,13 @@ export class AdminProductForm implements OnInit, OnDestroy {
       this.loadProduct(this.editSlug);
     } else {
       // New product: start with one empty variant row
-      this.variants.set([emptyVariant()]);
+      this.variants.set([{ size: null, color: null, color_hex: null, stock: 1, sku: '' }]);
     }
   }
 
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-
-    for (const url of this.imagePreviewUrls()) {
-      URL.revokeObjectURL(url);
-    }
   }
 
   private loadCategories(): void {
@@ -199,70 +181,23 @@ export class AdminProductForm implements OnInit, OnDestroy {
         })),
       );
     } else {
-      this.variants.set([emptyVariant()]);
+      this.variants.set([{ size: null, color: null, color_hex: null, stock: 1, sku: '' }]);
     }
 
     // Show existing images as previews
     if (product.image_urls?.length) {
-      this.imagePreviewUrls.set([...product.image_urls]);
+      this.existingUrls.set([...product.image_urls]);
     }
   }
 
-  // ── Variant management ──
+  // ── Sub-component output handlers ──
 
-  addVariant(): void {
-    this.variants.update((arr) => [...arr, emptyVariant()]);
+  onFilesChanged(files: File[]): void {
+    this.imageFiles.set(files);
   }
 
-  removeVariant(index: number): void {
-    this.variants.update((arr) => arr.filter((_, i) => i !== index));
-  }
-
-  updateVariant(index: number, field: keyof VariantFormEntry, value: unknown): void {
-    this.variants.update((arr) =>
-      arr.map((v, i) => (i === index ? { ...v, [field]: value } : v)),
-    );
-  }
-
-  // ── Image handling ──
-
-  onFileSelected(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = input.files;
-    if (!files?.length) return;
-
-    const newFiles: File[] = [];
-    const newPreviews: string[] = [];
-
-    for (let i = 0; i < files.length; i++) {
-      const file = files.item(i);
-      if (!file) continue;
-
-      const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
-      if (!validTypes.includes(file.type)) continue;
-
-      if (file.size > 5 * 1024 * 1024) continue;
-
-      newFiles.push(file);
-      newPreviews.push(URL.createObjectURL(file));
-    }
-
-    if (newFiles.length > 0) {
-      this.imageFiles.update((prev) => [...prev, ...newFiles]);
-      this.imagePreviewUrls.update((prev) => [...prev, ...newPreviews]);
-    }
-
-    input.value = '';
-  }
-
-  removeImage(index: number): void {
-    const urls = this.imagePreviewUrls();
-    if (urls[index]?.startsWith('blob:')) {
-      URL.revokeObjectURL(urls[index]);
-    }
-
-    this.imagePreviewUrls.update((prev) => prev.filter((_, i) => i !== index));
-    this.imageFiles.update((prev) => prev.filter((_, i) => i !== index));
+  onVariantsChanged(variants: VariantFormEntry[]): void {
+    this.variants.set(variants);
   }
 
   // ── Submit ──
@@ -277,15 +212,10 @@ export class AdminProductForm implements OnInit, OnDestroy {
 
     const formValue = this.form.value;
 
-    // Upload new images
-    let imageUrls: string[] = [];
+    // Start with existing server URLs
+    const imageUrls: string[] = [...this.existingUrls()];
 
-    for (const url of this.imagePreviewUrls()) {
-      if (!url.startsWith('blob:')) {
-        imageUrls.push(url);
-      }
-    }
-
+    // Upload new files
     const filesToUpload = this.imageFiles();
     if (filesToUpload.length > 0) {
       try {
@@ -371,19 +301,11 @@ export class AdminProductForm implements OnInit, OnDestroy {
     this.router.navigate(['/admin/productos']);
   }
 
-  setSelectedTab(index: any): void {
-    this.form.patchValue({ selectedTab: index });
-  }
-
   get isEditing(): boolean {
     return !!this.editSlug;
   }
 
   get pageTitle(): string {
     return this.isEditing ? 'admin.editProduct' : 'admin.createProduct';
-  }
-
-  getCategoryName(cat: Category): string {
-    return cat.translations?.find((t) => t.lang === 'es')?.name ?? cat.slug;
   }
 }

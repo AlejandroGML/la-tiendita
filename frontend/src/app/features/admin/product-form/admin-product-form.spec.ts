@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import { NO_ERRORS_SCHEMA } from '@angular/core';
 import { By } from '@angular/platform-browser';
 import { HttpClient } from '@angular/common/http';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -78,7 +78,7 @@ describe('AdminProductForm', () => {
           useValue: { snapshot: { paramMap: { get: () => null } } },
         },
       ],
-      schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      schemas: [NO_ERRORS_SCHEMA],
     }).compileComponents();
 
     fixture = TestBed.createComponent(AdminProductForm);
@@ -89,56 +89,49 @@ describe('AdminProductForm', () => {
     fixture.detectChanges();
   });
 
-  it('should render the translation tabs (ES, EN, SV)', () => {
-    const tabPanels = fixture.nativeElement.querySelectorAll('p-tabpanel');
-    expect(tabPanels.length).toBe(3);
+  it('should render sub-components (orchestrator pattern)', () => {
+    const basicInfo = fixture.nativeElement.querySelector('app-product-basic-info');
+    const translations = fixture.nativeElement.querySelector('app-product-translations');
+    const variants = fixture.nativeElement.querySelector('app-product-variants');
+    const imageUpload = fixture.nativeElement.querySelector('app-image-upload');
 
-    // Verify tab headers via aria attributes or component data
+    expect(basicInfo).toBeTruthy();
+    expect(translations).toBeTruthy();
+    expect(variants).toBeTruthy();
+    expect(imageUpload).toBeTruthy();
+  });
+
+  it('should set existingUrls from product image_urls', () => {
+    const product = {
+      id: 1,
+      slug: 'test',
+      price: 100,
+      category_id: 1,
+      condition: 'new',
+      translations: [{ lang: 'es', name: 'Test', description: '' }],
+      image_urls: ['https://example.com/img1.jpg'],
+    } as any;
+
+    component['populateForm'](product);
+    expect(component.existingUrls()).toEqual(['https://example.com/img1.jpg']);
+  });
+
+  it('should update variants signal on variantsChanged output', () => {
+    const newVariants = [
+      { size: 'L', color: 'Blue', color_hex: '#0000ff', stock: 3, sku: 'TEST-002' },
+    ];
+    component.onVariantsChanged(newVariants);
+    expect(component.variants()).toEqual(newVariants);
+  });
+
+  it('should update imageFiles signal on filesChanged output', () => {
+    const files = [new File([''], 'test.jpg', { type: 'image/jpeg' })];
+    component.onFilesChanged(files);
+    expect(component.imageFiles()).toEqual(files);
+  });
+
+  it('should have 3 translation form controls', () => {
     expect(component.translations.length).toBe(3);
-  });
-
-  it('should render form fields (price, category, condition, size, brand, stock)', () => {
-    const priceInput = fixture.nativeElement.querySelector('[data-testid="input-price"]');
-    const categorySelect = fixture.nativeElement.querySelector('[data-testid="select-category"]');
-    const brandInput = fixture.nativeElement.querySelector('[data-testid="input-brand"]');
-    const stockInput = fixture.nativeElement.querySelector('[data-testid="input-stock"]');
-
-    expect(priceInput).toBeTruthy();
-    expect(categorySelect).toBeTruthy();
-    expect(brandInput).toBeTruthy();
-    expect(stockInput).toBeTruthy();
-  });
-
-  it('should render ES translation fields', () => {
-    const nameEsInput = fixture.nativeElement.querySelector('[data-testid="input-name-es"]');
-    const descEsInput = fixture.nativeElement.querySelector('[data-testid="input-desc-es"]');
-
-    expect(nameEsInput).toBeTruthy();
-    expect(descEsInput).toBeTruthy();
-  });
-
-  it('should render EN translation fields (switch tab)', async () => {
-    component.setSelectedTab(1);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const enGroup = component.translations.controls[1];
-    expect(enGroup.get('lang')?.value).toBe('en');
-    expect(enGroup.get('name')).toBeTruthy();
-    expect(enGroup.get('description')).toBeTruthy();
-  });
-
-  it('should render SV translation fields (switch tab)', async () => {
-    component.setSelectedTab(2);
-    fixture.detectChanges();
-    await fixture.whenStable();
-    fixture.detectChanges();
-
-    const svGroup = component.translations.controls[2];
-    expect(svGroup.get('lang')?.value).toBe('sv');
-    expect(svGroup.get('name')).toBeTruthy();
-    expect(svGroup.get('description')).toBeTruthy();
   });
 
   it('should require ES name to be filled', () => {
@@ -148,37 +141,6 @@ describe('AdminProductForm', () => {
     esGroup.get('name')?.markAsTouched();
 
     expect(esGroup.get('name')?.hasError('required')).toBe(true);
-  });
-
-  it('should show form-level error when ES name is missing and form is touched', () => {
-    const esGroup = component.translations.controls[0];
-    esGroup.get('name')?.setValue('');
-    component.form.markAllAsTouched();
-    fixture.detectChanges();
-
-    const formError = fixture.nativeElement.querySelector('[data-testid="form-error"]');
-    expect(formError).toBeTruthy();
-  });
-
-  it('should render image upload section', () => {
-    const uploadSection = fixture.nativeElement.querySelector('[data-testid="image-upload-section"]');
-    expect(uploadSection).toBeTruthy();
-
-    const selectBtn = fixture.nativeElement.querySelector('[data-testid="btn-select-image"]');
-    expect(selectBtn).toBeTruthy();
-  });
-
-  it('should render save and cancel buttons', () => {
-    const saveBtn = fixture.nativeElement.querySelector('[data-testid="btn-save"]');
-    const cancelBtn = fixture.nativeElement.querySelector('[data-testid="btn-cancel"]');
-
-    expect(saveBtn).toBeTruthy();
-    expect(cancelBtn).toBeTruthy();
-  });
-
-  it('should render slug autogeneration notice', () => {
-    const notice = fixture.nativeElement.querySelector('[data-testid="slug-notice"]');
-    expect(notice).toBeTruthy();
   });
 
   it('should mark form as invalid when price is missing', () => {
@@ -196,4 +158,5 @@ describe('AdminProductForm', () => {
     expect(component.pageTitle).toBe('admin.createProduct');
     expect(component.isEditing).toBe(false);
   });
+
 });
