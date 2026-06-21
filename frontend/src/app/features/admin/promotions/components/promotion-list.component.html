@@ -1,0 +1,116 @@
+<p-progressBar
+  *ngIf="loading"
+  mode="indeterminate"
+  styleClass="mb-4"
+></p-progressBar>
+
+<div
+  *ngIf="error && !loading"
+  class="text-center py-12"
+  data-testid="promotions-error"
+>
+  <i class="pi pi-exclamation-circle text-4xl text-red-400 mb-2 block"></i>
+  <p class="text-gray-500">{{ 'admin.promotionsError' | translate }}</p>
+  <p-button
+    [outlined]="true"
+    [label]="'catalog.retry' | translate"
+    (onClick)="retry.emit()"
+    styleClass="mt-3"
+    data-testid="promotions-retry"
+  ></p-button>
+</div>
+
+<!-- Empty State -->
+<div
+  *ngIf="!loading && !error && promotions.length === 0"
+  class="text-center text-gray-500 py-16"
+  data-testid="no-promotions"
+>
+  <i class="pi pi-tag text-6xl mb-4 block"></i>
+  <p class="text-lg">{{ 'promotions.empty' | translate }}</p>
+</div>
+
+<!-- Table -->
+<div
+  *ngIf="!loading && !error && promotions.length > 0"
+  class="overflow-x-auto"
+  data-testid="promotions-table"
+>
+  <p-table [value]="promotions" styleClass="w-full">
+    <ng-template pTemplate="header">
+      <tr>
+        <th>{{ 'promotions.code' | translate }}</th>
+        <th>{{ 'promotions.discount' | translate }}</th>
+        <th>{{ 'promotions.product' | translate }}</th>
+        <th>{{ 'promotions.dates' | translate }}</th>
+        <th>{{ 'promotions.status' | translate }}</th>
+        <th>{{ 'admin.actions' | translate }}</th>
+      </tr>
+    </ng-template>
+    <ng-template let-promotion pTemplate="body">
+      <tr>
+        <!-- Code -->
+        <td>
+          <span class="font-mono font-semibold">{{ promotion.code }}</span>
+        </td>
+        <!-- Discount -->
+        <td>
+          <span class="promotion-discount-chip">
+            {{ promotion.discount_percent }}%
+          </span>
+        </td>
+        <!-- Product -->
+        <td>
+          <span *ngIf="promotion.product_id" class="text-xs font-mono">{{ promotion.product_id }}</span>
+          <span *ngIf="!promotion.product_id" class="text-gray-400 text-sm">—</span>
+        </td>
+        <!-- Dates -->
+        <td>
+          <div class="text-xs">
+            <div *ngIf="promotion.start_date">
+              <span class="text-gray-500">{{ 'promotions.from' | translate }}:</span>
+              {{ promotion.start_date | date: 'short' }}
+            </div>
+            <div *ngIf="promotion.end_date">
+              <span class="text-gray-500">{{ 'promotions.to' | translate }}:</span>
+              {{ promotion.end_date | date: 'short' }}
+            </div>
+            <div class="text-gray-400 mt-1">
+              {{ getUsageInfo(promotion) }}
+            </div>
+          </div>
+        </td>
+        <!-- Status -->
+        <td>
+          <span
+            class="status-chip"
+            [class]="isActive(promotion) ? 'status-active' : 'status-inactive'"
+          >
+            {{ 'promotions.' + (isActive(promotion) ? 'active' : 'inactive') | translate }}
+          </span>
+        </td>
+        <!-- Actions -->
+        <td>
+          <p-button
+            [rounded]="true"
+            [text]="true"
+            severity="info"
+            icon="pi pi-pencil"
+            [attr.aria-label]="'admin.edit' | translate"
+            (onClick)="edit.emit(promotion)"
+            data-testid="btn-edit"
+          ></p-button>
+          <p-button
+            [rounded]="true"
+            [text]="true"
+            severity="danger"
+            icon="pi pi-trash"
+            [attr.aria-label]="'admin.delete' | translate"
+            (onClick)="onDelete(promotion)"
+            data-testid="btn-delete"
+          ></p-button>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

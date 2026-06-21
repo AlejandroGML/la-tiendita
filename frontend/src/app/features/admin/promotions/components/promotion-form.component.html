@@ -1,0 +1,163 @@
+<div
+  class="bg-white rounded-lg shadow border border-gray-200 p-6 mb-6"
+  data-testid="promotion-form"
+>
+  <h2 class="text-lg font-semibold mb-4">
+    {{ (promotion ? 'promotions.editTitle' : 'promotions.newTitle') | translate }}
+  </h2>
+  <form [formGroup]="form" (ngSubmit)="submitForm()" class="space-y-4">
+    <!-- Code + Discount Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <p-floatLabel variant="on" styleClass="w-full">
+        <input pInputText id="code" formControlName="code" maxlength="50" />
+        <label for="code">{{ 'promotions.code' | translate }}</label>
+      </p-floatLabel>
+      <small
+        *ngIf="form.get('code')?.touched && form.get('code')?.hasError('required')"
+        class="p-error"
+      >
+        {{ 'promotions.codeRequired' | translate }}
+      </small>
+
+      <div class="flex flex-col">
+        <p-inputGroup>
+          <p-inputNumber
+            inputId="discount_percent"
+            formControlName="discount_percent"
+            [min]="1"
+            [max]="100"
+          ></p-inputNumber>
+          <p-inputGroupAddon>%</p-inputGroupAddon>
+        </p-inputGroup>
+        <small
+          *ngIf="form.get('discount_percent')?.touched && form.get('discount_percent')?.hasError('required')"
+          class="p-error"
+        >
+          {{ 'promotions.discountRequired' | translate }}
+        </small>
+        <small
+          *ngIf="(form.get('discount_percent')?.touched && form.get('discount_percent')?.hasError('min')) || form.get('discount_percent')?.hasError('max')"
+          class="p-error"
+        >
+          {{ 'promotions.discountRange' | translate }}
+        </small>
+      </div>
+    </div>
+
+    <!-- Product ID + Max Uses Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <p-floatLabel variant="on" styleClass="w-full">
+        <input pInputText id="product_id" formControlName="product_id" placeholder="UUID (optional)" />
+        <label for="product_id">{{ 'promotions.productId' | translate }}</label>
+      </p-floatLabel>
+
+      <p-floatLabel variant="on" styleClass="w-full">
+        <p-inputNumber
+          inputId="max_uses"
+          formControlName="max_uses"
+          [min]="1"
+        ></p-inputNumber>
+        <label for="max_uses">{{ 'promotions.maxUses' | translate }}</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- Date Range Row -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <p-floatLabel variant="on" styleClass="w-full">
+        <p-datepicker
+          inputId="start_date"
+          [showTime]="true"
+          [showIcon]="true"
+          [ngModel]="toDate(form.get('start_date')?.value)"
+          (onSelect)="form.patchValue({ start_date: fromDate($event) })"
+          [ngModelOptions]="{standalone: true}"
+        ></p-datepicker>
+        <label for="start_date">{{ 'promotions.startDate' | translate }}</label>
+      </p-floatLabel>
+
+      <p-floatLabel variant="on" styleClass="w-full">
+        <p-datepicker
+          inputId="end_date"
+          [showTime]="true"
+          [showIcon]="true"
+          [ngModel]="toDate(form.get('end_date')?.value)"
+          (onSelect)="form.patchValue({ end_date: fromDate($event) })"
+          [ngModelOptions]="{standalone: true}"
+        ></p-datepicker>
+        <label for="end_date">{{ 'promotions.endDate' | translate }}</label>
+      </p-floatLabel>
+    </div>
+
+    <!-- Is Active Toggle -->
+    <div class="flex items-center gap-3">
+      <p-toggleSwitch
+        formControlName="is_active"
+        [ariaLabel]="'promotions.isActive' | translate"
+      ></p-toggleSwitch>
+      <span>{{ 'promotions.isActive' | translate }}</span>
+    </div>
+
+    <!-- Translations -->
+    <div class="border-t pt-4">
+      <h3 class="text-sm font-semibold mb-3">{{ 'promotions.translations' | translate }}</h3>
+      <div formArrayName="translations">
+        <div
+          *ngFor="let t of translationsArray.controls; let i = index"
+          [formGroupName]="i"
+          class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-3 p-3 bg-gray-50 rounded"
+        >
+          <p-floatLabel variant="on" styleClass="w-full">
+            <p-select
+              inputId="lang-{{ i }}"
+              [options]="langOptions"
+              optionValue="value"
+              formControlName="lang"
+              appendTo="body"
+            >
+              <ng-template let-opt pTemplate="item">{{ opt.label }}</ng-template>
+              <ng-template let-opt pTemplate="selectedItem">{{ opt.label }}</ng-template>
+            </p-select>
+            <label [for]="'lang-' + i">Lang</label>
+          </p-floatLabel>
+
+          <p-floatLabel variant="on" styleClass="w-full">
+            <input
+              pInputText
+              [id]="'title-' + i"
+              formControlName="title"
+              maxlength="255"
+            />
+            <label [for]="'title-' + i">{{ 'promotions.translationTitle' | translate }}</label>
+          </p-floatLabel>
+
+          <p-floatLabel variant="on" styleClass="w-full">
+            <input
+              pInputText
+              [id]="'desc-' + i"
+              formControlName="description"
+            />
+            <label [for]="'desc-' + i">{{ 'promotions.translationDesc' | translate }}</label>
+          </p-floatLabel>
+        </div>
+      </div>
+    </div>
+
+    <!-- Form Actions -->
+    <div class="flex justify-end gap-3 pt-4 border-t">
+      <p-button
+        type="button"
+        [outlined]="true"
+        [label]="'admin.cancel' | translate"
+        (onClick)="cancelForm()"
+        data-testid="btn-cancel-form"
+      ></p-button>
+      <p-button
+        type="submit"
+        [loading]="saving"
+        [disabled]="form.invalid"
+        [label]="(promotion ? 'admin.save' : 'promotions.create') | translate"
+        data-testid="btn-save-form"
+      ></p-button>
+    </div>
+  </form>
+</div>

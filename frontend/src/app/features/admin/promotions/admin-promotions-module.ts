@@ -5,9 +5,15 @@ import { RouterModule } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { SharedModule } from '../../../shared/shared-module';
 import { AdminPromotionsComponent } from './admin-promotions';
+import { PromotionFormComponent } from './components/promotion-form.component';
+import { PromotionListComponent } from './components/promotion-list.component';
 
 @NgModule({
-  declarations: [AdminPromotionsComponent],
+  declarations: [
+    AdminPromotionsComponent,
+    PromotionFormComponent,
+    PromotionListComponent,
+  ],
   imports: [
     CommonModule,
     ReactiveFormsModule,
