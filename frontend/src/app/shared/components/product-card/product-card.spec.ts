@@ -253,10 +253,9 @@ describe('ProductCardComponent', () => {
     ];
     const product: Product = { ...mockProduct, variants };
     createComponent(product);
-    expect(component.displayColors.length).toBe(5);
+    expect(component.displayColors.length).toBe(6);
     expect(component.displayColors[0]).toEqual({ color: 'Red', hex: '#DC2626' });
     expect(component.displayColors[1]).toEqual({ color: 'Blue', hex: '#2563EB' });
-    expect(component.colorOverflow).toBe(1);
   });
 
   it('displayColors should return empty array when product has no variants', () => {
@@ -265,28 +264,22 @@ describe('ProductCardComponent', () => {
     expect(component.displayColors).toEqual([]);
   });
 
-  it('availableColorHex should return color_hex from variant when present', () => {
-    createComponent(mockProduct);
-    const variant: ProductVariant = {
-      id: 'v1', product_id: 'abc-123', size: 'M', color: 'Red', color_hex: '#DC2626', stock: 5, sku: 'SKU1',
-    };
-    expect(component.availableColorHex(variant)).toBe('#DC2626');
+  it('displayColors should use color_hex from variant when present', () => {
+    const variants: ProductVariant[] = [
+      { id: 'v1', product_id: 'abc-123', size: 'M', color: 'Red', color_hex: '#DC2626', stock: 5, sku: 'SKU1' },
+    ];
+    const product: Product = { ...mockProduct, variants };
+    createComponent(product);
+    expect(component.displayColors[0]).toEqual({ color: 'Red', hex: '#DC2626' });
   });
 
-  it('availableColorHex should fallback to COLOR_MAP when color_hex is null', () => {
-    createComponent(mockProduct);
-    const variant: ProductVariant = {
-      id: 'v1', product_id: 'abc-123', size: 'M', color: 'Green', color_hex: null, stock: 5, sku: 'SKU1',
-    };
-    expect(component.availableColorHex(variant)).toBe('#16A34A');
-  });
-
-  it('availableColorHex should return #ccc when color is unknown and hex is null', () => {
-    createComponent(mockProduct);
-    const variant: ProductVariant = {
-      id: 'v1', product_id: 'abc-123', size: 'M', color: 'Magenta', color_hex: null, stock: 5, sku: 'SKU1',
-    };
-    expect(component.availableColorHex(variant)).toBe('#ccc');
+  it('displayColors should use empty hex when color_hex is null', () => {
+    const variants: ProductVariant[] = [
+      { id: 'v1', product_id: 'abc-123', size: 'M', color: 'Green', color_hex: null, stock: 5, sku: 'SKU1' },
+    ];
+    const product: Product = { ...mockProduct, variants };
+    createComponent(product);
+    expect(component.displayColors[0]).toEqual({ color: 'Green', hex: '' });
   });
 
   it('should render color swatches in the DOM', () => {

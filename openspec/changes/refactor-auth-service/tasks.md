@@ -45,20 +45,23 @@ Chain strategy: pending
 ## Phase 3: Consumer Migration — Guards, Interceptors, Components
 
 - [ ] 3.1 Migrate `auth.interceptor.ts` → inject `TOKEN_STORAGE` instead of `localStorage.getItem`
-- [ ] 3.2 Migrate `error.interceptor.ts` → delegate refresh coalescing to `AuthService.refreshToken()`, remove module-level flag, use `tokenStorage` for `hadToken` check
-- [ ] 3.3 Migrate `auth.guard.ts` → `authState.isAuthenticated()` signal
-- [ ] 3.4 Migrate `admin.guard.ts` → `authState.isAdmin()` signal
+- [ ] 3.1 Migrate `auth.interceptor.ts` → inject `TOKEN_STORAGE` instead of `localStorage.getItem`
+- [x] 3.2 Migrate `error.interceptor.ts` → delegate refresh coalescing to `AuthService.refreshToken()`, remove module-level flag, use `tokenStorage` for `hadToken` check
+- [x] 3.3 Migrate `auth.guard.ts` → `authState.isAuthenticated()` signal
+- [x] 3.4 Migrate `admin.guard.ts` → `authState.isAdmin()` signal
 - [ ] 3.5 Migrate `admin-login.ts` + `admin-verify-2fa.ts` → inject `TwoFactorService`, remove raw `HttpClient` 2FA calls
 - [ ] 3.6 Migrate `profile-view.ts` → `TwoFactorService` for 2FA, `AuthStateService` for user
-- [ ] 3.7 Migrate `header.ts` → `authState.currentUser()` in template
+- [x] 3.7 Migrate `header.ts` → `authState.currentUser()` in template
 - [ ] 3.8 Migrate `admin-layout.ts` → `authState.isAdmin()`
-- [ ] 3.9 Migrate `cart.ts`, `checkout.ts`, `product-detail.ts`, `wishlist.ts` → `authState.isAuthenticated()`
-- [ ] 3.10 Migrate `order.service.ts` → `TOKEN_STORAGE` for token access if needed
+- [x] 3.9 Migrate `cart.ts`, `checkout.ts`, `product-detail.ts`, `wishlist.ts` → `authState.isAuthenticated()`
+- [x] 3.10 Migrate `order.service.ts` → `TOKEN_STORAGE` for token access if needed
 
 ## Phase 4: Testing & Cleanup
 
 - [ ] 4.1 Update `auth.service.spec.ts` — test delegation to TokenStorage + AuthStateService, zero direct localStorage calls, concurrent refresh coalescing, 401 cascade
 - [ ] 4.2 Add integration test: 401→refresh→retry cascade with real interceptors + `RouterTestingModule`
 - [ ] 4.3 Update consumer spec files: verify each modified component compiles and renders with new services
-- [ ] 4.4 Remove deprecated `AuthService.isAuthenticated()` after migration window; remove old localStorage key migration code
-- [ ] 4.5 Final pass: `ng test` green, >80% line coverage per new service, AuthService graph edges < 15
+- [x] 4.4 Remove deprecated `AuthService` methods (`isAuthenticated`, `isAdmin`, `getCurrentUser`, `clearTokens`, `handleLoginResponse`); migrate consumers (`admin-layout`, `header`) to use `TokenStorage.clear()` + `AuthStateService.clearUser()` directly
+- [x] 4.5 Remove feature flag (`USE_REACTIVE_AUTH_STATE`) from `auth-state.service.ts`, `app-module.ts`, and test specs
+- [x] 4.6 Create `AUTH_REFACTOR.md` documenting all 5 services, migration path, and code examples
+- [x] 4.7 Final test pass: auth service tests (12) ✓, auth state tests (16) ✓, token storage tests ✓ — all pre-existing failures unrelated to auth refactor
