@@ -3,7 +3,7 @@
 Uses subclass-based mocks that pass ``isinstance`` checks (required by
 Litestar's msgspec parameter validation in 2.23+). No PostgreSQL needed.
 
-Strategy: replace ``AuthController.dependencies`` before app construction
+Strategy: replace controller dependencies before app construction
 with providers that return subclass mocks. Restore after each test.
 """
 
@@ -24,6 +24,8 @@ from app.middleware.rate_limit import RateLimitMiddleware, _buckets
 from app.schemas.auth import TokenResponse
 from app.schemas.user import UserResponse
 from app.services.auth_service import AuthService as _RealAuthService
+from app.services.token_service import TokenService as _RealTokenService
+from app.services.password_reset_service import PasswordResetService as _RealPasswordResetService
 
 from datetime import datetime, timedelta, timezone
 
@@ -42,6 +44,20 @@ from app.guards.admin_guard import admin_guard
 class MockAuthService(_RealAuthService):
     """AuthService subclass for test DI. Skips real __init__ so we don't
     need a valid Settings object."""
+
+    def __init__(self) -> None:
+        pass
+
+
+class MockTokenService(_RealTokenService):
+    """TokenService subclass for test DI. Skips real __init__."""
+
+    def __init__(self) -> None:
+        pass
+
+
+class MockPasswordResetService(_RealPasswordResetService):
+    """PasswordResetService subclass for test DI. Skips real __init__."""
 
     def __init__(self) -> None:
         pass
@@ -87,19 +103,35 @@ async def health_check() -> dict[str, str]:
 # ---------------------------------------------------------------------------
 
 @pytest.fixture
-def mock_svc():
+def mock_auth():
     """AuthService subclass with mocked async methods."""
     svc = MockAuthService()
 
-    # Attach mocks to instance methods
+    # Attach mocks to instance methods used by controller
     svc.register = AsyncMock()
     svc.login = AsyncMock()
-    svc.refresh = AsyncMock()
-    svc.logout = AsyncMock()
-    svc.forgot_password = AsyncMock()
-    svc.reset_password = AsyncMock()
+    svc.admin_login = AsyncMock()
+    svc.verify_2fa = AsyncMock()
     svc.oauth_callback = AsyncMock()
 
+    return svc
+
+
+@pytest.fixture
+def mock_token():
+    """TokenService subclass with mocked async methods."""
+    svc = MockTokenService()
+    svc.refresh = AsyncMock()
+    svc.logout = AsyncMock()
+    return svc
+
+
+@pytest.fixture
+def mock_password_reset():
+    """PasswordResetService subclass with mocked async methods."""
+    svc = MockPasswordResetService()
+    svc.forgot_password = AsyncMock()
+    svc.reset_password = AsyncMock()
     return svc
 
 
@@ -110,16 +142,18 @@ def mock_session():
 
 
 @pytest.fixture
-def client(mock_svc, mock_session):
-    """Litestar TestClient with mocked service and session via DI override."""
+def client(mock_auth, mock_token, mock_password_reset, mock_session):
+    """Litestar TestClient with mocked services and session via DI override."""
     _buckets.clear()
 
     # Override controller dependencies BEFORE app construction.
-    # Litestar resolves dependencies from the class at registration time,
-    # so we must mutate (and restore) the class attribute.
     _original_deps = AuthController.dependencies
     AuthController.dependencies = {
-        "auth_service": Provide(lambda: mock_svc, sync_to_thread=False),
+        "auth_service": Provide(lambda: mock_auth, sync_to_thread=False),
+        "token_service": Provide(lambda: mock_token, sync_to_thread=False),
+        "password_reset_service": Provide(
+            lambda: mock_password_reset, sync_to_thread=False
+        ),
         "session": Provide(lambda: mock_session, sync_to_thread=False),
     }
 
@@ -143,7 +177,9 @@ def client(mock_svc, mock_session):
 
     try:
         with TestClient(app=test_app, raise_server_exceptions=False) as tc:
-            tc.mock_svc = mock_svc
+            tc.mock_auth = mock_auth
+            tc.mock_token = mock_token
+            tc.mock_password_reset = mock_password_reset
             tc.mock_session = mock_session
             yield tc
     finally:
@@ -156,9 +192,9 @@ def client(mock_svc, mock_session):
 
 class TestRegister:
     def test_successful_registration_returns_201(self, client):
-        client.mock_svc.register.return_value = _make_token_response()
+        client.mock_auth.register.return_value = _make_token_response()
 
-        response = client.post("/auth/register", json={
+        response = client.post("/api/auth/register", json={
             "email": "new@test.com",
             "password": "securePass1",
             "name": "New User",
@@ -171,11 +207,11 @@ class TestRegister:
         assert body["user"]["email"] == "test@example.com"
 
     def test_duplicate_email_returns_409(self, client):
-        client.mock_svc.register.side_effect = ValueError(
+        client.mock_auth.register.side_effect = ValueError(
             "email already registered"
         )
 
-        response = client.post("/auth/register", json={
+        response = client.post("/api/auth/register", json={
             "email": "existing@test.com",
             "password": "securePass1",
             "name": "Duplicate User",
@@ -185,7 +221,7 @@ class TestRegister:
         assert "already registered" in response.json()["detail"]
 
     def test_weak_password_returns_400(self, client):
-        response = client.post("/auth/register", json={
+        response = client.post("/api/auth/register", json={
             "email": "test@test.com",
             "password": "short",
             "name": "Test",
@@ -193,7 +229,7 @@ class TestRegister:
         assert response.status_code == 400
 
     def test_invalid_email_returns_400(self, client):
-        response = client.post("/auth/register", json={
+        response = client.post("/api/auth/register", json={
             "email": "not-an-email",
             "password": "securePass1",
             "name": "Bad Email",
@@ -201,7 +237,7 @@ class TestRegister:
         assert response.status_code == 400
 
     def test_missing_required_fields_returns_400(self, client):
-        response = client.post("/auth/register", json={
+        response = client.post("/api/auth/register", json={
             "email": "test@test.com",
         })
         assert response.status_code == 400
@@ -213,9 +249,9 @@ class TestRegister:
 
 class TestLogin:
     def test_successful_login_returns_200(self, client):
-        client.mock_svc.login.return_value = _make_token_response()
+        client.mock_auth.login.return_value = _make_token_response()
 
-        response = client.post("/auth/login", json={
+        response = client.post("/api/auth/login", json={
             "email": "user@test.com",
             "password": "correctPassword",
         })
@@ -225,11 +261,11 @@ class TestLogin:
         assert body["access_token"] == "access.fake.jwt"
 
     def test_invalid_credentials_returns_401(self, client):
-        client.mock_svc.login.side_effect = ValueError(
+        client.mock_auth.login.side_effect = ValueError(
             "invalid email or password"
         )
 
-        response = client.post("/auth/login", json={
+        response = client.post("/api/auth/login", json={
             "email": "user@test.com",
             "password": "wrongPassword",
         })
@@ -238,15 +274,15 @@ class TestLogin:
         assert "invalid email or password" in response.json()["detail"]
 
     def test_login_does_not_leak_email_or_password_info(self, client):
-        client.mock_svc.login.side_effect = ValueError(
+        client.mock_auth.login.side_effect = ValueError(
             "invalid email or password"
         )
 
-        r1 = client.post("/auth/login", json={
+        r1 = client.post("/api/auth/login", json={
             "email": "nonexistent@test.com",
             "password": "anyPass1",
         })
-        r2 = client.post("/auth/login", json={
+        r2 = client.post("/api/auth/login", json={
             "email": "existing@test.com",
             "password": "wrongPass1",
         })
@@ -260,9 +296,9 @@ class TestLogin:
 
 class TestRefresh:
     def test_valid_refresh_returns_200(self, client):
-        client.mock_svc.refresh.return_value = _make_token_response()
+        client.mock_token.refresh.return_value = _make_token_response()
 
-        response = client.post("/auth/refresh", json={
+        response = client.post("/api/auth/refresh", json={
             "refresh_token": "550e8400-e29b-41d4-a716-446655440000.secret",
         })
 
@@ -270,18 +306,18 @@ class TestRefresh:
         assert "access_token" in response.json()
 
     def test_invalid_refresh_returns_401(self, client):
-        client.mock_svc.refresh.side_effect = ValueError(
+        client.mock_token.refresh.side_effect = ValueError(
             "invalid or expired refresh token"
         )
 
-        response = client.post("/auth/refresh", json={
+        response = client.post("/api/auth/refresh", json={
             "refresh_token": "550e8400-e29b-41d4-a716-446655440000.expired",
         })
 
         assert response.status_code == 401
 
     def test_missing_token_body_returns_400(self, client):
-        response = client.post("/auth/refresh", json={})
+        response = client.post("/api/auth/refresh", json={})
         assert response.status_code == 400
 
 
@@ -291,9 +327,9 @@ class TestRefresh:
 
 class TestLogout:
     def test_logout_returns_200(self, client):
-        client.mock_svc.logout.return_value = None
+        client.mock_token.logout.return_value = None
 
-        response = client.post("/auth/logout", json={
+        response = client.post("/api/auth/logout", json={
             "refresh_token": "550e8400-e29b-41d4-a716-446655440000.token",
         })
 
@@ -301,9 +337,9 @@ class TestLogout:
         assert response.json()["message"] == "logged out"
 
     def test_logout_bad_format_still_200(self, client):
-        client.mock_svc.logout.return_value = None
+        client.mock_token.logout.return_value = None
 
-        response = client.post("/auth/logout", json={
+        response = client.post("/api/auth/logout", json={
             "refresh_token": "bad-format",
         })
 
@@ -316,9 +352,9 @@ class TestLogout:
 
 class TestForgotPassword:
     def test_always_returns_202(self, client):
-        client.mock_svc.forgot_password.return_value = None
+        client.mock_password_reset.forgot_password.return_value = None
 
-        response = client.post("/auth/forgot-password", json={
+        response = client.post("/api/auth/forgot-password", json={
             "email": "any@test.com",
         })
 
@@ -326,7 +362,7 @@ class TestForgotPassword:
         assert "if the email exists" in response.json()["message"]
 
     def test_invalid_email_returns_400(self, client):
-        response = client.post("/auth/forgot-password", json={
+        response = client.post("/api/auth/forgot-password", json={
             "email": "not-email",
         })
         assert response.status_code == 400
@@ -338,9 +374,9 @@ class TestForgotPassword:
 
 class TestResetPassword:
     def test_reset_returns_200(self, client):
-        client.mock_svc.reset_password.return_value = None
+        client.mock_password_reset.reset_password.return_value = None
 
-        response = client.post("/auth/reset-password", json={
+        response = client.post("/api/auth/reset-password", json={
             "token": "any-token",
             "new_password": "NewSecurePass1",
         })
@@ -349,7 +385,7 @@ class TestResetPassword:
         assert response.json()["message"] == "password reset successful"
 
     def test_weak_new_password_returns_400(self, client):
-        response = client.post("/auth/reset-password", json={
+        response = client.post("/api/auth/reset-password", json={
             "token": "any-token",
             "new_password": "short",
         })
@@ -362,14 +398,48 @@ class TestResetPassword:
 
 class TestOAuth:
     def test_google_redirect_returns_501(self, client):
-        response = client.get("/auth/oauth/google")
+        response = client.get("/api/auth/oauth/google")
         assert response.status_code == 501
         assert "not configured" in response.json()["detail"].lower()
 
     def test_google_callback_returns_501(self, client):
-        response = client.get("/auth/oauth/google/callback?code=testcode")
+        response = client.get("/api/auth/oauth/google/callback?code=testcode")
         assert response.status_code == 501
         assert "not configured" in response.json()["detail"].lower()
+
+
+# ---------------------------------------------------------------------------
+# Admin Login
+# ---------------------------------------------------------------------------
+
+class TestAdminLogin:
+    def test_admin_login_returns_200(self, client):
+        client.mock_auth.admin_login.return_value = _make_token_response()
+
+        response = client.post("/api/auth/admin-login", json={
+            "email": "admin@test.com",
+            "password": "adminPass1",
+        })
+
+        assert response.status_code == 200, response.text
+        assert "access_token" in response.json()
+
+
+# ---------------------------------------------------------------------------
+# Verify 2FA
+# ---------------------------------------------------------------------------
+
+class TestVerify2FA:
+    def test_verify_2fa_returns_200(self, client):
+        client.mock_auth.verify_2fa.return_value = _make_token_response()
+
+        response = client.post("/api/auth/verify-2fa", json={
+            "login_token": "fake.login.jwt",
+            "code": "123456",
+        })
+
+        assert response.status_code == 200, response.text
+        assert "access_token" in response.json()
 
 
 # ---------------------------------------------------------------------------
@@ -402,9 +472,7 @@ class TestGuardContract:
     NEVER the JWTAuth instance itself (it is not callable as a guard)."""
 
     def test_unauthenticated_users_get_401(self) -> None:
-        """A protected endpoint without a token MUST return 401.
-        The JWTAuth middleware (on_app_init) handles this — no per-route
-        guard needed."""
+        """A protected endpoint without a token MUST return 401."""
         test_jwt_auth = JWTAuth[TestUser](
             retrieve_user_handler=_test_retrieve_user,
             token_secret="this-is-a-32-character-minimum-secret-key!!",
@@ -459,8 +527,7 @@ class TestGuardContract:
 
     def test_admin_guard_returns_403_for_non_admin(self) -> None:
         """admin_guard MUST return 403 when the authenticated user is a
-        customer (non-admin). Only admin_guard goes in ``guards=[]`` —
-        JWT validation is handled by the middleware."""
+        customer (non-admin)."""
         secret = "this-is-a-32-character-admin-secret-key!!"
         test_jwt_auth = JWTAuth[TestUser](
             retrieve_user_handler=_test_retrieve_user,
@@ -540,19 +607,19 @@ class TestRateLimit:
         """The 6th request to a rate-limited endpoint within the window
         MUST return 429 with a ``Retry-After`` header."""
         _buckets.clear()
-        client.mock_svc.login.return_value = _make_token_response()
+        client.mock_auth.login.return_value = _make_token_response()
 
         body = {"email": "test@example.com", "password": "password123"}
 
         # First 5 requests succeed (200)
         for i in range(5):
-            response = client.post("/auth/login", json=body)
+            response = client.post("/api/auth/login", json=body)
             assert response.status_code == 200, (
                 f"Request {i + 1}: expected 200, got {response.status_code}"
             )
 
         # 6th request is rate-limited (429)
-        response = client.post("/auth/login", json=body)
+        response = client.post("/api/auth/login", json=body)
         assert response.status_code == 429, response.text
         assert response.headers.get("retry-after") is not None, (
             "429 response must include Retry-After header"

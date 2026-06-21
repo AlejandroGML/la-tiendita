@@ -1,6 +1,12 @@
-"""Unit tests for AuthService — token create/verify, bcrypt, replay, rate-limit."""
+"""Unit tests for AuthService — register, login, admin_login, verify_2fa,
+password hashing, TOTP verification.
+
+Token creation/verification tests moved to ``test_token_service.py``.
+Refresh/logout/forgot/reset tests moved to respective test files.
+"""
 
 import uuid
+from datetime import datetime, timezone
 from unittest.mock import AsyncMock, MagicMock
 
 import bcrypt
@@ -8,118 +14,336 @@ import pytest
 
 from app.config import Settings
 from app.models.user import User, UserRole
-from app.schemas.auth import RefreshRequest
 from app.services.auth_service import AuthService
+from app.services.token_service import TokenService
+from app.schemas.auth import LoginRequest, RegisterRequest, Verify2faRequest
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
-def _make_unique_mock(**kwargs):
-    """Build a mock that supports ``.unique()`` returning itself.
-
-    The repo base methods call ``result.unique().scalar_one_or_none()`` or
-    ``result.unique().scalars().all()``.  This helper ensures ``.unique()``
-    returns the same mock so downstream calls resolve correctly.
-    """
-    m = MagicMock(**kwargs)
-    m.unique = MagicMock(return_value=m)
-    return m
-
-
-def _make_scalar_result(items):
-    """Build a mock that supports ``.scalars().all()`` returning a list."""
-    mock_scalars = MagicMock()
-    mock_scalars.all.return_value = items
-    mock_result = _make_unique_mock()
-    mock_result.scalars.return_value = mock_scalars
-    return mock_result
-
-
-def _make_execute_mock(scalar_one_or_none_values=None, scalar_results=None):
-    """Build an AsyncMock for ``session.execute`` with configurable returns.
-
-    ``scalar_one_or_none_values``: list of values for successive calls.
-    ``scalar_results``: list of ``_make_scalar_result`` for successive calls.
-    """
-    mock = AsyncMock()
-
-    if scalar_one_or_none_values:
-        mock.return_value = _make_unique_mock()
-        mock.return_value.scalar_one_or_none = AsyncMock(
-            side_effect=scalar_one_or_none_values
-        )
-    if scalar_results:
-        mock.side_effect = scalar_results
-
-    return mock
+def _make_user(user_id=None, role=UserRole.CUSTOMER, totp_enabled=False):
+    return User(
+        id=user_id or uuid.uuid4(),
+        email="test@example.com",
+        name="Test User",
+        role=role,
+        password_hash="$2b$12$abcdefghijklmnopqrstuvwx1234567890123456789012345678901",
+        totp_enabled=totp_enabled,
+        totp_secret="JBSWY3DPEHPK3PXP" if totp_enabled else None,
+        preferred_lang="es",
+        is_verified=False,
+        created_at=datetime.now(timezone.utc),
+    )
 
 
 # ---------------------------------------------------------------------------
-# Token Create / Verify
+# Fixtures
 # ---------------------------------------------------------------------------
 
-class TestTokenCreateVerify:
-    """JWT access token creation and verification."""
+@pytest.fixture
+def svc():
+    """AuthService with a real TokenService but mocked session/repo."""
+    return AuthService(
+        app_settings=Settings(
+            DATABASE_URL="postgresql+asyncpg:///test",
+            SECRET_KEY="test-secret-key-for-unit-tests",
+            ACCESS_TOKEN_EXPIRE_MINUTES=15,
+            REFRESH_TOKEN_EXPIRE_DAYS=7,
+            JWT_ALGORITHM="HS256",
+        ),
+    )
 
-    @pytest.fixture
-    def svc(self):
-        return AuthService(
-            app_settings=Settings(
-                DATABASE_URL="postgresql+asyncpg:///test",
-                SECRET_KEY="test-secret-key-for-unit-tests",
-                ACCESS_TOKEN_EXPIRE_MINUTES=15,
-                JWT_ALGORITHM="HS256",
-            )
-        )
 
-    def test_create_access_token_contains_claims(self, svc):
-        token = svc.create_access_token_raw("user-1", "customer")
-        assert isinstance(token, str)
-        assert len(token) > 0
+@pytest.fixture
+def mock_session():
+    return AsyncMock()
 
-    def test_verify_valid_token(self, svc):
-        token = svc.create_access_token_raw("user-1", "customer")
-        claims = svc.verify_access_token(token)
-        assert claims is not None
-        assert claims["sub"] == "user-1"
-        assert claims["role"] == "customer"
-        assert "exp" in claims
-        assert "iat" in claims
 
-    def test_verify_tampered_token_fails(self, svc):
-        token = svc.create_access_token_raw("user-1", "customer")
-        tampered = token + "x"
-        claims = svc.verify_access_token(tampered)
-        assert claims is None
+# ---------------------------------------------------------------------------
+# Constructor / Injection
+# ---------------------------------------------------------------------------
 
-    def test_verify_expired_token_fails(self, svc):
-        svc_expired = AuthService(
+class TestConstructor:
+    """AuthService constructor and dependency injection."""
+
+    def test_injects_default_token_service(self):
+        """AuthService should create a default TokenService when none given."""
+        svc = AuthService(
             app_settings=Settings(
                 DATABASE_URL="postgresql+asyncpg:///test",
                 SECRET_KEY="test-secret",
-                ACCESS_TOKEN_EXPIRE_MINUTES=-1,
-                JWT_ALGORITHM="HS256",
             )
         )
-        token = svc_expired.create_access_token_raw("user-1", "customer")
-        claims = svc.verify_access_token(token)
-        assert claims is None
+        assert svc._token_service is not None
+        assert isinstance(svc._token_service, TokenService)
 
-    def test_different_role_in_claim(self, svc):
-        token = svc.create_access_token_raw("user-2", "admin")
-        claims = svc.verify_access_token(token)
-        assert claims is not None
-        assert claims["role"] == "admin"
+    def test_injects_custom_token_service(self):
+        """AuthService should use a provided TokenService instance."""
+        mock_ts = MagicMock(spec=TokenService)
+        svc = AuthService(
+            app_settings=Settings(
+                DATABASE_URL="postgresql+asyncpg:///test",
+                SECRET_KEY="test-secret",
+            ),
+            token_service=mock_ts,
+        )
+        assert svc._token_service is mock_ts
 
 
 # ---------------------------------------------------------------------------
-# Bcrypt Hashing
+# Register
 # ---------------------------------------------------------------------------
 
-class TestBcryptHashing:
-    """Password and token hashing with bcrypt."""
+class TestRegister:
+    """User registration — creates user, issues tokens, emits event."""
+
+    @pytest.mark.asyncio
+    async def test_register_creates_user_and_issues_tokens(
+        self, svc, mock_session
+    ):
+        """Successful registration should create user, issue tokens, emit event."""
+        svc._user_repo.get_by_email = AsyncMock(return_value=None)
+        svc._token_service.create_access_token = MagicMock(
+            return_value="fake.access.jwt"
+        )
+        svc._token_service.create_refresh_token = AsyncMock(
+            return_value="fake.refresh.token"
+        )
+
+        svc._hash_password = MagicMock(return_value="hashed-password")
+
+        # Capture the user object added to session and populate SQLAlchemy
+        # defaults (id, created_at) on flush — these are normally populated
+        # by the DB at INSERT time.
+        captured_user = None
+
+        def capture_user(user):
+            nonlocal captured_user
+            captured_user = user
+
+        async def flush_with_defaults():
+            if captured_user is not None:
+                if captured_user.id is None:
+                    captured_user.id = uuid.uuid4()
+                if captured_user.created_at is None:
+                    captured_user.created_at = datetime.now(timezone.utc)
+
+        mock_session.add = MagicMock(side_effect=capture_user)
+        mock_session.flush = AsyncMock(side_effect=flush_with_defaults)
+
+        data = RegisterRequest(
+            email="new@test.com",
+            password="SecurePass1",
+            name="New User",
+        )
+
+        result = await svc.register(mock_session, data)
+
+        assert result.access_token == "fake.access.jwt"
+        assert result.refresh_token == "fake.refresh.token"
+        assert result.user.email == "new@test.com"
+        svc._token_service.create_access_token.assert_called_once_with(
+            str(captured_user.id), "customer"
+        )
+        svc._token_service.create_refresh_token.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_register_duplicate_email_raises(self, svc, mock_session):
+        """Registering with an existing email should raise ValueError."""
+        existing = _make_user()
+        svc._user_repo.get_by_email = AsyncMock(return_value=existing)
+
+        data = RegisterRequest(
+            email="existing@test.com",
+            password="SecurePass1",
+            name="Duplicate",
+        )
+
+        with pytest.raises(ValueError, match="email already registered"):
+            await svc.register(mock_session, data)
+
+
+# ---------------------------------------------------------------------------
+# Login
+# ---------------------------------------------------------------------------
+
+class TestLogin:
+    """User login — verifies credentials and issues tokens."""
+
+    @pytest.mark.asyncio
+    async def test_login_successful(self, svc, mock_session):
+        """Valid credentials should return a token pair."""
+        user = _make_user()
+        svc._user_repo.get_by_email = AsyncMock(return_value=user)
+        svc._verify_password = MagicMock(return_value=True)
+        svc._token_service.create_access_token = MagicMock(
+            return_value="fake.access.jwt"
+        )
+        svc._token_service.create_refresh_token = AsyncMock(
+            return_value="fake.refresh.token"
+        )
+
+        data = LoginRequest(email="test@example.com", password="correct")
+        result = await svc.login(mock_session, data)
+
+        assert result.access_token == "fake.access.jwt"
+        assert result.refresh_token == "fake.refresh.token"
+        svc._token_service.create_access_token.assert_called_once()
+        svc._token_service.create_refresh_token.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_login_invalid_email_raises(self, svc, mock_session):
+        """Unknown email should raise ValueError."""
+        svc._user_repo.get_by_email = AsyncMock(return_value=None)
+
+        data = LoginRequest(email="unknown@test.com", password="any")
+        with pytest.raises(ValueError, match="invalid email or password"):
+            await svc.login(mock_session, data)
+
+    @pytest.mark.asyncio
+    async def test_login_wrong_password_raises(self, svc, mock_session):
+        """Wrong password should raise ValueError."""
+        user = _make_user()
+        svc._user_repo.get_by_email = AsyncMock(return_value=user)
+        svc._verify_password = MagicMock(return_value=False)
+
+        data = LoginRequest(email="test@example.com", password="wrong")
+        with pytest.raises(ValueError, match="invalid email or password"):
+            await svc.login(mock_session, data)
+
+
+# ---------------------------------------------------------------------------
+# Admin Login
+# ---------------------------------------------------------------------------
+
+class TestAdminLogin:
+    """Admin login — 2FA flow and direct token issuance."""
+
+    @pytest.mark.asyncio
+    async def test_admin_login_no_2fa_issues_tokens(
+        self, svc, mock_session
+    ):
+        """Admin without 2FA should receive tokens directly."""
+        user = _make_user(role=UserRole.ADMIN, totp_enabled=False)
+        svc._user_repo.get_by_email = AsyncMock(return_value=user)
+        svc._verify_password = MagicMock(return_value=True)
+        svc._token_service.create_access_token = MagicMock(
+            return_value="fake.access.jwt"
+        )
+        svc._token_service.create_refresh_token = AsyncMock(
+            return_value="fake.refresh.token"
+        )
+
+        data = LoginRequest(email="admin@test.com", password="adminpass")
+        result = await svc.admin_login(mock_session, data)
+
+        assert result.access_token == "fake.access.jwt"
+        assert result.refresh_token == "fake.refresh.token"
+        svc._token_service.create_access_token.assert_called_once()
+        svc._token_service.create_refresh_token.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_admin_login_with_2fa_returns_login_token(
+        self, svc, mock_session
+    ):
+        """Admin with 2FA should get a login_token instead of tokens."""
+        user = _make_user(role=UserRole.ADMIN, totp_enabled=True)
+        svc._user_repo.get_by_email = AsyncMock(return_value=user)
+        svc._verify_password = MagicMock(return_value=True)
+        svc._token_service.create_login_token = MagicMock(
+            return_value="fake.login.jwt"
+        )
+
+        data = LoginRequest(email="admin@test.com", password="adminpass")
+        result = await svc.admin_login(mock_session, data)
+
+        assert result.require_2fa is True
+        assert result.login_token == "fake.login.jwt"
+        assert result.user is not None
+        svc._token_service.create_login_token.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_admin_login_non_admin_raises(self, svc, mock_session):
+        """Non-admin user trying admin_login should raise ValueError."""
+        user = _make_user(role=UserRole.CUSTOMER)
+        svc._user_repo.get_by_email = AsyncMock(return_value=user)
+        svc._verify_password = MagicMock(return_value=True)
+
+        data = LoginRequest(email="user@test.com", password="userpass")
+        with pytest.raises(ValueError, match="not an admin account"):
+            await svc.admin_login(mock_session, data)
+
+
+# ---------------------------------------------------------------------------
+# Verify 2FA
+# ---------------------------------------------------------------------------
+
+class TestVerify2FA:
+    """2FA verification — validates login_token and TOTP, then issues tokens."""
+
+    @pytest.mark.asyncio
+    async def test_verify_2fa_successful(self, svc, mock_session):
+        """Valid login_token + correct TOTP should issue tokens."""
+        user_id = uuid.uuid4()
+        user = _make_user(user_id=user_id, role=UserRole.ADMIN, totp_enabled=True)
+
+        svc._token_service.verify_access_token = MagicMock(
+            return_value={"sub": str(user_id)}
+        )
+        svc._user_repo.get_by_id = AsyncMock(return_value=user)
+        svc._verify_totp = MagicMock(return_value=True)
+        svc._token_service.create_access_token = MagicMock(
+            return_value="fake.access.jwt"
+        )
+        svc._token_service.create_refresh_token = AsyncMock(
+            return_value="fake.refresh.token"
+        )
+
+        data = Verify2faRequest(login_token="fake.jwt", code="123456")
+        result = await svc.verify_2fa(mock_session, data)
+
+        assert result.access_token == "fake.access.jwt"
+        assert result.refresh_token == "fake.refresh.token"
+        svc._token_service.verify_access_token.assert_called_once_with(
+            "fake.jwt"
+        )
+        svc._token_service.create_access_token.assert_called_once()
+        svc._token_service.create_refresh_token.assert_called_once()
+
+    @pytest.mark.asyncio
+    async def test_verify_2fa_invalid_token_raises(self, svc, mock_session):
+        """Invalid login_token should raise ValueError."""
+        svc._token_service.verify_access_token = MagicMock(return_value=None)
+
+        data = Verify2faRequest(login_token="bad.jwt", code="123456")
+        with pytest.raises(ValueError, match="invalid or expired login token"):
+            await svc.verify_2fa(mock_session, data)
+
+    @pytest.mark.asyncio
+    async def test_verify_2fa_wrong_code_raises(self, svc, mock_session):
+        """Wrong TOTP code should raise ValueError."""
+        user_id = uuid.uuid4()
+        user = _make_user(user_id=user_id, role=UserRole.ADMIN, totp_enabled=True)
+
+        svc._token_service.verify_access_token = MagicMock(
+            return_value={"sub": str(user_id)}
+        )
+        svc._user_repo.get_by_id = AsyncMock(return_value=user)
+        svc._verify_totp = MagicMock(return_value=False)
+
+        data = Verify2faRequest(login_token="fake.jwt", code="000000")
+        with pytest.raises(ValueError, match="invalid verification code"):
+            await svc.verify_2fa(mock_session, data)
+
+
+# ---------------------------------------------------------------------------
+# Password Hashing (retained in AuthService)
+# ---------------------------------------------------------------------------
+
+class TestPasswordHashing:
+    """Password hashing and verification — retained in AuthService."""
 
     @pytest.fixture
     def svc(self):
@@ -140,36 +364,13 @@ class TestBcryptHashing:
         hashed = svc._hash_password("correct")
         assert svc._verify_password("wrong", hashed) is False
 
-    def test_hash_token_produces_different_each_time(self):
-        h1 = AuthService._hash_token("same-token")
-        h2 = AuthService._hash_token("same-token")
-        assert h1 != h2
-
-    def test_verify_token_with_checkpw(self, svc):
-        raw = "test-raw-token"
-        hashed = svc._hash_token(raw)
-        raw_bytes = raw.encode("utf-8")[:72]
-        assert bcrypt.checkpw(raw_bytes, hashed.encode()) is True
-
-    def test_verify_token_wrong_value_fails(self, svc):
-        hashed = svc._hash_token("correct-token")
-        wrong_bytes = "wrong-token".encode("utf-8")[:72]
-        assert bcrypt.checkpw(wrong_bytes, hashed.encode()) is False
-
-    def test_long_token_truncated_to_72_bytes(self, svc):
-        """Token longer than 72 bytes must be truncated before bcrypt."""
-        long_token = "x" * 200
-        hashed = svc._hash_token(long_token)
-        raw_bytes = long_token.encode("utf-8")[:72]
-        assert bcrypt.checkpw(raw_bytes, hashed.encode()) is True
-
 
 # ---------------------------------------------------------------------------
-# Replay Detection
+# TOTP Verification (retained in AuthService)
 # ---------------------------------------------------------------------------
 
-class TestReplayDetection:
-    """Refresh token rotation and replay detection."""
+class TestTotpVerification:
+    """TOTP 6-digit code verification — retained in AuthService."""
 
     @pytest.fixture
     def svc(self):
@@ -177,133 +378,19 @@ class TestReplayDetection:
             app_settings=Settings(
                 DATABASE_URL="postgresql+asyncpg:///test",
                 SECRET_KEY="test-secret",
-                REFRESH_TOKEN_EXPIRE_DAYS=7,
             )
         )
 
-    @pytest.mark.asyncio
-    async def test_refresh_with_valid_token(self, svc):
-        """Creating a refresh token should succeed and return a properly
-        formatted token string."""
-        session = AsyncMock()
-        session.add = MagicMock()
-        session.flush = AsyncMock()
-        user_id = uuid.uuid4()
+    def test_verify_totp_valid(self, svc):
+        import pyotp
 
-        raw_token = await svc._create_refresh_token(session, str(user_id))
-        assert "." in raw_token
-        assert raw_token.startswith(str(user_id))
-        session.add.assert_called_once()
+        secret = pyotp.random_base32()
+        totp = pyotp.TOTP(secret)
+        code = totp.now()
+        assert svc._verify_totp(secret, code) is True
 
-    @pytest.mark.asyncio
-    async def test_replay_detection_revokes_tokens(self, svc):
-        """When a token is not found (already rotated), all user tokens
-        must be revoked."""
-        session = AsyncMock()
-        session.delete = AsyncMock()
-        session.flush = AsyncMock()
-        user_id = uuid.uuid4()
-        user = User(
-            id=user_id,
-            email="replay@test.com",
-            name="Replay",
-            role=UserRole.CUSTOMER,
-        )
+    def test_verify_totp_invalid_code(self, svc):
+        assert svc._verify_totp("JBSWY3DPEHPK3PXP", "000000") is False
 
-        # Mock: first execute → user found, second execute → no matching token
-        execute_calls = []
-        # call 0: find user via UserRepository.get_by_id
-        call_0 = _make_unique_mock()
-        call_0.scalar_one_or_none = AsyncMock(return_value=user)
-        execute_calls.append(call_0)
-
-        # call 1: find active tokens (returns empty)
-        call_1 = _make_unique_mock()
-        call_1_scalars = MagicMock()
-        call_1_scalars.all.return_value = []
-        call_1.scalars.return_value = call_1_scalars
-        execute_calls.append(call_1)
-
-        # call 2: revoke_all → select tokens for user
-        call_2 = _make_unique_mock()
-        call_2_scalars = MagicMock()
-        call_2_scalars.all.return_value = []
-        call_2.scalars.return_value = call_2_scalars
-        execute_calls.append(call_2)
-
-        session.execute = AsyncMock(side_effect=execute_calls)
-
-        with pytest.raises(ValueError, match="invalid or expired"):
-            raw = f"{user_id}.fakesecret"
-            await svc.refresh(session, RefreshRequest(refresh_token=raw))
-
-        # Verify revoke_all was attempted (execute was called for revocation)
-        assert session.execute.call_count >= 3
-
-    @pytest.mark.asyncio
-    async def test_refresh_invalid_format_returns_401(self, svc):
-        session = AsyncMock()
-        with pytest.raises(ValueError, match="invalid refresh token"):
-            await svc.refresh(
-                session, RefreshRequest(refresh_token="bad-format-no-dot")
-            )
-
-
-# ---------------------------------------------------------------------------
-# Extract User ID
-# ---------------------------------------------------------------------------
-
-class TestExtractUserId:
-    """Token parsing edge cases."""
-
-    def test_valid_token_format(self):
-        svc = AuthService()
-        uid = uuid.uuid4()
-        token = f"{uid}.secret123"
-        assert svc._extract_user_id(token) == uid
-
-    def test_invalid_uuid_returns_none(self):
-        svc = AuthService()
-        assert svc._extract_user_id("not-a-uuid.secret") is None
-
-    def test_no_dot_returns_none(self):
-        svc = AuthService()
-        assert svc._extract_user_id("justastring") is None
-
-    def test_empty_string_returns_none(self):
-        svc = AuthService()
-        assert svc._extract_user_id("") is None
-
-
-# ---------------------------------------------------------------------------
-# Rate Limit Logic
-# ---------------------------------------------------------------------------
-
-class TestRateLimitLogic:
-    """Rate limiter window logic (not full middleware — just the pruning)."""
-
-    def test_prune_removes_expired_timestamps(self):
-        import time
-
-        from app.middleware.rate_limit import _buckets, _prune
-
-        _buckets.clear()
-        ip = "10.0.0.1"
-        old_time = time.monotonic() - 100
-        _buckets[ip] = [old_time, old_time + 1]
-
-        _prune(ip, 60)
-        assert len(_buckets[ip]) == 0
-
-    def test_prune_keeps_recent_timestamps(self):
-        import time
-
-        from app.middleware.rate_limit import _buckets, _prune
-
-        _buckets.clear()
-        ip = "10.0.0.2"
-        recent = time.monotonic() - 5
-        _buckets[ip] = [recent]
-
-        _prune(ip, 60)
-        assert len(_buckets[ip]) == 1
+    def test_verify_totp_invalid_secret_returns_false(self, svc):
+        assert svc._verify_totp("", "123456") is False

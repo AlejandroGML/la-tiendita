@@ -1,7 +1,7 @@
 """AuthController — 8 endpoints for authentication and authorization.
 
-Registered at ``/auth``. Uses Litestar DI for ``AuthService`` and ``AsyncSession``.
-Request bodies are parsed from JSON automatically (no ``Dependency()`` needed).
+Registered at ``/auth``. Uses Litestar DI for ``AuthService``, ``TokenService``,
+``PasswordResetService``, and ``AsyncSession``.
 """
 
 from litestar import Controller, get, post
@@ -13,6 +13,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.db.engine import async_session as _async_session_fn
 from app.services.auth_service import AuthService
+from app.services.password_reset_service import PasswordResetService
+from app.services.token_service import TokenService
 from app.schemas.auth import (
     AdminLoginResponse,
     ForgotPasswordRequest,
@@ -29,6 +31,16 @@ from app.schemas.auth import (
 async def provide_auth_service() -> AuthService:
     """Construct AuthService with the app settings singleton."""
     return AuthService(app_settings=settings)
+
+
+async def provide_token_service() -> TokenService:
+    """Construct TokenService with the app settings singleton."""
+    return TokenService(app_settings=settings)
+
+
+async def provide_password_reset_service() -> PasswordResetService:
+    """Construct PasswordResetService with the app settings singleton."""
+    return PasswordResetService(app_settings=settings)
 
 
 async def provide_email_service() -> "EmailService":
@@ -56,6 +68,8 @@ class AuthController(Controller):
     tags = ["auth"]
     dependencies = {
         "auth_service": Provide(provide_auth_service),
+        "token_service": Provide(provide_token_service),
+        "password_reset_service": Provide(provide_password_reset_service),
         "session": Provide(provide_session),
     }
 
@@ -125,12 +139,12 @@ class AuthController(Controller):
     async def refresh(
         self,
         data: RefreshRequest,
-        auth_service: AuthService,
+        token_service: TokenService,
         session: AsyncSession,
     ) -> TokenResponse:
         """Rotate refresh token and return new access + refresh pair."""
         try:
-            return await auth_service.refresh(session, data)
+            return await token_service.refresh(session, data)
         except ValueError as exc:
             raise NotAuthorizedException(
                 detail=str(exc), status_code=401
@@ -140,23 +154,23 @@ class AuthController(Controller):
     async def logout(
         self,
         data: RefreshRequest,
-        auth_service: AuthService,
+        token_service: TokenService,
         session: AsyncSession,
     ) -> MessageResponse:
         """Revoke the provided refresh token."""
-        await auth_service.logout(session, data.refresh_token)
+        await token_service.logout(session, data.refresh_token)
         return MessageResponse(message="logged out")
 
     @post("/forgot-password", status_code=202)
     async def forgot_password(
         self,
         data: ForgotPasswordRequest,
-        auth_service: AuthService,
+        password_reset_service: PasswordResetService,
         session: AsyncSession,
     ) -> MessageResponse:
         """Request a password reset link. Always returns 202 to prevent
         user enumeration."""
-        await auth_service.forgot_password(session, data.email)
+        await password_reset_service.forgot_password(session, data.email)
         return MessageResponse(
             message="if the email exists, a reset link was sent"
         )
@@ -165,12 +179,12 @@ class AuthController(Controller):
     async def reset_password(
         self,
         data: ResetPasswordRequest,
-        auth_service: AuthService,
+        password_reset_service: PasswordResetService,
         session: AsyncSession,
     ) -> MessageResponse:
-        """Reset password using a valid reset token (MVP stub)."""
+        """Reset password using a valid reset token."""
         try:
-            await auth_service.reset_password(
+            await password_reset_service.reset_password(
                 session, data.token, data.new_password
             )
         except NotImplementedError as exc:

@@ -42,7 +42,7 @@ class RateLimitMiddleware:
         from app.config import settings as _s
 
         path: str = scope.get("path", "")
-        rate_limited_paths = {"/auth/login", "/auth/register"}
+        rate_limited_paths = {"/auth/login", "/auth/register", "/api/auth/login", "/api/auth/register"}
         if path not in rate_limited_paths:
             await self.app(scope, receive, send)
             return
