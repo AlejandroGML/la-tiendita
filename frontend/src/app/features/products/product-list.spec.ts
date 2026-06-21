@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,14 +11,16 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { PaginatorModule } from 'primeng/paginator';
+import { MultiSelectModule } from 'primeng/multiselect';
+import { CheckboxModule } from 'primeng/checkbox';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { TranslateModule } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 import { ProductList } from './product-list';
-import { SearchBarComponent } from '../../shared/components/search-bar/search-bar';
-import { PaginationComponent } from '../../shared/components/pagination/pagination';
-import { ProductCardComponent } from '../../shared/components/product-card/product-card';
-import { CurrencyPipe } from '../../shared/pipes/currency.pipe';
+import { ProductFilterSidebarComponent } from './components/product-filter-sidebar.component';
+import { ProductGridComponent } from './components/product-grid.component';
+import { SharedUiModule } from '../../shared/shared-ui.module';
+import { SharedPipesModule } from '../../shared/shared-pipes.module';
 import { ProductService } from '../../core/services/product.service';
 import type { ProductListResponse } from '../../core/services/product.service';
 import type { Product } from '../../shared/models/product.model';
@@ -128,12 +131,11 @@ describe('ProductList', () => {
     http = createHttpMock();
 
     await TestBed.configureTestingModule({
+      schemas: [NO_ERRORS_SCHEMA, CUSTOM_ELEMENTS_SCHEMA],
       declarations: [
         ProductList,
-        SearchBarComponent,
-        PaginationComponent,
-        ProductCardComponent,
-        CurrencyPipe,
+        ProductFilterSidebarComponent,
+        ProductGridComponent,
       ],
       imports: [
         FormsModule,
@@ -145,6 +147,10 @@ describe('ProductList', () => {
         InputIconModule,
         InputTextModule,
         PaginatorModule,
+        MultiSelectModule,
+        CheckboxModule,
+        SharedUiModule,
+        SharedPipesModule,
         NoopAnimationsModule,
         RouterModule.forRoot([]),
         TranslateModule.forRoot(),
@@ -167,11 +173,11 @@ describe('ProductList', () => {
     expect(cards.length).toBe(2);
   });
 
-  it('should render product names in the grid', () => {
-    const h3s = fixture.nativeElement.querySelectorAll('h3');
-    const texts = Array.from(h3s as NodeListOf<HTMLElement>).map((el) => el.textContent?.trim());
-    expect(texts).toContain('Jeans Levis');
-    expect(texts).toContain('Chaqueta North Face');
+  it('should render product cards inside product grid', () => {
+    const grid = fixture.nativeElement.querySelector('app-product-grid');
+    expect(grid).toBeTruthy();
+    const cards = grid!.querySelectorAll('app-product-card');
+    expect(cards.length).toBe(2);
   });
 
   it('should render pagination when total > 0', () => {

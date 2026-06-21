@@ -1,0 +1,40 @@
+<!-- Loading state -->
+<div *ngIf="loading" class="flex justify-center py-16">
+  <p-progressSpinner
+    strokeWidth="4"
+    [style]="{ width: '48px', height: '48px' }"
+  ></p-progressSpinner>
+</div>
+
+<!-- Error state -->
+<div *ngIf="error" class="text-center py-16">
+  <p class="text-red-600 dark:text-red-400 text-lg">{{ error | translate }}</p>
+  <button
+    class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+    (click)="onRetry()"
+  >
+    {{ 'catalog.retry' | translate }}
+  </button>
+</div>
+
+<!-- Product Grid -->
+<div
+  *ngIf="!loading && !error"
+  class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+>
+  <a
+    *ngFor="let product of products"
+    [routerLink]="['/productos', product.slug]"
+    class="block"
+  >
+    <app-product-card [product]="product"></app-product-card>
+  </a>
+</div>
+
+<!-- Empty state -->
+<div
+  *ngIf="!loading && !error && products.length === 0"
+  class="text-center py-16"
+>
+  <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'catalog.noResults' | translate }}</p>
+</div>

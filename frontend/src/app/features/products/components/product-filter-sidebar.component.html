@@ -1,0 +1,207 @@
+<aside class="filters-sidebar w-full lg:w-72 shrink-0">
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-5 sticky top-4 max-h-[calc(100vh-2rem)] overflow-y-auto">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">{{ 'catalog.filters' | translate }}</h2>
+      <button
+        *ngIf="hasActiveFilters"
+        class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition-colors"
+        (click)="onClear()"
+      >
+        {{ 'catalog.clear' | translate }}
+      </button>
+    </div>
+
+    <!-- Category -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'catalog.category' | translate }}
+      </label>
+      <p-select
+        class="w-full"
+        [options]="categoryDropdownOptions()"
+        [ngModel]="filters.category_id"
+        (onChange)="onFilter('category_id', $event.value)"
+        [placeholder]="'catalog.allCategories' | translate"
+      >
+        <ng-template let-option pTemplate="item">
+          <div class="flex items-center gap-2">
+            <span class="text-base shrink-0">{{ option.icon }}</span>
+            <span>{{ option.label }}</span>
+          </div>
+        </ng-template>
+      </p-select>
+    </div>
+
+    <!-- Gender -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'product.gender' | translate }}
+      </label>
+      <p-select
+        class="w-full"
+        [options]="genderDropdownOptions()"
+        [ngModel]="filters.target_gender"
+        (onChange)="onFilter('target_gender', $event.value)"
+        [placeholder]="'catalog.allGenders' | translate"
+      ></p-select>
+    </div>
+
+    <!-- Condition -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'product.condition' | translate }}
+      </label>
+      <p-select
+        class="w-full"
+        [options]="conditionDropdownOptions()"
+        [ngModel]="filters.condition"
+        (onChange)="onFilter('condition', $event.value)"
+        [placeholder]="'catalog.allConditions' | translate"
+      ></p-select>
+    </div>
+
+    <!-- Size -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'product.size' | translate }}
+      </label>
+      <p-select
+        class="w-full"
+        [options]="sizeDropdownOptions()"
+        [ngModel]="filters.size"
+        (onChange)="onFilter('size', $event.value)"
+        [placeholder]="'catalog.allSizes' | translate"
+      ></p-select>
+    </div>
+
+    <!-- Color -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'product.colors' | translate }}
+      </label>
+      <p-multiSelect
+        class="w-full"
+        [options]="colorOptions()"
+        [ngModel]="filters.colors"
+        (onChange)="onFilter('colors', $event.value)"
+        [placeholder]="'catalog.allColors' | translate"
+        [selectedItemsLabel]="'catalog.colorsSelected' | translate"
+        [maxSelectedLabels]="2"
+        display="chip"
+      >
+        <ng-template let-option pTemplate="item">
+          <div class="flex items-center gap-2">
+            <span
+              class="inline-block w-4 h-4 rounded-full border border-gray-300 dark:border-gray-600 shrink-0"
+              [style.background]="option.hex || '#ccc'"
+            ></span>
+            <span>{{ option.label }}</span>
+          </div>
+        </ng-template>
+      </p-multiSelect>
+    </div>
+
+    <!-- Season -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'product.season' | translate }}
+      </label>
+      <p-select
+        class="w-full"
+        [options]="seasonDropdownOptions()"
+        [ngModel]="filters.season"
+        (onChange)="onFilter('season', $event.value)"
+        [placeholder]="'catalog.allSeasons' | translate"
+      ></p-select>
+    </div>
+
+    <!-- Pattern -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'product.pattern' | translate }}
+      </label>
+      <p-select
+        class="w-full"
+        [options]="patternDropdownOptions()"
+        [ngModel]="filters.pattern"
+        (onChange)="onFilter('pattern', $event.value)"
+        [placeholder]="'catalog.allPatterns' | translate"
+      ></p-select>
+    </div>
+
+    <!-- Brand -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'product.brand' | translate }}
+      </label>
+      <input
+        type="text"
+        class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+        [ngModel]="filters.brand"
+        (ngModelChange)="onFilter('brand', $event)"
+        [placeholder]="'catalog.brandPlaceholder' | translate"
+      />
+    </div>
+
+    <!-- Material -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'product.material' | translate }}
+      </label>
+      <input
+        type="text"
+        class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors"
+        [ngModel]="filters.material"
+        (ngModelChange)="onFilter('material', $event)"
+        [placeholder]="'catalog.materialPlaceholder' | translate"
+      />
+    </div>
+
+    <hr class="my-4 border-gray-200 dark:border-gray-700" />
+
+    <!-- Price Range -->
+    <div class="mb-5">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">
+        {{ 'catalog.priceRange' | translate }}
+      </label>
+      <div class="flex flex-col gap-2">
+        <p-inputNumber
+          class="w-full"
+          mode="currency"
+          currency="SEK"
+          locale="sv-SE"
+          [min]="0"
+          [allowEmpty]="true"
+          [ngModel]="filters.min_price"
+          (ngModelChange)="onFilter('min_price', $event)"
+          [placeholder]="'catalog.minPrice' | translate"
+        ></p-inputNumber>
+        <p-inputNumber
+          class="w-full"
+          mode="currency"
+          currency="SEK"
+          locale="sv-SE"
+          [min]="0"
+          [allowEmpty]="true"
+          [ngModel]="filters.max_price"
+          (ngModelChange)="onFilter('max_price', $event)"
+          [placeholder]="'catalog.maxPrice' | translate"
+        ></p-inputNumber>
+      </div>
+    </div>
+
+    <!-- Promotions toggle -->
+    <div class="mb-2">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <p-checkbox
+          [ngModel]="filters.has_promotion"
+          (onChange)="onFilter('has_promotion', $event.checked || null)"
+          [binary]="true"
+        ></p-checkbox>
+        <span class="text-sm font-medium text-gray-700 dark:text-gray-300 select-none">
+          {{ 'catalog.onlyPromotions' | translate }}
+        </span>
+      </label>
+    </div>
+  </div>
+</aside>

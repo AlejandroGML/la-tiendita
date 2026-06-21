@@ -10,7 +10,7 @@ import type { Category } from '../../shared/models/category.model';
 import type { ProductListResponse } from '../../core/services/product.service';
 import { ProductService } from '../../core/services/product.service';
 
-interface FilterState {
+export interface FilterState {
   category_id: number | null;
   condition: string | null;
   size: string | null;
@@ -25,24 +25,6 @@ interface FilterState {
   sort: string | null;
   has_promotion: boolean | null;
 }
-
-const COLOR_MAP: Record<string, string> = {
-  Black: '#000000', White: '#FFFFFF', Red: '#DC2626', Blue: '#2563EB',
-  Green: '#16A34A', Yellow: '#EAB308', Pink: '#EC4899', Purple: '#9333EA',
-  Grey: '#6B7280', Navy: '#1E3A5F', Brown: '#92400E', Orange: '#EA580C',
-  Beige: '#F5F5DC', Gold: '#D4AF37', Silver: '#C0C0C0', Multi: 'linear-gradient(90deg,red,orange,yellow,green,blue,purple)',
-};
-
-const CATEGORY_ICONS: Record<string, string> = {
-  'accessories': '💍', 'bag': '👜', 'belt': '🔗', 'blazer': '🧥',
-  'blouse': '👚', 'boots': '🥾', 'cardigan': '🧶', 'coat': '🧥',
-  'dress': '👗', 'hat': '🧢', 'heels': '👠', 'jacket': '🧥',
-  'jeans': '👖', 'jumpsuit': '🦺', 'pants': '👖', 'playsuit': '🦺',
-  'poncho': '🧣', 'sandals': '🩴', 'scarf': '🧣', 'shirt': '👔',
-  'shoes': '👟', 'shorts': '🩳', 'skirt': '👗', 'sneakers': '👟',
-  'sweater': '🧶', 't-shirt': '👕', 'tank-top': '🎽', 'top': '👚',
-  'tunic': '👚', 'vest': '🦺',
-};
 
 @Component({
   selector: 'app-product-list',
@@ -71,28 +53,22 @@ export class ProductList implements OnInit, OnDestroy {
     brand: null,
     target_gender: null,
     material: null,
-      colors: [],
-      season: null,
-      pattern: null,
+    colors: [],
+    season: null,
+    pattern: null,
     min_price: null,
     max_price: null,
     sort: null,
     has_promotion: null,
   });
 
-  readonly conditions = ['new', 'like_new', 'good', 'fair'] as const;
-  readonly sizes = ['XS', 'S', 'M', 'L', 'XL', 'XXL'];
-  readonly genders = ['women', 'men', 'kids', 'unisex'] as const;
-  readonly colors = Object.keys(COLOR_MAP);
-  readonly seasons = ['All', 'Summer', 'Winter', 'Autumn', 'Spring'];
-  readonly patterns = ['Floral print', 'Striped', 'Lace', 'Animal print', 'Geometric print', 'Logo print', 'Glitter', 'Dots', 'Checkered print', 'Plain'];
   readonly sortOptions = computed<{ label: string; value: string | null }[]>(() => {
     this.langKey();
     return [
-    { label: this.translate.instant('catalog.sortRelevance'), value: null },
-    { label: this.translate.instant('catalog.sortNewest'), value: 'newest' },
-    { label: this.translate.instant('catalog.sortPriceAsc'), value: 'price_asc' },
-    { label: this.translate.instant('catalog.sortPriceDesc'), value: 'price_desc' },
+      { label: this.translate.instant('catalog.sortRelevance'), value: null },
+      { label: this.translate.instant('catalog.sortNewest'), value: 'newest' },
+      { label: this.translate.instant('catalog.sortPriceAsc'), value: 'price_asc' },
+      { label: this.translate.instant('catalog.sortPriceDesc'), value: 'price_desc' },
     ];
   });
 
@@ -100,71 +76,6 @@ export class ProductList implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
   private readonly langKey = signal(0);
-
-  readonly categoryDropdownOptions = computed(() => {
-    this.langKey();
-    const all = { label: this.translate.instant('catalog.allCategories'), value: null };
-    const items = this.categories().map((cat) => ({
-      label: this.translate.instant('category.' + cat.slug),
-      value: cat.id,
-      icon: CATEGORY_ICONS[cat.slug] || '🏷️',
-      slug: cat.slug,
-    }));
-    return [all, ...items];
-  });
-
-  readonly conditionDropdownOptions = computed(() => {
-    this.langKey();
-    const all = { label: this.translate.instant('catalog.allConditions'), value: null };
-    const items = this.conditions.map((c) => ({
-      label: this.translate.instant('condition.' + c),
-      value: c,
-    }));
-    return [all, ...items];
-  });
-
-  readonly sizeDropdownOptions = computed(() => {
-    this.langKey();
-    const all = { label: this.translate.instant('catalog.allSizes'), value: null };
-    const items = this.sizes.map((s) => ({ label: s, value: s }));
-    return [all, ...items];
-  });
-
-  readonly genderDropdownOptions = computed(() => {
-    this.langKey();
-    const all = { label: this.translate.instant('catalog.allGenders'), value: null };
-    const items = this.genders.map((g) => ({
-      label: this.translate.instant('gender.' + g),
-      value: g === 'women' ? 'Ladies' : g === 'men' ? 'Men' : g === 'kids' ? 'Kids' : 'Unisex',
-    }));
-    return [all, ...items];
-  });
-
-  readonly colorOptions = computed(() => {
-    return this.colors.map((c) => ({
-      label: c,
-      value: c,
-      hex: COLOR_MAP[c] || '#ccc',
-    }));
-  });
-
-  readonly seasonDropdownOptions = computed(() => {
-    this.langKey();
-    const all = { label: this.translate.instant('catalog.allSeasons'), value: null };
-    const items = this.seasons.map((s) => ({
-      label: this.translate.instant('season.' + s.toLowerCase()),
-      value: s,
-    }));
-    return [all, ...items];
-  });
-
-  readonly patternDropdownOptions = computed(() => {
-    this.langKey();
-    const all = { label: this.translate.instant('catalog.allPatterns'), value: null };
-    const items = this.patterns.map((p) => ({ label: p, value: p }));
-    return [all, ...items];
-  });
-
   private meta = inject(Meta);
   private titleService = inject(Title);
 
@@ -307,33 +218,6 @@ export class ProductList implements OnInit, OnDestroy {
     this.perPage.set(n);
     this.page.set(1);
     this.loadProducts();
-  }
-
-  hasActiveFilters(): boolean {
-    const f = this.filters();
-    return (
-      f.category_id != null ||
-      f.condition != null ||
-      f.size != null ||
-      f.brand != null ||
-      f.target_gender != null ||
-      f.material != null ||
-      f.colors.length > 0 ||
-      f.season != null ||
-      f.pattern != null ||
-      f.min_price != null ||
-      f.max_price != null ||
-      f.sort != null ||
-      f.has_promotion != null ||
-      this.searchTerm() !== ''
-    );
-  }
-
-  getCategoryName(categoryId: number): string {
-    const cat = this.categories().find((c) => c.id === categoryId);
-    if (!cat) return '';
-    const t = cat.translations?.find((t) => t.lang === 'es');
-    return t?.name ?? cat.translations?.[0]?.name ?? cat.name ?? '';
   }
 
   private updateSeo(): void {
