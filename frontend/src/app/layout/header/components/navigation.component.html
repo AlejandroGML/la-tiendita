@@ -10,17 +10,17 @@
       <!-- Quick links -->
       <a routerLink="/productos" [queryParams]="{oferta: true}"
          class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
-        <span [innerHTML]="svg('tag', 'w-4 h-4')"></span>
+        <span [innerHTML]="'tag' | svgIcon:'w-4 h-4'"></span>
         {{ 'nav.ofertas' | translate }}
       </a>
       <a routerLink="/productos" [queryParams]="{sort: 'newest'}"
          class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
-        <span [innerHTML]="svg('sparkles', 'w-4 h-4')"></span>
+        <span [innerHTML]="'sparkles' | svgIcon:'w-4 h-4'"></span>
         {{ 'nav.nuevo' | translate }}
       </a>
       <a routerLink="/productos" [queryParams]="{sort: 'popular'}"
          class="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
-        <span [innerHTML]="svg('trendingUp', 'w-4 h-4')"></span>
+        <span [innerHTML]="'trendingUp' | svgIcon:'w-4 h-4'"></span>
         {{ 'nav.popular' | translate }}
       </a>
 
@@ -29,7 +29,7 @@
 
       <!-- Trust Badge -->
       <div class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
-        <span [innerHTML]="svg('shield', 'w-3.5 h-3.5')"></span>
+        <span [innerHTML]="'shield' | svgIcon:'w-3.5 h-3.5'"></span>
         {{ 'header.compraSegura' | translate }}
       </div>
     </div>

@@ -7,9 +7,7 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
-import { svgIcon } from '../../../shared/utils/svg-icons';
 
 @Component({
   selector: 'app-navigation',
@@ -20,7 +18,6 @@ import { svgIcon } from '../../../shared/utils/svg-icons';
 export class NavigationComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
 
   currentGender: string | null = null;
@@ -53,9 +50,5 @@ export class NavigationComponent implements OnInit, OnDestroy {
       queryParams: { gender },
       queryParamsHandling: 'merge',
     });
-  }
-
-  protected svg(name: string, className = 'w-5 h-5'): SafeHtml {
-    return svgIcon(name, className, this.sanitizer) as SafeHtml;
   }
 }

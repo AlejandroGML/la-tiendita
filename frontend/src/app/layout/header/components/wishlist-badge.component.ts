@@ -1,10 +1,8 @@
 import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy, OnInit } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
-import { svgIcon } from '../../../shared/utils/svg-icons';
 
 @Component({
   selector: 'app-wishlist-badge',
@@ -16,7 +14,6 @@ export class WishlistBadgeComponent implements OnInit, OnDestroy {
   private readonly wishlistService = inject(WishlistService);
   private readonly authState = inject(AuthStateService);
   private readonly router = inject(Router);
-  private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
 
   wishlistCount = 0;
@@ -36,10 +33,6 @@ export class WishlistBadgeComponent implements OnInit, OnDestroy {
 
   protected navigateToWishlist(): void {
     this.router.navigate(['/wishlist']);
-  }
-
-  protected svg(name: string, className = 'w-5 h-5'): SafeHtml {
-    return svgIcon(name, className, this.sanitizer) as SafeHtml;
   }
 
   ngOnDestroy(): void {

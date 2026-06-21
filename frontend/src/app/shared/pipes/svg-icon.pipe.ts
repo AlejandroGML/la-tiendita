@@ -1,10 +1,13 @@
+import { inject, Pipe, PipeTransform } from '@angular/core';
+import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+
 /**
  * Map of Lucide icon names to their inline SVG markup.
  *
  * Each SVG string contains a `{class}` placeholder that is replaced at
  * render-time so callers can set Tailwind classes dynamically.
  */
-export const SVGS: Record<string, string> = {
+const SVGS: Record<string, string> = {
   search:
     `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="{class}"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>`,
   heart:
@@ -47,18 +50,24 @@ export const SVGS: Record<string, string> = {
 };
 
 /**
- * Get an SVG icon string with the `{class}` placeholder replaced.
+ * Angular pipe that transforms an SVG icon name into sanitized SafeHtml.
  *
- * @param name - Icon key matching an entry in `SVGS`
- * @param className - CSS classes to substitute into the SVG (default: `'w-5 h-5'`)
- * @returns The SVG markup string, or an empty string if the icon is not found
+ * Usage in templates:
+ *   {{ 'search' | svgIcon }}
+ *   {{ 'search' | svgIcon:'w-5 h-5' }}
+ *   {{ themeIcon | svgIcon }}
  */
-export function rawSvg(name: string, className = 'w-5 h-5'): string {
-  const raw = SVGS[name];
-  if (!raw) return '';
-  return raw.replace(/\{class\}/g, className);
-}
+@Pipe({
+  name: 'svgIcon',
+  standalone: false,
+})
+export class SvgIconPipe implements PipeTransform {
+  private readonly sanitizer = inject(DomSanitizer);
 
-// svgIcon() removed — use the `svgIcon` pipe in templates instead:
-//   {{ 'search' | svgIcon }}
-//   {{ 'search' | svgIcon:'w-5 h-5' }}
+  transform(name: string, className = 'w-5 h-5'): SafeHtml {
+    const raw = SVGS[name];
+    if (!raw) return '';
+    const html = raw.replace(/\{class\}/g, className);
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+}

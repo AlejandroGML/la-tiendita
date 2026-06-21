@@ -5,7 +5,7 @@
 
     <!-- Mobile Search inline -->
     <div class="relative mb-3">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500" [innerHTML]="svg('search', 'w-4 h-4')"></div>
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400 dark:text-gray-500" [innerHTML]="'search' | svgIcon:'w-4 h-4'"></div>
       <input
         pInputText
         type="text"
@@ -35,19 +35,19 @@
     <a pButton [text]="true" routerLink="/productos"
        class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
        (click)="closed.emit()">
-      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="svg('tag', 'w-4 h-4')"></span>
+      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="'tag' | svgIcon:'w-4 h-4'"></span>
       {{ 'nav.ofertas' | translate }}
     </a>
     <a pButton [text]="true" routerLink="/productos" [queryParams]="{sort: 'newest'}"
        class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
        (click)="closed.emit()">
-      <span class="mr-3 text-amber-500 dark:text-amber-400" [innerHTML]="svg('sparkles', 'w-4 h-4')"></span>
+      <span class="mr-3 text-amber-500 dark:text-amber-400" [innerHTML]="'sparkles' | svgIcon:'w-4 h-4'"></span>
       {{ 'nav.nuevo' | translate }}
     </a>
     <a pButton [text]="true" routerLink="/productos" [queryParams]="{sort: 'popular'}"
        class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
        (click)="closed.emit()">
-      <span class="mr-3 text-pink-500 dark:text-pink-400" [innerHTML]="svg('trendingUp', 'w-4 h-4')"></span>
+      <span class="mr-3 text-pink-500 dark:text-pink-400" [innerHTML]="'trendingUp' | svgIcon:'w-4 h-4'"></span>
       {{ 'nav.popular' | translate }}
     </a>
 
@@ -57,20 +57,20 @@
     <a pButton [text]="true" routerLink="/perfil/wishlist"
        class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
        (click)="closed.emit()">
-      <span class="mr-3 text-pink-500 dark:text-pink-400" [innerHTML]="svg('heart', 'w-4 h-4')"></span>
+      <span class="mr-3 text-pink-500 dark:text-pink-400" [innerHTML]="'heart' | svgIcon:'w-4 h-4'"></span>
       {{ 'nav.wishlist' | translate }}
     </a>
     <a pButton [text]="true" routerLink="/carrito"
        class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
        (click)="closed.emit()">
-      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="svg('cart', 'w-4 h-4')"></span>
+      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="'cart' | svgIcon:'w-4 h-4'"></span>
       {{ 'nav.cart' | translate }}
       <span *ngIf="cartCount > 0" class="ml-auto bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ cartCount }}</span>
     </a>
     <a pButton [text]="true" routerLink="/login"
        class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
        (click)="closed.emit()">
-      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="svg('user', 'w-4 h-4')"></span>
+      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="'user' | svgIcon:'w-4 h-4'"></span>
       {{ 'header.iniciarSesion' | translate }}
     </a>
 
@@ -80,7 +80,7 @@
     <button pButton [text]="true"
             (click)="setLang(LANG_CYCLE[(LANG_CYCLE.indexOf(currentLang) + 1) % LANG_CYCLE.length])"
             class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300">
-      <span class="mr-3 text-sky-500 dark:text-sky-400" [innerHTML]="svg('globe', 'w-4 h-4')"></span>
+      <span class="mr-3 text-sky-500 dark:text-sky-400" [innerHTML]="'globe' | svgIcon:'w-4 h-4'"></span>
       {{ LANG_NAMES[currentLang] || currentLang }}
     </button>
   </div>

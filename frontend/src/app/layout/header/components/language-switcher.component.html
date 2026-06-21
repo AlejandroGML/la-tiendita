@@ -5,7 +5,7 @@
           (click)="langOpen = !langOpen"
           class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors rounded-lg hover:bg-sky-50 dark:hover:bg-gray-800 active:bg-sky-100 dark:active:bg-gray-700"
           [attr.aria-label]="'header.cambiarIdioma' | translate">
-    <span [innerHTML]="svg('globe')"></span>
+    <span [innerHTML]="'globe' | svgIcon"></span>
     <span class="absolute -bottom-0.5 -right-0.5 text-[8px] font-bold text-sky-600 dark:text-sky-400 bg-white dark:bg-gray-800 rounded-sm px-0.5 leading-tight shadow-sm border border-sky-200 dark:border-sky-700">
       {{ currentLang | uppercase }}
     </span>
@@ -38,7 +38,7 @@
         {{ lang | uppercase }}
       </span>
       <span>{{ LANG_NAMES[lang] }}</span>
-      <span *ngIf="lang === currentLang" class="ml-auto text-sky-500 dark:text-sky-400" [innerHTML]="svg('check', 'w-3.5 h-3.5')"></span>
+      <span *ngIf="lang === currentLang" class="ml-auto text-sky-500 dark:text-sky-400" [innerHTML]="'check' | svgIcon:'w-3.5 h-3.5'"></span>
     </button>
   </div>
 </div>

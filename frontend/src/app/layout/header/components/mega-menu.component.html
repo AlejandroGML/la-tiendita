@@ -6,9 +6,9 @@
   <button type="button"
           (click)="megaOpen = !megaOpen"
           class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 active:from-emerald-700 active:to-emerald-800 transition-all duration-200 rounded-full shadow-sm hover:shadow-md">
-    <span [innerHTML]="svg('grid', 'w-4 h-4')"></span>
+    <span [innerHTML]="'grid' | svgIcon:'w-4 h-4'"></span>
     <span>{{ 'header.categorias' | translate }}</span>
-    <span class="transition-transform duration-200" [class.rotate-180]="megaOpen" [innerHTML]="svg('chevronDown', 'w-3.5 h-3.5')"></span>
+    <span class="transition-transform duration-200" [class.rotate-180]="megaOpen" [innerHTML]="'chevronDown' | svgIcon:'w-3.5 h-3.5'"></span>
   </button>
 
   <!-- Mega Menu Panel -->
@@ -38,7 +38,7 @@
       <div class="col-span-1 bg-gradient-to-b from-amber-50 via-amber-50/70 to-white dark:from-gray-800 dark:via-gray-800/70 dark:to-gray-900 p-5 flex flex-col justify-between border-l border-gray-100 dark:border-gray-700">
         <div>
           <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-[10px] font-semibold rounded-full uppercase tracking-wide">
-            <span [innerHTML]="svg('sparkles', 'w-3 h-3')"></span>
+            <span [innerHTML]="'sparkles' | svgIcon:'w-3 h-3'"></span>
             {{ 'nav.nuevo' | translate }}
           </span>
           <h4 class="mt-3 text-sm font-bold text-gray-800 dark:text-gray-100" [innerHTML]="'header.coleccionPrimavera' | translate"></h4>
@@ -52,7 +52,7 @@
         <a routerLink="/productos"
            class="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 mt-4 transition-colors">
           {{ 'header.verTodo' | translate }}
-          <span [innerHTML]="svg('arrowRight', 'w-4 h-4')"></span>
+          <span [innerHTML]="'arrowRight' | svgIcon:'w-4 h-4'"></span>
         </a>
       </div>
     </div>

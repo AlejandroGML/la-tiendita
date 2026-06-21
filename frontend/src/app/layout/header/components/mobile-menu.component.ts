@@ -10,14 +10,12 @@ import {
   OnInit,
   OnDestroy,
 } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
 import { CartStateService } from '../../../core/services/cart-state.service';
 import { type CategoryItem } from '../../../core/services/category.service';
-import { svgIcon } from '../../../shared/utils/svg-icons';
 
 const CATEGORY_ICONS: Record<string, string> = {
   accessories: '💍',
@@ -64,7 +62,6 @@ export class MobileMenuComponent implements OnInit, OnDestroy {
   @Output() closed = new EventEmitter<void>();
 
   private readonly router = inject(Router);
-  private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly translate = inject(TranslateService);
   private readonly cartState = inject(CartStateService);
@@ -109,10 +106,6 @@ export class MobileMenuComponent implements OnInit, OnDestroy {
 
   protected getCategoryIcon(slug: string): string {
     return CATEGORY_ICONS[slug] || '🏷️';
-  }
-
-  protected svg(name: string, className = 'w-5 h-5'): SafeHtml {
-    return svgIcon(name, className, this.sanitizer) as SafeHtml;
   }
 
   /** Close when clicking outside the component */

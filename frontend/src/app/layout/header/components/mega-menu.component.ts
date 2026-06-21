@@ -7,10 +7,8 @@ import {
   OnDestroy,
   HostListener,
 } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Subscription } from 'rxjs';
 import { CategoryService, type CategoryItem, type CategoryGroup } from '../../../core/services/category.service';
-import { svgIcon } from '../../../shared/utils/svg-icons';
 
 const CATEGORY_ICONS: Record<string, string> = {
   accessories: '💍',
@@ -53,7 +51,6 @@ const CATEGORY_ICONS: Record<string, string> = {
 })
 export class MegaMenuComponent implements OnInit, OnDestroy {
   private readonly categoryService = inject(CategoryService);
-  private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
 
   megaOpen = false;
@@ -136,9 +133,5 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
 
   protected getCategoryIcon(slug: string): string {
     return CATEGORY_ICONS[slug] || '🏷️';
-  }
-
-  protected svg(name: string, className = 'w-5 h-5'): SafeHtml {
-    return svgIcon(name, className, this.sanitizer) as SafeHtml;
   }
 }

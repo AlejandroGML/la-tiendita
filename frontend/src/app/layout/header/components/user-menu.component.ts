@@ -7,14 +7,12 @@ import {
   DoCheck,
   HostListener,
 } from '@angular/core';
-import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { AuthStateService } from '../../../core/services/auth-state.service';
 import { TOKEN_STORAGE, type TokenStorage } from '../../../core/services/token-storage.service';
 import { CartService } from '../../../core/services/cart.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
-import { svgIcon } from '../../../shared/utils/svg-icons';
 
 @Component({
   selector: 'app-user-menu',
@@ -29,7 +27,6 @@ export class UserMenuComponent implements DoCheck, OnDestroy {
   private readonly tokenStorage: TokenStorage = inject(TOKEN_STORAGE);
   private readonly cartService = inject(CartService);
   private readonly wishlistService = inject(WishlistService);
-  private readonly sanitizer = inject(DomSanitizer);
   private readonly cdr = inject(ChangeDetectorRef);
 
   userMenuOpen = false;
@@ -111,11 +108,5 @@ export class UserMenuComponent implements DoCheck, OnDestroy {
         this.router.navigate(['/']);
       },
     });
-  }
-
-  // ── SVG ──
-
-  protected svg(name: string, className = 'w-5 h-5'): SafeHtml {
-    return svgIcon(name, className, this.sanitizer) as SafeHtml;
   }
 }
