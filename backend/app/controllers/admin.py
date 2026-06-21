@@ -45,6 +45,7 @@ from app.services.admin_user_service import (
 )
 from app.services.dashboard_service import DashboardService
 from app.services.product_service import ProductService
+from app.services.variant_service import VariantService
 
 
 # ---------------------------------------------------------------------------
@@ -237,13 +238,13 @@ class AdminController(Controller):
 
 
 # ---------------------------------------------------------------------------
-# ProductService DI
+# VariantService DI
 # ---------------------------------------------------------------------------
 
 
-async def provide_product_service() -> ProductService:
-    """Construct a stateless ProductService for variant CRUD."""
-    return ProductService()
+async def provide_variant_service() -> VariantService:
+    """Construct a stateless VariantService for variant CRUD."""
+    return VariantService()
 
 
 # ---------------------------------------------------------------------------
@@ -262,7 +263,7 @@ class AdminProductVariantController(Controller):
     tags = ["admin-product-variants"]
     guards = [admin_guard]
     dependencies = {
-        "service": Provide(provide_product_service, sync_to_thread=False),
+        "variant_service": Provide(provide_variant_service, sync_to_thread=False),
         "session": Provide(provide_session, sync_to_thread=False),
     }
 
@@ -270,12 +271,12 @@ class AdminProductVariantController(Controller):
     async def list_variants(
         self,
         product_id: UUID,
-        service: ProductService,
+        variant_service: VariantService,
         session: AsyncSession,
     ) -> dict:
         """List all non-deleted variants for a product."""
         try:
-            variants = await service.list_variants(session, product_id)
+            variants = await variant_service.list_variants(session, product_id)
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc
 
@@ -291,12 +292,12 @@ class AdminProductVariantController(Controller):
         self,
         product_id: UUID,
         data: ProductVariantCreate,
-        service: ProductService,
+        variant_service: VariantService,
         session: AsyncSession,
     ) -> dict:
         """Create a new variant for a product."""
         try:
-            variant = await service.create_variant(
+            variant = await variant_service.create_variant(
                 session, product_id, data
             )
         except ValueError as exc:
@@ -310,11 +311,11 @@ class AdminProductVariantController(Controller):
         product_id: UUID,
         variant_id: UUID,
         data: ProductVariantUpdate,
-        service: ProductService,
+        variant_service: VariantService,
         session: AsyncSession,
     ) -> dict:
         """Update an existing variant (partial)."""
-        variant = await service.update_variant(
+        variant = await variant_service.update_variant(
             session, variant_id, data
         )
         if variant is None:
@@ -333,12 +334,12 @@ class AdminProductVariantController(Controller):
         self,
         product_id: UUID,
         variant_id: UUID,
-        service: ProductService,
+        variant_service: VariantService,
         session: AsyncSession,
     ) -> None:
         """Soft-delete a variant (blocks if referenced by cart items)."""
         try:
-            deleted = await service.delete_variant(
+            deleted = await variant_service.delete_variant(
                 session, variant_id, product_id=product_id
             )
         except ValueError as exc:

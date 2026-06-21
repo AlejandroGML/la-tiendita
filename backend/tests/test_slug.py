@@ -4,13 +4,13 @@ import pytest
 
 
 class TestSlugify:
-    """Unit tests for ProductService.slugify static method."""
+    """Unit tests for SlugService.slugify static method."""
 
     @pytest.fixture(autouse=True)
     def _service(self):
-        from app.services.product_service import ProductService
+        from app.services.slug_service import SlugService
 
-        self.service = ProductService()
+        self.service = SlugService()
 
     def test_basic_spanish_name(self):
         """Lowercases and hyphenates a simple Spanish name."""
@@ -86,9 +86,9 @@ class TestGenerateSlugCollision:
 
     @pytest.fixture
     def svc(self):
-        from app.services.product_service import ProductService
+        from app.services.slug_service import SlugService
 
-        return ProductService()
+        return SlugService()
 
     @pytest.fixture
     def mock_session(self):

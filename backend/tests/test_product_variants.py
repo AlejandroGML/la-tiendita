@@ -17,22 +17,20 @@ from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user, make
 from app.controllers.admin import AdminProductVariantController
 from app.middleware.i18n import I18nMiddleware
 
-# AdminProductVariantController uses "ProductService" string annotations.
-# ProductService is imported inside provide_product_service(), not at module
-# level, so forward-ref resolution fails in Litestar's get_type_hints().
-# Inject it into the admin module namespace before app registration.
+# Ensure VariantService is resolvable in the admin module namespace for
+# Litestar's get_type_hints() during controller dependency resolution.
 import app.controllers.admin as _admin_mod
-from app.services.product_service import ProductService as _real_ps
-_admin_mod.ProductService = _real_ps  # type: ignore[attr-defined]
+from app.services.variant_service import VariantService as _real_vs
+_admin_mod.VariantService = _real_vs  # type: ignore[attr-defined]
 
 
 # ---------------------------------------------------------------------------
-# Subclass mock — MUST extend ProductService for msgspec type validation
+# Subclass mock — MUST extend VariantService for msgspec type validation
 # ---------------------------------------------------------------------------
 
 
-class _MockProductService(_real_ps):
-    """ProductService subclass for test DI. Skips real __init__."""
+class _MockVariantService(_real_vs):
+    """VariantService subclass for test DI. Skips real __init__."""
 
     def __init__(self) -> None:
         self.list_variants = AsyncMock()
@@ -97,8 +95,8 @@ def _make_fake_variant(**kwargs) -> _FakeVariant:
 
 @pytest.fixture
 def client():
-    """TestClient with mocked ProductService (variant methods only)."""
-    svc = _MockProductService()
+    """TestClient with mocked VariantService (variant methods only)."""
+    svc = _MockVariantService()
 
     mock_session = MockAsyncSession()
     test_jwt_auth = JWTAuth[TestUser](
@@ -110,7 +108,7 @@ def client():
 
     _orig = AdminProductVariantController.dependencies
     AdminProductVariantController.dependencies = {
-        "service": Provide(lambda: svc, sync_to_thread=False),
+        "variant_service": Provide(lambda: svc, sync_to_thread=False),
         "session": Provide(lambda: mock_session, sync_to_thread=False),
     }
 
@@ -403,7 +401,7 @@ class TestDeleteVariant:
 
 
 class TestSkuGeneration:
-    """Unit tests for SKU auto-generation helpers in ProductService.
+    """Unit tests for SKU auto-generation helpers in VariantService.
 
     Tests the real static/async helpers directly — no DB needed for
     the static helpers; the async SKU generator is tested with a
@@ -412,41 +410,40 @@ class TestSkuGeneration:
 
     def test_color_abbreviation(self):
         """_color_abbr returns 2-char uppercase abbreviation."""
-        from app.services.product_service import ProductService
+        from app.services.variant_service import VariantService
 
-        assert ProductService._color_abbr("Black") == "BL"
-        assert ProductService._color_abbr("Red") == "RE"
-        assert ProductService._color_abbr("Azul") == "AZ"
+        assert VariantService._color_abbr("Black") == "BL"
+        assert VariantService._color_abbr("Red") == "RE"
+        assert VariantService._color_abbr("Azul") == "AZ"
 
     def test_color_abbreviation_multi_word(self):
         """Multi-word colors take first letter of each word."""
-        from app.services.product_service import ProductService
+        from app.services.variant_service import VariantService
 
-        assert ProductService._color_abbr("Light Blue") == "LB"
+        assert VariantService._color_abbr("Light Blue") == "LB"
 
     def test_color_abbreviation_none(self):
         """None or empty color returns None (_generate_variant_sku replaces with 'NC')."""
-        from app.services.product_service import ProductService
+        from app.services.variant_service import VariantService
 
-        assert ProductService._color_abbr(None) is None
-        assert ProductService._color_abbr("") is None
+        assert VariantService._color_abbr(None) is None
+        assert VariantService._color_abbr("") is None
 
     def test_sku_slug_prefix(self):
         """_sku_slug_prefix returns uppercase prefix from slug."""
-        from app.services.product_service import ProductService
+        from app.services.variant_service import VariantService
 
-        assert ProductService._sku_slug_prefix("hoodie") == "HOOD"
-        assert ProductService._sku_slug_prefix("ab") == "AB"
+        assert VariantService._sku_slug_prefix("hoodie") == "HOOD"
+        assert VariantService._sku_slug_prefix("ab") == "AB"
         # Multi-word slug: takes first letter of up to 3 parts
-        assert ProductService._sku_slug_prefix("denim-jacket") == "DJ"
+        assert VariantService._sku_slug_prefix("denim-jacket") == "DJ"
 
     @pytest.mark.asyncio
     async def test_generate_variant_sku_basic(self):
         """_generate_variant_sku returns expected format."""
-        from app.services.product_service import ProductService
-        from app.models.product_variant import ProductVariant as _PV
+        from app.services.variant_service import VariantService
 
-        svc = ProductService()
+        svc = VariantService()
         mock_session = MockAsyncSession()
         # No collision → returns seq 01
         mock_session.scalar = AsyncMock(return_value=None)
@@ -457,9 +454,9 @@ class TestSkuGeneration:
     @pytest.mark.asyncio
     async def test_generate_variant_sku_no_size(self):
         """Null size uses 'NS' (No Size)."""
-        from app.services.product_service import ProductService
+        from app.services.variant_service import VariantService
 
-        svc = ProductService()
+        svc = VariantService()
         mock_session = MockAsyncSession()
         mock_session.scalar = AsyncMock(return_value=None)
 
@@ -469,9 +466,9 @@ class TestSkuGeneration:
     @pytest.mark.asyncio
     async def test_generate_variant_sku_no_color(self):
         """Null color uses 'NC' (No Color)."""
-        from app.services.product_service import ProductService
+        from app.services.variant_service import VariantService
 
-        svc = ProductService()
+        svc = VariantService()
         mock_session = MockAsyncSession()
         mock_session.scalar = AsyncMock(return_value=None)
 
@@ -481,9 +478,9 @@ class TestSkuGeneration:
     @pytest.mark.asyncio
     async def test_generate_variant_sku_collision_increments_seq(self):
         """When SKU exists, seq increments until a free one is found."""
-        from app.services.product_service import ProductService
+        from app.services.variant_service import VariantService
 
-        svc = ProductService()
+        svc = VariantService()
         mock_session = MockAsyncSession()
         # First two calls simulate collisions, third is free
         mock_session.scalar = AsyncMock(side_effect=[True, True, None])

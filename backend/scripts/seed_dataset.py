@@ -34,7 +34,7 @@ from PIL import Image as PILImage
 from app.db.engine import async_session
 from app.models.category import Category, CategoryTranslation
 from app.models.product import Product, ProductCondition, ProductTranslation
-from app.services.product_service import ProductService
+from app.services.slug_service import SlugService
 
 logger = logging.getLogger("seed_dataset")
 
@@ -138,13 +138,12 @@ async def create_categories(session: AsyncSession, types: set[str]) -> dict[str,
 
     mapping: dict[str, int] = {}
 
-    svc = ProductService()
     for type_name in sorted(types):
         if type_name in existing:
             mapping[type_name] = existing[type_name].id
             continue
 
-        slug = svc.slugify(type_name)
+        slug = SlugService.slugify(type_name)
         cat = Category(slug=slug)
         session.add(cat)
         await session.flush()
@@ -207,7 +206,6 @@ async def seed(
         await session.commit()
 
         # Phase 2 — insert products
-        svc = ProductService()
         inserted = 0
         errors = 0
 
@@ -244,7 +242,7 @@ async def seed(
 
                 # Slug: brand + type
                 name_for_slug = f"{brand} {type_name}"
-                slug = svc.slugify(name_for_slug)
+                slug = SlugService.slugify(name_for_slug)
 
                 # Ensure slug uniqueness
                 existing = await session.execute(

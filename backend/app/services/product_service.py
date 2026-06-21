@@ -2,35 +2,31 @@
 
 Async methods accept SQLAlchemy AsyncSession injection at call time.
 Data access is delegated to ``ProductRepository`` — the service only
-handles business logic (slug generation, SKU generation, promotion
-resolution, variant orchestration).
+handles business logic (promotion resolution, translation orchestration,
+product CRUD).  Slug generation and variant CRUD are delegated to
+``SlugService`` and ``VariantService`` respectively.
 """
 
 import logging
-import re
-import unicodedata
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
-from app.models.product import Product, ProductCondition, ProductSize, ProductTranslation
-from app.models.product_variant import ProductVariant
-from app.models.cart import CartItem
+from app.models.product import Product, ProductCondition, ProductTranslation
 from app.repositories.product_repository import ProductRepository
 from app.schemas.common import ProductFilter
 from app.schemas.product import (
     CreateProductRequest,
-    ProductResponse,
-    TranslationRequest,
     UpdateProductRequest,
 )
 from app.schemas.product_variant import (
     ProductVariantCreate,
     ProductVariantUpdate,
 )
+from app.services.slug_service import SlugService
+from app.services.variant_service import VariantService
 
 logger = logging.getLogger(__name__)
 
@@ -38,13 +34,20 @@ logger = logging.getLogger(__name__)
 class ProductService:
     """Encapsulates all product catalog business logic.
 
-    Injects ``ProductRepository`` for data access.  If no repository is
-    provided, a default instance is created (backward-compatible for
-    direct instantiation in tests).
+    Injects ``ProductRepository``, ``SlugService``, and ``VariantService``.
+    If no service is provided, default instances are created (backward-compatible
+    for direct instantiation in tests).
     """
 
-    def __init__(self, product_repo: ProductRepository | None = None) -> None:
+    def __init__(
+        self,
+        product_repo: ProductRepository | None = None,
+        slug_service: SlugService | None = None,
+        variant_service: VariantService | None = None,
+    ) -> None:
         self._repo = product_repo or ProductRepository()
+        self._slug_service = slug_service or SlugService()
+        self._variant_service = variant_service or VariantService(product_repo=self._repo)
 
     # ------------------------------------------------------------------
     # Public read
@@ -136,7 +139,7 @@ class ProductService:
         # Determine the source name for slug generation (prefer ES)
         es = next((t for t in data.translations if t.lang == "es"), None)
         name_for_slug = es.name if es else data.translations[0].name
-        slug = await self.generate_slug(session, name_for_slug)
+        slug = await self._slug_service.generate_slug(session, name_for_slug)
 
         product = Product(
             slug=slug,
@@ -165,7 +168,7 @@ class ProductService:
         except IntegrityError as exc:
             if "slug" not in str(exc.orig).lower():
                 raise
-            slug = await self.generate_slug(session, name_for_slug)
+            slug = await self._slug_service.generate_slug(session, name_for_slug)
             product.slug = slug
             await session.flush()
 
@@ -179,42 +182,19 @@ class ProductService:
             )
             session.add(pt)
 
-        # Persist variants
+        # Persist variants via VariantService
         variant_inputs = data.variants
         if variant_inputs and len(variant_inputs) > 0:
             for v in variant_inputs:
-                sku = v.sku
-                if sku is None:
-                    size_code = v.size if v.size else None
-                    color_code = (
-                        self._color_abbr(v.color) if v.color else None
-                    )
-                    sku = await self._generate_variant_sku(
-                        session, slug, size_code, color_code
-                    )
-                variant = ProductVariant(
-                    product_id=product.id,
-                    size=ProductSize(v.size) if v.size else None,
-                    color=v.color,
-                    color_hex=v.color_hex,
-                    stock=v.stock,
-                    sku=sku,
+                await self._variant_service.create_variant(
+                    session, product.id, v
                 )
-                session.add(variant)
         else:
             # Auto-create default variant
-            default_sku = await self._generate_variant_sku(
-                session, slug, size_code=None, color_code=None
+            default_data = ProductVariantCreate(stock=0)
+            await self._variant_service.create_variant(
+                session, product.id, default_data
             )
-            default_variant = ProductVariant(
-                product_id=product.id,
-                size=None,
-                color=None,
-                color_hex=None,
-                stock=0,
-                sku=default_sku,
-            )
-            session.add(default_variant)
 
         await session.flush()
 
@@ -290,51 +270,35 @@ class ProductService:
                 v for v in product.variants
                 if v.deleted_at is None
             ]
-            exist_map: dict[tuple[str | None, str | None], ProductVariant] = {}
+            exist_map: dict[tuple[str | None, str | None], int] = {}
             for ev in existing_variants:
                 key = (
                     ev.size.value if hasattr(ev.size, 'value') else ev.size if ev.size else None,
                     ev.color,
                 )
-                exist_map[key] = ev
+                exist_map[key] = ev.id
 
             for v_data in data.variants:
-                size_val = ProductSize(v_data.size) if v_data.size else None
                 size_raw = v_data.size
                 size_normalized = size_raw.value if hasattr(size_raw, 'value') else size_raw
                 key = (size_normalized, v_data.color)
-                existing = exist_map.get(key)
+                existing_id = exist_map.get(key)
 
-                if existing is not None:
-                    # UPDATE existing variant
-                    if v_data.stock is not None:
-                        existing.stock = v_data.stock
-                    if v_data.color_hex is not None:
-                        existing.color_hex = v_data.color_hex
-                    if v_data.sku is not None:
-                        existing.sku = v_data.sku
-                else:
-                    # CREATE new variant
-                    sku = v_data.sku
-                    if sku is None:
-                        size_code = v_data.size if v_data.size else None
-                        color_code = (
-                            self._color_abbr(v_data.color)
-                            if v_data.color
-                            else None
-                        )
-                        sku = await self._generate_variant_sku(
-                            session, product.slug, size_code, color_code
-                        )
-                    variant = ProductVariant(
-                        product_id=product.id,
-                        size=size_val,
-                        color=v_data.color,
-                        color_hex=v_data.color_hex,
+                if existing_id is not None:
+                    # UPDATE existing variant via VariantService
+                    update_data = ProductVariantUpdate(
                         stock=v_data.stock,
-                        sku=sku,
+                        color_hex=v_data.color_hex,
+                        sku=v_data.sku,
                     )
-                    session.add(variant)
+                    await self._variant_service.update_variant(
+                        session, existing_id, update_data
+                    )
+                else:
+                    # CREATE new variant via VariantService
+                    await self._variant_service.create_variant(
+                        session, product.id, v_data
+                    )
 
         await session.flush()
         await session.refresh(product, ["variants"])
@@ -359,244 +323,6 @@ class ProductService:
         product.deleted_at = datetime.now(timezone.utc)
         await session.flush()
         return True
-
-    # ------------------------------------------------------------------
-    # Variant CRUD (admin)
-    # ------------------------------------------------------------------
-
-    async def list_variants(
-        self, session: AsyncSession, product_id: UUID
-    ) -> list[ProductVariant]:
-        """Return all non-deleted variants for a product."""
-        stmt = (
-            select(ProductVariant)
-            .where(
-                ProductVariant.product_id == product_id,
-                ProductVariant.deleted_at.is_(None),
-            )
-            .order_by(ProductVariant.created_at)
-        )
-        result = await session.execute(stmt)
-        return list(result.scalars().all())
-
-    async def create_variant(
-        self,
-        session: AsyncSession,
-        product_id: UUID,
-        data: ProductVariantCreate,
-    ) -> ProductVariant:
-        """Create a new variant for an existing product.
-
-        Validates the product exists and is not soft-deleted.
-        Auto-generates SKU if not provided.
-        """
-        product = await self._repo.find_one(
-            session, Product.id == product_id, Product.deleted_at.is_(None)
-        )
-        if product is None:
-            raise ValueError("product not found")
-
-        sku = data.sku
-        if sku is None:
-            size_code = data.size if data.size else None
-            color_code = self._color_abbr(data.color) if data.color else None
-            sku = await self._generate_variant_sku(
-                session, product.slug, size_code, color_code
-            )
-
-        variant = ProductVariant(
-            product_id=product_id,
-            size=ProductSize(data.size) if data.size else None,
-            color=data.color,
-            color_hex=data.color_hex,
-            stock=data.stock,
-            sku=sku,
-        )
-        session.add(variant)
-        await session.flush()
-        return variant
-
-    async def update_variant(
-        self,
-        session: AsyncSession,
-        variant_id: UUID,
-        data: ProductVariantUpdate,
-    ) -> ProductVariant | None:
-        """Partially update an existing variant. Returns None if not found."""
-        stmt = select(ProductVariant).where(
-            ProductVariant.id == variant_id,
-            ProductVariant.deleted_at.is_(None),
-        )
-        result = await session.execute(stmt)
-        variant = result.scalar_one_or_none()
-        if variant is None:
-            return None
-
-        if data.size is not None:
-            variant.size = ProductSize(data.size)
-        if data.color is not None:
-            variant.color = data.color
-        if data.color_hex is not None:
-            variant.color_hex = data.color_hex
-        if data.stock is not None:
-            variant.stock = data.stock
-        if data.sku is not None:
-            variant.sku = data.sku
-
-        await session.flush()
-        return variant
-
-    async def delete_variant(
-        self,
-        session: AsyncSession,
-        variant_id: UUID,
-        product_id: UUID | None = None,
-    ) -> bool:
-        """Soft-delete a variant. Returns False if already deleted or not found.
-
-        When *product_id* is provided, verifies the variant belongs to that
-        product — raises ``ValueError`` on mismatch.
-
-        Does NOT allow deletion if the variant is referenced by active
-        cart items or order items.
-        """
-        stmt = select(ProductVariant).where(
-            ProductVariant.id == variant_id,
-            ProductVariant.deleted_at.is_(None),
-        )
-        result = await session.execute(stmt)
-        variant = result.scalar_one_or_none()
-        if variant is None:
-            return False
-
-        if product_id is not None and variant.product_id != product_id:
-            raise ValueError(
-                "variant does not belong to this product"
-            )
-
-        # Check for active references in cart_items
-        from sqlalchemy import func as sqlfunc
-
-        cart_count = await session.scalar(
-            select(sqlfunc.count())
-            .select_from(CartItem)
-            .where(CartItem.variant_id == variant_id)
-        )
-        if cart_count and cart_count > 0:
-            raise ValueError(
-                f"Variant is referenced by {cart_count} active cart item(s). "
-                "Remove them before deleting."
-            )
-
-        variant.deleted_at = datetime.now(timezone.utc)
-        await session.flush()
-        return True
-
-    # ------------------------------------------------------------------
-    # Variant internal helpers
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def _color_abbr(color: str | None) -> str | None:
-        """Convert a color name to a 2-char abbreviation for SKU building."""
-        if not color:
-            return None
-        parts = color.strip().split()
-        if len(parts) == 1:
-            abbr = parts[0][:2].upper()
-        else:
-            abbr = "".join(p[0] for p in parts[:2]).upper()
-        return abbr
-
-    async def _generate_variant_sku(
-        self,
-        session: AsyncSession,
-        slug: str,
-        size_code: str | None,
-        color_code: str | None,
-    ) -> str:
-        """Generate a unique SKU from slug prefix, size, and color.
-
-        Format: ``{slug_prefix}-{size|NS}-{color_abbr|NC}-{seq}``
-        Collision-safe via DB unique constraint check with incrementing seq.
-        """
-        slug_prefix = self._sku_slug_prefix(slug)
-        size_part = size_code or "NS"
-        color_part = color_code or "NC"
-
-        for seq in range(1, 100):
-            sku = f"{slug_prefix}-{size_part}-{color_part}-{seq:02d}"
-            exists = await session.scalar(
-                select(ProductVariant.id).where(ProductVariant.sku == sku)
-            )
-            if exists is None:
-                return sku
-
-        # Fallback (extremely unlikely): use UUID suffix
-        import uuid as _uuid
-
-        short_uuid = str(_uuid.uuid4())[:8]
-        return f"{slug_prefix}-{size_part}-{color_part}-{short_uuid}"
-
-    @staticmethod
-    def _sku_slug_prefix(slug: str) -> str:
-        """Extract a short uppercase prefix from a slug for SKU building."""
-        parts = slug.replace("-", " ").split()
-        if len(parts) >= 2:
-            prefix = "".join(p[0] for p in parts[:3]).upper()
-        else:
-            prefix = (parts[0][:4] if parts else "PRD").upper()
-        return prefix
-
-    # ------------------------------------------------------------------
-    # Slug generation
-    # ------------------------------------------------------------------
-
-    @staticmethod
-    def slugify(name: str) -> str:
-        """Convert a human-readable name into a URL-safe slug.
-
-        Uses NFKD normalisation to strip accents from Spanish characters
-        (e.g. "cañón" → "canon"), then lowercases and replaces runs of
-        non-alphanumeric characters with a single hyphen.
-        """
-        nfkd = unicodedata.normalize("NFKD", name)
-        ascii_text = nfkd.encode("ascii", "ignore").decode()
-        slug = re.sub(r"[^a-z0-9]+", "-", ascii_text.lower()).strip("-")
-        return slug or "producto"
-
-    MAX_SLUG_LEN = 200
-
-    async def generate_slug(
-        self, session: AsyncSession, name: str
-    ) -> str:
-        """Generate a unique slug from *name*, resolving collisions by
-        appending a numeric suffix (``-2``, ``-3``, …).
-
-        Slugs are truncated to ``MAX_SLUG_LEN`` (200) to prevent
-        database insertion failures on the ``String(200)`` column.
-        Collision suffixes fit within the limit by shrinking the base.
-
-        Example: "Chaqueta Denim" → "chaqueta-denim". If that slug is
-        taken, tries "chaqueta-denim-2", and so on.
-        """
-        base = self.slugify(name)
-        if len(base) > self.MAX_SLUG_LEN:
-            base = base[: self.MAX_SLUG_LEN]
-        slug = base
-        attempt = 1
-
-        while True:
-            existing = await session.execute(
-                select(Product.id).where(Product.slug == slug)
-            )
-            if existing.scalar_one_or_none() is None:
-                return slug
-            attempt += 1
-            suffix = f"-{attempt}"
-            # Shrink base so base + suffix ≤ MAX_SLUG_LEN
-            available = self.MAX_SLUG_LEN - len(suffix)
-            slug = f"{base[:available]}{suffix}"
 
     # ------------------------------------------------------------------
     # Internal helpers
