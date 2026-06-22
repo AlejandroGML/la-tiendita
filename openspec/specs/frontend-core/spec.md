@@ -20,6 +20,11 @@ Angular 22 frontend shell: SPA scaffold with Material Design components, Tailwin
 | R10 | Dark mode theme toggle | MUST |
 | R11 | SEO meta tags | MUST |
 | R12 | Responsive layout coverage | MUST |
+| R13 | Language switcher closes on outside click | MUST |
+| R14 | Language switcher changes language and updates badge | MUST |
+| R15 | Currency switcher closes on outside click | MUST |
+| R16 | Currency switcher changes currency and updates badge | MUST |
+| R17 | Translation lookups use `t.language_code` | MUST |
 
 ### Requirement: Angular 22 Project Scaffold
 
@@ -64,34 +69,22 @@ The system MUST install `tailwindcss@3` (explicitly pinned, NOT v4). MUST includ
 - WHEN checking the `tailwindcss` dependency version
 - THEN it is pinned to major version 3 (`^3` or `~3`), not 4
 
-### Requirement: ngx-translate Internationalization
+### Requirement: ngx-translate Internationalization (UPDATED)
 
-The system MUST install `@ngx-translate/core@17` and `@ngx-translate/http-loader`. MUST configure three languages: Spanish (`es`), English (`en`), and Swedish (`sv`). Translation JSON files SHALL be lazy-loaded from `assets/i18n/`. Translation keys for product catalog, product detail, admin CRUD, image upload, cart, checkout, and order history SHALL be added to all three language files.
+`TranslateModule.forRoot()` MUST NOT pass `defaultLanguage` (deprecated since v14). The runtime default SHALL be set via `translate.setDefaultLang('es')` in `AppComponent` only. `auth.*` keys SHALL exist in all three locale files.
+(Previously: `forRoot({defaultLanguage:'es'})` produced a deprecation warning.)
 
-#### Scenario: Language switch updates UI text
+#### Scenario: No deprecation warnings on boot
 
-- GIVEN translation files exist for `es`, `en`, and `sv`
-- AND the current language is English
-- WHEN `translateService.use('sv')` is called
-- THEN all UI strings rendered via the `translate` pipe change to Swedish
+- GIVEN `forRoot()` has no `defaultLanguage` AND `AppComponent` calls `setDefaultLang('es')` once
+- WHEN the app loads
+- THEN console shows zero warnings about `defaultLanguage` or `useDefaultLang`
 
-#### Scenario: Missing translation falls back gracefully
+#### Scenario: Auth keys resolve
 
-- GIVEN a translation key is missing in the Swedish file but exists in English
-- WHEN the app renders with language set to Swedish
-- THEN the English translation is shown for the missing key (no error)
-
-#### Scenario: Product translation keys resolve correctly
-
-- GIVEN translation keys like `PRODUCT.PRICE`, `PRODUCT.CONDITION`, `PRODUCT.ADD_TO_CART` exist in all 3 language files
-- WHEN the product catalog or detail page renders with any of the 3 languages
-- THEN all product-related labels display in the selected language
-
-#### Scenario: Cart and checkout translation keys resolve correctly
-
-- GIVEN translation keys like `CART.TITLE`, `CART.CHECKOUT`, `CHECKOUT.SHIPPING`, `ORDER.STATUS` exist in all 3 language files
-- WHEN the cart, checkout, or order pages render with any of the 3 languages
-- THEN all cart/checkout/order labels display in the selected language
+- GIVEN `auth.*` keys exist in es/en/sv
+- WHEN login or register renders in any of the three languages
+- THEN `auth.*` keys resolve and text appears in the selected language
 
 ### Requirement: Application Shell Layout and Routing
 
@@ -187,31 +180,23 @@ The system SHALL provide a `StarRatingComponent` in `shared/components/star-rati
 - WHEN component renders
 - THEN 5 empty stars display
 
-### Requirement: Dark Mode Theme Toggle
+### Requirement: Dark Mode Theme Toggle (UPDATED)
 
-The system MUST provide a `ThemeService` in `core/services/` that toggles between light and dark Angular Material themes. The toggle SHALL add/remove a `dark-theme` CSS class on `document.documentElement` (the `<html>` element). State SHALL persist to `localStorage`. A theme toggle button (icon: light_mode/dark_mode) SHALL be placed in the `HeaderComponent`. When no stored preference exists, the system SHALL check `prefers-color-scheme` media query.
+The `ThemeService` toggles a `dark-theme` class on `<html>`. State persists to `localStorage`. Falls back to `prefers-color-scheme`. **Critical**: `html.dark-theme` MUST override the design tokens `--color-bg`, `--color-text`, `--color-text-secondary`, and `--color-primary` so every component reading `var(--color-*)` switches to dark values. Components MUST NOT hardcode light colors when a token exists.
+(Previously: `html.dark-theme` defined new `--bg-primary`/`--text-primary` without overriding `--color-*` — 19 components stayed light.)
 
-#### Scenario: Toggle switches to dark theme
+#### Scenario: Design tokens overridden in dark mode
 
-- GIVEN current theme is light
-- WHEN user clicks the theme toggle button in the header
-- THEN `dark-theme` class is added to `<html>`
-- AND Angular Material components render with dark colors
-- AND `localStorage` stores `theme=dark`
+- GIVEN `html.dark-theme` is active
+- WHEN a component reads `var(--color-bg)`, `var(--color-text)`, `var(--color-text-secondary)`, or `var(--color-primary)`
+- THEN the value resolves to a dark-mode-appropriate color
 
-#### Scenario: Dark theme persists across reload
+#### Scenario: Storefront sections using `--color-*` adapt
 
-- GIVEN `localStorage` has `theme=dark`
-- WHEN the application loads
-- THEN `ThemeService` applies the dark theme on init
-- AND the theme toggle icon shows `light_mode` (switch to light)
-
-#### Scenario: System preference default
-
-- GIVEN no `theme` in `localStorage`
-- WHEN the application loads
-- THEN `ThemeService` checks `prefers-color-scheme` media query
-- AND sets theme to match system preference
+- GIVEN hero, product cards, and carousel use `var(--color-*)` tokens
+- AND `html.dark-theme` is active
+- WHEN the home page renders
+- THEN all sections using these tokens show dark backgrounds and light text
 
 ### Requirement: SEO Meta Tags
 
@@ -367,3 +352,65 @@ The system MUST add new translation keys across all three locale files (es.json,
 - WHEN any new UI element renders (badge, tab, landing page)
 - THEN the Swedish translation is displayed
 - AND no missing key fallback to English is visible
+
+### Requirement: Language Switcher Closes on Outside Click
+
+The `LanguageSwitcherComponent` MUST close its dropdown on `document:click` outside the host element.
+
+#### Scenario: Click outside closes dropdown
+
+- GIVEN the dropdown is open showing ES/EN/SV
+- WHEN the user clicks anywhere outside the switcher
+- THEN the dropdown closes immediately
+
+#### Scenario: OnLangChange refreshes OnPush
+
+- GIVEN the switcher uses OnPush change detection
+- WHEN `translate.onLangChange` fires
+- THEN the switcher calls `markForCheck()` and the badge updates
+
+### Requirement: Language Switcher Changes Language and Updates Badge
+
+Selecting a language option MUST call `translate.use(lang)` and update the visible badge (e.g. "ES" → "EN") via `markForCheck()`.
+
+#### Scenario: Selecting English updates badge
+
+- GIVEN current language is Spanish and badge shows "ES"
+- WHEN the user selects English
+- THEN `translate.use('en')` is called AND the badge updates to "EN" without a page reload
+
+### Requirement: Currency Switcher Closes on Outside Click
+
+The `CurrencySwitcherComponent` MUST close its dropdown on `document:click` outside the host element.
+
+#### Scenario: Click outside closes currency dropdown
+
+- GIVEN the currency dropdown is open
+- WHEN the user clicks outside the switcher
+- THEN the dropdown closes
+
+### Requirement: Currency Switcher Changes Currency and Updates Badge
+
+Selecting a currency MUST update the currency service and refresh the badge.
+
+#### Scenario: Selecting EUR updates badge
+
+- GIVEN current currency is SEK (badge "kr")
+- WHEN the user selects EUR
+- THEN the badge updates to "€" without a page reload
+
+### Requirement: Translation Lookups Use `t.language_code`
+
+Frontend code reading a `translations[]` entry MUST access the language via `t.language_code` (backend contract), NOT `t.lang` (stale field).
+
+#### Scenario: ProductCard displayName lookup
+
+- GIVEN a product has `translations:[{language_code:"es",name:"Chaqueta"}]`
+- WHEN the card renders in Spanish
+- THEN the lookup uses `t.language_code === 'es'` and shows "Chaqueta"
+
+#### Scenario: Home getCategoryName uses flat `cat.name`
+
+- GIVEN `/api/categories?lang=es` returns `{slug,name:"Chaquetas"}` (flat)
+- WHEN `getCategoryName(cat)` runs
+- THEN it returns `cat.name` directly (not `cat.translations[i].name`)
