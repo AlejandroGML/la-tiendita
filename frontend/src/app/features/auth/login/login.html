@@ -1,29 +1,29 @@
 <div class="flex justify-center items-center min-h-[60vh]">
-  <p-card header="Sign In" styleClass="w-full max-w-sm p-4">
+  <p-card [header]="'auth.signIn' | translate" styleClass="w-full max-w-sm p-4">
     <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-4">
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
           <input pInputText type="email" formControlName="email" placeholder="you@example.com" class="w-full" />
-          <label>Email</label>
+          <label>{{ 'auth.email' | translate }}</label>
         </p-floatLabel>
-        <small *ngIf="form.get('email')?.hasError('required')" class="p-error block mt-1">Email is required</small>
-        <small *ngIf="form.get('email')?.hasError('email')" class="p-error block mt-1">Enter a valid email</small>
+        <small *ngIf="form.get('email')?.hasError('required')" class="p-error block mt-1">{{ 'auth.emailRequired' | translate }}</small>
+        <small *ngIf="form.get('email')?.hasError('email')" class="p-error block mt-1">{{ 'auth.emailInvalid' | translate }}</small>
       </div>
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
           <input pInputText type="password" formControlName="password" placeholder="••••••••" class="w-full" />
-          <label>Password</label>
+          <label>{{ 'auth.password' | translate }}</label>
         </p-floatLabel>
-        <small *ngIf="form.get('password')?.hasError('required')" class="p-error block mt-1">Password is required</small>
-        <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error block mt-1">At least 8 characters</small>
+        <small *ngIf="form.get('password')?.hasError('required')" class="p-error block mt-1">{{ 'auth.passwordRequired' | translate }}</small>
+        <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error block mt-1">{{ 'auth.passwordMinLength' | translate }}</small>
       </div>
 
-      <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</div>
+      <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage | translate }}</div>
 
       <p-button
-        label="Sign In"
+        [label]="'auth.signInButton' | translate"
         severity="primary"
         styleClass="w-full"
         type="submit"
@@ -34,12 +34,12 @@
 
     <div class="mt-4 flex flex-col gap-2">
       <p-button
-        label="Sign in with Google"
+        [label]="'auth.signInGoogle' | translate"
         [outlined]="true"
         [disabled]="true"
         styleClass="w-full"
       ></p-button>
-      <a pButton [text]="true" routerLink="/register" class="text-sm">Don't have an account? Register</a>
+      <a pButton [text]="true" routerLink="/register" class="text-sm">{{ 'auth.noAccount' | translate }} {{ 'auth.register' | translate }}</a>
     </div>
   </p-card>
 </div>

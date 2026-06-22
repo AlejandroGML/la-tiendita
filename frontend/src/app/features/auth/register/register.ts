@@ -47,7 +47,7 @@ export class Register {
       error: (err) => {
         this.submitting = false;
         this.errorMessage =
-          err?.error?.detail || err?.message || 'Registration failed';
+          err?.error?.detail || err?.message || 'auth.registrationFailed';
       },
     });
   }

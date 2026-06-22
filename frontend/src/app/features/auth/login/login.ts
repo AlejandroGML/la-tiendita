@@ -46,7 +46,7 @@ export class Login {
       error: (err) => {
         this.submitting = false;
         this.errorMessage =
-          err?.error?.detail || err?.message || 'Login failed';
+          err?.error?.detail || err?.message || 'auth.loginFailed';
       },
     });
   }

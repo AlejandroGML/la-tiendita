@@ -1,4 +1,8 @@
 {
+  "common": {
+    "notApplicable": "Not specified",
+    "noImage": "No image"
+  },
   "nav": {
     "products": "Products",
     "cart": "Cart",
@@ -419,5 +423,28 @@
     "hips": "Hips",
     "disclaimer": "Measurements are approximate and correspond to body measurements in centimeters. We recommend measuring yourself before buying.",
     "comingSoon": "Size guide coming soon"
+  },
+  "auth": {
+    "signIn": "Sign In",
+    "email": "Email",
+    "emailRequired": "Email is required",
+    "emailInvalid": "Enter a valid email",
+    "password": "Password",
+    "passwordRequired": "Password is required",
+    "passwordMinLength": "At least 8 characters",
+    "signInButton": "Sign In",
+    "signInGoogle": "Sign in with Google",
+    "noAccount": "Don't have an account?",
+    "register": "Register",
+    "loginFailed": "Login failed",
+    "createAccount": "Create Account",
+    "name": "Name",
+    "nameRequired": "Name is required",
+    "confirmPassword": "Confirm Password",
+    "confirmRequired": "Please confirm your password",
+    "passwordMismatch": "Passwords do not match",
+    "createAccountButton": "Create Account",
+    "hasAccount": "Already have an account?",
+    "registrationFailed": "Registration failed"
   }
 }

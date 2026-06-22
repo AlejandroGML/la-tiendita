@@ -1,50 +1,50 @@
 <div class="flex justify-center items-center min-h-[60vh]">
-  <p-card header="Create Account" styleClass="w-full max-w-sm p-4">
+  <p-card [header]="'auth.createAccount' | translate" styleClass="w-full max-w-sm p-4">
     <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-4">
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
           <input pInputText type="text" formControlName="name" placeholder="Your name" class="w-full" />
-          <label>Name</label>
+          <label>{{ 'auth.name' | translate }}</label>
         </p-floatLabel>
-        <small *ngIf="form.get('name')?.hasError('required')" class="p-error block mt-1">Name is required</small>
+        <small *ngIf="form.get('name')?.hasError('required')" class="p-error block mt-1">{{ 'auth.nameRequired' | translate }}</small>
       </div>
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
           <input pInputText type="email" formControlName="email" placeholder="you@example.com" class="w-full" />
-          <label>Email</label>
+          <label>{{ 'auth.email' | translate }}</label>
         </p-floatLabel>
-        <small *ngIf="form.get('email')?.hasError('required')" class="p-error block mt-1">Email is required</small>
-        <small *ngIf="form.get('email')?.hasError('email')" class="p-error block mt-1">Enter a valid email</small>
+        <small *ngIf="form.get('email')?.hasError('required')" class="p-error block mt-1">{{ 'auth.emailRequired' | translate }}</small>
+        <small *ngIf="form.get('email')?.hasError('email')" class="p-error block mt-1">{{ 'auth.emailInvalid' | translate }}</small>
       </div>
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
           <input pInputText type="password" formControlName="password" placeholder="••••••••" class="w-full" />
-          <label>Password</label>
+          <label>{{ 'auth.password' | translate }}</label>
         </p-floatLabel>
-        <small *ngIf="form.get('password')?.hasError('required')" class="p-error block mt-1">Password is required</small>
-        <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error block mt-1">At least 8 characters</small>
+        <small *ngIf="form.get('password')?.hasError('required')" class="p-error block mt-1">{{ 'auth.passwordRequired' | translate }}</small>
+        <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error block mt-1">{{ 'auth.passwordMinLength' | translate }}</small>
       </div>
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
           <input pInputText type="password" formControlName="confirmPassword" placeholder="••••••••" class="w-full" />
-          <label>Confirm Password</label>
+          <label>{{ 'auth.confirmPassword' | translate }}</label>
         </p-floatLabel>
-        <small *ngIf="form.get('confirmPassword')?.hasError('required')" class="p-error block mt-1">Please confirm your password</small>
+        <small *ngIf="form.get('confirmPassword')?.hasError('required')" class="p-error block mt-1">{{ 'auth.confirmRequired' | translate }}</small>
         <small
           *ngIf="form.hasError('passwordsMismatch') && form.get('confirmPassword')?.touched"
           class="p-error block mt-1">
-          Passwords do not match
+          {{ 'auth.passwordMismatch' | translate }}
         </small>
       </div>
 
-      <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage }}</div>
+      <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage | translate }}</div>
 
       <p-button
-        label="Create Account"
+        [label]="'auth.createAccountButton' | translate"
         severity="primary"
         styleClass="w-full"
         type="submit"
@@ -54,7 +54,7 @@
     </form>
 
     <div class="mt-4">
-      <a pButton [text]="true" routerLink="/login" class="text-sm">Already have an account? Sign In</a>
+      <a pButton [text]="true" routerLink="/login" class="text-sm">{{ 'auth.hasAccount' | translate }} {{ 'auth.signIn' | translate }}</a>
     </div>
   </p-card>
 </div>

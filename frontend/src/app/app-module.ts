@@ -22,7 +22,7 @@ import { provideTokenStorage } from './core/services/token-storage.service';
     AppRoutingModule,
     LayoutModule,
     AdminLayoutModule,
-    TranslateModule.forRoot({ defaultLanguage: 'es' }),
+    TranslateModule.forRoot(),
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),

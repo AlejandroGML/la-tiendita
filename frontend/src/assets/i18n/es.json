@@ -1,4 +1,8 @@
 {
+  "common": {
+    "notApplicable": "No especificado",
+    "noImage": "Sin imagen"
+  },
   "nav": {
     "products": "Productos",
     "cart": "Carrito",
@@ -419,5 +423,28 @@
     "hips": "Cadera",
     "disclaimer": "Las medidas son aproximadas y corresponden a medidas corporales en centímetros. Te recomendamos medirte antes de comprar.",
     "comingSoon": "Guía de tallas próximamente"
+  },
+  "auth": {
+    "signIn": "Iniciar Sesión",
+    "email": "Correo electrónico",
+    "emailRequired": "El correo es obligatorio",
+    "emailInvalid": "Ingresa un correo válido",
+    "password": "Contraseña",
+    "passwordRequired": "La contraseña es obligatoria",
+    "passwordMinLength": "Al menos 8 caracteres",
+    "signInButton": "Iniciar Sesión",
+    "signInGoogle": "Iniciar sesión con Google",
+    "noAccount": "¿No tienes cuenta?",
+    "register": "Registrarse",
+    "loginFailed": "Error al iniciar sesión",
+    "createAccount": "Crear Cuenta",
+    "name": "Nombre",
+    "nameRequired": "El nombre es obligatorio",
+    "confirmPassword": "Confirmar Contraseña",
+    "confirmRequired": "Confirma tu contraseña",
+    "passwordMismatch": "Las contraseñas no coinciden",
+    "createAccountButton": "Crear Cuenta",
+    "hasAccount": "¿Ya tienes cuenta?",
+    "registrationFailed": "Error al registrarse"
   }
 }

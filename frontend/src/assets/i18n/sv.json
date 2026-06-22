@@ -1,4 +1,8 @@
 {
+  "common": {
+    "notApplicable": "Ej specificerat",
+    "noImage": "Ingen bild"
+  },
   "nav": {
     "products": "Produkter",
     "cart": "Varukorg",
@@ -419,5 +423,28 @@
     "hips": "Höft",
     "disclaimer": "Måtten är ungefärliga och motsvarar kroppsmått i centimeter. Vi rekommenderar att du mäter dig innan du köper.",
     "comingSoon": "Storleksguide kommer snart"
+  },
+  "auth": {
+    "signIn": "Logga in",
+    "email": "E-post",
+    "emailRequired": "E-post krävs",
+    "emailInvalid": "Ange giltig e-post",
+    "password": "Lösenord",
+    "passwordRequired": "Lösenord krävs",
+    "passwordMinLength": "Minst 8 tecken",
+    "signInButton": "Logga in",
+    "signInGoogle": "Logga in med Google",
+    "noAccount": "Har du inget konto?",
+    "register": "Registrera",
+    "loginFailed": "Inloggning misslyckades",
+    "createAccount": "Skapa Konto",
+    "name": "Namn",
+    "nameRequired": "Namn krävs",
+    "confirmPassword": "Bekräfta Lösenord",
+    "confirmRequired": "Bekräfta ditt lösenord",
+    "passwordMismatch": "Lösenorden matchar inte",
+    "createAccountButton": "Skapa Konto",
+    "hasAccount": "Har du redan ett konto?",
+    "registrationFailed": "Registrering misslyckades"
   }
 }
