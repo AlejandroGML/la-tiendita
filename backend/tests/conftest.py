@@ -30,7 +30,8 @@ TOKEN_SECRET = "test-secret-key-for-all-sdd-tests-32chars"
 
 
 class MockAsyncSession(AsyncSession):
-    """AsyncSession subclass for test DI. Skips real __init__."""
+    """For unit tests only. Use the ``session`` fixture for integration tests
+    that require real database access."""
 
     def __init__(self) -> None:
         pass
@@ -91,7 +92,22 @@ def mock_auth_service():
 
 @pytest_asyncio.fixture
 async def session() -> AsyncSession:
-    """Real async DB session — rolled back after each test."""
+    """Real PostgreSQL async session — rolled back after each test.
+
+    This fixture provides a genuine ``AsyncSession`` connected to the
+    PostgreSQL database configured via ``settings.DATABASE_URL``.
+    Every test gets an isolated connection; the transaction is rolled
+    back after the test body completes, so no data leaks between tests.
+
+    Usage in integration tests::
+
+        @pytest.mark.asyncio
+        async def test_something(session: AsyncSession):
+            ...  # session.add(), session.execute(), etc.
+
+    For unit tests that do not need a real database, use
+    ``MockAsyncSession`` instead.
+    """
     from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 
     from app.config import settings
