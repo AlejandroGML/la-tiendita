@@ -1,7 +1,7 @@
 <div class="home-page">
   <!-- HERO SECTION -->
   <section class="hero relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-green-900 via-green-700 to-emerald-600">
+    <div class="absolute inset-0 bg-gradient-to-br from-green-900 via-green-700 to-emerald-600 dark:from-gray-950 dark:via-emerald-950 dark:to-teal-950">
       <div class="absolute inset-0 opacity-20" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2220%22 cy=%2230%22 r=%2215%22 fill=%22white%22 opacity=%220.15%22/><circle cx=%2280%22 cy=%2270%22 r=%2220%22 fill=%22white%22 opacity=%220.1%22/><circle cx=%2250%22 cy=%2220%22 r=%2210%22 fill=%22white%22 opacity=%220.12%22/></svg>')"></div>
     </div>
 
@@ -56,12 +56,7 @@
                 [class.bg-blue-500]="i === 2">
             {{ i === 0 ? 'TOP VENTAS' : i === 1 ? 'NUEVO' : 'OFERTA' }}
           </span>
-          <img *ngIf="card.image_urls?.[0]"
-               [src]="card.image_urls[0]"
-               [alt]="getDisplayName(card)"
-               class="w-full h-28 object-cover rounded-xl mb-2"
-               loading="lazy" />
-          <div *ngIf="!card.image_urls?.[0]" class="w-full h-28 bg-white/20 rounded-xl mb-2 flex items-center justify-center">
+          <div class="w-full h-28 bg-white/20 rounded-xl mb-2 flex items-center justify-center">
             <i class="pi pi-image text-3xl text-white/40"></i>
           </div>
           <p class="text-white font-semibold text-sm truncate">{{ getDisplayName(card) }}</p>
@@ -72,8 +67,8 @@
 
     <!-- Wave bottom -->
     <div class="absolute bottom-0 left-0 right-0">
-      <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full">
-        <path d="M0 60C240 120 480 0 720 60C960 120 1200 0 1440 60V120H0V60Z" fill="#FAF9F6"/>
+      <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full text-[var(--color-bg)]">
+        <path d="M0 60C240 120 480 0 720 60C960 120 1200 0 1440 60V120H0V60Z" fill="currentColor"/>
       </svg>
     </div>
   </section>

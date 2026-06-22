@@ -11,6 +11,10 @@
   &:hover {
     transform: translateY(-4px);
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+    :host-context(.dark-theme) & {
+      box-shadow: 0 12px 32px rgba(255, 255, 255, 0.06);
+    }
   }
 }
 

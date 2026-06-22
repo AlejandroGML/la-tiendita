@@ -1,5 +1,5 @@
 <div class="checkout-page min-h-screen" data-testid="checkout-page">
-  <h1 class="text-2xl font-bold text-gray-900 mb-6">{{ 'checkout.title' | translate }}</h1>
+  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">{{ 'checkout.title' | translate }}</h1>
 
   <!-- Loading state -->
   <div *ngIf="loading()" class="flex justify-center py-16">
@@ -15,12 +15,12 @@
     class="fixed inset-0 bg-black/50 z-50 flex flex-col items-center justify-center gap-4"
     data-testid="checkout-redirecting"
   >
-    <div class="bg-white rounded-xl shadow-2xl p-10 flex flex-col items-center gap-4">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-10 flex flex-col items-center gap-4">
       <p-progressSpinner
         [style]="{ width: '56px', height: '56px' }"
         strokeWidth="4"
       ></p-progressSpinner>
-      <p class="text-lg font-medium text-gray-700">
+      <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
         {{ 'checkout.redirecting' | translate }}
       </p>
     </div>
@@ -28,7 +28,7 @@
 
   <!-- Error state -->
   <div *ngIf="error() && !loading()" class="text-center py-8">
-    <p class="text-red-600 text-lg mb-3">{{ error() | translate }}</p>
+    <p class="text-red-600 dark:text-red-400 text-lg mb-3">{{ error() | translate }}</p>
     <p-button
       *ngIf="error()"
       [label]="'order.retry' | translate"
@@ -43,8 +43,8 @@
     <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
       <!-- Shipping form -->
       <div class="lg:col-span-3">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-xl font-semibold mb-4">{{ 'checkout.shipping' | translate }}</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ 'checkout.shipping' | translate }}</h2>
 
           <form [formGroup]="shippingForm" (ngSubmit)="submitOrder()" data-testid="shipping-form">
             <!-- Guest email — only visible when not authenticated -->
@@ -120,30 +120,30 @@
 
       <!-- Order Summary -->
       <div class="lg:col-span-2">
-        <div class="bg-white rounded-lg shadow p-6 sticky top-4">
-          <h2 class="text-xl font-semibold mb-4">{{ 'checkout.summary' | translate }}</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sticky top-4">
+          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ 'checkout.summary' | translate }}</h2>
 
-          <div class="divide-y divide-gray-200">
+          <div class="divide-y divide-gray-200 dark:divide-gray-700">
             <div
               *ngFor="let item of items"
               class="flex justify-between items-center py-2"
             >
               <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 truncate">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                   {{ item.product_name }}
                 </p>
-                <p class="text-xs text-gray-500">
+                <p class="text-xs text-gray-500 dark:text-gray-400">
                   {{ 'checkout.qty' | translate }}: {{ item.quantity }}
                 </p>
               </div>
-              <span class="text-sm font-medium ml-4">{{ item.subtotal | currency }}</span>
+              <span class="text-sm font-medium text-gray-900 dark:text-gray-100 ml-4">{{ item.subtotal | currency }}</span>
             </div>
           </div>
 
-          <div class="border-t border-gray-200 mt-4 pt-4">
+          <div class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
             <div class="flex justify-between items-center">
-              <span class="text-lg font-bold">{{ 'checkout.total' | translate }}</span>
-              <span class="text-lg font-bold">{{ total | currency }}</span>
+              <span class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ 'checkout.total' | translate }}</span>
+              <span class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ total | currency }}</span>
             </div>
           </div>
 

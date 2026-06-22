@@ -100,6 +100,13 @@ body {
 
 /* Dark theme overrides */
 html.dark-theme {
+  // Design token overrides for dark mode
+  --color-bg: #0f172a;
+  --color-text: #f1f5f9;
+  --color-text-secondary: #94a3b8;
+  --color-primary: #4ade80;
+
+  // Keep existing custom tokens (used by scoped components)
   --bg-primary: #1e1e2e;
   --bg-secondary: #2a2a3c;
   --text-primary: #cdd6f4;
@@ -108,7 +115,7 @@ html.dark-theme {
   color-scheme: dark;
 
   body {
-    background-color: #121212;
-    color: #e0e0e0;
+    background-color: var(--color-bg);
+    color: var(--color-text);
   }
 }
