@@ -1,5 +1,6 @@
-import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-language-switcher',
@@ -7,9 +8,12 @@ import { TranslateService } from '@ngx-translate/core';
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class LanguageSwitcherComponent implements OnDestroy {
+export class LanguageSwitcherComponent implements OnInit, OnDestroy {
   private readonly translate = inject(TranslateService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly elementRef = inject(ElementRef);
+
+  private langSub?: Subscription;
 
   protected readonly LANG_CYCLE = ['es', 'en', 'sv'];
   protected readonly LANG_NAMES: Record<string, string> = {
@@ -21,6 +25,12 @@ export class LanguageSwitcherComponent implements OnDestroy {
   langOpen = false;
   private langTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  ngOnInit(): void {
+    this.langSub = this.translate.onLangChange.subscribe(() => {
+      this.cdr.markForCheck();
+    });
+  }
+
   protected get currentLang(): string {
     return this.translate.currentLang || 'es';
   }
@@ -28,6 +38,16 @@ export class LanguageSwitcherComponent implements OnDestroy {
   protected setLang(lang: string): void {
     this.translate.use(lang);
     this.langOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!this.elementRef.nativeElement.contains(target)) {
+      this.langOpen = false;
+      this.cdr.markForCheck();
+    }
   }
 
   protected onLangLeave(): void {
@@ -45,6 +65,7 @@ export class LanguageSwitcherComponent implements OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
     if (this.langTimeout !== null) {
       clearTimeout(this.langTimeout);
     }

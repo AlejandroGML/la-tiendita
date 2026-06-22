@@ -1,4 +1,4 @@
-import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from '@angular/core';
+import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, effect, ElementRef, HostListener, OnDestroy } from '@angular/core';
 import { CurrencyService, type CurrencyCode } from '../../../core/services/currency.service';
 
 @Component({
@@ -10,13 +10,31 @@ import { CurrencyService, type CurrencyCode } from '../../../core/services/curre
 export class CurrencySwitcherComponent implements OnDestroy {
   protected readonly currencyService = inject(CurrencyService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly elementRef = inject(ElementRef);
 
   currencyOpen = false;
   private currencyTimeout: ReturnType<typeof setTimeout> | null = null;
 
+  constructor() {
+    effect(() => {
+      this.currencyService.currency();
+      this.cdr.markForCheck();
+    });
+  }
+
   protected setCurrency(code: CurrencyCode): void {
     this.currencyService.setCurrency(code);
     this.currencyOpen = false;
+    this.cdr.markForCheck();
+  }
+
+  @HostListener('document:click', ['$event'])
+  onDocumentClick(event: MouseEvent): void {
+    const target = event.target as HTMLElement;
+    if (!this.elementRef.nativeElement.contains(target)) {
+      this.currencyOpen = false;
+      this.cdr.markForCheck();
+    }
   }
 
   protected onCurrencyLeave(): void {
