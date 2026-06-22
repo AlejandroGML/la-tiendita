@@ -1,5 +1,5 @@
 export interface CategoryTranslation {
-  lang: string;
+  language_code: string;
   name: string;
   description?: string;
 }

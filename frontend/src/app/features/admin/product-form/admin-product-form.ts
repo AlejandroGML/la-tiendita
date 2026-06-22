@@ -161,7 +161,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
     const translationsArr = this.translations;
     for (const t of product.translations) {
       const group = translationsArr.controls.find(
-        (ctrl) => ctrl.get('lang')?.value === t.lang,
+        (ctrl) => ctrl.get('lang')?.value === t.language_code,
       );
       if (group) {
         group.patchValue({ name: t.name, description: t.description });

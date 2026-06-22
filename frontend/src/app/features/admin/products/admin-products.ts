@@ -63,7 +63,7 @@ export class AdminProducts implements OnInit, OnDestroy {
 
   deleteProduct(product: Product): void {
     const confirmed = confirm(
-      `¿Eliminar "${product.translations?.find((t) => t.lang === 'es')?.name ?? product.slug}"?`,
+      `¿Eliminar "${product.translations?.find((t) => t.language_code === 'es')?.name ?? product.slug}"?`,
     );
     if (!confirmed) return;
 
@@ -83,7 +83,7 @@ export class AdminProducts implements OnInit, OnDestroy {
 
   getProductName(product: Product): string {
     return (
-      product.translations?.find((t) => t.lang === 'es')?.name ??
+      product.translations?.find((t) => t.language_code === 'es')?.name ??
       product.translations?.[0]?.name ??
       product.slug
     );

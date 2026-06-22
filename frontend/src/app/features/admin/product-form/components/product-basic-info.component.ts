@@ -20,6 +20,6 @@ export class ProductBasicInfoComponent {
   readonly conditions = ['new', 'like_new', 'good', 'fair'];
 
   getCategoryName(cat: Category): string {
-    return cat.translations?.find((t) => t.lang === 'es')?.name ?? cat.slug;
+    return cat.translations?.find((t) => t.language_code === 'es')?.name ?? cat.slug;
   }
 }

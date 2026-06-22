@@ -74,12 +74,11 @@ export class Home {
   }
 
   getCategoryName(cat: any): string {
-    const t = cat?.translations?.find((t: any) => t.lang === 'es');
-    return t?.name ?? '';
+    return cat?.name ?? '';
   }
 
   getDisplayName(product: Product): string {
-    const t = product?.translations?.find((t: any) => t.lang === 'es');
+    const t = product?.translations?.find((t: any) => t.language_code === 'es');
     return t?.name ?? '';
   }
 }

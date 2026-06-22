@@ -1,5 +1,5 @@
 export interface ProductTranslation {
-  lang: string;
+  language_code: string;
   name: string;
   description: string;
 }

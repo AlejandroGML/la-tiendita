@@ -73,9 +73,9 @@ export class ProductCardComponent implements OnInit, OnDestroy {
   /** Translated product name */
   get displayName(): string {
     const lang = this.translate.currentLang || 'es';
-    const t = this.product?.translations?.find((t) => t.lang === lang);
+    const t = this.product?.translations?.find((t) => t.language_code === lang);
     if (t?.name) return t.name;
-    const fallback = this.product?.translations?.find((t) => t.lang === 'en');
+    const fallback = this.product?.translations?.find((t) => t.language_code === 'en');
     if (fallback?.name) return fallback.name;
     // Fallback: format slug as readable name
     const slug = this.product?.slug ?? '';

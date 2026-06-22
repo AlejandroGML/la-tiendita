@@ -229,9 +229,9 @@ export class ProductDetail implements OnDestroy {
     const p = this.product();
     if (!p) return '';
     const lang = this.translate.currentLang || 'es';
-    const t = p.translations?.find((t) => t.lang === lang);
+    const t = p.translations?.find((t) => t.language_code === lang);
     if (t?.name) return t.name;
-    const fallback = p.translations?.find((t) => t.lang === 'en');
+    const fallback = p.translations?.find((t) => t.language_code === 'en');
     if (fallback?.name) return fallback.name;
     // Fallback: format slug as readable name
     const slug = p.slug ?? '';
@@ -247,9 +247,9 @@ export class ProductDetail implements OnDestroy {
     const p = this.product();
     if (!p) return '';
     const lang = this.translate.currentLang || 'es';
-    const t = p.translations?.find((t) => t.lang === lang);
+    const t = p.translations?.find((t) => t.language_code === lang);
     if (t) return t.description;
-    const fallback = p.translations?.find((t) => t.lang === 'en');
+    const fallback = p.translations?.find((t) => t.language_code === 'en');
     return fallback?.description ?? '';
   }
 
