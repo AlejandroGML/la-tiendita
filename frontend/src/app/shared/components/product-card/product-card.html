@@ -5,24 +5,34 @@
       (mouseenter)="onMouseEnter()"
       (mouseleave)="onMouseLeave()"
     >
-      <!-- Primary image -->
-      <img
-        [src]="imageUrl"
-        [alt]="displayName"
-        class="w-full h-full object-cover product-card-img transition-transform duration-500 group-hover:scale-110"
-        [class.opacity-0]="isHovered() && hoverImage !== imageUrl"
-        loading="lazy"
-      />
-      <!-- Hover image (absolutely positioned over primary) -->
-      <img
-        *ngIf="hoverImage !== imageUrl"
-        [src]="hoverImage"
-        [alt]="displayName"
-        class="absolute inset-0 w-full h-full object-cover product-card-img transition-transform duration-500 group-hover:scale-110"
-        [class.opacity-100]="isHovered()"
-        [class.opacity-0]="!isHovered()"
-        loading="lazy"
-      />
+      <!-- Primary image or placeholder -->
+      <ng-container *ngIf="imageUrl; else noImage">
+        <img
+          [src]="imageUrl"
+          [alt]="displayName"
+          class="w-full h-full object-cover product-card-img transition-transform duration-500 group-hover:scale-110"
+          [class.opacity-0]="isHovered() && hoverImage !== imageUrl"
+          loading="lazy"
+        />
+        <!-- Hover image (absolutely positioned over primary) -->
+        <img
+          *ngIf="hoverImage !== imageUrl"
+          [src]="hoverImage"
+          [alt]="displayName"
+          class="absolute inset-0 w-full h-full object-cover product-card-img transition-transform duration-500 group-hover:scale-110"
+          [class.opacity-100]="isHovered()"
+          [class.opacity-0]="!isHovered()"
+          loading="lazy"
+        />
+      </ng-container>
+      <ng-template #noImage>
+        <div class="w-full h-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 p-4 text-center">
+          <svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21zm16.5-13.5h-3.75M21 12l-2.25-3.75" />
+          </svg>
+          <span class="text-xs font-medium">{{ 'common.noImage' | translate }}</span>
+        </div>
+      </ng-template>
       <!-- Badge stack: SALE > Bestseller > Nuevo (top-left) -->
       <div class="absolute top-3 left-3 flex flex-col gap-1 z-10">
         <span
@@ -101,12 +111,12 @@
             [price]="product.price"
             [salePrice]="product.sale_price ?? null"
           />
-          <p *ngIf="product.material" class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
-            {{ product.material }}
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
+            {{ product.material || ('common.notApplicable' | translate) }}
           </p>
         </div>
-        <span *ngIf="product.brand" class="text-xs text-gray-400 dark:text-gray-500 font-medium">
-          {{ product.brand }}
+        <span class="text-xs text-gray-400 dark:text-gray-500 font-medium">
+          {{ product.brand || ('common.notApplicable' | translate) }}
         </span>
       </div>
     </div>
