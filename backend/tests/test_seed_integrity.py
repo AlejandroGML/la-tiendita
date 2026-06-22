@@ -12,7 +12,7 @@ from decimal import Decimal
 
 import pytest
 import pytest_asyncio
-from sqlalchemy import select, func
+from sqlalchemy import delete, select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -234,6 +234,10 @@ async def test_batch_insert_no_lost_rows(svc: ProductService, session: AsyncSess
     )
     assert count.scalar() == 50
 
+    # Cleanup
+    await session.execute(delete(Product).where(Product.slug.like(f"{prefix}-%")))
+    await session.commit()
+
 
 # ---------------------------------------------------------------------------
 # Test: Boundary values
@@ -256,6 +260,11 @@ async def test_condition_rating_boundaries(svc: ProductService, session: AsyncSe
         p = result.scalar_one()
         assert p.condition_rating == rating
 
+    # Cleanup
+    for s in slugs.values():
+        await session.execute(delete(Product).where(Product.slug == s))
+    await session.commit()
+
 
 @pytest.mark.asyncio
 async def test_price_positive(svc: ProductService, session: AsyncSession):
@@ -267,6 +276,10 @@ async def test_price_positive(svc: ProductService, session: AsyncSession):
     result = await session.execute(select(Product).where(Product.slug == slug))
     p = result.scalar_one()
     assert p.price > 0
+
+    # Cleanup
+    await session.execute(delete(Product).where(Product.slug == slug))
+    await session.commit()
 
 
 @pytest.mark.asyncio
@@ -280,6 +293,10 @@ async def test_material_with_percentages(svc: ProductService, session: AsyncSess
     result = await session.execute(select(Product).where(Product.slug == slug))
     p = result.scalar_one()
     assert p.material == material
+
+    # Cleanup
+    await session.execute(delete(Product).where(Product.slug == slug))
+    await session.commit()
 
 
 # ---------------------------------------------------------------------------
@@ -317,6 +334,10 @@ async def test_swedish_characters_preserved(svc: ProductService, session: AsyncS
     assert "KappAhl" in t.description
     assert "sommaren" in t.description
 
+    # Cleanup
+    await session.execute(delete(Product).where(Product.slug == slug))
+    await session.commit()
+
 
 # ---------------------------------------------------------------------------
 # Test: Multi-translation product
@@ -344,6 +365,10 @@ async def test_product_with_multiple_translations(svc: ProductService, session: 
     assert names["en"] == "Blue Denim Jacket"
     assert names["sv"] == "Blå Denimjacka"
 
+    # Cleanup
+    await session.execute(delete(Product).where(Product.slug == slug))
+    await session.commit()
+
 
 # ---------------------------------------------------------------------------
 # Test: condition_details partial population
@@ -361,6 +386,10 @@ async def test_condition_details_partial(svc: ProductService, session: AsyncSess
     p = result.scalar_one()
     assert p.condition_details == {"pilling": 2}
 
+    # Cleanup
+    await session.execute(delete(Product).where(Product.slug == slug))
+    await session.commit()
+
 
 @pytest.mark.asyncio
 async def test_condition_details_empty_dict(svc: ProductService, session: AsyncSession):
@@ -372,3 +401,7 @@ async def test_condition_details_empty_dict(svc: ProductService, session: AsyncS
     result = await session.execute(select(Product).where(Product.slug == slug))
     p = result.scalar_one()
     assert p.condition_details == {}
+
+    # Cleanup
+    await session.execute(delete(Product).where(Product.slug == slug))
+    await session.commit()

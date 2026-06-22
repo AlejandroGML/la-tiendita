@@ -81,6 +81,40 @@ def build_condition_details(pilling, damage, stains, holes, smell) -> dict | Non
     return d or None
 
 
+# Spanish translations for each category type in the seed data
+CATEGORY_ES: dict[str, str] = {
+    "Accessories": "Accesorios",
+    "Bag": "Bolso",
+    "Belt": "Cinturón",
+    "Blazer": "Blazer",
+    "Blouse": "Blusa",
+    "Boots": "Botas",
+    "Cardigan": "Cárdigan",
+    "Coat": "Abrigo",
+    "Dress": "Vestido",
+    "Hat": "Sombrero",
+    "Heels": "Tacones",
+    "Jacket": "Chaqueta",
+    "Jeans": "Vaqueros",
+    "Jumpsuit": "Mono",
+    "Pants": "Pantalones",
+    "Playsuit": "Mono",
+    "Poncho": "Poncho",
+    "Sandals": "Sandalias",
+    "Scarf": "Bufanda",
+    "Shirt": "Camisa",
+    "Shoes": "Zapatos",
+    "Shorts": "Pantalones Cortos",
+    "Skirt": "Falda",
+    "Sneakers": "Zapatillas",
+    "Sweater": "Suéter",
+    "T-shirt": "Camiseta",
+    "Tank Top": "Top sin Mangas",
+    "Top": "Top",
+    "Tunic": "Túnica",
+    "Vest": "Chaleco",
+}
+
 # ── Categories ──────────────────────────────────────────────────────────
 
 async def ensure_categories(session: AsyncSession) -> dict[str, int]:
@@ -97,7 +131,7 @@ async def ensure_categories(session: AsyncSession) -> dict[str, int]:
         cat = Category(slug=SlugService.slugify(t))
         session.add(cat); await session.flush()
         session.add(CategoryTranslation(category_id=cat.id, language_code="en", name=t))
-        session.add(CategoryTranslation(category_id=cat.id, language_code="es", name=t))
+        session.add(CategoryTranslation(category_id=cat.id, language_code="es", name=CATEGORY_ES.get(t, t)))
         await session.flush(); mapping[t] = cat.id
     await session.commit()
     return mapping
