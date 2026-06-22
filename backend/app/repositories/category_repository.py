@@ -5,10 +5,12 @@ Moves inline SQLAlchemy queries from ``CategoryController`` and
 Category uses a SERIAL integer PK (unlike UUIDs for other models).
 """
 
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.category import Category
+from app.models.product import Product
 from app.repositories.base import BaseRepository
 
 
@@ -66,6 +68,28 @@ class CategoryRepository(BaseRepository[Category]):
             options=[selectinload(Category.translations)],
             order_by=Category.id,
         )
+
+    async def count_products(
+        self,
+        session: AsyncSession,
+        category_id: int,
+    ) -> int:
+        """Count non-deleted products associated with a category.
+
+        Args:
+            session: Active async DB session.
+            category_id: The category ID (SERIAL PK).
+
+        Returns:
+            The number of non-deleted products in the category.
+        """
+        result = await session.scalar(
+            select(func.count(Product.id)).where(
+                Product.category_id == category_id,
+                Product.deleted_at.is_(None),
+            )
+        )
+        return result or 0  # type: ignore[return-value]
 
     async def slug_exists(
         self,

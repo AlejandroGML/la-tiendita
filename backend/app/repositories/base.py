@@ -54,8 +54,7 @@ class BaseRepository(Generic[ModelT]):
         stmt = select(self.model).where(self.model.id == id)  # type: ignore[attr-defined]
         if options:
             stmt = stmt.options(*options)
-        result = await session.execute(stmt)
-        return result.unique().scalar_one_or_none()
+        return await session.scalar(stmt)
 
     async def find_one(
         self,
@@ -80,8 +79,7 @@ class BaseRepository(Generic[ModelT]):
             stmt = stmt.options(*options)
         if order_by is not None:
             stmt = stmt.order_by(order_by)
-        result = await session.execute(stmt)
-        return result.unique().scalar_one_or_none()
+        return await session.scalar(stmt)
 
     # ------------------------------------------------------------------
     # Multi-instance lookups

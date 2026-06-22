@@ -7,6 +7,7 @@ integration, stock deduction, and promotion logic.
 
 from uuid import UUID
 
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -114,3 +115,57 @@ class OrderRepository(BaseRepository[Order]):
             Order.status == status,
             order_by=Order.created_at.desc(),
         )
+
+    async def get_all_with_user(
+        self,
+        session: AsyncSession,
+        page: int = 1,
+        per_page: int = 20,
+        status: OrderStatus | None = None,
+    ) -> tuple[list[Order], int]:
+        """Return a paginated list of all orders with user eager-loaded.
+
+        Optionally filtered by ``status``.
+
+        Args:
+            session: Active async DB session.
+            page: 1-indexed page number.
+            per_page: Results per page.
+            status: Optional ``OrderStatus`` filter.
+
+        Returns:
+            ``(items, total_count)``.
+        """
+        base = select(Order).options(selectinload(Order.user))
+        if status is not None:
+            base = base.where(Order.status == status)
+
+        count_stmt = select(func.count()).select_from(base.subquery())
+        total = await session.scalar(count_stmt) or 0
+
+        offset = (page - 1) * per_page
+        stmt = (
+            base
+            .order_by(Order.created_at.desc())
+            .offset(offset)
+            .limit(per_page)
+        )
+        result = await session.execute(stmt)
+        orders = list(result.unique().scalars().all())
+        return orders, total
+
+    async def count_by_user(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+    ) -> int:
+        """Count total orders for a user.
+
+        Args:
+            session: Active async DB session.
+            user_id: The user UUID.
+
+        Returns:
+            Total order count for the user.
+        """
+        return await self.count(session, Order.user_id == user_id)
