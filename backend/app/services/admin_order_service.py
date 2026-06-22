@@ -13,6 +13,7 @@ from sqlalchemy.orm import selectinload
 from app.core.event_bus import event_bus
 from app.core.events import OrderShippedEvent
 from app.models.order import Order, OrderStatus, PaymentStatus
+from app.repositories.order_repository import OrderRepository
 from app.schemas.order import OrderAdminListItem
 
 
@@ -36,6 +37,12 @@ class InvalidTransitionError(ValueError):
 class AdminOrderService:
     """Order management for admin — listing and status transitions."""
 
+    def __init__(
+        self,
+        order_repo: OrderRepository | None = None,
+    ) -> None:
+        self._order_repo = order_repo or OrderRepository()
+
     async def list_all_orders(
         self,
         session: AsyncSession,
@@ -50,9 +57,8 @@ class AdminOrderService:
 
         Returns ``(items, total)``.
         """
-        # Build base query
-        base = select(Order).options(selectinload(Order.user))
-
+        # Parse status filter
+        status_enum = None
         if status is not None:
             try:
                 status_enum = OrderStatus(status)
@@ -61,22 +67,10 @@ class AdminOrderService:
                     f"invalid status '{status}'. "
                     f"Valid: {[s.value for s in OrderStatus]}"
                 ) from None
-            base = base.where(Order.status == status_enum)
 
-        # Total count (respects filter)
-        count_stmt = select(func.count()).select_from(base.subquery())
-        total = await session.scalar(count_stmt) or 0
-
-        # Paginated fetch
-        offset = (page - 1) * per_page
-        stmt = (
-            base
-            .order_by(Order.created_at.desc())
-            .offset(offset)
-            .limit(per_page)
+        orders, total = await self._order_repo.get_all_with_user(
+            session, page=page, per_page=per_page, status=status_enum
         )
-        result = await session.execute(stmt)
-        orders = result.unique().scalars().all()
 
         items = [
             OrderAdminListItem(
@@ -114,10 +108,8 @@ class AdminOrderService:
             The updated order as an ``OrderAdminListItem``.
         """
         # Load the order
-        order = await session.scalar(
-            select(Order)
-            .where(Order.id == order_id)
-            .options(selectinload(Order.user))
+        order = await self._order_repo.get_by_id(
+            session, order_id, options=[selectinload(Order.user)]
         )
         if order is None:
             raise ValueError(f"order {order_id} not found")
@@ -166,10 +158,8 @@ class AdminOrderService:
         await session.flush()
 
         # Reload to get fresh state
-        order = await session.scalar(
-            select(Order)
-            .where(Order.id == order_id)
-            .options(selectinload(Order.user))
+        order = await self._order_repo.get_by_id(
+            session, order_id, options=[selectinload(Order.user)]
         )
 
         # Fire-and-forget shipping notification via event bus

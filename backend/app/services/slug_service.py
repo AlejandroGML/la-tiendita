@@ -8,10 +8,10 @@ configurable max slug length.
 import re
 import unicodedata
 
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.product import Product
+from app.repositories.product_repository import ProductRepository
 
 
 class SlugService:
@@ -22,6 +22,12 @@ class SlugService:
     """
 
     MAX_SLUG_LEN = 200
+
+    def __init__(
+        self,
+        product_repo: ProductRepository | None = None,
+    ) -> None:
+        self._product_repo = product_repo or ProductRepository()
 
     @staticmethod
     def slugify(name: str) -> str:
@@ -56,10 +62,10 @@ class SlugService:
         attempt = 1
 
         while True:
-            existing = await session.execute(
-                select(Product.id).where(Product.slug == slug)
+            existing = await self._product_repo.exists(
+                session, Product.slug == slug
             )
-            if existing.scalar_one_or_none() is None:
+            if not existing:
                 return slug
             attempt += 1
             suffix = f"-{attempt}"

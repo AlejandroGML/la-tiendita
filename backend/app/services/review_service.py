@@ -15,6 +15,8 @@ from sqlalchemy.orm import selectinload
 from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product
 from app.models.review import Review
+from app.repositories.product_repository import ProductRepository
+from app.repositories.review_repository import ReviewRepository
 from app.schemas.review import CreateReviewRequest, ReviewListResponse, ReviewResponse
 
 logger = logging.getLogger(__name__)
@@ -30,6 +32,14 @@ _REVIEWABLE_STATUSES = {
 class ReviewService:
     """Encapsulates all review business logic."""
 
+    def __init__(
+        self,
+        review_repo: ReviewRepository | None = None,
+        product_repo: ProductRepository | None = None,
+    ) -> None:
+        self._review_repo = review_repo or ReviewRepository()
+        self._product_repo = product_repo or ProductRepository()
+
     # ------------------------------------------------------------------
     # Public API
     # ------------------------------------------------------------------
@@ -43,17 +53,9 @@ class ReviewService:
         (confirmed, shipped, or delivered).  Uses existing indexes on
         ``orders.user_id`` and ``order_items.product_id`` for performance.
         """
-        result = await session.execute(
-            select(func.count())
-            .select_from(OrderItem)
-            .join(Order, OrderItem.order_id == Order.id)
-            .where(
-                Order.user_id == user_id,
-                OrderItem.product_id == product_id,
-                Order.status.in_(_REVIEWABLE_STATUSES),
-            )
+        return await self._review_repo.user_has_purchased(
+            session, user_id, product_id
         )
-        return result.scalar() > 0  # type: ignore[no-any-return]
 
     async def create_review(
         self,
@@ -74,11 +76,8 @@ class ReviewService:
 
         try:
             async with session.begin_nested():
-                existing = await session.scalar(
-                    select(Review).where(
-                        Review.user_id == user_id,
-                        Review.product_id == product_id,
-                    )
+                existing = await self._review_repo.get_by_user_and_product(
+                    session, user_id, product_id
                 )
                 if existing is not None:
                     raise ValueError("You have already reviewed this product")
@@ -124,36 +123,19 @@ class ReviewService:
         Raises:
             ValueError: If no product matches the slug.
         """
-        product_result = await session.execute(
-            select(Product.id).where(Product.slug == product_slug)
-        )
-        product_id = product_result.scalar_one_or_none()
-        if product_id is None:
+        product = await self._product_repo.get_by_slug(session, product_slug)
+        if product is None:
             raise ValueError(f"Product not found: {product_slug}")
 
         # Aggregate stats — single round-trip for both
-        stats = await session.execute(
-            select(
-                func.count(Review.id).label("total"),
-                func.coalesce(func.avg(Review.rating), 0).label("avg"),
-            ).where(Review.product_id == product_id)
-        )
-        row = stats.one()
-        total_reviews: int = row.total  # type: ignore[assignment]
-        avg_rating: float = round(float(row.avg), 1)  # type: ignore[arg-type]
+        agg = await self._review_repo.get_aggregate(session, product.id)
+        total_reviews = agg["total_reviews"]
+        avg_rating = agg["avg_rating"]
 
         # Paginated review rows with user name
-        offset = (page - 1) * per_page
-        stmt = (
-            select(Review)
-            .where(Review.product_id == product_id)
-            .options(selectinload(Review.user))
-            .order_by(Review.created_at.desc())
-            .offset(offset)
-            .limit(per_page)
+        reviews, _ = await self._review_repo.get_by_product(
+            session, product.id, page=page, per_page=per_page
         )
-        result = await session.execute(stmt)
-        reviews = result.scalars().all()
 
         review_list = [
             ReviewResponse(

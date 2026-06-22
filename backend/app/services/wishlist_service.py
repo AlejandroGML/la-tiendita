@@ -13,6 +13,7 @@ from sqlalchemy.orm import selectinload
 
 from app.models.product import Product, ProductTranslation
 from app.models.wishlist import Wishlist
+from app.repositories.wishlist_repository import WishlistRepository
 from app.schemas.wishlist import WishlistItemResponse, WishlistResponse
 
 logger = logging.getLogger(__name__)
@@ -20,6 +21,12 @@ logger = logging.getLogger(__name__)
 
 class WishlistService:
     """Encapsulates wishlist business logic."""
+
+    def __init__(
+        self,
+        wishlist_repo: WishlistRepository | None = None,
+    ) -> None:
+        self._wishlist_repo = wishlist_repo or WishlistRepository()
 
     # ------------------------------------------------------------------
     # Public API
@@ -33,18 +40,7 @@ class WishlistService:
         Eager-loads product translations so names can be resolved without
         N+1 queries.
         """
-        stmt = (
-            select(Wishlist)
-            .where(Wishlist.user_id == user_id)
-            .options(
-                selectinload(Wishlist.product).selectinload(
-                    Product.translations
-                ),
-            )
-            .order_by(Wishlist.added_at.desc())
-        )
-        result = await session.execute(stmt)
-        items = result.unique().scalars().all()
+        items = await self._wishlist_repo.get_by_user(session, user_id)
 
         return WishlistResponse(
             items=[self._build_item(w) for w in items]
@@ -62,16 +58,9 @@ class WishlistService:
         if product is None:
             raise ValueError(f"Product {product_id} not found")
 
-        existing = await session.scalar(
-            select(Wishlist).where(
-                Wishlist.user_id == user_id,
-                Wishlist.product_id == product_id,
-            )
+        created = await self._wishlist_repo.upsert(
+            session, user_id, product_id
         )
-        if existing is None:
-            wish = Wishlist(user_id=user_id, product_id=product_id)
-            session.add(wish)
-            await session.flush()
 
         return await self.get_wishlist(session, user_id)
 
@@ -82,14 +71,11 @@ class WishlistService:
 
         Raises ``ValueError`` if the item was not in the wishlist.
         """
-        stmt = delete(Wishlist).where(
-            Wishlist.user_id == user_id,
-            Wishlist.product_id == product_id,
+        deleted = await self._wishlist_repo.remove(
+            session, user_id, product_id
         )
-        result = await session.execute(stmt)
-        if result.rowcount == 0:
+        if not deleted:
             raise ValueError(f"Product {product_id} not in wishlist")
-        await session.flush()
 
     # ------------------------------------------------------------------
     # Internal helpers

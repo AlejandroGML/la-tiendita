@@ -18,6 +18,8 @@ from sqlalchemy.orm import selectinload
 from app.models.cart import CartItem
 from app.models.product import Product, ProductTranslation
 from app.models.product_variant import ProductVariant
+from app.repositories.cart_repository import CartRepository
+from app.repositories.variant_repository import VariantRepository
 from app.schemas.cart import (
     AddToCartRequest,
     CartItemResponse,
@@ -35,13 +37,20 @@ class StockInsufficientError(ValueError):
 class CartService:
     """Encapsulates all shopping cart business logic."""
 
-    def __init__(self, promotion_service=None):
+    def __init__(
+        self,
+        promotion_service=None,
+        cart_repo: CartRepository | None = None,
+        variant_repo: VariantRepository | None = None,
+    ):
         """Optionally inject a PromotionService; creates a local default if omitted."""
         if promotion_service is None:
             from app.services.promotion_service import PromotionService
 
             promotion_service = PromotionService()
         self._promotion_service = promotion_service
+        self._cart_repo = cart_repo or CartRepository()
+        self._variant_repo = variant_repo or VariantRepository()
 
     # ------------------------------------------------------------------
     # Scope helpers
@@ -256,9 +265,9 @@ class CartService:
         session_id: UUID | None,
     ) -> CartResponse:
         """Remove all items from a user or session cart in one operation."""
-        scope = self._scope_filter(user_id, session_id)
-        await session.execute(delete(CartItem).where(scope))
-        await session.flush()
+        await self._cart_repo.clear_scope(
+            session, user_id=user_id, session_id=session_id
+        )
 
         return CartResponse(items=[], subtotal=Decimal("0"))
 
@@ -276,20 +285,9 @@ class CartService:
 
         Eager-loads product translations and variant for response building.
         """
-        scope = self._scope_filter(user_id, session_id)
-        stmt = (
-            select(CartItem)
-            .where(scope)
-            .options(
-                selectinload(CartItem.product).selectinload(
-                    Product.translations
-                ),
-                selectinload(CartItem.variant),
-            )
-            .order_by(CartItem.added_at)
+        return await self._cart_repo.get_items(
+            session, user_id=user_id, session_id=session_id
         )
-        result = await session.execute(stmt)
-        return list(result.scalars().unique().all())
 
     async def _get_own_item(
         self,
@@ -302,13 +300,9 @@ class CartService:
 
         Raises ``ValueError`` if not found (controller maps to 404).
         """
-        scope = self._scope_filter(user_id, session_id)
-        stmt = select(CartItem).where(
-            CartItem.id == item_id,
-            scope,
+        cart_item = await self._cart_repo.get_own_item(
+            session, item_id, user_id=user_id, session_id=session_id
         )
-        result = await session.execute(stmt)
-        cart_item = result.scalar_one_or_none()
         if cart_item is None:
             raise ValueError("Cart item not found")
         return cart_item
@@ -395,8 +389,8 @@ class CartService:
             savings=savings,
         )
 
-    @staticmethod
     async def _find_existing_item(
+        self,
         session: AsyncSession,
         user_id: UUID | None,
         session_id: UUID | None,
@@ -408,36 +402,17 @@ class CartService:
         Uses the correct unique index depending on scope (user or session)
         and whether a variant is specified.
         """
-        scope = CartService._scope_filter(user_id, session_id)
-        if variant_id is not None:
-            stmt = select(CartItem).where(
-                scope,
-                CartItem.variant_id == variant_id,
-            )
-        else:
-            stmt = select(CartItem).where(
-                scope,
-                CartItem.product_id == product_id,
-                CartItem.variant_id.is_(None),
-            )
-        result = await session.execute(stmt)
-        return result.scalar_one_or_none()
+        return await self._cart_repo.find_existing(
+            session,
+            user_id=user_id,
+            session_id=session_id,
+            product_id=product_id,
+            variant_id=variant_id,
+        )
 
-    @staticmethod
     async def _get_default_variant(
-        session: AsyncSession, product_id: UUID
+        self, session: AsyncSession, product_id: UUID
     ) -> ProductVariant | None:
         """Return the first non-deleted variant for a product (or None)."""
-        from sqlalchemy import select as _select
-
-        stmt = (
-            _select(ProductVariant)
-            .where(
-                ProductVariant.product_id == product_id,
-                ProductVariant.deleted_at.is_(None),
-            )
-            .order_by(ProductVariant.created_at)
-            .limit(1)
-        )
-        result = await session.execute(stmt)
-        return result.scalar_one_or_none()
+        variants = await self._variant_repo.get_by_product(session, product_id)
+        return variants[0] if variants else None

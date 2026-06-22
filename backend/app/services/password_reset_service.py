@@ -18,6 +18,7 @@ from app.core.event_bus import event_bus
 from app.core.events import PasswordResetEvent
 from app.models.password_reset import PasswordResetToken
 from app.models.user import User
+from app.repositories.password_reset_token_repository import PasswordResetTokenRepository
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
 from app.services.token_service import TokenService
@@ -40,6 +41,7 @@ class PasswordResetService:
         user_repo: UserRepository | None = None,
         token_service: TokenService | None = None,
         auth_service: AuthService | None = None,
+        pwd_reset_repo: PasswordResetTokenRepository | None = None,
     ) -> None:
         self._settings = app_settings
         self._user_repo = user_repo or UserRepository()
@@ -49,6 +51,7 @@ class PasswordResetService:
             user_repo=self._user_repo,
             token_service=self._token_service,
         )
+        self._pwd_reset_repo = pwd_reset_repo or PasswordResetTokenRepository()
 
     # ------------------------------------------------------------------
     # Public API
@@ -76,8 +79,7 @@ class PasswordResetService:
             token_hash=token_hash,
             expires_at=expiry,
         )
-        session.add(prt)
-        await session.flush()
+        await self._pwd_reset_repo.save_token(session, prt)
 
         reset_link = (
             f"http://localhost:4200/reset-password?token={reset_token}"
@@ -95,15 +97,10 @@ class PasswordResetService:
         does not match any stored hash.
         """
         # Find all valid (unused, not expired) tokens and try to match
-        result = await session.execute(
-            select(PasswordResetToken).where(
-                PasswordResetToken.used.is_(False),
-                PasswordResetToken.expires_at > datetime.now(timezone.utc),
-            )
-        )
+        tokens = await self._pwd_reset_repo.find_all_valid(session)
         raw_bytes = token.encode("utf-8")[:72]
         matched: PasswordResetToken | None = None
-        for prt in result.scalars().all():
+        for prt in tokens:
             if bcrypt.checkpw(raw_bytes, prt.token_hash.encode()):
                 matched = prt
                 break

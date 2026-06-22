@@ -16,6 +16,7 @@ from sqlalchemy.orm import selectinload
 from app.config import settings
 from app.models.cart import CartItem
 from app.models.order import Order, OrderStatus, PaymentStatus
+from app.repositories.order_repository import OrderRepository
 
 from app.exceptions import StripeError, StockInsufficientError
 
@@ -29,8 +30,12 @@ class StripeWebhookError(ValueError):
 class StripeService:
     """Integrates Stripe hosted Checkout with order lifecycle."""
 
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        order_repo: OrderRepository | None = None,
+    ) -> None:
         stripe.api_key = settings.STRIPE_SECRET_KEY
+        self._order_repo = order_repo or OrderRepository()
 
     # ------------------------------------------------------------------
     # Checkout session creation
@@ -344,22 +349,20 @@ class StripeService:
     # Helpers
     # ------------------------------------------------------------------
 
-    @staticmethod
     async def _get_order_by_stripe_id(
-        session: AsyncSession, stripe_session_id: str
+        self, session: AsyncSession, stripe_session_id: str
     ) -> Order | None:
         """Load an order by its Stripe session ID, locking the row.
 
         ``FOR UPDATE`` prevents TOCTOU races when Stripe delivers the
         same ``checkout.session.completed`` event concurrently.
         """
-        result = await session.execute(
-            select(Order)
-            .where(Order.stripe_session_id == stripe_session_id)
-            .options(selectinload(Order.items))
-            .with_for_update()
+        return await self._order_repo.find_one(
+            session,
+            Order.stripe_session_id == stripe_session_id,
+            options=[selectinload(Order.items)],
+            order_by=None,
         )
-        return result.unique().scalar_one_or_none()
 
     @staticmethod
     def _build_line_items(cart_items: list[CartItem]) -> list[dict]:

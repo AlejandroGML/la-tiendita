@@ -11,6 +11,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.order import Order
 from app.models.user import User, UserRole
+from app.repositories.order_repository import OrderRepository
+from app.repositories.user_repository import UserRepository
 from app.schemas.admin import UserAdminItem
 
 
@@ -20,6 +22,14 @@ class SelfDemotionError(ValueError):
 
 class AdminUserService:
     """User management for admin — listing and role assignment."""
+
+    def __init__(
+        self,
+        user_repo: UserRepository | None = None,
+        order_repo: OrderRepository | None = None,
+    ) -> None:
+        self._user_repo = user_repo or UserRepository()
+        self._order_repo = order_repo or OrderRepository()
 
     async def list_users(
         self,
@@ -32,36 +42,9 @@ class AdminUserService:
         Uses a scalar subquery for ``orders_count`` to avoid N+1 fetches.
         Returns ``(items, total)`` so the controller can build pagination.
         """
-        # Total count
-        total = await session.scalar(
-            select(func.count()).select_from(User)
-        ) or 0
-
-        # Subquery: COUNT of orders per user
-        order_count_sq = (
-            select(
-                Order.user_id,
-                func.count(Order.id).label("orders_count"),
-            )
-            .group_by(Order.user_id)
-            .subquery()
+        rows, total = await self._user_repo.get_all_with_order_counts(
+            session, page=page, per_page=per_page
         )
-
-        # Main query with outerjoin to the subquery
-        offset = (page - 1) * per_page
-        stmt = (
-            select(
-                User,
-                func.coalesce(order_count_sq.c.orders_count, 0).label("orders_count"),
-            )
-            .outerjoin(order_count_sq, User.id == order_count_sq.c.user_id)
-            .order_by(User.created_at.desc())
-            .offset(offset)
-            .limit(per_page)
-        )
-
-        result = await session.execute(stmt)
-        rows = result.all()
 
         items = [
             UserAdminItem(
@@ -128,9 +111,7 @@ class AdminUserService:
         await session.flush()
 
         # Build response with orders_count (subquery for the single user)
-        orders_count = await session.scalar(
-            select(func.count(Order.id)).where(Order.user_id == user_id)
-        ) or 0
+        orders_count = await self._order_repo.count_by_user(session, user_id)
 
         return UserAdminItem(
             id=user.id,

@@ -19,7 +19,9 @@ from app.models.cart import CartItem
 from app.models.order import Order, OrderItem, OrderStatus
 from app.models.product import Product, ProductTranslation
 from app.models.product_variant import ProductVariant
+from app.repositories.cart_repository import CartRepository
 from app.repositories.order_repository import OrderRepository
+from app.repositories.variant_repository import VariantRepository
 from app.core.event_bus import event_bus
 from app.core.events import OrderConfirmationEvent
 from app.schemas.order import (
@@ -44,8 +46,15 @@ class OrderService:
     provided, a default instance is created (backward-compatible).
     """
 
-    def __init__(self, order_repo: OrderRepository | None = None) -> None:
+    def __init__(
+        self,
+        order_repo: OrderRepository | None = None,
+        cart_repo: CartRepository | None = None,
+        variant_repo: VariantRepository | None = None,
+    ) -> None:
         self._repo = order_repo or OrderRepository()
+        self._cart_repo = cart_repo or CartRepository()
+        self._variant_repo = variant_repo or VariantRepository()
 
     # ------------------------------------------------------------------
     # Public API
@@ -133,14 +142,9 @@ class OrderService:
             await session.flush()
 
             # 6. Clear cart by scope
-            if user_id is not None:
-                await session.execute(
-                    delete(CartItem).where(CartItem.user_id == user_id)
-                )
-            else:
-                await session.execute(
-                    delete(CartItem).where(CartItem.session_id == session_id)
-                )
+            await self._cart_repo.clear_scope(
+                session, user_id=user_id, session_id=session_id
+            )
 
             # 7. Create Stripe checkout session (guest-aware)
             from app.services.stripe_service import StripeService
@@ -237,13 +241,8 @@ class OrderService:
                 )
                 continue
 
-            result = await session.execute(
-                select(ProductVariant.stock).where(
-                    ProductVariant.id == variant_id,
-                    ProductVariant.deleted_at.is_(None),
-                )
-            )
-            stock_row = result.scalar_one_or_none()
+            variant = await self._variant_repo.get_by_id(session, variant_id)
+            stock_row = variant.stock if variant and variant.deleted_at is None else None
             if stock_row is None or stock_row < item.quantity:
                 raise StockInsufficientError(
                     f"Insufficient stock for variant {variant_id} "
@@ -316,23 +315,9 @@ class OrderService:
         Scopes to either ``user_id`` (authenticated) or ``session_id`` (guest).
         Exactly one scope identifier must be provided.
         """
-        if user_id is not None:
-            scope = CartItem.user_id == user_id
-        else:
-            scope = CartItem.session_id == session_id
-
-        stmt = (
-            select(CartItem)
-            .where(scope)
-            .options(
-                selectinload(CartItem.product).selectinload(
-                    Product.translations
-                ),
-                selectinload(CartItem.variant),
-            )
+        return await self._cart_repo.get_items(
+            session, user_id=user_id, session_id=session_id
         )
-        result = await session.execute(stmt)
-        return list(result.scalars().unique().all())
 
     async def _build_order_items(
         self, session: AsyncSession, cart_items: list[CartItem]

@@ -18,6 +18,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, settings
 from app.models.refresh_token import RefreshToken
+from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.user_repository import UserRepository
 from app.schemas.auth import RefreshRequest, TokenResponse
 from app.schemas.user import UserResponse
@@ -38,9 +39,11 @@ class TokenService:
         self,
         app_settings: Settings = settings,
         user_repo: UserRepository | None = None,
+        refresh_token_repo: RefreshTokenRepository | None = None,
     ) -> None:
         self._settings = app_settings
         self._user_repo = user_repo or UserRepository()
+        self._refresh_token_repo = refresh_token_repo or RefreshTokenRepository()
 
     # ------------------------------------------------------------------
     # Public API — JWT access tokens
@@ -121,8 +124,7 @@ class TokenService:
             token_hash=token_hash,
             expires_at=expires_at,
         )
-        session.add(refresh_record)
-        await session.flush()
+        await self._refresh_token_repo.save_token(session, refresh_record)
 
         return raw
 
@@ -151,15 +153,10 @@ class TokenService:
             raise ValueError("invalid refresh token")
 
         # Find matching stored token by bcrypt-checking all user tokens
-        result = await session.execute(
-            select(RefreshToken).where(
-                RefreshToken.user_id == user_id,
-                RefreshToken.expires_at > datetime.now(timezone.utc),
-            ).with_for_update()
-        )
+        tokens = await self._refresh_token_repo.find_by_user(session, user_id, lock=True)
         stored = None
         raw_bytes = raw.encode("utf-8")[:72]
-        for rt in result.scalars().all():
+        for rt in tokens:
             if bcrypt.checkpw(raw_bytes, rt.token_hash.encode()):
                 stored = rt
                 break
@@ -171,8 +168,7 @@ class TokenService:
             raise ValueError("invalid or expired refresh token")
 
         # Rotate: delete old token, issue new pair
-        await session.delete(stored)
-        await session.flush()
+        await self._refresh_token_repo.delete_token(session, stored)
 
         access_token = self.create_access_token(str(user.id), user.role.value)
         refresh_token = await self.create_refresh_token(session, str(user.id))
@@ -191,17 +187,11 @@ class TokenService:
             # Token format invalid — nothing to revoke
             return
 
-        result = await session.execute(
-            select(RefreshToken).where(
-                RefreshToken.user_id == user_id,
-                RefreshToken.expires_at > datetime.now(timezone.utc),
-            )
-        )
+        tokens = await self._refresh_token_repo.find_by_user(session, user_id)
         raw_bytes = refresh_token.encode("utf-8")[:72]
-        for rt in result.scalars().all():
+        for rt in tokens:
             if bcrypt.checkpw(raw_bytes, rt.token_hash.encode()):
-                await session.delete(rt)
-                await session.flush()
+                await self._refresh_token_repo.delete_token(session, rt)
                 return
 
     async def revoke_all_user_tokens(
@@ -238,9 +228,4 @@ class TokenService:
         self, session: AsyncSession, user_id: UUID
     ) -> None:
         """Delete every refresh token for a user (breach mitigation)."""
-        result = await session.execute(
-            select(RefreshToken).where(RefreshToken.user_id == user_id)
-        )
-        for token in result.scalars().all():
-            await session.delete(token)
-        await session.flush()
+        await self._refresh_token_repo.delete_user_tokens(session, user_id)

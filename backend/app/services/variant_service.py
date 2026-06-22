@@ -16,6 +16,8 @@ from app.models.product import Product, ProductSize
 from app.models.product_variant import ProductVariant
 from app.models.cart import CartItem
 from app.repositories.product_repository import ProductRepository
+from app.repositories.variant_repository import VariantRepository
+from app.repositories.cart_repository import CartRepository
 from app.schemas.product_variant import (
     ProductVariantCreate,
     ProductVariantUpdate,
@@ -32,8 +34,15 @@ class VariantService:
     (backward-compatible for direct instantiation in tests).
     """
 
-    def __init__(self, product_repo: ProductRepository | None = None) -> None:
+    def __init__(
+        self,
+        product_repo: ProductRepository | None = None,
+        variant_repo: VariantRepository | None = None,
+        cart_repo: CartRepository | None = None,
+    ) -> None:
         self._repo = product_repo or ProductRepository()
+        self._variant_repo = variant_repo or VariantRepository()
+        self._cart_repo = cart_repo or CartRepository()
 
     # ------------------------------------------------------------------
     # Variant CRUD
@@ -43,16 +52,7 @@ class VariantService:
         self, session: AsyncSession, product_id: UUID
     ) -> list[ProductVariant]:
         """Return all non-deleted variants for a product."""
-        stmt = (
-            select(ProductVariant)
-            .where(
-                ProductVariant.product_id == product_id,
-                ProductVariant.deleted_at.is_(None),
-            )
-            .order_by(ProductVariant.created_at)
-        )
-        result = await session.execute(stmt)
-        return list(result.scalars().all())
+        return await self._variant_repo.get_by_product(session, product_id)
 
     async def create_variant(
         self,
@@ -98,13 +98,8 @@ class VariantService:
         data: ProductVariantUpdate,
     ) -> ProductVariant | None:
         """Partially update an existing variant. Returns None if not found."""
-        stmt = select(ProductVariant).where(
-            ProductVariant.id == variant_id,
-            ProductVariant.deleted_at.is_(None),
-        )
-        result = await session.execute(stmt)
-        variant = result.scalar_one_or_none()
-        if variant is None:
+        variant = await self._variant_repo.get_by_id(session, variant_id)
+        if variant is None or variant.deleted_at is not None:
             return None
 
         if data.size is not None:
@@ -135,13 +130,8 @@ class VariantService:
         Does NOT allow deletion if the variant is referenced by active
         cart items or order items.
         """
-        stmt = select(ProductVariant).where(
-            ProductVariant.id == variant_id,
-            ProductVariant.deleted_at.is_(None),
-        )
-        result = await session.execute(stmt)
-        variant = result.scalar_one_or_none()
-        if variant is None:
+        variant = await self._variant_repo.get_by_id(session, variant_id)
+        if variant is None or variant.deleted_at is not None:
             return False
 
         if product_id is not None and variant.product_id != product_id:
@@ -150,11 +140,7 @@ class VariantService:
             )
 
         # Check for active references in cart_items
-        cart_count = await session.scalar(
-            select(sqlfunc.count())
-            .select_from(CartItem)
-            .where(CartItem.variant_id == variant_id)
-        )
+        cart_count = await self._cart_repo.count_by_variant(session, variant_id)
         if cart_count and cart_count > 0:
             raise ValueError(
                 f"Variant is referenced by {cart_count} active cart item(s). "
@@ -199,9 +185,7 @@ class VariantService:
 
         for seq in range(1, 100):
             sku = f"{slug_prefix}-{size_part}-{color_part}-{seq:02d}"
-            exists = await session.scalar(
-                select(ProductVariant.id).where(ProductVariant.sku == sku)
-            )
+            exists = await self._variant_repo.get_by_sku(session, sku)
             if exists is None:
                 return sku
 

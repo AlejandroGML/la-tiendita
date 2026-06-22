@@ -14,6 +14,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.promotion import Promotion, PromotionTranslation
+from app.repositories.promotion_repository import PromotionRepository
 from app.schemas.promotion import (
     CreatePromotionRequest,
     PromotionResponse,
@@ -26,6 +27,12 @@ logger = logging.getLogger(__name__)
 
 class PromotionService:
     """Encapsulates promotion business logic (admin + public)."""
+
+    def __init__(
+        self,
+        promotion_repo: PromotionRepository | None = None,
+    ) -> None:
+        self._promotion_repo = promotion_repo or PromotionRepository()
 
     # ------------------------------------------------------------------
     # Public — active promotions
@@ -44,23 +51,7 @@ class PromotionService:
 
         Results include translations loaded eagerly.
         """
-        now = datetime.now(timezone.utc)
-
-        stmt = (
-            select(Promotion)
-            .where(
-                Promotion.is_active.is_(True),
-                (Promotion.start_date.is_(None)) | (Promotion.start_date <= now),
-                (Promotion.end_date.is_(None)) | (Promotion.end_date >= now),
-                (Promotion.max_uses.is_(None))
-                | (Promotion.current_uses < Promotion.max_uses),
-            )
-            .options(selectinload(Promotion.translations))
-            .order_by(Promotion.created_at.desc())
-        )
-        result = await session.execute(stmt)
-        promotions = result.unique().scalars().all()
-
+        promotions = await self._promotion_repo.get_active(session)
         return [self._to_response(p) for p in promotions]
 
     async def get_active_promotions_for_products(
@@ -81,18 +72,7 @@ class PromotionService:
             return {}
 
         now = datetime.now(timezone.utc)
-
-        stmt = select(Promotion).where(
-            Promotion.is_active.is_(True),
-            (Promotion.start_date.is_(None)) | (Promotion.start_date <= now),
-            (Promotion.end_date.is_(None)) | (Promotion.end_date >= now),
-            (Promotion.max_uses.is_(None))
-            | (Promotion.current_uses < Promotion.max_uses),
-            (Promotion.product_id.in_(product_ids))
-            | (Promotion.product_id.is_(None)),
-        )
-        result = await session.execute(stmt)
-        candidates = result.scalars().all()
+        candidates = await self._promotion_repo.get_active_for_products(session, product_ids)
 
         if not candidates:
             return {}
@@ -135,20 +115,9 @@ class PromotionService:
 
         Returns ``(items, total)`` so the controller can build pagination.
         """
-        total = await session.scalar(
-            select(func.count()).select_from(Promotion)
-        ) or 0
-
-        offset = (page - 1) * per_page
-        stmt = (
-            select(Promotion)
-            .options(selectinload(Promotion.translations))
-            .order_by(Promotion.created_at.desc())
-            .offset(offset)
-            .limit(per_page)
+        promotions, total = await self._promotion_repo.get_all_paginated(
+            session, page=page, per_page=per_page
         )
-        result = await session.execute(stmt)
-        promotions = result.unique().scalars().all()
 
         return [self._to_response(p) for p in promotions], total
 
@@ -159,13 +128,9 @@ class PromotionService:
 
         Raises ``ValueError`` if not found.
         """
-        stmt = (
-            select(Promotion)
-            .where(Promotion.id == promotion_id)
-            .options(selectinload(Promotion.translations))
+        promotion = await self._promotion_repo.get_by_id(
+            session, promotion_id, options=[selectinload(Promotion.translations)]
         )
-        result = await session.execute(stmt)
-        promotion = result.scalar_one_or_none()
         if promotion is None:
             raise ValueError(f"Promotion {promotion_id} not found")
         return self._to_response(promotion)
@@ -290,7 +255,7 @@ class PromotionService:
         self, session: AsyncSession, promotion_id: UUID
     ) -> Promotion:
         """Fetch a promotion by ID or raise ``ValueError``."""
-        promotion = await session.get(Promotion, promotion_id)
+        promotion = await self._promotion_repo.get_by_id(session, promotion_id)
         if promotion is None:
             raise ValueError(f"Promotion {promotion_id} not found")
         return promotion

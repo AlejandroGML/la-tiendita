@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.order import Order
 from app.models.user import User
+from app.repositories.user_repository import UserRepository
 from app.utils.email import _load_i18n_messages, render_template, send_email
 
 logger = logging.getLogger(__name__)
@@ -28,6 +29,12 @@ class EmailService:
     corresponding Jinja2 template, and dispatches via ``asyncio.to_thread``
     so that the blocking SMTP call never stalls the event loop.
     """
+
+    def __init__(
+        self,
+        user_repo: UserRepository | None = None,
+    ) -> None:
+        self._user_repo = user_repo or UserRepository()
 
     # ------------------------------------------------------------------
     # send_welcome
@@ -210,10 +217,7 @@ class EmailService:
         self, session: AsyncSession, user_id: UUID
     ) -> User | None:
         """Load a user by ID, logging a warning if not found."""
-        result = await session.execute(
-            select(User).where(User.id == user_id)
-        )
-        user = result.scalar_one_or_none()
+        user = await self._user_repo.get_by_id(session, user_id)
         if user is None:
             logger.warning(
                 "Cannot send email: user %s not found", user_id
