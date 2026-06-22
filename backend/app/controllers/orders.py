@@ -50,13 +50,6 @@ async def provide_order_repository() -> OrderRepository:
     return OrderRepository()
 
 
-async def provide_email_service() -> "EmailService":
-    """Construct a stateless EmailService."""
-    from app.services.email_service import EmailService
-
-    return EmailService()
-
-
 async def provide_session() -> AsyncSession:
     async with _async_session_fn() as session:
         try:

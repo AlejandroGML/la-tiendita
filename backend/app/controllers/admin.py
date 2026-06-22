@@ -68,13 +68,6 @@ async def provide_admin_order_service() -> AdminOrderService:
     return AdminOrderService()
 
 
-async def provide_email_service() -> "EmailService":
-    """Construct a stateless EmailService."""
-    from app.services.email_service import EmailService
-
-    return EmailService()
-
-
 async def provide_session() -> AsyncSession:
     """Yield a new async DB session per request, committing on success."""
     async with _async_session_fn() as session:

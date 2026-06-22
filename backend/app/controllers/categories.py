@@ -213,13 +213,8 @@ class AdminCategoryController(Controller):
     ) -> None:
         """Hard-delete a category. Fails with 409 if products are linked."""
         # Check for associated products
-        product_count = await session.execute(
-            select(func.count(Product.id)).where(
-                Product.category_id == category_id,
-                Product.deleted_at.is_(None),
-            )
-        )
-        if product_count.scalar_one() > 0:
+        product_count = await repo.count_products(session, category_id)
+        if product_count > 0:
             raise HTTPException(
                 status_code=409,
                 detail="category has associated products",
