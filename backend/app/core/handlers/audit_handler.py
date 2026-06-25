@@ -43,3 +43,7 @@ class AuditHandler:
         """Persist an AuditLog row in a fresh DB session."""
         async with self._session_factory() as session:
             await self._audit_service.create_audit_log(session, event)
+            try:
+                await session.commit()
+            except Exception:
+                logger.exception("Failed to commit audit log entry")
