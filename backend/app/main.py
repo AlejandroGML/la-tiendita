@@ -1,5 +1,7 @@
 """La Tiendita API — Litestar application entrypoint."""
 
+import logging
+
 from litestar import Litestar, get
 from litestar.config.cors import CORSConfig
 from litestar.openapi import OpenAPIConfig
@@ -23,6 +25,8 @@ from app.guards.jwt_guard import jwt_auth
 from app.middleware.i18n import I18nMiddleware
 from app.middleware.optional_user import OptionalUserMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
+
+logger = logging.getLogger(__name__)
 
 cors_config = CORSConfig(
     allow_origins=settings.CORS_ORIGINS,
@@ -58,19 +62,36 @@ uploads_router = create_static_files_router(
 
 
 async def on_startup() -> None:
-    """Initialise the event bus and subscribe email handlers."""
-    from app.core.event_bus import event_bus
+    """Initialise the event bus, subscribe handlers, and probe the cache."""
+    from app.core.cache import cache_service
     from app.core.email_handler import EmailHandler
+    from app.core.event_bus import event_bus
+    from app.core.handlers.cache_invalidation import CacheInvalidationHandler
 
     EmailHandler(event_bus=event_bus, session_factory=async_session)
 
+    # Wire cache invalidation for product/category/promotion mutations.
+    # A subscription with no subscribers is harmless, but registering here
+    # keeps the handler bound to the same bus instance the app emits on.
+    CacheInvalidationHandler(event_bus=event_bus, cache=cache_service)
+
+    # Best-effort connectivity probe: degraded cache is acceptable on startup
+    # (reads fall through to the DB), so we only log a warning here.
+    reachable = await cache_service.ping()
+    if reachable:
+        logger.info("Redis cache reachable at startup")
+    else:
+        logger.warning("Redis cache unreachable at startup — running in degraded mode")
+
 
 async def on_shutdown() -> None:
-    """Clean shutdown of the event bus."""
+    """Clean shutdown of the event bus and cache pool."""
+    from app.core.cache import cache_service
     from app.core.event_bus import event_bus
 
     event_bus._subscribers.clear()
     event_bus._any_subscribers.clear()
+    await cache_service.aclose()
 
 
 # ---------------------------------------------------------------------------

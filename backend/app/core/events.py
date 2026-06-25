@@ -57,3 +57,51 @@ class OrderShippedEvent:
 
     user_id: UUID
     order_id: UUID
+
+
+@dataclass(frozen=True)
+class ProductChangedEvent:
+    """Emitted after a product is created, updated, or soft-deleted.
+
+    Drives cache invalidation of product listing/detail keys. ``action`` uses
+    past tense (``created``/``updated``/``deleted``).
+
+    Attributes:
+        product_id: The product's UUID.
+        action:     Past-tense mutation verb.
+        slug:       The product slug, used to target its detail cache key.
+                    ``None`` for creates (no detail key exists yet).
+    """
+
+    product_id: UUID
+    action: str
+    slug: str | None = None
+
+
+@dataclass(frozen=True)
+class CategoryChangedEvent:
+    """Emitted after a category create/update/delete to invalidate its cache.
+
+    Attributes:
+        category_id: The category's integer ID.
+        action:      Past-tense mutation verb.
+    """
+
+    category_id: int
+    action: str
+
+
+@dataclass(frozen=True)
+class PromotionChangedEvent:
+    """Emitted after a promotion mutation.
+
+    Because promotions are baked into cached product pricing, this event
+    triggers cross-entity invalidation (promotions + all product keys).
+
+    Attributes:
+        promotion_id: The promotion's UUID.
+        action:       Past-tense mutation verb.
+    """
+
+    promotion_id: UUID
+    action: str
