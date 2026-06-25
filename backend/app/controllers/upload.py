@@ -31,7 +31,7 @@ EXTENSION_MAP = {
 class UploadController(Controller):
     """Admin-only image upload — JWT + admin role required."""
 
-    path = "/api"
+    path = "/api/v1"
     tags = ["upload"]
     guards = [admin_guard]
 
@@ -59,6 +59,18 @@ class UploadController(Controller):
         # --- Read file content ----------------------------------------------
         file_bytes = await data.read()
 
+        # --- Validate magic bytes match declared type -----------------------
+        magic_signatures = {
+            "image/jpeg": (b"\xff\xd8\xff",),
+            "image/png": (b"\x89PNG\r\n\x1a\n",),
+            "image/webp": (b"RIFF",),
+        }
+        expected_sigs = magic_signatures.get(content_type, ())
+        if not any(file_bytes.startswith(sig) for sig in expected_sigs):
+            raise ValidationException(
+                detail="file content does not match declared image type"
+            )
+
         # --- Validate size --------------------------------------------------
         if len(file_bytes) > settings.MAX_IMAGE_SIZE:
             raise ValidationException(
@@ -77,7 +89,11 @@ class UploadController(Controller):
 
         # --- Enqueue background job for resize + thumbnail ------------------
         redis = await get_arq_redis()
-        await redis.enqueue_job("process_image", file_path)
+        try:
+            await redis.enqueue_job("process_image", file_path)
+        except Exception:
+            os.remove(file_path)
+            raise
 
         # Predict thumbnail path — identical to _generate_thumbnail_sync logic.
         thumb_path = str(

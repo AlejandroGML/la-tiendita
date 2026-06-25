@@ -142,9 +142,13 @@ async def on_startup() -> None:
 
 
 async def on_shutdown() -> None:
-    """Clean shutdown of the event bus and cache pool."""
+    """Clean shutdown of the event bus, cache pool, and ARQ worker pool."""
+    from app.core.arq import _arq_pool
     from app.core.cache import cache_service
     from app.core.event_bus import event_bus
+
+    if _arq_pool is not None:
+        await _arq_pool.aclose()
 
     event_bus._subscribers.clear()
     event_bus._any_subscribers.clear()

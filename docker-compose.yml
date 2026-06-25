@@ -39,6 +39,7 @@ services:
       - ./backend/app:/app/app
       - ./backend/alembic.ini:/app/alembic.ini
       - ./backend/migrations:/app/migrations
+      - ./uploads:/app/uploads
     environment:
       DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/tiendita_dev
       # Inside the compose network the Redis service is reachable by name.
@@ -74,6 +75,8 @@ services:
       - ./uploads:/app/uploads
     environment:
       REDIS_URL: redis://redis:6379/0
+    env_file:
+      - .env
     command: arq app.worker.jobs.WorkerSettings
     depends_on:
       redis:

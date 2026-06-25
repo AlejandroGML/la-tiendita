@@ -72,20 +72,27 @@ def upgrade() -> None:
     )
 
     # 5. GIN index built CONCURRENTLY — zero-downtime on write-light tables.
-    op.execute(
+    # CONCURRENTLY requires running outside a transaction block.
+    connection = op.get_bind()
+    connection.execute(sa.text("COMMIT"))
+    connection.execute(
         sa.text(
             """CREATE INDEX CONCURRENTLY IF NOT EXISTS idx_pt_search_vector
                ON product_translations USING GIN(search_vector)"""
         )
     )
+    connection.execute(sa.text("BEGIN"))
 
 
 def downgrade() -> None:
     # Reverse order: index, trigger, function, column.
 
-    op.execute(
+    connection = op.get_bind()
+    connection.execute(sa.text("COMMIT"))
+    connection.execute(
         sa.text("DROP INDEX CONCURRENTLY IF EXISTS idx_pt_search_vector")
     )
+    connection.execute(sa.text("BEGIN"))
 
     op.execute(
         sa.text(
