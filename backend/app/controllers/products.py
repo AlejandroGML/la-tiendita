@@ -26,6 +26,7 @@ from app.schemas.product import (
     UpdateProductRequest,
 )
 from app.services.product_service import ProductService
+from app.serializers.product import build_product_response
 
 
 # ---------------------------------------------------------------------------
@@ -49,103 +50,6 @@ async def provide_session() -> AsyncSession:
         except Exception:
             await session.rollback()
             raise
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _build_product_response(
-    product, *, lang: str | None = None, promotion_info: dict | None = None
-) -> dict:
-    """Convert a Product ORM instance to a dict, optionally filtering
-    translations to *lang* with ``en`` fallback.
-
-    When *promotion_info* is provided (keyed by ``product.id``),
-    ``sale_price``, ``discount_label``, and ``promotion`` summary fields
-    are attached to the response.
-    """
-    translations = [
-        {
-            "language_code": t.language_code,
-            "name": t.name,
-            "description": t.description,
-        }
-        for t in product.translations
-    ]
-
-    if lang is not None:
-        # Find translation for requested lang, fallback to en, then first
-        matched = next(
-            (t for t in translations if t["language_code"] == lang), None
-        )
-        if matched is None:
-            matched = next(
-                (t for t in translations if t["language_code"] == "en"), None
-            )
-        if matched is None and translations:
-            matched = translations[0]
-        translations = [matched] if matched else []
-
-    # Serialize variants (non-deleted only)
-    variants = [
-        {
-            "id": str(v.id),
-            "product_id": str(v.product_id),
-            "size": v.size.value if v.size else None,
-            "color": v.color,
-            "color_hex": v.color_hex,
-            "stock": v.stock,
-            "sku": v.sku,
-        }
-        for v in getattr(product, "variants", []) or []
-        if v.deleted_at is None
-    ]
-
-    # Sale pricing from resolved promotions
-    _sale_price = None
-    _discount_label = None
-    _promotion_summary = None
-
-    if promotion_info and product.id in promotion_info:
-        info = promotion_info[product.id]
-        promo = info["promotion"]
-        _sale_price = str(info["sale_price"])
-        _discount_label = info.get("discount_label") or None
-        _promotion_summary = {
-            "code": promo.code,
-            "discount_percent": promo.discount_percent,
-            "end_date": promo.end_date.isoformat() if promo.end_date else None,
-        }
-
-    return {
-        "id": str(product.id),
-        "slug": product.slug,
-        "price": str(product.price),
-        "category_id": product.category_id,
-        "brand": product.brand,
-        "condition": product.condition.value if product.condition else None,
-        "condition_rating": product.condition_rating,
-        "condition_details": product.condition_details,
-        "target_gender": product.target_gender,
-        "material": product.material,
-        "colors": product.colors,
-        "trend": product.trend,
-        "pattern": product.pattern,
-        "season": product.season,
-        "cut": product.cut,
-        "usage": product.usage,
-        "source_dataset": product.source_dataset,
-        "image_urls": product.image_urls,
-        "translations": translations,
-        "variants": variants,
-        "variant_count": len(variants),
-        "created_at": product.created_at.isoformat(),
-        "sale_price": _sale_price,
-        "discount_label": _discount_label,
-        "promotion": _promotion_summary,
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -233,7 +137,7 @@ class ProductController(Controller):
         total_pages = max(1, math.ceil(total / per_page))
 
         data = [
-            _build_product_response(p, lang=filters.lang, promotion_info=promotions)
+            build_product_response(p, lang=filters.lang, promotion_info=promotions)
             for p in items
         ]
 
@@ -295,7 +199,7 @@ class ProductController(Controller):
             raise NotFoundException(detail="product not found")
 
         promotions = await service._apply_promotions(session, [product])
-        return _build_product_response(product, promotion_info=promotions)
+        return build_product_response(product, promotion_info=promotions)
 
 
 # ---------------------------------------------------------------------------
@@ -327,7 +231,7 @@ class AdminProductController(Controller):
             session, page=page, per_page=per_page
         )
         return {
-            "data": [_build_product_response(item) for item in items],
+            "data": [build_product_response(item) for item in items],
             "pagination": {
                 "page": page,
                 "per_page": per_page,
@@ -352,7 +256,7 @@ class AdminProductController(Controller):
         except ValueError as exc:
             raise ValidationException(detail=str(exc)) from exc
 
-        return _build_product_response(product)
+        return build_product_response(product)
 
     @put("/{product_id:uuid}", status_code=200)
     async def update_product(
@@ -366,7 +270,7 @@ class AdminProductController(Controller):
         product = await service.update_product(session, product_id, data)
         if product is None:
             raise NotFoundException(detail="product not found")
-        return _build_product_response(product)
+        return build_product_response(product)
 
     @delete("/{product_id:uuid}", status_code=204)
     async def delete_product(

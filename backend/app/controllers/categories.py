@@ -24,6 +24,10 @@ from app.models.category import Category, CategoryTranslation
 from app.models.product import Product
 from app.repositories.category_repository import CategoryRepository
 from app.schemas.category import CreateCategoryRequest
+from app.serializers.category import (
+    build_category_response,
+    build_category_list_item,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -43,47 +47,6 @@ async def provide_session() -> AsyncSession:
         except Exception:
             await session.rollback()
             raise
-
-
-# ---------------------------------------------------------------------------
-# Helpers
-# ---------------------------------------------------------------------------
-
-
-def _build_category_response(category: Category) -> dict:
-    """Convert a Category ORM instance to a full response dict with all
-    translations."""
-    return {
-        "id": category.id,
-        "slug": category.slug,
-        "image_url": category.image_url,
-        "translations": [
-            {
-                "language_code": t.language_code,
-                "name": t.name,
-            }
-            for t in category.translations
-        ],
-    }
-
-
-def _build_category_list_item(category: Category, lang: str) -> dict:
-    """Convert a Category to a list-item dict with translated name.
-
-    Falls back to ``en``, then the first available translation if the
-    requested language is missing."""
-    translations = {
-        t.language_code: t.name for t in category.translations
-    }
-    name = translations.get(lang) or translations.get("en")
-    if name is None and translations:
-        name = next(iter(translations.values()))
-
-    return {
-        "id": category.id,
-        "slug": category.slug,
-        "name": name or "",
-    }
 
 
 # ---------------------------------------------------------------------------
@@ -110,7 +73,7 @@ class CategoryController(Controller):
     ) -> list[dict]:
         """List all categories with translated name per ``?lang=``."""
         categories = await repo.list_all_with_translations(session)
-        return [_build_category_list_item(c, lang) for c in categories]
+        return [build_category_list_item(c, lang) for c in categories]
 
 
 # ---------------------------------------------------------------------------
@@ -167,7 +130,7 @@ class AdminCategoryController(Controller):
         )
         if result is None:
             raise HTTPException(status_code=500, detail="category not found after creation")
-        return _build_category_response(result)
+        return build_category_response(result)
 
     @put("/{category_id:int}", status_code=200)
     async def update_category(
@@ -202,7 +165,7 @@ class AdminCategoryController(Controller):
                 session.add(ct)
 
         await session.flush()
-        return _build_category_response(category)
+        return build_category_response(category)
 
     @delete("/{category_id:int}", status_code=204)
     async def delete_category(
