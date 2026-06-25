@@ -11,9 +11,8 @@ import re
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import ColumnElement, delete, select, update
+from sqlalchemy import ColumnElement
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
 
 from app.models.cart import CartItem
 from app.models.product import Product, ProductTranslation
@@ -224,8 +223,7 @@ class CartService:
         )
 
         if data.quantity == 0:
-            await session.delete(cart_item)
-            await session.flush()
+            await self._cart_repo.remove_item(session, item_id)
         else:
             # Validate variant stock if applicable
             if cart_item.variant_id is not None:
@@ -253,8 +251,7 @@ class CartService:
         cart_item = await self._get_own_item(
             session, user_id, session_id, item_id
         )
-        await session.delete(cart_item)
-        await session.flush()
+        await self._cart_repo.remove_item(session, item_id)
 
         return await self.get_cart(session, user_id, session_id)
 

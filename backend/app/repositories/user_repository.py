@@ -5,6 +5,8 @@ into a dedicated data-access layer.  The service retains password hashing,
 token creation, TOTP verification — all authentication business logic.
 """
 
+from uuid import UUID
+
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User, UserRole
@@ -94,3 +96,25 @@ class UserRepository(BaseRepository[User]):
         )
         result = await session.execute(stmt)
         return list(result.all()), total
+
+    # ------------------------------------------------------------------
+    # Mutation methods
+    # ------------------------------------------------------------------
+
+    async def update_password_hash(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+        password_hash: str,
+    ) -> None:
+        """Update a user's password hash.
+
+        Args:
+            session: Active async DB session.
+            user_id: The user's UUID.
+            password_hash: The new bcrypt-hashed password.
+        """
+        user = await self.get_by_id(session, user_id)
+        if user:
+            user.password_hash = password_hash
+            await session.flush()

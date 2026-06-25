@@ -10,14 +10,12 @@ import secrets
 from datetime import datetime, timedelta, timezone
 
 import bcrypt
-from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import Settings, settings
 from app.core.event_bus import event_bus
 from app.core.events import PasswordResetEvent
 from app.models.password_reset import PasswordResetToken
-from app.models.user import User
 from app.repositories.password_reset_token_repository import PasswordResetTokenRepository
 from app.repositories.user_repository import UserRepository
 from app.services.auth_service import AuthService
@@ -108,12 +106,10 @@ class PasswordResetService:
         if matched is None:
             raise ValueError("invalid or expired reset token")
 
-        # Hash the new password and update the user
+        # Hash the new password and update the user via repository
         new_hash = self._auth_service._hash_password(new_password)
-        await session.execute(
-            __import__("sqlalchemy").update(User)
-            .where(User.id == matched.user_id)
-            .values(password_hash=new_hash)
+        await self._user_repo.update_password_hash(
+            session, matched.user_id, new_hash
         )
 
         # Mark token used (one-time use)
