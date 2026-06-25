@@ -75,7 +75,12 @@ def make_jwt_token(sub: str, role: str = "customer") -> str:
 
 @pytest.fixture
 def mock_session():
-    """Async mock for SQLAlchemy AsyncSession."""
+    """Async mock for SQLAlchemy AsyncSession.
+
+    Prefer the real ``session`` fixture for integration tests that
+    require actual database access.  This mock is intended for unit
+    tests that test HTTP handlers or service logic in isolation.
+    """
     from unittest.mock import AsyncMock
 
     return AsyncMock()
