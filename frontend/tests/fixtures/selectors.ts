@@ -84,5 +84,42 @@ export const snackbarText = '.mat-mdc-snack-bar-container .mat-mdc-snack-bar-lab
 export const spinner = 'mat-spinner, .mat-mdc-progress-spinner';
 export const progressBar = 'mat-progress-bar';
 
+// ---- Homepage ----
+export const heroBanner = '.hero';
+export const categoriesSection = '.categories';
+export const featuredSection = '.featured';
+
+// ---- Catalog ----
+export const sortDropdown = '.product-list-page p-select, [data-testid="sort-select"]';
+export const searchBar = 'app-search-bar input';
+
+// ---- Product Detail ----
+export const reviewSection = '#reviews';
+export const relatedProducts = '[data-testid="related-products"]';
+
+// ---- Auth ----
+export const forgotPasswordLink = 'a[routerLink="/recuperar"], a:has-text("Olvidé"), a:has-text("Forgot")';
+export const forgotPasswordForm = '[data-testid="forgot-password-form"]';
+
+// ---- Cart ----
+export const qtyInput = '[data-testid="qty-input"], input[type="number"]';
+export const removeItemButton = '[data-testid="btn-remove"], button:has-text("Quitar"), button:has-text("Remove")';
+
+// ---- Checkout ----
+export const orderConfirmation = '[data-testid="checkout-success-guest"]';
+export const checkoutSuccessPage = '[data-testid="checkout-success-guest"]';
+export const checkoutSuccessOrderId = '[data-testid="checkout-success-order-id"]';
+
+// ---- Admin ----
+export const adminProductForm = '[data-testid="product-form"]';
+export const adminOrderStatusSelect = '[data-testid^="status-select-"]';
+export const adminOrdersTable = '[data-testid="orders-table"]';
+export const adminOrdersLoading = '[data-testid="orders-loading"]';
+export const adminNoOrders = '[data-testid="no-orders"]';
+export const adminSaveButton = '[data-testid="btn-save"]';
+export const adminInputPrice = '[data-testid="input-price"]';
+export const adminSelectCategory = '[data-testid="select-category"]';
+export const adminInputBrand = '[data-testid="input-brand"]';
+
 // ---- Language ----
 export const languageSelect = '[aria-label*="language" i], [aria-label*="idioma" i], select[aria-label]';
