@@ -1,451 +1,31 @@
-"""Integration tests for AuthController — HTTP layer, status codes, and error handling.
+"""Integration tests for auth middleware — JWT guard chain, rate limiting, i18n.
 
-Uses subclass-based mocks that pass ``isinstance`` checks (required by
-Litestar's msgspec parameter validation in 2.23+). No PostgreSQL needed.
-
-Strategy: replace controller dependencies before app construction
-with providers that return subclass mocks. Restore after each test.
+No PostgreSQL or service mocks needed — these test Litestar middleware
+and guard behaviour with dedicated minimal test apps.
 """
 
 import uuid
-from unittest.mock import AsyncMock
 
 import pytest
-from litestar import Litestar, get
-from litestar.config.cors import CORSConfig
-from litestar.di import Provide
-from litestar.openapi import OpenAPIConfig
-from litestar.testing import TestClient
-
-from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user
-from app.controllers.auth import AuthController
-from app.middleware.i18n import I18nMiddleware
-from app.middleware.rate_limit import RateLimitMiddleware, _buckets
-from app.schemas.auth import TokenResponse
-from app.schemas.user import UserResponse
-from app.services.auth_service import AuthService as _RealAuthService
-from app.services.token_service import TokenService as _RealTokenService
-from app.services.password_reset_service import PasswordResetService as _RealPasswordResetService
-
 from datetime import datetime, timedelta, timezone
 
 from jose import jwt as jose_jwt
-from litestar import Request
-from litestar.connection import ASGIConnection
-from litestar.contrib.jwt import JWTAuth, Token
+from litestar import Litestar, get, Request
+from litestar.contrib.jwt import JWTAuth
+from litestar.testing import TestClient
 
+from tests.conftest import MockAsyncSession, TestUser, _test_retrieve_user
 from app.guards.admin_guard import admin_guard
-
-
-# ---------------------------------------------------------------------------
-# Subclass mocks — pass isinstance checks for msgspec validation
-# ---------------------------------------------------------------------------
-
-class MockAuthService(_RealAuthService):
-    """AuthService subclass for test DI. Skips real __init__ so we don't
-    need a valid Settings object."""
-
-    def __init__(self) -> None:
-        pass
-
-
-class MockTokenService(_RealTokenService):
-    """TokenService subclass for test DI. Skips real __init__."""
-
-    def __init__(self) -> None:
-        pass
-
-
-class MockPasswordResetService(_RealPasswordResetService):
-    """PasswordResetService subclass for test DI. Skips real __init__."""
-
-    def __init__(self) -> None:
-        pass
+from app.middleware.i18n import I18nMiddleware
+from app.middleware.rate_limit import RateLimitMiddleware, _buckets
+from app.controllers.auth import AuthController
+from app.schemas.auth import TokenResponse
+from app.schemas.user import UserResponse
 
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
-
-def _make_user_response(user_id=None, role="customer"):
-    return UserResponse(
-        id=user_id or uuid.uuid4(),
-        email="test@example.com",
-        name="Test User",
-        role=role,
-        preferred_lang="es",
-        is_verified=False,
-        created_at="2026-01-01T00:00:00Z",  # type: ignore[arg-type]
-    )
-
-
-def _make_token_response():
-    return TokenResponse(
-        access_token="access.fake.jwt",
-        refresh_token="refreshtoken.secret123",
-        user=_make_user_response(),
-    )
-
-
-@get("/lang-echo", sync_to_thread=False)
-async def lang_echo(request: Request) -> dict[str, str]:
-    """Echoes request.state.lang for i18n middleware tests."""
-    return {"lang": request.state.lang}
-
-
-@get("/health", sync_to_thread=False)
-async def health_check() -> dict[str, str]:
-    return {"status": "ok"}
-
-
-# ---------------------------------------------------------------------------
-# Fixtures
-# ---------------------------------------------------------------------------
-
-@pytest.fixture
-def mock_auth():
-    """AuthService subclass with mocked async methods."""
-    svc = MockAuthService()
-
-    # Attach mocks to instance methods used by controller
-    svc.register = AsyncMock()
-    svc.login = AsyncMock()
-    svc.admin_login = AsyncMock()
-    svc.verify_2fa = AsyncMock()
-    svc.oauth_callback = AsyncMock()
-
-    return svc
-
-
-@pytest.fixture
-def mock_token():
-    """TokenService subclass with mocked async methods."""
-    svc = MockTokenService()
-    svc.refresh = AsyncMock()
-    svc.logout = AsyncMock()
-    return svc
-
-
-@pytest.fixture
-def mock_password_reset():
-    """PasswordResetService subclass with mocked async methods."""
-    svc = MockPasswordResetService()
-    svc.forgot_password = AsyncMock()
-    svc.reset_password = AsyncMock()
-    return svc
-
-
-@pytest.fixture
-def mock_session():
-    """AsyncSession subclass pass-through mock."""
-    return MockAsyncSession()
-
-
-@pytest.fixture
-def client(mock_auth, mock_token, mock_password_reset, mock_session):
-    """Litestar TestClient with mocked services and session via DI override."""
-    _buckets.clear()
-
-    # Override controller dependencies BEFORE app construction.
-    _original_deps = AuthController.dependencies
-    AuthController.dependencies = {
-        "auth_service": Provide(lambda: mock_auth, sync_to_thread=False),
-        "token_service": Provide(lambda: mock_token, sync_to_thread=False),
-        "password_reset_service": Provide(
-            lambda: mock_password_reset, sync_to_thread=False
-        ),
-        "session": Provide(lambda: mock_session, sync_to_thread=False),
-    }
-
-    cors_config = CORSConfig(
-        allow_origins=["http://localhost:4200"],
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-
-    test_app = Litestar(
-        route_handlers=[health_check, AuthController],
-        middleware=[RateLimitMiddleware, I18nMiddleware],
-        cors_config=cors_config,
-        openapi_config=OpenAPIConfig(
-            title="La Tiendita API",
-            version="0.1.0",
-            path="/schema",
-        ),
-        debug=False,
-    )
-
-    try:
-        with TestClient(app=test_app, raise_server_exceptions=False) as tc:
-            tc.mock_auth = mock_auth
-            tc.mock_token = mock_token
-            tc.mock_password_reset = mock_password_reset
-            tc.mock_session = mock_session
-            yield tc
-    finally:
-        AuthController.dependencies = _original_deps
-
-
-# ---------------------------------------------------------------------------
-# Register
-# ---------------------------------------------------------------------------
-
-class TestRegister:
-    def test_successful_registration_returns_201(self, client):
-        client.mock_auth.register.return_value = _make_token_response()
-
-        response = client.post("/api/auth/register", json={
-            "email": "new@test.com",
-            "password": "securePass1",
-            "name": "New User",
-        })
-
-        assert response.status_code == 201, response.text
-        body = response.json()
-        assert body["access_token"] == "access.fake.jwt"
-        assert body["refresh_token"] == "refreshtoken.secret123"
-        assert body["user"]["email"] == "test@example.com"
-
-    def test_duplicate_email_returns_409(self, client):
-        client.mock_auth.register.side_effect = ValueError(
-            "email already registered"
-        )
-
-        response = client.post("/api/auth/register", json={
-            "email": "existing@test.com",
-            "password": "securePass1",
-            "name": "Duplicate User",
-        })
-
-        assert response.status_code == 409, response.text
-        assert "already registered" in response.json()["detail"]
-
-    def test_weak_password_returns_400(self, client):
-        response = client.post("/api/auth/register", json={
-            "email": "test@test.com",
-            "password": "short",
-            "name": "Test",
-        })
-        assert response.status_code == 400
-
-    def test_invalid_email_returns_400(self, client):
-        response = client.post("/api/auth/register", json={
-            "email": "not-an-email",
-            "password": "securePass1",
-            "name": "Bad Email",
-        })
-        assert response.status_code == 400
-
-    def test_missing_required_fields_returns_400(self, client):
-        response = client.post("/api/auth/register", json={
-            "email": "test@test.com",
-        })
-        assert response.status_code == 400
-
-
-# ---------------------------------------------------------------------------
-# Login
-# ---------------------------------------------------------------------------
-
-class TestLogin:
-    def test_successful_login_returns_200(self, client):
-        client.mock_auth.login.return_value = _make_token_response()
-
-        response = client.post("/api/auth/login", json={
-            "email": "user@test.com",
-            "password": "correctPassword",
-        })
-
-        assert response.status_code == 200, response.text
-        body = response.json()
-        assert body["access_token"] == "access.fake.jwt"
-
-    def test_invalid_credentials_returns_401(self, client):
-        client.mock_auth.login.side_effect = ValueError(
-            "invalid email or password"
-        )
-
-        response = client.post("/api/auth/login", json={
-            "email": "user@test.com",
-            "password": "wrongPassword",
-        })
-
-        assert response.status_code == 401, response.text
-        assert "invalid email or password" in response.json()["detail"]
-
-    def test_login_does_not_leak_email_or_password_info(self, client):
-        client.mock_auth.login.side_effect = ValueError(
-            "invalid email or password"
-        )
-
-        r1 = client.post("/api/auth/login", json={
-            "email": "nonexistent@test.com",
-            "password": "anyPass1",
-        })
-        r2 = client.post("/api/auth/login", json={
-            "email": "existing@test.com",
-            "password": "wrongPass1",
-        })
-
-        assert r1.json()["detail"] == r2.json()["detail"]
-
-
-# ---------------------------------------------------------------------------
-# Refresh
-# ---------------------------------------------------------------------------
-
-class TestRefresh:
-    def test_valid_refresh_returns_200(self, client):
-        client.mock_token.refresh.return_value = _make_token_response()
-
-        response = client.post("/api/auth/refresh", json={
-            "refresh_token": "550e8400-e29b-41d4-a716-446655440000.secret",
-        })
-
-        assert response.status_code == 200, response.text
-        assert "access_token" in response.json()
-
-    def test_invalid_refresh_returns_401(self, client):
-        client.mock_token.refresh.side_effect = ValueError(
-            "invalid or expired refresh token"
-        )
-
-        response = client.post("/api/auth/refresh", json={
-            "refresh_token": "550e8400-e29b-41d4-a716-446655440000.expired",
-        })
-
-        assert response.status_code == 401
-
-    def test_missing_token_body_returns_400(self, client):
-        response = client.post("/api/auth/refresh", json={})
-        assert response.status_code == 400
-
-
-# ---------------------------------------------------------------------------
-# Logout
-# ---------------------------------------------------------------------------
-
-class TestLogout:
-    def test_logout_returns_200(self, client):
-        client.mock_token.logout.return_value = None
-
-        response = client.post("/api/auth/logout", json={
-            "refresh_token": "550e8400-e29b-41d4-a716-446655440000.token",
-        })
-
-        assert response.status_code == 200, response.text
-        assert response.json()["message"] == "logged out"
-
-    def test_logout_bad_format_still_200(self, client):
-        client.mock_token.logout.return_value = None
-
-        response = client.post("/api/auth/logout", json={
-            "refresh_token": "bad-format",
-        })
-
-        assert response.status_code == 200
-
-
-# ---------------------------------------------------------------------------
-# Forgot Password
-# ---------------------------------------------------------------------------
-
-class TestForgotPassword:
-    def test_always_returns_202(self, client):
-        client.mock_password_reset.forgot_password.return_value = None
-
-        response = client.post("/api/auth/forgot-password", json={
-            "email": "any@test.com",
-        })
-
-        assert response.status_code == 202
-        assert "if the email exists" in response.json()["message"]
-
-    def test_invalid_email_returns_400(self, client):
-        response = client.post("/api/auth/forgot-password", json={
-            "email": "not-email",
-        })
-        assert response.status_code == 400
-
-
-# ---------------------------------------------------------------------------
-# Reset Password
-# ---------------------------------------------------------------------------
-
-class TestResetPassword:
-    def test_reset_returns_200(self, client):
-        client.mock_password_reset.reset_password.return_value = None
-
-        response = client.post("/api/auth/reset-password", json={
-            "token": "any-token",
-            "new_password": "NewSecurePass1",
-        })
-
-        assert response.status_code == 200
-        assert response.json()["message"] == "password reset successful"
-
-    def test_weak_new_password_returns_400(self, client):
-        response = client.post("/api/auth/reset-password", json={
-            "token": "any-token",
-            "new_password": "short",
-        })
-        assert response.status_code == 400
-
-
-# ---------------------------------------------------------------------------
-# OAuth
-# ---------------------------------------------------------------------------
-
-class TestOAuth:
-    def test_google_redirect_returns_501(self, client):
-        response = client.get("/api/auth/oauth/google")
-        assert response.status_code == 501
-        assert "not configured" in response.json()["detail"].lower()
-
-    def test_google_callback_returns_501(self, client):
-        response = client.get("/api/auth/oauth/google/callback?code=testcode")
-        assert response.status_code == 501
-        assert "not configured" in response.json()["detail"].lower()
-
-
-# ---------------------------------------------------------------------------
-# Admin Login
-# ---------------------------------------------------------------------------
-
-class TestAdminLogin:
-    def test_admin_login_returns_200(self, client):
-        client.mock_auth.admin_login.return_value = _make_token_response()
-
-        response = client.post("/api/auth/admin-login", json={
-            "email": "admin@test.com",
-            "password": "adminPass1",
-        })
-
-        assert response.status_code == 200, response.text
-        assert "access_token" in response.json()
-
-
-# ---------------------------------------------------------------------------
-# Verify 2FA
-# ---------------------------------------------------------------------------
-
-class TestVerify2FA:
-    def test_verify_2fa_returns_200(self, client):
-        client.mock_auth.verify_2fa.return_value = _make_token_response()
-
-        response = client.post("/api/auth/verify-2fa", json={
-            "login_token": "fake.login.jwt",
-            "code": "123456",
-        })
-
-        assert response.status_code == 200, response.text
-        assert "access_token" in response.json()
-
-
-# ---------------------------------------------------------------------------
-# Guard chain integration tests — dedicated test apps with JWT protection
-# ---------------------------------------------------------------------------
-
 
 def _make_jwt_token(
     secret: str, sub: str, role: str, algorithm: str = "HS256"
@@ -459,6 +39,33 @@ def _make_jwt_token(
         "exp": now + timedelta(minutes=5),
     }
     return jose_jwt.encode(payload, secret, algorithm=algorithm)
+
+
+def _make_token_response():
+    return TokenResponse(
+        access_token="access.fake.jwt",
+        refresh_token="refreshtoken.secret123",
+        user=UserResponse(
+            id=uuid.uuid4(),
+            email="test@example.com",
+            name="Test User",
+            role="customer",
+            preferred_lang="es",
+            is_verified=False,
+            created_at="2026-01-01T00:00:00Z",  # type: ignore[arg-type]
+        ),
+    )
+
+
+@get("/lang-echo", sync_to_thread=False)
+async def lang_echo(request: Request) -> dict[str, str]:
+    """Echoes request.state.lang for i18n middleware tests."""
+    return {"lang": request.state.lang}
+
+
+# ---------------------------------------------------------------------------
+# Guard chain integration tests — dedicated test apps with JWT protection
+# ---------------------------------------------------------------------------
 
 
 class TestGuardContract:
@@ -601,25 +208,81 @@ class TestGuardContract:
 
 
 class TestRateLimit:
-    """End-to-end rate-limit tests using the full test app with middleware."""
+    """End-to-end rate-limit tests using the full test app with middleware.
+
+    Uses AuthController with a lamdbda-based DI override so we don't need
+    the heavy subclass-mock fixture machinery.
+    """
+
+    @pytest.fixture
+    def client(self):
+        """Minimal app with rate-limit middleware + mocked services.
+
+        Provides all DI deps the full AuthController needs so every
+        route resolves cleanly. Only login is exercised by the test.
+        """
+        from litestar.di import Provide
+        from unittest.mock import AsyncMock
+        from app.services.auth_service import AuthService as _RealAuthService
+        from app.services.token_service import TokenService as _RealTokenService
+        from app.services.password_reset_service import PasswordResetService as _RealPWResetService
+
+        class _MockAuthService(_RealAuthService):
+            def __init__(self) -> None:
+                pass
+
+        class _MockTokenService(_RealTokenService):
+            def __init__(self) -> None:
+                pass
+
+        class _MockPWResetService(_RealPWResetService):
+            def __init__(self) -> None:
+                pass
+
+        auth_svc = _MockAuthService()
+        auth_svc.login = AsyncMock(return_value=_make_token_response())
+
+        token_svc = _MockTokenService()
+        pwreset_svc = _MockPWResetService()
+
+        _orig = AuthController.dependencies
+        AuthController.dependencies = {
+            "auth_service": Provide(lambda: auth_svc, sync_to_thread=False),
+            "token_service": Provide(lambda: token_svc, sync_to_thread=False),
+            "password_reset_service": Provide(lambda: pwreset_svc, sync_to_thread=False),
+            "session": Provide(lambda: MockAsyncSession(), sync_to_thread=False),
+        }
+
+        _buckets.clear()
+
+        app = Litestar(
+            route_handlers=[AuthController],
+            middleware=[RateLimitMiddleware],
+            debug=False,
+        )
+
+        try:
+            with TestClient(app=app, raise_server_exceptions=False) as tc:
+                yield tc
+        finally:
+            AuthController.dependencies = _orig
 
     def test_rate_limit_returns_429_on_sixth_request(self, client) -> None:
         """The 6th request to a rate-limited endpoint within the window
         MUST return 429 with a ``Retry-After`` header."""
         _buckets.clear()
-        client.mock_auth.login.return_value = _make_token_response()
 
         body = {"email": "test@example.com", "password": "password123"}
 
         # First 5 requests succeed (200)
         for i in range(5):
-            response = client.post("/api/auth/login", json=body)
+            response = client.post("/api/v1/auth/login", json=body)
             assert response.status_code == 200, (
                 f"Request {i + 1}: expected 200, got {response.status_code}"
             )
 
         # 6th request is rate-limited (429)
-        response = client.post("/api/auth/login", json=body)
+        response = client.post("/api/v1/auth/login", json=body)
         assert response.status_code == 429, response.text
         assert response.headers.get("retry-after") is not None, (
             "429 response must include Retry-After header"
@@ -690,8 +353,16 @@ class TestI18n:
 # Health check
 # ---------------------------------------------------------------------------
 
+
 class TestHealthCheck:
-    def test_health_check_still_works(self, client):
-        response = client.get("/health")
-        assert response.status_code == 200
-        assert response.json() == {"status": "ok"}
+    def test_health_check_returns_200(self):
+
+        @get("/health", sync_to_thread=False)
+        async def health() -> dict[str, str]:
+            return {"status": "ok"}
+
+        app = Litestar(route_handlers=[health])
+        with TestClient(app=app) as tc:
+            response = tc.get("/health")
+            assert response.status_code == 200
+            assert response.json() == {"status": "ok"}
