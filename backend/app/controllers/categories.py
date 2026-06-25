@@ -18,6 +18,10 @@ from litestar.exceptions import (
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.config import settings
+from app.core.cache import cache_service
+from app.core.event_bus import event_bus
+from app.core.events import CategoryChangedEvent
 from app.db.engine import async_session as _async_session_fn
 from app.guards.admin_guard import admin_guard
 from app.models.category import Category, CategoryTranslation
@@ -71,9 +75,25 @@ class CategoryController(Controller):
         lang: str = "es",
         session: AsyncSession = None,
     ) -> list[dict]:
-        """List all categories with translated name per ``?lang=``."""
+        """List all categories with translated name per ``?lang=``.
+
+        Served through cache-aside keyed by ``{prefix}:categories:list:{lang}``
+        (TTL ``CACHE_TTL_CATEGORIES_LIST``). Bypassed entirely when
+        ``CACHE_ENABLED`` is False.
+        """
+        key: str | None = None
+        if settings.CACHE_ENABLED:
+            key = f"{settings.CACHE_PREFIX}:categories:list:{lang}"
+            cached = await cache_service.get(key)
+            if cached is not None:
+                return cached
+
         categories = await repo.list_all_with_translations(session)
-        return [build_category_list_item(c, lang) for c in categories]
+        result = [build_category_list_item(c, lang) for c in categories]
+
+        if key is not None:
+            await cache_service.set(key, result, settings.CACHE_TTL_CATEGORIES_LIST)
+        return result
 
 
 # ---------------------------------------------------------------------------
@@ -130,6 +150,8 @@ class AdminCategoryController(Controller):
         )
         if result is None:
             raise HTTPException(status_code=500, detail="category not found after creation")
+        # Invalidate affected cache (best-effort, fire-and-forget).
+        event_bus.emit(CategoryChangedEvent(category_id=category.id, action="created"))
         return build_category_response(result)
 
     @put("/{category_id:int}", status_code=200)
@@ -165,6 +187,8 @@ class AdminCategoryController(Controller):
                 session.add(ct)
 
         await session.flush()
+        # Invalidate affected cache (best-effort, fire-and-forget).
+        event_bus.emit(CategoryChangedEvent(category_id=category_id, action="updated"))
         return build_category_response(category)
 
     @delete("/{category_id:int}", status_code=204)
@@ -189,3 +213,5 @@ class AdminCategoryController(Controller):
 
         await session.delete(category)
         await session.flush()
+        # Invalidate affected cache (best-effort, fire-and-forget).
+        event_bus.emit(CategoryChangedEvent(category_id=category_id, action="deleted"))

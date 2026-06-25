@@ -13,6 +13,10 @@ from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
+from app.config import settings
+from app.core.cache import CacheService, cache_service
+from app.core.event_bus import event_bus
+from app.core.events import PromotionChangedEvent
 from app.models.promotion import Promotion, PromotionTranslation
 from app.repositories.promotion_repository import PromotionRepository
 from app.schemas.promotion import (
@@ -31,8 +35,10 @@ class PromotionService:
     def __init__(
         self,
         promotion_repo: PromotionRepository | None = None,
+        cache: CacheService | None = None,
     ) -> None:
         self._promotion_repo = promotion_repo or PromotionRepository()
+        self._cache = cache or cache_service
 
     # ------------------------------------------------------------------
     # Public — active promotions
@@ -43,6 +49,10 @@ class PromotionService:
     ) -> list[PromotionResponse]:
         """Return promotions that are currently active.
 
+        Results are served through cache-aside keyed by
+        ``{prefix}:promotions:active:list`` (TTL ``CACHE_TTL_PROMOTIONS_ACTIVE``).
+        When ``CACHE_ENABLED`` is False the cache is bypassed entirely.
+
         A promotion is active when ALL of these hold:
         - ``is_active = True``
         - ``start_date IS NULL OR start_date <= now()``
@@ -51,8 +61,24 @@ class PromotionService:
 
         Results include translations loaded eagerly.
         """
+        key: str | None = None
+        if settings.CACHE_ENABLED:
+            key = f"{settings.CACHE_PREFIX}:promotions:active:list"
+            cached = await self._cache.get(key)
+            if cached is not None:
+                return [PromotionResponse(**item) for item in cached]
+
         promotions = await self._promotion_repo.get_active(session)
-        return [self._to_response(p) for p in promotions]
+        result = [self._to_response(p) for p in promotions]
+
+        if key is not None:
+            await self._cache.set(
+                key,
+                [r.model_dump(mode="json") for r in result],
+                settings.CACHE_TTL_PROMOTIONS_ACTIVE,
+            )
+
+        return result
 
     async def get_active_promotions_for_products(
         self, session: AsyncSession, product_ids: list[UUID]
@@ -168,6 +194,10 @@ class PromotionService:
         await session.flush()
         await session.refresh(promotion, ["translations"])
 
+        # Invalidate affected caches (best-effort, fire-and-forget).
+        event_bus.emit(
+            PromotionChangedEvent(promotion_id=promotion.id, action="created")
+        )
         return self._to_response(promotion)
 
     async def update(
@@ -232,7 +262,12 @@ class PromotionService:
 
         await session.flush()
         # Reload from DB to get fresh translations
-        return await self.get_by_id(session, promotion_id)
+        response = await self.get_by_id(session, promotion_id)
+        # Invalidate affected caches (best-effort, fire-and-forget).
+        event_bus.emit(
+            PromotionChangedEvent(promotion_id=promotion_id, action="updated")
+        )
+        return response
 
     async def delete(
         self, session: AsyncSession, promotion_id: UUID
@@ -246,6 +281,10 @@ class PromotionService:
             delete(Promotion).where(Promotion.id == promotion_id)
         )
         await session.flush()
+        # Invalidate affected caches (best-effort, fire-and-forget).
+        event_bus.emit(
+            PromotionChangedEvent(promotion_id=promotion_id, action="deleted")
+        )
 
     # ------------------------------------------------------------------
     # Internal helpers

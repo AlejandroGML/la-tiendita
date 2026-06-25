@@ -128,47 +128,10 @@ class ProductController(Controller):
         except (PydanticValidationError, ValueError) as exc:
             raise ValidationException(detail=str(exc))
 
-        items, total = await service.list_products(session, filters)
-
-        # Resolve active promotions for sale pricing
-        promotions = await service._apply_promotions(session, items)
-
-        per_page = filters.per_page
-        total_pages = max(1, math.ceil(total / per_page))
-
-        data = [
-            build_product_response(p, lang=filters.lang, promotion_info=promotions)
-            for p in items
-        ]
-
-        return {
-            "data": data,
-            "pagination": {
-                "page": filters.page,
-                "per_page": per_page,
-                "total": total,
-                "pages": total_pages,
-            },
-            "meta": {
-                "lang": filters.lang,
-                "category_id": filters.category,
-                "size": filters.size,
-                "condition": filters.condition,
-                "condition_rating": filters.condition_rating,
-                "brand": filters.brand,
-                "target_gender": filters.target_gender,
-                "material": filters.material,
-                "trend": filters.trend,
-                "pattern": filters.pattern,
-                "season": filters.season,
-                "usage": filters.usage,
-                "min_price": str(filters.min_price) if filters.min_price else None,
-                "max_price": str(filters.max_price) if filters.max_price else None,
-                "has_promotion": filters.has_promotion,
-                "sort": filters.sort,
-                "search": filters.q,
-            },
-        }
+        # The service owns the read → serialize → cache pipeline. Filtered
+        # requests bypass the cache internally; only the default unfiltered
+        # listing is cached.
+        return await service.list_products_cached(session, filters)
 
     @get("/{identifier:str}")
     async def get_product(
@@ -184,8 +147,8 @@ class ProductController(Controller):
         try:
             product_id = UUID(identifier)
         except ValueError:
-            # Not a UUID — treat as slug
-            product = await service.get_product_by_slug(session, identifier)
+            # Not a UUID — treat as slug; serve via cache-aside.
+            response = await service.get_product_by_slug_cached(session, identifier)
         else:
             # Resolve by ID first, then redirect to slug
             product = await repo.get_by_id_for_resolve(session, product_id)
@@ -194,12 +157,11 @@ class ProductController(Controller):
                     path=f"/api/products/{product.slug}",
                     status_code=307,
                 )
+            response = None
 
-        if product is None:
+        if response is None:
             raise NotFoundException(detail="product not found")
-
-        promotions = await service._apply_promotions(session, [product])
-        return build_product_response(product, promotion_info=promotions)
+        return response
 
 
 # ---------------------------------------------------------------------------

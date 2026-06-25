@@ -8,12 +8,17 @@ product CRUD).  Slug generation and variant CRUD are delegated to
 """
 
 import logging
+import math
 from datetime import datetime, timezone
 from uuid import UUID
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 
+from app.config import settings
+from app.core.cache import CacheService, cache_service
+from app.core.event_bus import event_bus
+from app.core.events import ProductChangedEvent
 from app.models.product import Product, ProductCondition, ProductTranslation
 from app.repositories.product_repository import ProductRepository
 from app.schemas.common import ProductFilter
@@ -25,6 +30,7 @@ from app.schemas.product_variant import (
     ProductVariantCreate,
     ProductVariantUpdate,
 )
+from app.serializers.product import build_product_response
 from app.services.slug_service import SlugService
 from app.services.variant_service import VariantService
 
@@ -36,7 +42,9 @@ class ProductService:
 
     Injects ``ProductRepository``, ``SlugService``, and ``VariantService``.
     If no service is provided, default instances are created (backward-compatible
-    for direct instantiation in tests).
+    for direct instantiation in tests). An optional ``cache`` (a
+    :class:`CacheService`) may be injected for fakeredis-backed tests; the
+    module singleton is used by default.
     """
 
     def __init__(
@@ -44,10 +52,12 @@ class ProductService:
         product_repo: ProductRepository | None = None,
         slug_service: SlugService | None = None,
         variant_service: VariantService | None = None,
+        cache: CacheService | None = None,
     ) -> None:
         self._repo = product_repo or ProductRepository()
         self._slug_service = slug_service or SlugService()
         self._variant_service = variant_service or VariantService(product_repo=self._repo)
+        self._cache = cache or cache_service
 
     # ------------------------------------------------------------------
     # Public read
@@ -79,6 +89,132 @@ class ProductService:
     ) -> Product | None:
         """Return a single non-deleted product by slug with all relationships."""
         return await self._repo.get_by_slug(session, slug)
+
+    # ------------------------------------------------------------------
+    # Public read — cache-aside (return serialized response dicts)
+    # ------------------------------------------------------------------
+
+    # Filter dimensions that make a listing non-cacheable. Only the default
+    # unfiltered listing (lang + page + per_page) is ever cached; every
+    # filtered query bypasses the cache to avoid low hit rates and bloat.
+    _FILTER_FIELDS = (
+        "category",
+        "size",
+        "condition",
+        "condition_rating",
+        "brand",
+        "target_gender",
+        "material",
+        "trend",
+        "pattern",
+        "season",
+        "usage",
+        "colors",
+        "min_price",
+        "max_price",
+        "has_promotion",
+        "sort",
+        "q",
+    )
+
+    @classmethod
+    def _has_active_filters(cls, filters: ProductFilter) -> bool:
+        """Return True when any non-pagination filter is set."""
+        return any(getattr(filters, f) is not None for f in cls._FILTER_FIELDS)
+
+    def _list_cache_key(self, filters: ProductFilter) -> str:
+        """Build the deterministic list cache key (default listing only)."""
+        return (
+            f"{settings.CACHE_PREFIX}:products:list:"
+            f"{filters.lang}:{filters.page}:{filters.per_page}:default"
+        )
+
+    async def list_products_cached(
+        self, session: AsyncSession, filters: ProductFilter
+    ) -> dict:
+        """Return the full public listing response dict via cache-aside.
+
+        Only the default unfiltered listing is cached. Filtered requests fall
+        through to the repository on every call (no cache read or write). When
+        ``CACHE_ENABLED`` is False the cache is bypassed entirely, producing
+        byte-identical behavior to the uncached baseline.
+        """
+        cacheable = settings.CACHE_ENABLED and not self._has_active_filters(filters)
+        key = self._list_cache_key(filters) if cacheable else None
+
+        if key is not None:
+            cached = await self._cache.get(key)
+            if cached is not None:
+                return cached
+
+        items, total = await self._repo.get_with_filters(session, filters)
+        promotions = await self._apply_promotions(session, items)
+        data = [
+            build_product_response(p, lang=filters.lang, promotion_info=promotions)
+            for p in items
+        ]
+
+        response = {
+            "data": data,
+            "pagination": {
+                "page": filters.page,
+                "per_page": filters.per_page,
+                "total": total,
+                "pages": max(1, math.ceil(total / filters.per_page)),
+            },
+            "meta": {
+                "lang": filters.lang,
+                "category_id": filters.category,
+                "size": filters.size,
+                "condition": filters.condition,
+                "condition_rating": filters.condition_rating,
+                "brand": filters.brand,
+                "target_gender": filters.target_gender,
+                "material": filters.material,
+                "trend": filters.trend,
+                "pattern": filters.pattern,
+                "season": filters.season,
+                "usage": filters.usage,
+                "min_price": str(filters.min_price) if filters.min_price else None,
+                "max_price": str(filters.max_price) if filters.max_price else None,
+                "has_promotion": filters.has_promotion,
+                "sort": filters.sort,
+                "search": filters.q,
+            },
+        }
+
+        if key is not None:
+            await self._cache.set(key, response, settings.CACHE_TTL_PRODUCTS_LIST)
+
+        return response
+
+    async def get_product_by_slug_cached(
+        self, session: AsyncSession, slug: str
+    ) -> dict | None:
+        """Return the full product detail response dict via cache-aside.
+
+        Detail keys are lang-independent (the detail endpoint returns all
+        translations). Returns ``None`` when the product does not exist. When
+        ``CACHE_ENABLED`` is False the cache is bypassed entirely.
+        """
+        key: str | None = None
+        if settings.CACHE_ENABLED:
+            key = f"{settings.CACHE_PREFIX}:products:detail:{slug}"
+            cached = await self._cache.get(key)
+            if cached is not None:
+                return cached
+
+        product = await self._repo.get_by_slug(session, slug)
+        if product is None:
+            return None
+
+        promotions = await self._apply_promotions(session, [product])
+        response = build_product_response(product, promotion_info=promotions)
+
+        if key is not None:
+            await self._cache.set(key, response, settings.CACHE_TTL_PRODUCTS_DETAIL)
+
+        return response
 
     async def _apply_promotions(
         self, session: AsyncSession, products: list[Product]
@@ -199,7 +335,12 @@ class ProductService:
         await session.flush()
 
         # Reload with relationships for the response
-        return await self._reload_product(session, product.id)
+        product = await self._reload_product(session, product.id)
+        # Invalidate affected caches (best-effort, fire-and-forget).
+        event_bus.emit(
+            ProductChangedEvent(product_id=product.id, action="created", slug=product.slug)
+        )
+        return product
 
     async def update_product(
         self, session: AsyncSession, product_id: UUID, data: UpdateProductRequest
@@ -304,6 +445,10 @@ class ProductService:
         await session.refresh(product, ["variants"])
         # Refresh reloads from DB without soft-delete filter, so filter manually
         product.variants = [v for v in product.variants if v.deleted_at is None]
+        # Invalidate affected caches (best-effort, fire-and-forget).
+        event_bus.emit(
+            ProductChangedEvent(product_id=product.id, action="updated", slug=product.slug)
+        )
         return product
 
     async def delete_product(
@@ -322,6 +467,12 @@ class ProductService:
 
         product.deleted_at = datetime.now(timezone.utc)
         await session.flush()
+        # Invalidate affected caches (best-effort, fire-and-forget). The slug
+        # is a plain column on the fetched row, so it remains available after
+        # the soft-delete flush.
+        event_bus.emit(
+            ProductChangedEvent(product_id=product.id, action="deleted", slug=product.slug)
+        )
         return True
 
     # ------------------------------------------------------------------
