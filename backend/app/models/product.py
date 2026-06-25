@@ -15,7 +15,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import JSONB, TSVECTOR
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
 
@@ -149,6 +149,10 @@ class ProductTranslation(TranslationBase):
     name: Mapped[str] = mapped_column(String(255), nullable=False)
     description: Mapped[str | None] = mapped_column(
         String(2000), nullable=True
+    )
+    # Full-text search vector — populated by DB trigger (read-only on model).
+    search_vector: Mapped[str | None] = mapped_column(
+        TSVECTOR, nullable=True, default=None
     )
 
     product: Mapped["Product"] = relationship(

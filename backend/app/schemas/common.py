@@ -46,7 +46,7 @@ class ProductFilter(BaseModel):
     )
     sort: str | None = Field(
         default=None,
-        description="Sort order: newest, price_asc, price_desc",
+        description="Sort order: newest, price_asc, price_desc, relevance",
     )
     q: str | None = Field(
         default=None, alias="search", description="Full-text search on translations"

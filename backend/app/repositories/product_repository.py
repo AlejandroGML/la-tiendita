@@ -19,6 +19,15 @@ from app.repositories.base import BaseRepository
 from app.schemas.common import ProductFilter
 from app.utils.pagination import paginate
 
+# Language → PostgreSQL text-search configuration mapping.
+# Mirrors the CASE in ``trg_product_translations_search_vector()``
+# so queries and trigger use the same dictionary.
+LANG_TO_TSCONFIG: dict[str, str] = {
+    "es": "spanish",
+    "en": "english",
+    "sv": "swedish",
+}
+
 
 class ProductRepository(BaseRepository[Product]):
     """Product-specific data access — filtering, eager loading, pagination.
@@ -228,10 +237,14 @@ class ProductRepository(BaseRepository[Product]):
             )
             stmt = stmt.where(promo_exists)
 
-        # Full-text search on translations (name OR description)
+        # Full-text search via tsvector (stemming + GIN index scan).
+        # ts_query is captured so the ordering block can apply ts_rank
+        # when no explicit sort overrides it.
+        ts_query = None
+
         if filters.q:
-            escaped = filters.q.replace("%", r"\%").replace("_", r"\_")
-            search_term = f"%{escaped}%"
+            ts_config = LANG_TO_TSCONFIG.get(filters.lang, "simple")
+            ts_query = func.plainto_tsquery(ts_config, filters.q)
             stmt = stmt.join(
                 ProductTranslation,
                 and_(
@@ -240,19 +253,23 @@ class ProductRepository(BaseRepository[Product]):
                 ),
                 isouter=True,
             ).where(
-                or_(
-                    ProductTranslation.name.ilike(search_term, escape="\\"),
-                    ProductTranslation.description.ilike(search_term, escape="\\"),
-                )
+                ProductTranslation.search_vector.op("@@")(ts_query)
             )
 
-        # Ordering
+        # Ordering — explicit sort options override relevance default
         if filters.sort == "newest":
             return stmt.order_by(Product.created_at.desc())
         if filters.sort == "price_asc":
             return stmt.order_by(Product.price.asc())
         if filters.sort == "price_desc":
             return stmt.order_by(Product.price.desc())
+
+        # Relevance: when a search term is present and no explicit sort
+        # was chosen, rank by ts_rank descending.
+        if ts_query is not None:
+            return stmt.order_by(
+                func.ts_rank(ProductTranslation.search_vector, ts_query).desc()
+            )
 
         # Default: products with stock > 0 first, then created_at DESC
         in_stock = (
