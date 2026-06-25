@@ -722,17 +722,18 @@ class TestUpload:
         assert r.status_code == 400, r.text
         assert "exceeds maximum size" in r.json()["detail"]
 
-    @patch("app.controllers.upload.resize_image")
-    @patch("app.controllers.upload.generate_thumbnail")
+    @patch("app.controllers.upload.get_arq_redis")
     @patch("app.controllers.upload.os.makedirs")
     @patch("app.controllers.upload.settings")
     def test_upload_success_201(
-        self, mock_settings, mock_makedirs, mock_thumb, mock_resize, client
+        self, mock_settings, mock_makedirs, mock_get_redis, client
     ):
         mock_settings.UPLOAD_DIR = str(client.upload_dir)
         mock_settings.MAX_IMAGE_SIZE = 5 * 1024 * 1024
-        mock_resize.return_value = str(client.upload_dir / "abc.jpg")
-        mock_thumb.return_value = str(client.upload_dir / "abc_thumb.webp")
+
+        # Mock the ARQ Redis connection so enqueue_job is a no-op.
+        mock_redis = AsyncMock()
+        mock_get_redis.return_value = mock_redis
 
         r = client.post(
             "/api/upload",
@@ -744,6 +745,11 @@ class TestUpload:
         assert "image_url" in body
         assert "thumbnail_url" in body
         assert body["image_url"].startswith("/uploads/")
+        assert body["thumbnail_url"].endswith("_thumb.webp")
+
+        # Verify ARQ enqueue was called.
+        mock_redis.enqueue_job.assert_awaited_once()
+        assert mock_redis.enqueue_job.call_args[0][0] == "process_image"
 
 
 # ---------------------------------------------------------------------------

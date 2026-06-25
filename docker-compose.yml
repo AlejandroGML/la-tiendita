@@ -53,6 +53,20 @@ services:
       redis:
         condition: service_healthy
 
+  worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    volumes:
+      - ./backend/app:/app/app
+      - ./uploads:/app/uploads
+    environment:
+      REDIS_URL: redis://redis:6379/0
+    command: arq app.worker.jobs.WorkerSettings
+    depends_on:
+      redis:
+        condition: service_healthy
+
   frontend:
     image: node:24-slim
     ports:

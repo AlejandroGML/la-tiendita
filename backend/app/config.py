@@ -58,5 +58,8 @@ class Settings(BaseSettings):
     CACHE_TTL_CATEGORIES_LIST: int = Field(default=600)
     CACHE_TTL_PROMOTIONS_ACTIVE: int = Field(default=120)
 
+    # ARQ background jobs
+    ARQ_QUEUE_NAME: str = Field(default="arq:queue")
+
 
 settings = Settings()

@@ -6,6 +6,7 @@ and returns public URLs.
 
 import os
 import uuid
+from pathlib import Path
 
 from litestar import Controller, post
 from litestar.datastructures import UploadFile
@@ -14,8 +15,9 @@ from litestar.exceptions import ValidationException
 from litestar.params import Body
 
 from app.config import settings
+from app.core.arq import get_arq_redis
 from app.guards.admin_guard import admin_guard
-from app.utils.image import ensure_upload_dir, generate_thumbnail, resize_image
+from app.utils.image import ensure_upload_dir
 
 ALLOWED_MIME_TYPES = {"image/jpeg", "image/png", "image/webp"}
 
@@ -73,9 +75,14 @@ class UploadController(Controller):
         with open(file_path, "wb") as f:
             f.write(file_bytes)
 
-        # --- Process (resize + thumbnail) via thread pool -------------------
-        await resize_image(file_path)
-        thumb_path = await generate_thumbnail(file_path)
+        # --- Enqueue background job for resize + thumbnail ------------------
+        redis = await get_arq_redis()
+        await redis.enqueue_job("process_image", file_path)
+
+        # Predict thumbnail path — identical to _generate_thumbnail_sync logic.
+        thumb_path = str(
+            Path(file_path).with_stem(f"{Path(file_path).stem}_thumb").with_suffix(".webp")
+        )
 
         # --- Build URLs -----------------------------------------------------
         image_url = f"/uploads/{os.path.basename(file_path)}"

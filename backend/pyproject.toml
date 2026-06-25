@@ -29,6 +29,7 @@ dependencies = [
     "email-validator>=2.0",
     "stripe>=11.0",
     "redis[hiredis]>=5.0",
+    "arq>=0.26",
 ]
 
 [project.optional-dependencies]
