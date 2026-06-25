@@ -12,6 +12,8 @@ from uuid import UUID
 from sqlalchemy import func as sqlfunc, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.event_bus import event_bus
+from app.core.events import AuditAction, AuditEvent
 from app.models.product import Product, ProductSize
 from app.models.product_variant import ProductVariant
 from app.models.cart import CartItem
@@ -59,11 +61,14 @@ class VariantService:
         session: AsyncSession,
         product_id: UUID,
         data: ProductVariantCreate,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> ProductVariant:
         """Create a new variant for an existing product.
 
         Validates the product exists and is not soft-deleted.
         Auto-generates SKU if not provided.
+        When *actor_id* is provided, an ``AuditEvent`` is emitted.
         """
         product = await self._repo.find_one(
             session, Product.id == product_id, Product.deleted_at.is_(None)
@@ -89,6 +94,17 @@ class VariantService:
         )
         session.add(variant)
         await session.flush()
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.VARIANT_CREATE,
+                    entity_type="variant",
+                    entity_id=str(variant.id),
+                    details={"sku": variant.sku},
+                    ip_address=ip_address,
+                )
+            )
         return variant
 
     async def update_variant(
@@ -96,8 +112,12 @@ class VariantService:
         session: AsyncSession,
         variant_id: UUID,
         data: ProductVariantUpdate,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> ProductVariant | None:
-        """Partially update an existing variant. Returns None if not found."""
+        """Partially update an existing variant. Returns None if not found.
+        When *actor_id* is provided, an ``AuditEvent`` is emitted.
+        """
         variant = await self._variant_repo.get_by_id(session, variant_id)
         if variant is None or variant.deleted_at is not None:
             return None
@@ -114,6 +134,17 @@ class VariantService:
             variant.sku = data.sku
 
         await session.flush()
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.VARIANT_UPDATE,
+                    entity_type="variant",
+                    entity_id=str(variant.id),
+                    details={"sku": variant.sku},
+                    ip_address=ip_address,
+                )
+            )
         return variant
 
     async def delete_variant(
@@ -121,6 +152,8 @@ class VariantService:
         session: AsyncSession,
         variant_id: UUID,
         product_id: UUID | None = None,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> bool:
         """Soft-delete a variant. Returns False if already deleted or not found.
 
@@ -129,6 +162,8 @@ class VariantService:
 
         Does NOT allow deletion if the variant is referenced by active
         cart items or order items.
+
+        When *actor_id* is provided, an ``AuditEvent`` is emitted.
         """
         variant = await self._variant_repo.get_by_id(session, variant_id)
         if variant is None or variant.deleted_at is not None:
@@ -149,6 +184,17 @@ class VariantService:
 
         variant.deleted_at = datetime.now(timezone.utc)
         await session.flush()
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.VARIANT_DELETE,
+                    entity_type="variant",
+                    entity_id=str(variant.id),
+                    details={"sku": variant.sku},
+                    ip_address=ip_address,
+                )
+            )
         return True
 
     # ------------------------------------------------------------------

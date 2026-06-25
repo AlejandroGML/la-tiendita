@@ -18,7 +18,7 @@ from sqlalchemy.exc import IntegrityError
 from app.config import settings
 from app.core.cache import CacheService, cache_service
 from app.core.event_bus import event_bus
-from app.core.events import ProductChangedEvent
+from app.core.events import AuditAction, AuditEvent, ProductChangedEvent
 from app.models.product import Product, ProductCondition, ProductTranslation
 from app.repositories.product_repository import ProductRepository
 from app.schemas.common import ProductFilter
@@ -261,7 +261,11 @@ class ProductService:
     # ------------------------------------------------------------------
 
     async def create_product(
-        self, session: AsyncSession, data: CreateProductRequest
+        self,
+        session: AsyncSession,
+        data: CreateProductRequest,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> Product:
         """Create a product with auto-generated slug, translations, and variants.
 
@@ -271,6 +275,9 @@ class ProductService:
         If *data.variants* is provided (non-empty list), those variants
         are created.  Otherwise a single default variant (size=None,
         color=None, stock=0) with an auto-generated SKU is created.
+
+        When *actor_id* is provided, an ``AuditEvent`` is emitted after the
+        mutation flushes successfully.
         """
         # Determine the source name for slug generation (prefer ES)
         es = next((t for t in data.translations if t.lang == "es"), None)
@@ -340,14 +347,37 @@ class ProductService:
         event_bus.emit(
             ProductChangedEvent(product_id=product.id, action="created", slug=product.slug)
         )
+        # Audit trail (best-effort, fire-and-forget).
+        if actor_id is not None:
+            es_name = next(
+                (t.name for t in data.translations if t.lang == "es"),
+                data.translations[0].name,
+            )
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.PRODUCT_CREATE,
+                    entity_type="product",
+                    entity_id=str(product.id),
+                    details={"slug": product.slug, "name": es_name},
+                    ip_address=ip_address,
+                )
+            )
         return product
 
     async def update_product(
-        self, session: AsyncSession, product_id: UUID, data: UpdateProductRequest
+        self,
+        session: AsyncSession,
+        product_id: UUID,
+        data: UpdateProductRequest,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> Product | None:
         """Partially update a product and optionally upsert translations and variants.
 
         Returns the updated product or None if not found / soft-deleted.
+        When *actor_id* is provided, an ``AuditEvent`` is emitted after the
+        mutation flushes successfully.
         """
         product = await self._repo.get_by_id_with_detail(session, product_id)
         if product is None or product.deleted_at is not None:
@@ -449,15 +479,33 @@ class ProductService:
         event_bus.emit(
             ProductChangedEvent(product_id=product.id, action="updated", slug=product.slug)
         )
+        # Audit trail (best-effort, fire-and-forget).
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.PRODUCT_UPDATE,
+                    entity_type="product",
+                    entity_id=str(product.id),
+                    details={"slug": product.slug},
+                    ip_address=ip_address,
+                )
+            )
         return product
 
     async def delete_product(
-        self, session: AsyncSession, product_id: UUID
+        self,
+        session: AsyncSession,
+        product_id: UUID,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> bool:
         """Soft-delete a product by setting ``deleted_at`` to now.
 
         Returns ``True`` if a product was deleted, ``False`` if already
         deleted or not found.
+        When *actor_id* is provided, an ``AuditEvent`` is emitted after the
+        mutation flushes successfully.
         """
         product = await self._repo.find_one(
             session, Product.id == product_id, Product.deleted_at.is_(None)
@@ -473,6 +521,18 @@ class ProductService:
         event_bus.emit(
             ProductChangedEvent(product_id=product.id, action="deleted", slug=product.slug)
         )
+        # Audit trail (best-effort, fire-and-forget).
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.PRODUCT_DELETE,
+                    entity_type="product",
+                    entity_id=str(product.id),
+                    details={"slug": product.slug},
+                    ip_address=ip_address,
+                )
+            )
         return True
 
     # ------------------------------------------------------------------

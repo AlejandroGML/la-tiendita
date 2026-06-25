@@ -8,6 +8,7 @@ handle HTTP concerns (request parsing, response building, error mapping).
 """
 
 from litestar import Controller, get, post, put, delete
+from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import (
     HTTPException,
@@ -21,7 +22,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.core.cache import cache_service
 from app.core.event_bus import event_bus
-from app.core.events import CategoryChangedEvent
+from app.core.events import AuditAction, AuditEvent, CategoryChangedEvent
 from app.db.engine import async_session as _async_session_fn
 from app.guards.admin_guard import admin_guard
 from app.models.category import Category, CategoryTranslation
@@ -116,6 +117,7 @@ class AdminCategoryController(Controller):
     async def create_category(
         self,
         data: CreateCategoryRequest,
+        request: ASGIConnection,
         repo: CategoryRepository,
         session: AsyncSession,
     ) -> dict:
@@ -152,6 +154,17 @@ class AdminCategoryController(Controller):
             raise HTTPException(status_code=500, detail="category not found after creation")
         # Invalidate affected cache (best-effort, fire-and-forget).
         event_bus.emit(CategoryChangedEvent(category_id=category.id, action="created"))
+        # Audit trail (best-effort, fire-and-forget).
+        event_bus.emit(
+            AuditEvent(
+                actor_id=request.user.id,
+                action=AuditAction.CATEGORY_CREATE,
+                entity_type="category",
+                entity_id=str(category.id),
+                details={"slug": category.slug},
+                ip_address=request.client.host if request.client else None,
+            )
+        )
         return build_category_response(result)
 
     @put("/{category_id:int}", status_code=200)
@@ -159,6 +172,7 @@ class AdminCategoryController(Controller):
         self,
         category_id: int,
         data: CreateCategoryRequest,
+        request: ASGIConnection,
         repo: CategoryRepository,
         session: AsyncSession,
     ) -> dict:
@@ -189,12 +203,24 @@ class AdminCategoryController(Controller):
         await session.flush()
         # Invalidate affected cache (best-effort, fire-and-forget).
         event_bus.emit(CategoryChangedEvent(category_id=category_id, action="updated"))
+        # Audit trail (best-effort, fire-and-forget).
+        event_bus.emit(
+            AuditEvent(
+                actor_id=request.user.id,
+                action=AuditAction.CATEGORY_UPDATE,
+                entity_type="category",
+                entity_id=str(category_id),
+                details={"slug": category.slug},
+                ip_address=request.client.host if request.client else None,
+            )
+        )
         return build_category_response(category)
 
     @delete("/{category_id:int}", status_code=204)
     async def delete_category(
         self,
         category_id: int,
+        request: ASGIConnection,
         repo: CategoryRepository,
         session: AsyncSession,
     ) -> None:
@@ -211,7 +237,19 @@ class AdminCategoryController(Controller):
         if category is None:
             raise NotFoundException(detail="category not found")
 
+        slug = category.slug
         await session.delete(category)
         await session.flush()
         # Invalidate affected cache (best-effort, fire-and-forget).
         event_bus.emit(CategoryChangedEvent(category_id=category_id, action="deleted"))
+        # Audit trail (best-effort, fire-and-forget).
+        event_bus.emit(
+            AuditEvent(
+                actor_id=request.user.id,
+                action=AuditAction.CATEGORY_DELETE,
+                entity_type="category",
+                entity_id=str(category_id),
+                details={"slug": slug},
+                ip_address=request.client.host if request.client else None,
+            )
+        )

@@ -16,7 +16,7 @@ from sqlalchemy.orm import selectinload
 from app.config import settings
 from app.core.cache import CacheService, cache_service
 from app.core.event_bus import event_bus
-from app.core.events import PromotionChangedEvent
+from app.core.events import AuditAction, AuditEvent, PromotionChangedEvent
 from app.models.promotion import Promotion, PromotionTranslation
 from app.repositories.promotion_repository import PromotionRepository
 from app.schemas.promotion import (
@@ -162,11 +162,16 @@ class PromotionService:
         return self._to_response(promotion)
 
     async def create(
-        self, session: AsyncSession, data: CreatePromotionRequest
+        self,
+        session: AsyncSession,
+        data: CreatePromotionRequest,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> PromotionResponse:
         """Create a promotion with translations.
 
         Validates that ``start_date < end_date`` when both are provided.
+        When *actor_id* is provided, an ``AuditEvent`` is emitted.
         """
         self._validate_dates(data.start_date, data.end_date)
 
@@ -198,6 +203,17 @@ class PromotionService:
         event_bus.emit(
             PromotionChangedEvent(promotion_id=promotion.id, action="created")
         )
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.PROMOTION_CREATE,
+                    entity_type="promotion",
+                    entity_id=str(promotion.id),
+                    details={"code": promotion.code},
+                    ip_address=ip_address,
+                )
+            )
         return self._to_response(promotion)
 
     async def update(
@@ -205,11 +221,14 @@ class PromotionService:
         session: AsyncSession,
         promotion_id: UUID,
         data: UpdatePromotionRequest,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> PromotionResponse:
         """Update a promotion.  Only fields present in *data* are changed.
 
         When ``translations`` are provided the old translations are deleted
         first (cascade) and the new set is inserted.
+        When *actor_id* is provided, an ``AuditEvent`` is emitted.
         """
         promotion = await self._get_or_raise(session, promotion_id)
 
@@ -267,16 +286,33 @@ class PromotionService:
         event_bus.emit(
             PromotionChangedEvent(promotion_id=promotion_id, action="updated")
         )
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.PROMOTION_UPDATE,
+                    entity_type="promotion",
+                    entity_id=str(promotion_id),
+                    details={"code": response.code},
+                    ip_address=ip_address,
+                )
+            )
         return response
 
     async def delete(
-        self, session: AsyncSession, promotion_id: UUID
+        self,
+        session: AsyncSession,
+        promotion_id: UUID,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
     ) -> None:
         """Delete a promotion (cascades to translations).
 
         Raises ``ValueError`` if the promotion does not exist.
+        When *actor_id* is provided, an ``AuditEvent`` is emitted.
         """
-        await self._get_or_raise(session, promotion_id)
+        promotion = await self._get_or_raise(session, promotion_id)
+        code = promotion.code
         await session.execute(
             delete(Promotion).where(Promotion.id == promotion_id)
         )
@@ -285,6 +321,17 @@ class PromotionService:
         event_bus.emit(
             PromotionChangedEvent(promotion_id=promotion_id, action="deleted")
         )
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.PROMOTION_DELETE,
+                    entity_type="promotion",
+                    entity_id=str(promotion_id),
+                    details={"code": code},
+                    ip_address=ip_address,
+                )
+            )
 
     # ------------------------------------------------------------------
     # Internal helpers

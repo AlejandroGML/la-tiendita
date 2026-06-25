@@ -1,5 +1,6 @@
 """ORM model exports — imported by Alembic for autogenerate discovery."""
 
+from app.models.audit_log import AuditLog  # noqa: F401
 from app.models.cart import CartItem  # noqa: F401
 from app.models.category import Category, CategoryTranslation  # noqa: F401
 from app.models.order import Order, OrderItem, OrderStatus, PaymentStatus  # noqa: F401

@@ -9,6 +9,8 @@ import uuid
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.event_bus import event_bus
+from app.core.events import AuditAction, AuditEvent
 from app.models.order import Order
 from app.models.user import User, UserRole
 from app.repositories.order_repository import OrderRepository
@@ -67,6 +69,7 @@ class AdminUserService:
         user_id: uuid.UUID,
         new_role: str,
         requesting_user_id: uuid.UUID,
+        ip_address: str | None = None,
     ) -> UserAdminItem:
         """Update a user's role. Blocks self-demotion for safety.
 
@@ -75,6 +78,7 @@ class AdminUserService:
             user_id: The target user to update.
             new_role: The new role value (must be a valid ``UserRole``).
             requesting_user_id: The admin performing the action.
+            ip_address: Optional client IP for audit trail.
 
         Raises:
             SelfDemotionError: If the admin tries to change their own role.
@@ -95,6 +99,15 @@ class AdminUserService:
                 f"invalid role '{new_role}'. Valid roles: {[r.value for r in UserRole]}"
             ) from None
 
+        # Load current role for audit trail
+        old_result = await session.execute(
+            select(User.role).where(User.id == user_id)
+        )
+        old_role_row = old_result.scalar_one_or_none()
+        if old_role_row is None:
+            raise ValueError(f"user {user_id} not found")
+        old_role = old_role_row.value
+
         # Atomic UPDATE … RETURNING
         stmt = (
             update(User)
@@ -109,6 +122,18 @@ class AdminUserService:
             raise ValueError(f"user {user_id} not found")
 
         await session.flush()
+
+        # Audit trail (best-effort, fire-and-forget).
+        event_bus.emit(
+            AuditEvent(
+                actor_id=requesting_user_id,
+                action=AuditAction.USER_ROLE_CHANGE,
+                entity_type="user",
+                entity_id=str(user_id),
+                details={"from": old_role, "to": new_role},
+                ip_address=ip_address,
+            )
+        )
 
         # Build response with orders_count (subquery for the single user)
         orders_count = await self._order_repo.count_by_user(session, user_id)

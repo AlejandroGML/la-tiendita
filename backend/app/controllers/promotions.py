@@ -9,6 +9,7 @@ import math
 from uuid import UUID
 
 from litestar import Controller, delete, get, post, put
+from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException, ValidationException
 
@@ -128,12 +129,18 @@ class AdminPromotionController(Controller):
     async def create(
         self,
         data: CreatePromotionRequest,
+        request: ASGIConnection,
         service: PromotionService,
         session: AsyncSession,
     ) -> PromotionResponse:
         """Create a new promotion with translations (admin-only)."""
         try:
-            return await service.create(session, data)
+            return await service.create(
+                session,
+                data,
+                actor_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
+            )
         except ValueError as exc:
             raise ValidationException(detail=str(exc)) from exc
 
@@ -142,13 +149,20 @@ class AdminPromotionController(Controller):
         self,
         promotion_id: UUID,
         data: UpdatePromotionRequest,
+        request: ASGIConnection,
         service: PromotionService,
         session: AsyncSession,
     ) -> PromotionResponse:
         """Update an existing promotion (admin-only). Only provided fields
         are changed.  When translations are provided they replace the old set."""
         try:
-            return await service.update(session, promotion_id, data)
+            return await service.update(
+                session,
+                promotion_id,
+                data,
+                actor_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
+            )
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc
 
@@ -156,11 +170,17 @@ class AdminPromotionController(Controller):
     async def delete(
         self,
         promotion_id: UUID,
+        request: ASGIConnection,
         service: PromotionService,
         session: AsyncSession,
     ) -> None:
         """Delete a promotion and its translations (admin-only)."""
         try:
-            await service.delete(session, promotion_id)
+            await service.delete(
+                session,
+                promotion_id,
+                actor_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
+            )
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc

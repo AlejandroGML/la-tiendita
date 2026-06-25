@@ -8,6 +8,7 @@ import math
 from uuid import UUID
 
 from litestar import Controller, get, post, put, delete
+from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import NotFoundException, ValidationException
 from litestar.response import Redirect
@@ -206,6 +207,7 @@ class AdminProductController(Controller):
     async def create_product(
         self,
         data: CreateProductRequest,
+        request: ASGIConnection,
         service: ProductService,
         session: AsyncSession,
     ) -> dict:
@@ -214,7 +216,12 @@ class AdminProductController(Controller):
         Requires at least one translation.
         """
         try:
-            product = await service.create_product(session, data)
+            product = await service.create_product(
+                session,
+                data,
+                actor_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
+            )
         except ValueError as exc:
             raise ValidationException(detail=str(exc)) from exc
 
@@ -225,11 +232,18 @@ class AdminProductController(Controller):
         self,
         product_id: UUID,
         data: UpdateProductRequest,
+        request: ASGIConnection,
         service: ProductService,
         session: AsyncSession,
     ) -> dict:
         """Update a product and optionally upsert translations."""
-        product = await service.update_product(session, product_id, data)
+        product = await service.update_product(
+            session,
+            product_id,
+            data,
+            actor_id=request.user.id,
+            ip_address=request.client.host if request.client else None,
+        )
         if product is None:
             raise NotFoundException(detail="product not found")
         return build_product_response(product)
@@ -238,10 +252,16 @@ class AdminProductController(Controller):
     async def delete_product(
         self,
         product_id: UUID,
+        request: ASGIConnection,
         service: ProductService,
         session: AsyncSession,
     ) -> None:
         """Soft-delete a product (sets ``deleted_at``)."""
-        deleted = await service.delete_product(session, product_id)
+        deleted = await service.delete_product(
+            session,
+            product_id,
+            actor_id=request.user.id,
+            ip_address=request.client.host if request.client else None,
+        )
         if not deleted:
             raise NotFoundException(detail="product not found")

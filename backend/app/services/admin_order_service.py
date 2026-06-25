@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.core.event_bus import event_bus
-from app.core.events import OrderShippedEvent
+from app.core.events import AuditAction, AuditEvent, OrderShippedEvent
 from app.models.order import Order, OrderStatus, PaymentStatus
 from app.repositories.order_repository import OrderRepository
 from app.schemas.order import OrderAdminListItem
@@ -92,6 +92,8 @@ class AdminOrderService:
         session: AsyncSession,
         order_id: uuid.UUID,
         new_status: str,
+        actor_id: uuid.UUID | None = None,
+        ip_address: str | None = None,
     ) -> OrderAdminListItem:
         """Transition an order to a new status, enforcing the state machine.
 
@@ -99,6 +101,8 @@ class AdminOrderService:
             session: Async DB session.
             order_id: The order to transition.
             new_status: The target status string.
+            actor_id: The admin performing the action (for audit trail).
+            ip_address: Optional client IP for audit trail.
 
         Raises:
             ValueError: If the order is not found.
@@ -168,6 +172,19 @@ class AdminOrderService:
                 user_id=order.user.id,
                 order_id=order.id,
             ))
+
+        # Audit trail (best-effort, fire-and-forget).
+        if actor_id is not None:
+            event_bus.emit(
+                AuditEvent(
+                    actor_id=actor_id,
+                    action=AuditAction.ORDER_STATUS_CHANGE,
+                    entity_type="order",
+                    entity_id=str(order.id),
+                    details={"from": current.value, "to": new_status},
+                    ip_address=ip_address,
+                )
+            )
 
         return OrderAdminListItem(
             id=order.id,

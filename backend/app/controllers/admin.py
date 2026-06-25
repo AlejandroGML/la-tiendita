@@ -157,6 +157,7 @@ class AdminController(Controller):
                 user_id=user_id,
                 new_role=data.role,
                 requesting_user_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
             )
         except SelfDemotionError as exc:
             raise ValidationException(detail=str(exc)) from exc
@@ -205,6 +206,7 @@ class AdminController(Controller):
         self,
         order_id: UUID,
         data: OrderStatusUpdate,
+        request: ASGIConnection,
         order_svc: AdminOrderService,
         session: AsyncSession,
     ) -> dict:
@@ -218,6 +220,8 @@ class AdminController(Controller):
                 session,
                 order_id=order_id,
                 new_status=data.status,
+                actor_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
             )
         except InvalidTransitionError as exc:
             detail = str(exc)
@@ -285,13 +289,18 @@ class AdminProductVariantController(Controller):
         self,
         product_id: UUID,
         data: ProductVariantCreate,
+        request: ASGIConnection,
         variant_service: VariantService,
         session: AsyncSession,
     ) -> dict:
         """Create a new variant for a product."""
         try:
             variant = await variant_service.create_variant(
-                session, product_id, data
+                session,
+                product_id,
+                data,
+                actor_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
             )
         except ValueError as exc:
             raise ValidationException(detail=str(exc)) from exc
@@ -304,12 +313,17 @@ class AdminProductVariantController(Controller):
         product_id: UUID,
         variant_id: UUID,
         data: ProductVariantUpdate,
+        request: ASGIConnection,
         variant_service: VariantService,
         session: AsyncSession,
     ) -> dict:
         """Update an existing variant (partial)."""
         variant = await variant_service.update_variant(
-            session, variant_id, data
+            session,
+            variant_id,
+            data,
+            actor_id=request.user.id,
+            ip_address=request.client.host if request.client else None,
         )
         if variant is None:
             raise NotFoundException(detail="variant not found")
@@ -327,13 +341,18 @@ class AdminProductVariantController(Controller):
         self,
         product_id: UUID,
         variant_id: UUID,
+        request: ASGIConnection,
         variant_service: VariantService,
         session: AsyncSession,
     ) -> None:
         """Soft-delete a variant (blocks if referenced by cart items)."""
         try:
             deleted = await variant_service.delete_variant(
-                session, variant_id, product_id=product_id
+                session,
+                variant_id,
+                product_id=product_id,
+                actor_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
             )
         except ValueError as exc:
             raise ValidationException(detail=str(exc)) from exc

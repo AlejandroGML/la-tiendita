@@ -66,9 +66,13 @@ async def on_startup() -> None:
     from app.core.cache import cache_service
     from app.core.email_handler import EmailHandler
     from app.core.event_bus import event_bus
+    from app.core.handlers.audit_handler import AuditHandler
     from app.core.handlers.cache_invalidation import CacheInvalidationHandler
 
     EmailHandler(event_bus=event_bus, session_factory=async_session)
+
+    # Wire audit logging — fire-and-forget persistence via event bus.
+    AuditHandler(event_bus=event_bus, session_factory=async_session)
 
     # Wire cache invalidation for product/category/promotion mutations.
     # A subscription with no subscribers is harmless, but registering here

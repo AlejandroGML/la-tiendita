@@ -1,12 +1,35 @@
 """Typed event dataclasses for the application event bus.
 
-Each datacarry the **minimum** data required for its handler to do its job.
+Each dataclass carries the **minimum** data required for its handler to do its job.
 """
 
 from __future__ import annotations
 
 from dataclasses import dataclass
+from enum import StrEnum
 from uuid import UUID
+
+
+class AuditAction(StrEnum):
+    """Dot-notation action constants for admin audit logging.
+
+    Each value maps to an ``action`` column value in the ``audit_logs`` table.
+    """
+
+    PRODUCT_CREATE = "product.create"
+    PRODUCT_UPDATE = "product.update"
+    PRODUCT_DELETE = "product.delete"
+    VARIANT_CREATE = "variant.create"
+    VARIANT_UPDATE = "variant.update"
+    VARIANT_DELETE = "variant.delete"
+    CATEGORY_CREATE = "category.create"
+    CATEGORY_UPDATE = "category.update"
+    CATEGORY_DELETE = "category.delete"
+    PROMOTION_CREATE = "promotion.create"
+    PROMOTION_UPDATE = "promotion.update"
+    PROMOTION_DELETE = "promotion.delete"
+    USER_ROLE_CHANGE = "user.role_change"
+    ORDER_STATUS_CHANGE = "order.status_change"
 
 
 @dataclass(frozen=True)
@@ -105,3 +128,27 @@ class PromotionChangedEvent:
 
     promotion_id: UUID
     action: str
+
+
+@dataclass(frozen=True)
+class AuditEvent:
+    """Emitted after an admin mutation to record who changed what.
+
+    Handled by :class:`AuditHandler` as a fire-and-forget task — audit
+    persistence never blocks the HTTP response.
+
+    Attributes:
+        actor_id:    The admin user who performed the mutation.
+        action:      Dot-notation action (e.g. ``product.create``).
+        entity_type: The kind of entity mutated.
+        entity_id:   String form of the entity's primary key.
+        details:     Optional mutation context (old/new values, slug, etc.).
+        ip_address:  Optional client IP address of the admin.
+    """
+
+    actor_id: UUID
+    action: AuditAction
+    entity_type: str
+    entity_id: str
+    details: dict | None = None
+    ip_address: str | None = None
