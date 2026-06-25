@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import logging
 
+from app.config import settings
 from app.core.cache import CacheService
 from app.core.event_bus import EventBus
 from app.core.events import (
@@ -69,15 +70,17 @@ class CacheInvalidationHandler:
         feed product pricing, so a product change also refreshes the active
         promotions cache defensively.
         """
-        await self._cache.invalidate_pattern("tiendita:products:list:*")
+        p = settings.CACHE_PREFIX
+        await self._cache.invalidate_pattern(f"{p}:products:list:*")
         if event.slug:
-            await self._cache.delete(f"tiendita:products:detail:{event.slug}")
+            await self._cache.delete(f"{p}:products:detail:{event.slug}")
         # Pricing summary may reference promotions; refresh defensively.
-        await self._cache.invalidate_pattern("tiendita:promotions:active:*")
+        await self._cache.invalidate_pattern(f"{p}:promotions:active:*")
 
     async def handle_category_changed(self, event: CategoryChangedEvent) -> None:
         """Invalidate every category listing key."""
-        await self._cache.invalidate_pattern("tiendita:categories:list:*")
+        p = settings.CACHE_PREFIX
+        await self._cache.invalidate_pattern(f"{p}:categories:list:*")
 
     async def handle_promotion_changed(self, event: PromotionChangedEvent) -> None:
         """Invalidate promotions and ALL product caches.
@@ -86,6 +89,7 @@ class CacheInvalidationHandler:
         promotion change can stale every product dict. Cross-entity DEL is the
         correct (if broad) invalidation.
         """
-        await self._cache.invalidate_pattern("tiendita:promotions:active:*")
-        await self._cache.invalidate_pattern("tiendita:products:list:*")
-        await self._cache.invalidate_pattern("tiendita:products:detail:*")
+        p = settings.CACHE_PREFIX
+        await self._cache.invalidate_pattern(f"{p}:promotions:active:*")
+        await self._cache.invalidate_pattern(f"{p}:products:list:*")
+        await self._cache.invalidate_pattern(f"{p}:products:detail:*")

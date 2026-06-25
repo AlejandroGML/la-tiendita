@@ -212,7 +212,7 @@ class ProductService:
         response = build_product_response(product, promotion_info=promotions)
 
         if key is not None:
-            await self._cache.set(key, response, settings.CACHE_TTL_PRODUCTS_DETAIL)
+            await self._cache.set(key, response, settings.CACHE_TTL_PRODUCT_DETAIL)
 
         return response
 

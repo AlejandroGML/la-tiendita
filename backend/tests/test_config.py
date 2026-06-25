@@ -25,7 +25,7 @@ def _make_settings(monkeypatch, **overrides):
         "CACHE_ENABLED",
         "CACHE_PREFIX",
         "CACHE_TTL_PRODUCTS_LIST",
-        "CACHE_TTL_PRODUCTS_DETAIL",
+        "CACHE_TTL_PRODUCT_DETAIL",
         "CACHE_TTL_CATEGORIES_LIST",
         "CACHE_TTL_PROMOTIONS_ACTIVE",
     ):
@@ -42,7 +42,7 @@ def test_cache_ttl_defaults(monkeypatch):
     settings = _make_settings(monkeypatch)
 
     assert settings.CACHE_TTL_PRODUCTS_LIST == 60
-    assert settings.CACHE_TTL_PRODUCTS_DETAIL == 300
+    assert settings.CACHE_TTL_PRODUCT_DETAIL == 300
     assert settings.CACHE_TTL_CATEGORIES_LIST == 600
     assert settings.CACHE_TTL_PROMOTIONS_ACTIVE == 120
 
@@ -57,7 +57,7 @@ def test_cache_ttl_env_override(monkeypatch):
     assert settings.CACHE_TTL_PRODUCTS_LIST == 10
     assert settings.CACHE_TTL_PROMOTIONS_ACTIVE == 7
     # Untouched fields keep their defaults.
-    assert settings.CACHE_TTL_PRODUCTS_DETAIL == 300
+    assert settings.CACHE_TTL_PRODUCT_DETAIL == 300
 
 
 def test_cache_enabled_false_is_bool(monkeypatch):

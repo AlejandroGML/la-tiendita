@@ -54,7 +54,7 @@ class Settings(BaseSettings):
     CACHE_ENABLED: bool = Field(default=True)
     CACHE_PREFIX: str = Field(default="tiendita")
     CACHE_TTL_PRODUCTS_LIST: int = Field(default=60)
-    CACHE_TTL_PRODUCTS_DETAIL: int = Field(default=300)
+    CACHE_TTL_PRODUCT_DETAIL: int = Field(default=300)
     CACHE_TTL_CATEGORIES_LIST: int = Field(default=600)
     CACHE_TTL_PROMOTIONS_ACTIVE: int = Field(default=120)
 
