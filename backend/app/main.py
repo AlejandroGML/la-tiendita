@@ -5,6 +5,7 @@ import logging
 from litestar import Litestar, get
 from litestar.config.cors import CORSConfig
 from litestar.openapi import OpenAPIConfig
+from litestar.response import Redirect
 from litestar.static_files import create_static_files_router
 
 from app.config import settings
@@ -37,8 +38,60 @@ cors_config = CORSConfig(
 
 @get("/health", sync_to_thread=False)
 async def health_check() -> dict[str, str]:
-    """Health check endpoint for Docker Compose readiness."""
+    """Legacy health check endpoint — kept for backward compatibility."""
     return {"status": "ok"}
+
+
+@get("/api/v1/health/live", sync_to_thread=False)
+async def liveness() -> dict[str, str]:
+    """Kubernetes liveness probe — is the process running?"""
+    return {"status": "alive"}
+
+
+@get("/api/v1/health/ready", sync_to_thread=False)
+async def readiness() -> dict:
+    """Kubernetes readiness probe — can we serve traffic?
+
+    Checks database connectivity (SELECT 1) and Redis cache reachability
+    (PING). Returns ``"ready"`` when all checks pass, ``"degraded"`` when
+    any dependency is unreachable.
+    """
+    from sqlalchemy import text
+
+    checks: dict[str, str] = {}
+
+    # ------------------------------------------------------------------
+    # Database — can we reach PostgreSQL?
+    # ------------------------------------------------------------------
+    try:
+        async with async_session() as session:
+            await session.execute(text("SELECT 1"))
+        checks["database"] = "ok"
+    except Exception as e:
+        checks["database"] = f"error: {str(e)[:100]}"
+
+    # ------------------------------------------------------------------
+    # Redis — can we reach the cache server?
+    # ------------------------------------------------------------------
+    try:
+        if settings.REDIS_URL:
+            import redis.asyncio as aioredis
+
+            r = aioredis.from_url(settings.REDIS_URL)
+            await r.ping()
+            await r.aclose()
+            checks["redis"] = "ok"
+    except Exception as e:
+        checks["redis"] = f"error: {str(e)[:100]}"
+
+    all_ok = all(v == "ok" for v in checks.values())
+    return {"status": "ready" if all_ok else "degraded", "checks": checks}
+
+
+@get("/api/{path:path}", sync_to_thread=False)
+async def api_legacy_redirect(path: str) -> Redirect:
+    """Redirect legacy ``/api/*`` requests to ``/api/v1/*`` (301 Moved Permanently)."""
+    return Redirect(f"/api/v1/{path}", status_code=301)
 
 
 @get("/protected", sync_to_thread=False)
@@ -108,6 +161,9 @@ app = Litestar(
     on_shutdown=[on_shutdown],
     route_handlers=[
         health_check,
+        liveness,
+        readiness,
+        api_legacy_redirect,
         protected_endpoint,
         AdminController,
         AdminPromotionController,
