@@ -63,10 +63,10 @@ class UploadController(Controller):
         magic_signatures = {
             "image/jpeg": (b"\xff\xd8\xff",),
             "image/png": (b"\x89PNG\r\n\x1a\n",),
-            "image/webp": (b"RIFF",),
+            "image/webp": (lambda b: b.startswith(b"RIFF") and len(b) > 11 and b[8:12] == b"WEBP",),
         }
         expected_sigs = magic_signatures.get(content_type, ())
-        if not any(file_bytes.startswith(sig) for sig in expected_sigs):
+        if not any(sig(file_bytes) if callable(sig) else file_bytes.startswith(sig) for sig in expected_sigs):
             raise ValidationException(
                 detail="file content does not match declared image type"
             )
