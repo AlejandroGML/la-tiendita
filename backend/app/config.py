@@ -61,5 +61,8 @@ class Settings(BaseSettings):
     # ARQ background jobs
     ARQ_QUEUE_NAME: str = Field(default="arq:queue")
 
+    # Sentry error tracking (optional — leave empty to disable)
+    SENTRY_DSN: str = Field(default="")
+
 
 settings = Settings()

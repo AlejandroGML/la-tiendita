@@ -188,6 +188,25 @@ async def on_startup() -> None:
         logger.info("Database migrations up to date")
     except Exception:
         logger.exception("Migration upgrade failed — app may be degraded")
+
+    # ── Sentry error tracking (optional) ────────────────────────────────
+    # If SENTRY_DSN is set, initialise the SDK to capture unhandled
+    # exceptions with full context (request, user, DB). No-op otherwise.
+    if settings.SENTRY_DSN:
+        import sentry_sdk
+        from sentry_sdk.integrations.asgi import AsgiIntegration
+
+        sentry_sdk.init(
+            dsn=settings.SENTRY_DSN,
+            environment="production" if not settings.DEBUG else "development",
+            integrations=[AsgiIntegration()],
+            traces_sample_rate=0.1,
+            send_default_pii=False,
+        )
+        logger.info("Sentry error tracking enabled")
+    else:
+        logger.debug("Sentry DSN not set — error tracking disabled")
+
     from app.core.cache import cache_service
     from app.core.email_handler import EmailHandler
     from app.core.event_bus import event_bus
@@ -258,8 +277,19 @@ async def _value_error_handler(_request, exc):
 
 
 async def _global_exception_handler(_request, exc):
-    """Catch-all exception handler — logs full trace, returns generic 500."""
+    """Catch-all exception handler — logs full trace, returns generic 500.
+
+    Also forwards the exception to Sentry when error tracking is active
+    (``settings.SENTRY_DSN`` is set). This is safe to call even when Sentry
+    is not initialised — ``capture_exception`` becomes a no-op.
+    """
     logger.exception("Unhandled exception")
+    try:
+        import sentry_sdk
+
+        sentry_sdk.capture_exception(exc)
+    except Exception:
+        pass  # Sentry not available — nothing to do
     return Response(
         content={
             "detail": str(exc) if settings.DEBUG else "Internal server error"
