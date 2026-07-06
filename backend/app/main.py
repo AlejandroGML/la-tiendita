@@ -2,13 +2,23 @@
 
 import logging
 
-from litestar import Litestar, get
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
+logging.getLogger("httpx").setLevel(logging.WARNING)
+logging.getLogger("httpcore").setLevel(logging.WARNING)
+logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
+
+from litestar import Litestar, get, Response
 from litestar.config.cors import CORSConfig
 from litestar.openapi import OpenAPIConfig
 from litestar.response import Redirect
 from litestar.static_files import create_static_files_router
 
 from app.config import settings
+from app.exceptions import StockInsufficientError, StripeError
 from app.controllers.admin import AdminController, AdminProductVariantController
 from app.controllers.auth import AuthController
 from app.controllers.cart import CartController
@@ -161,9 +171,51 @@ async def on_shutdown() -> None:
 # ---------------------------------------------------------------------------
 
 
+async def _stripe_error_handler(_request, exc):
+    """Map StripeError to 502 Bad Gateway."""
+    logger.warning("Stripe service error: %s", exc)
+    return Response(
+        content={"detail": "Payment service unavailable"},
+        status_code=502,
+    )
+
+
+async def _stock_insufficient_handler(_request, exc):
+    """Map StockInsufficientError to 409 Conflict."""
+    return Response(
+        content={"detail": str(exc)},
+        status_code=409,
+    )
+
+
+async def _value_error_handler(_request, exc):
+    """Map generic ValueError to 400 Bad Request."""
+    return Response(
+        content={"detail": str(exc)},
+        status_code=400,
+    )
+
+
+async def _global_exception_handler(_request, exc):
+    """Catch-all exception handler — logs full trace, returns generic 500."""
+    logger.exception("Unhandled exception")
+    return Response(
+        content={
+            "detail": str(exc) if settings.DEBUG else "Internal server error"
+        },
+        status_code=500,
+    )
+
+
 app = Litestar(
     on_startup=[on_startup],
     on_shutdown=[on_shutdown],
+    exception_handlers={
+        StripeError: _stripe_error_handler,
+        StockInsufficientError: _stock_insufficient_handler,
+        ValueError: _value_error_handler,
+        Exception: _global_exception_handler,
+    },
     route_handlers=[
         health_check,
         liveness,
