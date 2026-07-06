@@ -91,7 +91,7 @@ class AdminController(Controller):
     ``admin_guard`` via ``guards=[admin_guard]``).
     """
 
-    path = "/api/admin"
+    path = "/api/v1/admin"
     tags = ["admin"]
     guards = [admin_guard]
     dependencies = {
@@ -256,7 +256,7 @@ class AdminProductVariantController(Controller):
     Requires admin JWT (guards=admin_guard).
     """
 
-    path = "/api/admin/products/{product_id:uuid}/variants"
+    path = "/api/v1/admin/products/{product_id:uuid}/variants"
     tags = ["admin-product-variants"]
     guards = [admin_guard]
     dependencies = {

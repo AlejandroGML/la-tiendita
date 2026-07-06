@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class StripeWebhookController(Controller):
     """Stripe webhook receiver — no JWT, no schema parsing."""
 
-    path = "/api/stripe"
+    path = "/api/v1/stripe"
     tags = ["stripe"]
 
     @post("/webhook", status_code=200)

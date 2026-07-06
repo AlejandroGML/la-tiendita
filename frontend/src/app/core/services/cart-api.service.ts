@@ -45,7 +45,7 @@ export class CartApiService {
 
   /** Fetch the current cart from the backend. */
   getCart(): Observable<CartResponse> {
-    return this.http.get<CartResponse>('/api/cart', this.cartHeaders());
+    return this.http.get<CartResponse>('/api/v1/cart', this.cartHeaders());
   }
 
   /** Add a product to the cart (quantity defaults to 1). Optionally pass a variantId. */
@@ -58,14 +58,14 @@ export class CartApiService {
     if (variantId) {
       body.variant_id = variantId;
     }
-    return this.http.post<CartResponse>('/api/cart', body, this.cartHeaders());
+    return this.http.post<CartResponse>('/api/v1/cart', body, this.cartHeaders());
   }
 
   /** Update line-item quantity. Setting quantity to 0 removes the item. */
   updateQuantity(itemId: string, quantity: number): Observable<CartResponse> {
     const body: UpdateCartItemRequest = { quantity };
     return this.http.put<CartResponse>(
-      `/api/cart/${itemId}`,
+      `/api/v1/cart/${itemId}`,
       body,
       this.cartHeaders(),
     );
@@ -74,13 +74,13 @@ export class CartApiService {
   /** Remove a single item from the cart. */
   removeItem(itemId: string): Observable<CartResponse> {
     return this.http.delete<CartResponse>(
-      `/api/cart/${itemId}`,
+      `/api/v1/cart/${itemId}`,
       this.cartHeaders(),
     );
   }
 
   /** Empty the entire cart. */
   clearCart(): Observable<CartResponse> {
-    return this.http.delete<CartResponse>('/api/cart', this.cartHeaders());
+    return this.http.delete<CartResponse>('/api/v1/cart', this.cartHeaders());
   }
 }

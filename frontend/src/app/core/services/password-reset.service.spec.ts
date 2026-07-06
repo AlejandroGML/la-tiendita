@@ -44,7 +44,7 @@ describe('PasswordResetService', () => {
     it('calls POST /api/auth/forgot-password with trimmed email', () => {
       service.forgotPassword('  user@example.com  ').subscribe();
 
-      const req = httpMock.expectOne('/api/auth/forgot-password');
+      const req = httpMock.expectOne('/api/v1/auth/forgot-password');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ email: 'user@example.com' });
       req.flush(null);
@@ -58,7 +58,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/forgot-password');
+      const req = httpMock.expectOne('/api/v1/auth/forgot-password');
       req.flush(null);
     });
 
@@ -70,7 +70,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/forgot-password');
+      const req = httpMock.expectOne('/api/v1/auth/forgot-password');
       req.flush(null);
     });
 
@@ -81,7 +81,7 @@ describe('PasswordResetService', () => {
       });
 
       // No HTTP request should have been made
-      httpMock.expectNone('/api/auth/forgot-password');
+      httpMock.expectNone('/api/v1/auth/forgot-password');
       expect(errors[0]).toBeInstanceOf(InvalidEmailError);
     });
 
@@ -91,14 +91,14 @@ describe('PasswordResetService', () => {
         error: (err) => errors.push(err),
       });
 
-      httpMock.expectNone('/api/auth/forgot-password');
+      httpMock.expectNone('/api/v1/auth/forgot-password');
       expect(errors[0]).toBeInstanceOf(InvalidEmailError);
     });
 
     it('trims leading/trailing whitespace before validation', () => {
       service.forgotPassword('  valid@email.com  ').subscribe();
 
-      const req = httpMock.expectOne('/api/auth/forgot-password');
+      const req = httpMock.expectOne('/api/v1/auth/forgot-password');
       expect(req.request.body).toEqual({ email: 'valid@email.com' });
       req.flush(null);
     });
@@ -110,7 +110,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/forgot-password');
+      const req = httpMock.expectOne('/api/v1/auth/forgot-password');
       req.flush(null, { status: 429, statusText: 'Too Many Requests' });
     });
 
@@ -121,7 +121,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/forgot-password');
+      const req = httpMock.expectOne('/api/v1/auth/forgot-password');
       req.flush(null, { status: 503, statusText: 'Service Unavailable' });
     });
   });
@@ -132,7 +132,7 @@ describe('PasswordResetService', () => {
     it('calls POST /api/auth/reset-password with token and newPassword', () => {
       service.resetPassword('reset-token-abc', 'newPassword123').subscribe();
 
-      const req = httpMock.expectOne('/api/auth/reset-password');
+      const req = httpMock.expectOne('/api/v1/auth/reset-password');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({
         token: 'reset-token-abc',
@@ -148,7 +148,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/reset-password');
+      const req = httpMock.expectOne('/api/v1/auth/reset-password');
       req.flush(null);
     });
 
@@ -158,7 +158,7 @@ describe('PasswordResetService', () => {
         error: (err) => errors.push(err),
       });
 
-      httpMock.expectNone('/api/auth/reset-password');
+      httpMock.expectNone('/api/v1/auth/reset-password');
       expect(errors[0]).toBeInstanceOf(WeakPasswordError);
     });
 
@@ -168,7 +168,7 @@ describe('PasswordResetService', () => {
         error: (err) => errors.push(err),
       });
 
-      httpMock.expectNone('/api/auth/reset-password');
+      httpMock.expectNone('/api/v1/auth/reset-password');
       expect(errors[0]).toBeInstanceOf(InvalidResetPayloadError);
     });
 
@@ -179,7 +179,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/reset-password');
+      const req = httpMock.expectOne('/api/v1/auth/reset-password');
       req.flush(null, { status: 400, statusText: 'Bad Request' });
     });
 
@@ -190,7 +190,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/reset-password');
+      const req = httpMock.expectOne('/api/v1/auth/reset-password');
       req.flush(null, { status: 410, statusText: 'Gone' });
     });
 
@@ -201,7 +201,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/reset-password');
+      const req = httpMock.expectOne('/api/v1/auth/reset-password');
       req.flush(null, { status: 429, statusText: 'Too Many Requests' });
     });
 
@@ -212,7 +212,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/reset-password');
+      const req = httpMock.expectOne('/api/v1/auth/reset-password');
       req.flush(null, { status: 502, statusText: 'Bad Gateway' });
     });
 
@@ -223,7 +223,7 @@ describe('PasswordResetService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/reset-password');
+      const req = httpMock.expectOne('/api/v1/auth/reset-password');
       req.flush(null, { status: 500, statusText: 'Internal Server Error' });
     });
   });

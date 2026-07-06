@@ -33,10 +33,10 @@ export class AdminOrderService {
     if (params?.page) httpParams = httpParams.set('page', String(params.page));
     if (params?.per_page) httpParams = httpParams.set('per_page', String(params.per_page));
     if (params?.status) httpParams = httpParams.set('status', params.status);
-    return this.http.get<OrderAdminListResponse>('/api/admin/orders', { params: httpParams });
+    return this.http.get<OrderAdminListResponse>('/api/v1/admin/orders', { params: httpParams });
   }
 
   updateOrderStatus(orderId: string, status: string): Observable<OrderAdminItem> {
-    return this.http.patch<OrderAdminItem>(`/api/admin/orders/${orderId}/status`, { status });
+    return this.http.patch<OrderAdminItem>(`/api/v1/admin/orders/${orderId}/status`, { status });
   }
 }

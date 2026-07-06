@@ -85,7 +85,7 @@ export class PasswordResetService {
     }
 
     return this.http
-      .post<void>('/api/auth/forgot-password', { email: trimmed })
+      .post<void>('/api/v1/auth/forgot-password', { email: trimmed })
       .pipe(
         catchError((err: unknown) => this.mapForgotPasswordError(err)),
       );
@@ -120,7 +120,7 @@ export class PasswordResetService {
     }
 
     return this.http
-      .post<void>('/api/auth/reset-password', { token, newPassword })
+      .post<void>('/api/v1/auth/reset-password', { token, newPassword })
       .pipe(
         catchError((err: unknown) => this.mapResetPasswordError(err)),
       );

@@ -102,7 +102,7 @@ describe('TwoFactorService', () => {
         expect(res.recoveryCodes.length).toBe(2);
       });
 
-      const req = httpMock.expectOne('/api/auth/2fa/setup');
+      const req = httpMock.expectOne('/api/v1/auth/2fa/setup');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({});
       req.flush(setupData);
@@ -115,7 +115,7 @@ describe('TwoFactorService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/2fa/setup');
+      const req = httpMock.expectOne('/api/v1/auth/2fa/setup');
       req.flush(
         { detail: '2FA already enabled' },
         { status: 409, statusText: 'Conflict' },
@@ -136,7 +136,7 @@ describe('TwoFactorService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/2fa/verify-setup');
+      const req = httpMock.expectOne('/api/v1/auth/2fa/verify-setup');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ code: '123456' });
       req.flush(mockUserResponse);
@@ -152,7 +152,7 @@ describe('TwoFactorService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/2fa/verify-setup');
+      const req = httpMock.expectOne('/api/v1/auth/2fa/verify-setup');
       req.flush(
         { detail: 'Invalid code' },
         { status: 400, statusText: 'Bad Request' },
@@ -178,7 +178,7 @@ describe('TwoFactorService', () => {
         expect(res.access_token).toBe('new-at');
       });
 
-      const req = httpMock.expectOne('/api/auth/2fa/validate');
+      const req = httpMock.expectOne('/api/v1/auth/2fa/validate');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({
         code: '654321',
@@ -202,7 +202,7 @@ describe('TwoFactorService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/2fa/validate');
+      const req = httpMock.expectOne('/api/v1/auth/2fa/validate');
       req.flush(
         { detail: 'Token expired' },
         { status: 410, statusText: 'Gone' },
@@ -224,7 +224,7 @@ describe('TwoFactorService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/2fa/disable');
+      const req = httpMock.expectOne('/api/v1/auth/2fa/disable');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ password: 'correct-password' });
       req.flush(mockUserDisabled);
@@ -240,7 +240,7 @@ describe('TwoFactorService', () => {
         },
       });
 
-      const req = httpMock.expectOne('/api/auth/2fa/disable');
+      const req = httpMock.expectOne('/api/v1/auth/2fa/disable');
       req.flush(
         { detail: 'Wrong password' },
         { status: 403, statusText: 'Forbidden' },

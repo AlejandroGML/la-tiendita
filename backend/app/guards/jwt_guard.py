@@ -33,11 +33,11 @@ jwt_auth = JWTAuth[User](
     exclude=[
         "/health",
         "/schema",
-        "/api/products",
-        "/api/categories",
-        "/api/promotions",
-        "/api/cart",
-        "/api/checkout",
+        "/api/v1/products",
+        "/api/v1/categories",
+        "/api/v1/promotions",
+        "/api/v1/cart",
+        "/api/v1/checkout",
         "/uploads/",
         "/auth/register",
         "/auth/login",
@@ -49,7 +49,7 @@ jwt_auth = JWTAuth[User](
         "/auth/verify-2fa",
         "/auth/oauth/google",
         "/auth/oauth/google/callback",
-        "/api/stripe/webhook",
+        "/api/v1/stripe/webhook",
     ],
 )
 """Configured JWTAuth instance — import and use as ``guards=[jwt_auth]``."""

@@ -61,7 +61,7 @@ export class CategoryService {
     }
 
     this.http
-      .get<CategoryItem[]>('/api/categories', { params: { lang: 'es' } })
+      .get<CategoryItem[]>('/api/v1/categories', { params: { lang: 'es' } })
       .pipe(
         tap({
           next: (data) => {

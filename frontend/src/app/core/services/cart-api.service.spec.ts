@@ -102,7 +102,7 @@ describe('CartApiService', () => {
         expect(res).toEqual(MOCK_CART_RESPONSE);
       });
 
-      const req = httpMock.expectOne('/api/cart');
+      const req = httpMock.expectOne('/api/v1/cart');
       expect(req.request.method).toBe('GET');
       req.flush(MOCK_CART_RESPONSE);
     });
@@ -110,7 +110,7 @@ describe('CartApiService', () => {
     it('attaches X-Session-Id for guest users', () => {
       service.getCart().subscribe();
 
-      const req = httpMock.expectOne('/api/cart');
+      const req = httpMock.expectOne('/api/v1/cart');
       expect(req.request.headers.has('X-Session-Id')).toBe(true);
       req.flush(MOCK_CART_RESPONSE);
     });
@@ -120,7 +120,7 @@ describe('CartApiService', () => {
 
       service.getCart().subscribe();
 
-      const req = httpMock.expectOne('/api/cart');
+      const req = httpMock.expectOne('/api/v1/cart');
       expect(req.request.headers.has('X-Session-Id')).toBe(false);
       req.flush(MOCK_CART_RESPONSE);
     });
@@ -134,7 +134,7 @@ describe('CartApiService', () => {
         expect(res).toEqual(MOCK_CART_RESPONSE);
       });
 
-      const req = httpMock.expectOne('/api/cart');
+      const req = httpMock.expectOne('/api/v1/cart');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({
         product_id: 'prod-1',
@@ -146,7 +146,7 @@ describe('CartApiService', () => {
     it('includes variant_id when provided', () => {
       service.addItem('prod-1', 1, 'variant-1').subscribe();
 
-      const req = httpMock.expectOne('/api/cart');
+      const req = httpMock.expectOne('/api/v1/cart');
       expect(req.request.body).toEqual({
         product_id: 'prod-1',
         quantity: 1,
@@ -158,7 +158,7 @@ describe('CartApiService', () => {
     it('defaults quantity to 1', () => {
       service.addItem('prod-1').subscribe();
 
-      const req = httpMock.expectOne('/api/cart');
+      const req = httpMock.expectOne('/api/v1/cart');
       expect(req.request.body).toEqual({
         product_id: 'prod-1',
         quantity: 1,
@@ -169,7 +169,7 @@ describe('CartApiService', () => {
     it('attaches X-Session-Id for guests', () => {
       service.addItem('prod-1').subscribe();
 
-      const req = httpMock.expectOne('/api/cart');
+      const req = httpMock.expectOne('/api/v1/cart');
       expect(req.request.headers.has('X-Session-Id')).toBe(true);
       req.flush(MOCK_CART_RESPONSE);
     });
@@ -183,7 +183,7 @@ describe('CartApiService', () => {
         expect(res).toEqual(MOCK_CART_RESPONSE);
       });
 
-      const req = httpMock.expectOne('/api/cart/item-1');
+      const req = httpMock.expectOne('/api/v1/cart/item-1');
       expect(req.request.method).toBe('PUT');
       expect(req.request.body).toEqual({ quantity: 5 });
       req.flush(MOCK_CART_RESPONSE);
@@ -198,7 +198,7 @@ describe('CartApiService', () => {
         expect(res).toEqual(MOCK_CART_RESPONSE);
       });
 
-      const req = httpMock.expectOne('/api/cart/item-1');
+      const req = httpMock.expectOne('/api/v1/cart/item-1');
       expect(req.request.method).toBe('DELETE');
       req.flush(MOCK_CART_RESPONSE);
     });
@@ -212,7 +212,7 @@ describe('CartApiService', () => {
         expect(res).toEqual(MOCK_CART_RESPONSE);
       });
 
-      const req = httpMock.expectOne('/api/cart');
+      const req = httpMock.expectOne('/api/v1/cart');
       expect(req.request.method).toBe('DELETE');
       req.flush(MOCK_CART_RESPONSE);
     });

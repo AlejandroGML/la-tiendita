@@ -34,16 +34,16 @@ export class OrderService {
     if (guestEmail) {
       body.guest_email = guestEmail;
     }
-    return this.http.post<CheckoutResponse>('/api/checkout', body, this.checkoutHeaders());
+    return this.http.post<CheckoutResponse>('/api/v1/checkout', body, this.checkoutHeaders());
   }
 
   /** List orders for the authenticated user */
   getOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>('/api/orders');
+    return this.http.get<Order[]>('/api/v1/orders');
   }
 
   /** Fetch a single order by ID */
   getOrder(orderId: string): Observable<Order> {
-    return this.http.get<Order>(`/api/orders/${orderId}`);
+    return this.http.get<Order>(`/api/v1/orders/${orderId}`);
   }
 }

@@ -50,7 +50,7 @@ class WishlistController(Controller):
     paths.
     """
 
-    path = "/api/wishlist"
+    path = "/api/v1/wishlist"
     tags = ["wishlist"]
     dependencies = {
         "service": Provide(provide_wishlist_service, sync_to_thread=False),

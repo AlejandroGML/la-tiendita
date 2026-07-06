@@ -52,18 +52,18 @@ export class AdminProductService {
     if (params?.page) httpParams = httpParams.set('page', String(params.page));
     if (params?.per_page) httpParams = httpParams.set('per_page', String(params.per_page));
     if (params?.search) httpParams = httpParams.set('search', params.search);
-    return this.http.get<AdminProductListResponse>('/api/admin/products', { params: httpParams });
+    return this.http.get<AdminProductListResponse>('/api/v1/admin/products', { params: httpParams });
   }
 
   createProduct(data: CreateProductPayload): Observable<Product> {
-    return this.http.post<Product>('/api/admin/products', data);
+    return this.http.post<Product>('/api/v1/admin/products', data);
   }
 
   updateProduct(slug: string, data: UpdateProductPayload): Observable<Product> {
-    return this.http.put<Product>(`/api/admin/products/${slug}`, data);
+    return this.http.put<Product>(`/api/v1/admin/products/${slug}`, data);
   }
 
   deleteProduct(slug: string): Observable<void> {
-    return this.http.delete<void>(`/api/admin/products/${slug}`);
+    return this.http.delete<void>(`/api/v1/admin/products/${slug}`);
   }
 }

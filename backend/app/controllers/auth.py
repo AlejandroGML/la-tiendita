@@ -57,7 +57,7 @@ async def provide_session() -> AsyncSession:
 class AuthController(Controller):
     """Authentication endpoints mounted at ``/auth``."""
 
-    path = "/api/auth"
+    path = "/api/v1/auth"
     tags = ["auth"]
     dependencies = {
         "auth_service": Provide(provide_auth_service),

@@ -68,7 +68,7 @@ async def provide_session() -> AsyncSession:
 class OrderController(Controller):
     """Checkout and order history endpoints."""
 
-    path = "/api"
+    path = "/api/v1"
     tags = ["orders"]
     dependencies = {
         "service": Provide(provide_order_service, sync_to_thread=False),

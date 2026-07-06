@@ -23,6 +23,6 @@ export class AdminDashboardService {
   private readonly http = inject(HttpClient);
 
   getDashboardStats(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>('/api/admin/stats');
+    return this.http.get<DashboardStats>('/api/v1/admin/stats');
   }
 }

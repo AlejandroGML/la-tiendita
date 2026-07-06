@@ -68,7 +68,7 @@ export class AuthService {
    */
   login(email: string, password: string): Observable<TokenResponse> {
     return this.http
-      .post<TokenResponse>('/api/auth/login', { email, password })
+      .post<TokenResponse>('/api/v1/auth/login', { email, password })
       .pipe(
         tap((res) => {
           if (!this.is2faResponse(res)) {
@@ -93,7 +93,7 @@ export class AuthService {
     name: string;
   }): Observable<TokenResponse> {
     return this.http
-      .post<TokenResponse>('/api/auth/register', data)
+      .post<TokenResponse>('/api/v1/auth/register', data)
       .pipe(
         tap((res) => {
           this.tokenStorage.setTokens(res.access_token, res.refresh_token);
@@ -114,7 +114,7 @@ export class AuthService {
     const refreshToken = this.tokenStorage.getRefreshToken();
     this.tokenStorage.clear();
     this.authState.clearUser();
-    return this.http.post<void>('/api/auth/logout', {
+    return this.http.post<void>('/api/v1/auth/logout', {
       refresh_token: refreshToken,
     });
   }
@@ -135,7 +135,7 @@ export class AuthService {
     if (!this.refreshing$) {
       const refreshToken = this.tokenStorage.getRefreshToken();
       this.refreshing$ = this.http
-        .post<TokenResponse>('/api/auth/refresh', {
+        .post<TokenResponse>('/api/v1/auth/refresh', {
           refresh_token: refreshToken,
         })
         .pipe(
@@ -170,7 +170,7 @@ export class AuthService {
    */
   fetchCurrentUser(): Observable<UserResponse> {
     return this.http
-      .get<UserResponse>('/api/auth/me')
+      .get<UserResponse>('/api/v1/auth/me')
       .pipe(tap((user) => this.authState.setUser(user)));
   }
 

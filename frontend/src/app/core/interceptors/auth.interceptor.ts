@@ -11,7 +11,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const tokenStorage = inject(TOKEN_STORAGE);
   const token = tokenStorage.getAccessToken();
 
-  if (token && !req.url.includes('/api/auth/refresh')) {
+  if (token && !req.url.includes('/api/v1/auth/refresh')) {
     req = req.clone({
       setHeaders: { Authorization: `Bearer ${token}` },
     });

@@ -62,7 +62,7 @@ async def provide_session() -> AsyncSession:
 class CategoryController(Controller):
     """Public category listing — no authentication required."""
 
-    path = "/api/categories"
+    path = "/api/v1/categories"
     tags = ["categories"]
     dependencies = {
         "repo": Provide(provide_category_repository, sync_to_thread=False),
@@ -105,7 +105,7 @@ class CategoryController(Controller):
 class AdminCategoryController(Controller):
     """Admin category CRUD — JWT + admin role required."""
 
-    path = "/api/admin/categories"
+    path = "/api/v1/admin/categories"
     tags = ["admin-categories"]
     guards = [admin_guard]
     dependencies = {

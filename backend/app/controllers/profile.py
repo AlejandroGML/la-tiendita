@@ -45,7 +45,7 @@ async def provide_session() -> AsyncSession:
 class ProfileController(Controller):
     """Authenticated profile management at ``/api/profile``."""
 
-    path = "/api/profile"
+    path = "/api/v1/profile"
     tags = ["profile"]
     dependencies = {
         "repo": Provide(provide_user_repository),

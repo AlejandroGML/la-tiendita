@@ -16,7 +16,7 @@ export class PromotionService {
   getActivePromotions(lang?: string): Observable<Promotion[]> {
     const params: Record<string, string> = {};
     if (lang) params['lang'] = lang;
-    return this.http.get<Promotion[]>('/api/promotions', { params });
+    return this.http.get<Promotion[]>('/api/v1/promotions', { params });
   }
 
   // ── Admin CRUD ───────────────────────────────────────────────
@@ -29,20 +29,20 @@ export class PromotionService {
     if (params?.page) httpParams['page'] = String(params.page);
     if (params?.per_page) httpParams['per_page'] = String(params.per_page);
     return this.http.get<{ data: Promotion[]; pagination: { page: number; per_page: number; total: number; pages: number } }>(
-      '/api/admin/promotions',
+      '/api/v1/admin/promotions',
       { params: httpParams },
     );
   }
 
   createPromotion(data: CreatePromotionPayload): Observable<Promotion> {
-    return this.http.post<Promotion>('/api/admin/promotions', data);
+    return this.http.post<Promotion>('/api/v1/admin/promotions', data);
   }
 
   updatePromotion(id: string, data: UpdatePromotionPayload): Observable<Promotion> {
-    return this.http.put<Promotion>(`/api/admin/promotions/${id}`, data);
+    return this.http.put<Promotion>(`/api/v1/admin/promotions/${id}`, data);
   }
 
   deletePromotion(id: string): Observable<void> {
-    return this.http.delete<void>(`/api/admin/promotions/${id}`);
+    return this.http.delete<void>(`/api/v1/admin/promotions/${id}`);
   }
 }

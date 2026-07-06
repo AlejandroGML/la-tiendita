@@ -71,7 +71,7 @@ class ReviewController(Controller):
     POST ``{product_id}/reviews`` requires a valid JWT (verified buyer check).
     """
 
-    path = "/api/products"
+    path = "/api/v1/products"
     tags = ["reviews"]
     dependencies = {
         "service": Provide(provide_review_service, sync_to_thread=False),

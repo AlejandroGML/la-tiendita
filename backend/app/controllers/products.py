@@ -61,7 +61,7 @@ async def provide_session() -> AsyncSession:
 class ProductController(Controller):
     """Public product catalog — no authentication required."""
 
-    path = "/api/products"
+    path = "/api/v1/products"
     tags = ["products"]
     dependencies = {
         "service": Provide(provide_product_service, sync_to_thread=False),
@@ -173,7 +173,7 @@ class ProductController(Controller):
 class AdminProductController(Controller):
     """Admin product CRUD — JWT + admin role required."""
 
-    path = "/api/admin/products"
+    path = "/api/v1/admin/products"
     tags = ["admin-products"]
     guards = [admin_guard]
     dependencies = {

@@ -114,7 +114,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
 
   private loadCategories(): void {
     this.http
-      .get<Category[]>('/api/categories')
+      .get<Category[]>('/api/v1/categories')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (cats) => this.categories.set(cats),
@@ -159,7 +159,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
 
     // Populate translations
     const translationsArr = this.translations;
-    for (const t of product.translations) {
+    for (const t of product.translations ?? []) {
       const group = translationsArr.controls.find(
         (ctrl) => ctrl.get('lang')?.value === t.language_code,
       );
@@ -225,7 +225,7 @@ export class AdminProductForm implements OnInit, OnDestroy {
             formData.append('data', file);
             return this.http
               .post<{ image_url: string; thumbnail_url: string }>(
-                '/api/upload',
+                '/api/v1/upload',
                 formData,
               )
               .toPromise();

@@ -39,25 +39,25 @@ describe('authInterceptor', () => {
   it('should attach Bearer token when one is stored', () => {
     mockTokenStorage.getAccessToken = () => 'test-jwt';
 
-    http.get('/api/products').subscribe();
+    http.get('/api/v1/products').subscribe();
 
-    const req = httpMock.expectOne('/api/products');
+    const req = httpMock.expectOne('/api/v1/products');
     expect(req.request.headers.get('Authorization')).toBe('Bearer test-jwt');
   });
 
   it('should not attach Bearer header when no token is stored', () => {
-    http.get('/api/products').subscribe();
+    http.get('/api/v1/products').subscribe();
 
-    const req = httpMock.expectOne('/api/products');
+    const req = httpMock.expectOne('/api/v1/products');
     expect(req.request.headers.has('Authorization')).toBe(false);
   });
 
   it('should skip refresh endpoint even when token exists', () => {
     mockTokenStorage.getAccessToken = () => 'test-jwt';
 
-    http.post('/api/auth/refresh', { refresh_token: 'rt' }).subscribe();
+    http.post('/api/v1/auth/refresh', { refresh_token: 'rt' }).subscribe();
 
-    const req = httpMock.expectOne('/api/auth/refresh');
+    const req = httpMock.expectOne('/api/v1/auth/refresh');
     expect(req.request.headers.has('Authorization')).toBe(false);
   });
 });

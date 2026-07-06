@@ -21,7 +21,7 @@ from app.models.user import User
 # ---------------------------------------------------------------------------
 # Paths that skip mandatory JWT auth (must match jwt_guard.exclude)
 # ---------------------------------------------------------------------------
-_GUEST_PATHS = ("/api/cart", "/api/checkout")
+_GUEST_PATHS = ("/api/cart", "/api/v1/cart", "/api/checkout", "/api/v1/checkout")
 
 
 class OptionalUserMiddleware:

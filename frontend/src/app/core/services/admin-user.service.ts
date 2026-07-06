@@ -33,10 +33,10 @@ export class AdminUserService {
     let httpParams = new HttpParams();
     if (params?.page) httpParams = httpParams.set('page', String(params.page));
     if (params?.per_page) httpParams = httpParams.set('per_page', String(params.per_page));
-    return this.http.get<UserAdminListResponse>('/api/admin/users', { params: httpParams });
+    return this.http.get<UserAdminListResponse>('/api/v1/admin/users', { params: httpParams });
   }
 
   updateUserRole(userId: string, role: string): Observable<UserAdminItem> {
-    return this.http.patch<UserAdminItem>(`/api/admin/users/${userId}/role`, { role });
+    return this.http.patch<UserAdminItem>(`/api/v1/admin/users/${userId}/role`, { role });
   }
 }

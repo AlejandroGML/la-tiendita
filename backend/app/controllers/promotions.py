@@ -55,7 +55,7 @@ class PromotionController(Controller):
     Mounted at ``/api/promotions``.
     """
 
-    path = "/api/promotions"
+    path = "/api/v1/promotions"
     tags = ["promotions"]
     dependencies = {
         "service": Provide(provide_promotion_service, sync_to_thread=False),
@@ -84,7 +84,7 @@ class AdminPromotionController(Controller):
     Mounted at ``/api/admin/promotions``.
     """
 
-    path = "/api/admin/promotions"
+    path = "/api/v1/admin/promotions"
     tags = ["admin — promotions"]
     guards = [admin_guard]
     dependencies = {

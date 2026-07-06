@@ -9,12 +9,12 @@ export class ReviewService {
 
   getProductReviews(slug: string, page = 1, perPage = 10): Observable<ReviewListResponse> {
     return this.http.get<ReviewListResponse>(
-      `/api/products/${slug}/reviews`,
+      `/api/v1/products/${slug}/reviews`,
       { params: { page: String(page), per_page: String(perPage) } },
     );
   }
 
   createReview(productId: string, payload: CreateReviewPayload): Observable<Review> {
-    return this.http.post<Review>(`/api/products/${productId}/reviews`, payload);
+    return this.http.post<Review>(`/api/v1/products/${productId}/reviews`, payload);
   }
 }

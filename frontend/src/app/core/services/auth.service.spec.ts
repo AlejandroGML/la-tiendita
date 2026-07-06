@@ -96,7 +96,7 @@ describe('AuthService', () => {
         expect(res.access_token).toBe('at');
       });
 
-      const req = httpMock.expectOne('/api/auth/login');
+      const req = httpMock.expectOne('/api/v1/auth/login');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({
         email: 'a@b.com',
@@ -121,7 +121,7 @@ describe('AuthService', () => {
         expect((res as unknown as Record<string, unknown>)['requires2fa']).toBe(true);
       });
 
-      const req = httpMock.expectOne('/api/auth/login');
+      const req = httpMock.expectOne('/api/v1/auth/login');
       req.flush(twoFactorResponse);
 
       // No tokens stored
@@ -156,7 +156,7 @@ describe('AuthService', () => {
           expect(res.access_token).toBe('at2');
         });
 
-      const req = httpMock.expectOne('/api/auth/register');
+      const req = httpMock.expectOne('/api/v1/auth/register');
       expect(req.request.method).toBe('POST');
       req.flush(mockResponse);
 
@@ -192,7 +192,7 @@ describe('AuthService', () => {
       expect(tokenStorage.getRefreshToken()).toBeNull();
       expect(authState.currentUser()).toBeNull();
 
-      const req = httpMock.expectOne('/api/auth/logout');
+      const req = httpMock.expectOne('/api/v1/auth/logout');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ refresh_token: 'rt' });
       req.flush(null);
@@ -201,7 +201,7 @@ describe('AuthService', () => {
     it('sends null refresh_token when no token is stored', () => {
       service.logout().subscribe();
 
-      const req = httpMock.expectOne('/api/auth/logout');
+      const req = httpMock.expectOne('/api/v1/auth/logout');
       expect(req.request.body).toEqual({ refresh_token: null });
       req.flush(null);
     });
@@ -232,7 +232,7 @@ describe('AuthService', () => {
         expect(res.access_token).toBe('new-at');
       });
 
-      const req = httpMock.expectOne('/api/auth/refresh');
+      const req = httpMock.expectOne('/api/v1/auth/refresh');
       expect(req.request.method).toBe('POST');
       expect(req.request.body).toEqual({ refresh_token: 'old-rt' });
       req.flush(mockResponse);
@@ -266,7 +266,7 @@ describe('AuthService', () => {
       service.refreshToken().subscribe((res) => results.push(res.access_token));
 
       // Only ONE HTTP request should be made
-      const req = httpMock.expectOne('/api/auth/refresh');
+      const req = httpMock.expectOne('/api/v1/auth/refresh');
       req.flush(mockResponse);
 
       // Both subscribers received the same result
@@ -291,7 +291,7 @@ describe('AuthService', () => {
         error: (err) => errors.push(err),
       });
 
-      const req = httpMock.expectOne('/api/auth/refresh');
+      const req = httpMock.expectOne('/api/v1/auth/refresh');
       req.flush(null, { status: 401, statusText: 'Unauthorized' });
 
       // Tokens cleared
@@ -320,7 +320,7 @@ describe('AuthService', () => {
         expect(user.email).toBe('a@b.com');
       });
 
-      const req = httpMock.expectOne('/api/auth/me');
+      const req = httpMock.expectOne('/api/v1/auth/me');
       expect(req.request.method).toBe('GET');
       req.flush(mockUser);
 

@@ -58,7 +58,7 @@ async def provide_session() -> AsyncSession:
 class CartController(Controller):
     """Shopping cart endpoints mounted at ``/api/cart`` — dual scope."""
 
-    path = "/api/cart"
+    path = "/api/v1/cart"
     tags = ["cart"]
     dependencies = {
         "service": Provide(provide_cart_service, sync_to_thread=False),

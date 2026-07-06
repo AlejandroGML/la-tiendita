@@ -74,7 +74,7 @@ export class TwoFactorService {
    */
   requestSetup(): Observable<TwoFactorSetup> {
     return this.http
-      .post<TwoFactorSetup>('/api/auth/2fa/setup', {})
+      .post<TwoFactorSetup>('/api/v1/auth/2fa/setup', {})
       .pipe(
         catchError((err: unknown) => {
           if (
@@ -98,7 +98,7 @@ export class TwoFactorService {
    */
   verifySetup(code: string): Observable<void> {
     return this.http
-      .post<UserWithTwoFactor>('/api/auth/2fa/verify-setup', { code })
+      .post<UserWithTwoFactor>('/api/v1/auth/2fa/verify-setup', { code })
       .pipe(
         tap((res) => this.authState.setUser(res)),
         map(() => void 0),
@@ -122,7 +122,7 @@ export class TwoFactorService {
    */
   validate(code: string, twoFactorToken: string): Observable<TokenResponse> {
     return this.http
-      .post<TokenResponse>('/api/auth/2fa/validate', {
+      .post<TokenResponse>('/api/v1/auth/2fa/validate', {
         code,
         login_token: twoFactorToken,
       })
@@ -156,7 +156,7 @@ export class TwoFactorService {
    */
   disable(password: string): Observable<void> {
     return this.http
-      .post<UserWithTwoFactor>('/api/auth/2fa/disable', { password })
+      .post<UserWithTwoFactor>('/api/v1/auth/2fa/disable', { password })
       .pipe(
         tap((res) => this.authState.setUser(res)),
         map(() => void 0),

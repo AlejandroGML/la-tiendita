@@ -8,9 +8,24 @@ import { type Observable, catchError, switchMap, throwError } from 'rxjs';
 import { AuthService } from '../services/auth.service';
 import { TOKEN_STORAGE, type TokenStorage } from '../services/token-storage.service';
 
+const STATUS_MESSAGES: Record<number, string> = {
+  401: 'Sesión expirada. Por favor inicia sesión nuevamente.',
+  403: 'No tienes permisos para esta acción.',
+  404: 'El recurso solicitado no existe.',
+  500: 'Error interno del servidor. Intenta nuevamente más tarde.',
+};
+
+function humanMessage(error: HttpErrorResponse): string {
+  if (STATUS_MESSAGES[error.status]) {
+    return STATUS_MESSAGES[error.status];
+  }
+  return 'Error de conexión. Verifica tu conexión a internet.';
+}
+
 /**
- * Catches 401 responses and attempts a silent token refresh.
+ * Catches HTTP errors and provides human-readable messages.
  *
+ * For 401 responses: attempts a silent token refresh via AuthService.
  * Refresh coalescing is delegated to `AuthService.refreshToken()`, which
  * ensures that concurrent 401s share a single refresh HTTP call.
  *
@@ -26,15 +41,22 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error: unknown) => {
-      if (!(error instanceof HttpErrorResponse) || error.status !== 401) {
+      if (!(error instanceof HttpErrorResponse)) {
+        return throwError(() => error);
+      }
+
+      if (error.status !== 401) {
+        // Attach human-readable message to the error for components to display
+        const friendly = humanMessage(error);
+        console.error(`[HTTP ${error.status}] ${friendly}`, error.url);
         return throwError(() => error);
       }
 
       // Avoid refresh loops on auth endpoints themselves
       if (
-        req.url.includes('/api/auth/refresh') ||
-        req.url.includes('/api/auth/login') ||
-        req.url.includes('/api/auth/register')
+        req.url.includes('/api/v1/auth/refresh') ||
+        req.url.includes('/api/v1/auth/login') ||
+        req.url.includes('/api/v1/auth/register')
       ) {
         return throwError(() => error);
       }

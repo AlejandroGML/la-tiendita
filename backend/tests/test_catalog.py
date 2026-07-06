@@ -210,7 +210,7 @@ def _make_test_jwt_auth(exclude: list | None = None) -> JWTAuth:
         retrieve_user_handler=_test_retrieve_user,
         token_secret=TOKEN_SECRET,
         algorithm="HS256",
-        exclude=exclude or ["/health", "/schema", "/api/products", "/api/categories", "/uploads/"],
+        exclude=exclude or ["/health", "/schema", "/api/v1/products", "/api/v1/categories", "/uploads/"],
     )
 
 
@@ -269,7 +269,7 @@ class TestProductCatalog:
         p2 = _make_fake_product(slug="p2", price=Decimal("20.00"))
         client.mock_svc.list_products.return_value = ([p1, p2], 2)
 
-        r = client.get("/api/products/")
+        r = client.get("/api/v1/products/")
         assert r.status_code == 200, r.text
         body = r.json()
         assert len(body["data"]) == 2
@@ -279,7 +279,7 @@ class TestProductCatalog:
 
     def test_list_products_with_pagination_params(self, client):
         client.mock_svc.list_products.return_value = ([_make_fake_product()], 50)
-        r = client.get("/api/products/?page=2&per_page=5")
+        r = client.get("/api/v1/products/?page=2&per_page=5")
         assert r.status_code == 200, r.text
         body = r.json()
         assert body["pagination"]["page"] == 2
@@ -287,16 +287,16 @@ class TestProductCatalog:
         assert body["pagination"]["total"] == 50
 
     def test_list_products_invalid_page_returns_400(self, client):
-        r = client.get("/api/products/?page=-1")
+        r = client.get("/api/v1/products/?page=-1")
         assert r.status_code == 400, r.text
 
     def test_list_products_per_page_exceeds_limit_returns_400(self, client):
-        r = client.get("/api/products/?per_page=200")
+        r = client.get("/api/v1/products/?per_page=200")
         assert r.status_code == 400, r.text
 
     def test_list_products_with_lang_param(self, client):
         client.mock_svc.list_products.return_value = ([_make_fake_product()], 1)
-        r = client.get("/api/products/?lang=sv")
+        r = client.get("/api/v1/products/?lang=sv")
         assert r.status_code == 200, r.text
         t = r.json()["data"][0]["translations"][0]
         assert t["language_code"] == "sv"
@@ -308,7 +308,7 @@ class TestProductCatalog:
             _FakeTranslation("en", "Denim Jacket", "Blue"),
         ])
         client.mock_svc.list_products.return_value = ([p], 1)
-        r = client.get("/api/products/?lang=sv")
+        r = client.get("/api/v1/products/?lang=sv")
         assert r.status_code == 200, r.text
         t = r.json()["data"][0]["translations"][0]
         assert t["language_code"] == "en"
@@ -316,7 +316,7 @@ class TestProductCatalog:
 
     def test_list_products_with_filters(self, client):
         client.mock_svc.list_products.return_value = ([], 0)
-        r = client.get("/api/products/?category_id=3&min_price=10&max_price=50&size=M")
+        r = client.get("/api/v1/products/?category_id=3&min_price=10&max_price=50&size=M")
         assert r.status_code == 200, r.text
         meta = r.json()["meta"]
         assert meta["category_id"] == 3
@@ -325,7 +325,7 @@ class TestProductCatalog:
 
     def test_get_product_by_slug_returns_detail(self, client):
         client.mock_svc.get_product_by_slug.return_value = _make_fake_product()
-        r = client.get("/api/products/chaqueta-denim")
+        r = client.get("/api/v1/products/chaqueta-denim")
         assert r.status_code == 200, r.text
         body = r.json()
         assert body["slug"] == "chaqueta-denim"
@@ -333,7 +333,7 @@ class TestProductCatalog:
 
     def test_get_product_by_slug_404(self, client):
         client.mock_svc.get_product_by_slug.return_value = None
-        r = client.get("/api/products/nonexistent")
+        r = client.get("/api/v1/products/nonexistent")
         assert r.status_code == 404, r.text
 
     def test_get_product_by_uuid_redirects_to_slug(self, client):
@@ -342,12 +342,12 @@ class TestProductCatalog:
         client.mock_svc.get_product_by_slug.return_value = None
         client.mock_repo.get_by_id_for_resolve.return_value = p1
 
-        r = client.get(f"/api/products/{pid}", follow_redirects=False)
+        r = client.get(f"/api/v1/products/{pid}", follow_redirects=False)
         assert r.status_code in (307, 302), f"Expected redirect, got {r.status_code}"
 
     def test_list_products_public_no_auth_required(self, client):
         client.mock_svc.list_products.return_value = ([], 0)
-        r = client.get("/api/products/")
+        r = client.get("/api/v1/products/")
         assert r.status_code == 200, r.text
 
     def test_product_response_includes_variants_and_count(self, client):
@@ -356,7 +356,7 @@ class TestProductCatalog:
         variant = _FakeVariant(variant_id=vid, size="M", color="Negro", stock=10, sku="CHAQ-M-NEG-01")
         p = _make_fake_product(variants=[variant])
         client.mock_svc.get_product_by_slug.return_value = p
-        r = client.get("/api/products/chaqueta-denim")
+        r = client.get("/api/v1/products/chaqueta-denim")
         assert r.status_code == 200, r.text
         body = r.json()
         assert "variants" in body
@@ -371,7 +371,7 @@ class TestProductCatalog:
         """Product with no variants returns variants=[] and variant_count=0."""
         p = _make_fake_product(variants=[])
         client.mock_svc.get_product_by_slug.return_value = p
-        r = client.get("/api/products/chaqueta-denim")
+        r = client.get("/api/v1/products/chaqueta-denim")
         assert r.status_code == 200, r.text
         body = r.json()
         assert body["variants"] == []
@@ -381,7 +381,7 @@ class TestProductCatalog:
         """List endpoint includes variants in each product."""
         p = _make_fake_product(slug="p1", variants=[])
         client.mock_svc.list_products.return_value = ([p], 1)
-        r = client.get("/api/products/")
+        r = client.get("/api/v1/products/")
         assert r.status_code == 200, r.text
         body = r.json()
         assert "variants" in body["data"][0]
@@ -429,7 +429,7 @@ class TestAdminProducts:
             AdminProductController.dependencies = _orig
 
     def test_create_product_no_auth_401(self, client):
-        r = client.post("/api/admin/products/", json={
+        r = client.post("/api/v1/admin/products/", json={
             "translations": [{"language_code": "es", "name": "Test"}],
             "price": "10.00",
         })
@@ -437,7 +437,7 @@ class TestAdminProducts:
 
     def test_create_product_customer_403(self, client):
         r = client.post(
-            "/api/admin/products/",
+            "/api/v1/admin/products/",
             json={"translations": [{"language_code": "es", "name": "Test"}], "price": "10.00"},
             headers=_customer_headers(),
         )
@@ -446,7 +446,7 @@ class TestAdminProducts:
     def test_create_product_admin_201(self, client):
         client.mock_svc.create_product.return_value = _make_fake_product()
         r = client.post(
-            "/api/admin/products/",
+            "/api/v1/admin/products/",
             json={
                 "translations": [{"language_code": "es", "name": "Chaqueta Denim", "description": "Azul"}],
                 "price": "29.99",
@@ -459,7 +459,7 @@ class TestAdminProducts:
 
     def test_create_product_no_translations_400(self, client):
         r = client.post(
-            "/api/admin/products/",
+            "/api/v1/admin/products/",
             json={"translations": [], "price": "10.00"},
             headers=_admin_headers(),
         )
@@ -469,7 +469,7 @@ class TestAdminProducts:
         client.mock_svc.update_product.return_value = _make_fake_product()
         pid = str(uuid.uuid4())
         r = client.put(
-            f"/api/admin/products/{pid}",
+            f"/api/v1/admin/products/{pid}",
             json={"price": "39.99"},
             headers=_admin_headers(),
         )
@@ -479,7 +479,7 @@ class TestAdminProducts:
         client.mock_svc.update_product.return_value = None
         pid = str(uuid.uuid4())
         r = client.put(
-            f"/api/admin/products/{pid}",
+            f"/api/v1/admin/products/{pid}",
             json={"price": "39.99"},
             headers=_admin_headers(),
         )
@@ -488,21 +488,21 @@ class TestAdminProducts:
     def test_delete_product_admin_204(self, client):
         client.mock_svc.delete_product.return_value = True
         pid = str(uuid.uuid4())
-        r = client.delete(f"/api/admin/products/{pid}", headers=_admin_headers())
+        r = client.delete(f"/api/v1/admin/products/{pid}", headers=_admin_headers())
         assert r.status_code == 204, r.text
 
     def test_delete_product_not_found_404(self, client):
         client.mock_svc.delete_product.return_value = False
         pid = str(uuid.uuid4())
-        r = client.delete(f"/api/admin/products/{pid}", headers=_admin_headers())
+        r = client.delete(f"/api/v1/admin/products/{pid}", headers=_admin_headers())
         assert r.status_code == 404, r.text
 
     def test_update_product_no_auth_401(self, client):
-        r = client.put(f"/api/admin/products/{uuid.uuid4()}", json={"price": "39.99"})
+        r = client.put(f"/api/v1/admin/products/{uuid.uuid4()}", json={"price": "39.99"})
         assert r.status_code == 401, r.text
 
     def test_delete_product_no_auth_401(self, client):
-        r = client.delete(f"/api/admin/products/{uuid.uuid4()}")
+        r = client.delete(f"/api/v1/admin/products/{uuid.uuid4()}")
         assert r.status_code == 401, r.text
 
 
@@ -543,7 +543,7 @@ class TestCategoryCatalog:
     def test_list_categories_returns_translated_names(self, client):
         cats = [_make_fake_category(1, "chaquetas"), _make_fake_category(2, "pantalones")]
         client.mock_repo.list_all_with_translations.return_value = cats
-        r = client.get("/api/categories/?lang=es")
+        r = client.get("/api/v1/categories/?lang=es")
         assert r.status_code == 200, r.text
         body = r.json()
         assert len(body) == 2
@@ -555,14 +555,14 @@ class TestCategoryCatalog:
             _FakeCategoryTrans("en", "Test"),
         ])]
         client.mock_repo.list_all_with_translations.return_value = cats
-        r = client.get("/api/categories/?lang=sv")
+        r = client.get("/api/v1/categories/?lang=sv")
         assert r.status_code == 200, r.text
         assert r.json()[0]["name"] == "Test"
 
     def test_list_categories_default_lang_es(self, client):
         cats = [_make_fake_category()]
         client.mock_repo.list_all_with_translations.return_value = cats
-        r = client.get("/api/categories/")
+        r = client.get("/api/v1/categories/")
         assert r.status_code == 200, r.text
         assert r.json()[0]["name"] == "Chaquetas"
 
@@ -605,7 +605,7 @@ class TestAdminCategories:
             AdminCategoryController.dependencies = _orig
 
     def test_create_category_no_auth_401(self, client):
-        r = client.post("/api/admin/categories/", json={
+        r = client.post("/api/v1/admin/categories/", json={
             "slug": "test",
             "translations": [{"language_code": "es", "name": "Test"}],
         })
@@ -613,18 +613,18 @@ class TestAdminCategories:
 
     def test_create_category_customer_403(self, client):
         r = client.post(
-            "/api/admin/categories/",
+            "/api/v1/admin/categories/",
             json={"slug": "test", "translations": [{"language_code": "es", "name": "Test"}]},
             headers=_customer_headers(),
         )
         assert r.status_code == 403, r.text
 
     def test_delete_category_no_auth_401(self, client):
-        r = client.delete("/api/admin/categories/1")
+        r = client.delete("/api/v1/admin/categories/1")
         assert r.status_code == 401, r.text
 
     def test_delete_category_customer_403(self, client):
-        r = client.delete("/api/admin/categories/1", headers=_customer_headers())
+        r = client.delete("/api/v1/admin/categories/1", headers=_customer_headers())
         assert r.status_code == 403, r.text
 
     def test_create_category_admin_201(self, client):
@@ -633,7 +633,7 @@ class TestAdminCategories:
         client.mock_repo.get_by_id.return_value = cat
 
         r = client.post(
-            "/api/admin/categories/",
+            "/api/v1/admin/categories/",
             json={
                 "slug": "chaquetas",
                 "translations": [
@@ -652,7 +652,7 @@ class TestAdminCategories:
         client.mock_repo.slug_exists.return_value = True
 
         r = client.post(
-            "/api/admin/categories/",
+            "/api/v1/admin/categories/",
             json={"slug": "chaquetas", "translations": [{"language_code": "es", "name": "Chaquetas"}]},
             headers=_admin_headers(),
         )
@@ -692,12 +692,12 @@ class TestUpload:
         return buf.getvalue()
 
     def test_upload_no_auth_401(self, client):
-        r = client.post("/api/upload")
+        r = client.post("/api/v1/upload")
         assert r.status_code == 401, r.text
 
     def test_upload_customer_403(self, client):
         r = client.post(
-            "/api/upload",
+            "/api/v1/upload",
             files={"data": ("test.jpg", self._fake_jpeg_bytes(), "image/jpeg")},
             headers=_customer_headers(),
         )
@@ -705,7 +705,7 @@ class TestUpload:
 
     def test_upload_invalid_mime_400(self, client):
         r = client.post(
-            "/api/upload",
+            "/api/v1/upload",
             files={"data": ("test.gif", b"GIF89a...", "image/gif")},
             headers=_admin_headers(),
         )
@@ -715,7 +715,7 @@ class TestUpload:
     def test_upload_file_too_large_400(self, client):
         large_data = b"x" * (5 * 1024 * 1024 + 1)
         r = client.post(
-            "/api/upload",
+            "/api/v1/upload",
             files={"data": ("large.jpg", large_data, "image/jpeg")},
             headers=_admin_headers(),
         )
@@ -736,7 +736,7 @@ class TestUpload:
         mock_get_redis.return_value = mock_redis
 
         r = client.post(
-            "/api/upload",
+            "/api/v1/upload",
             files={"data": ("test.jpg", self._fake_jpeg_bytes(), "image/jpeg")},
             headers=_admin_headers(),
         )
@@ -826,7 +826,7 @@ class TestSearchAndEmptyResults:
 
     def test_empty_result_set_returns_200(self, client):
         client.mock_svc.list_products.return_value = ([], 0)
-        r = client.get("/api/products/?search=nonexistent")
+        r = client.get("/api/v1/products/?search=nonexistent")
         assert r.status_code == 200, r.text
         body = r.json()
         assert body["data"] == []
@@ -834,7 +834,7 @@ class TestSearchAndEmptyResults:
 
     def test_search_filter_passed_to_service(self, client):
         client.mock_svc.list_products.return_value = ([], 0)
-        r = client.get("/api/products/?search=denim&lang=es")
+        r = client.get("/api/v1/products/?search=denim&lang=es")
         assert r.status_code == 200, r.text
         assert r.json()["meta"]["search"] == "denim"
         assert r.json()["meta"]["lang"] == "es"

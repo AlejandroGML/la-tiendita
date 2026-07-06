@@ -67,11 +67,11 @@ export class ProductService {
     if (filters.created_after) params = params.set('created_after', filters.created_after);
 
     return this.http
-      .get<ProductListResponse>('/api/products', { params })
+      .get<ProductListResponse>('/api/v1/products', { params })
       .pipe(tap((res) => this.productsSubject.next(res)));
   }
 
   getProductBySlug(slug: string): Observable<Product> {
-    return this.http.get<Product>(`/api/products/${slug}`);
+    return this.http.get<Product>(`/api/v1/products/${slug}`);
   }
 }
