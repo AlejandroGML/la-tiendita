@@ -1,4 +1,4 @@
-"""Product response serializer.
+"""Product response serializers.
 
 Extracted verbatim from ``app.controllers.products._build_product_response``
 so the service-layer cache-aside path can build the same dict shape the
@@ -7,6 +7,71 @@ cached value is byte-identical to the live response.
 """
 
 from __future__ import annotations
+
+from datetime import datetime
+from uuid import UUID
+
+
+def build_product_summary(
+    summary, *, promotion_info: dict | None = None
+) -> dict:
+    """Convert a ProductSummaryDTO to a JSON-safe dict for listing responses.
+
+    When *promotion_info* is provided (keyed by ``product.id``),
+    ``sale_price``, ``discount_label``, and ``promotion`` fields are
+    attached to the response.
+    """
+    # Serialize colors: ensure hex values are strings
+    colors = None
+    if summary.colors:
+        colors = [
+            {"color": c["color"], "hex": c.get("hex", "") or ""}
+            for c in summary.colors
+        ]
+
+    # Sale pricing from resolved promotions
+    _sale_price = None
+    _discount_label = None
+    _promotion_summary = None
+
+    if promotion_info and summary.id in promotion_info:
+        info = promotion_info[summary.id]
+        promo = info["promotion"]
+        _sale_price = str(info["sale_price"])
+        _discount_label = info.get("discount_label") or None
+        _promotion_summary = {
+            "code": promo.code,
+            "discount_percent": promo.discount_percent,
+            "end_date": (
+                promo.end_date.isoformat() if promo.end_date else None
+            ),
+        }
+
+    return {
+        "id": str(summary.id),
+        "slug": summary.slug,
+        "name": summary.name,
+        "price": str(summary.price),
+        "condition": summary.condition,
+        "condition_rating": summary.condition_rating,
+        "brand": summary.brand,
+        "material": summary.material,
+        "image_urls": summary.image_urls,
+        "stock_total": summary.stock_total,
+        "has_promotion": summary.has_promotion,
+        "created_at": (
+            summary.created_at.isoformat()
+            if isinstance(summary.created_at, datetime)
+            else str(summary.created_at)
+        ),
+        "sale_price": _sale_price,
+        "discount_label": _discount_label,
+        "promotion": _promotion_summary,
+        "colors": colors,
+        "sizes": summary.sizes,
+        "has_variants": summary.has_variants,
+        "is_out_of_stock": summary.is_out_of_stock,
+    }
 
 
 def build_product_response(

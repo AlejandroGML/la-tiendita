@@ -30,7 +30,8 @@ from app.schemas.product_variant import (
     ProductVariantCreate,
     ProductVariantUpdate,
 )
-from app.serializers.product import build_product_response
+from app.queries.product_queries import ProductQueries
+from app.serializers.product import build_product_response, build_product_summary
 from app.services.slug_service import SlugService
 from app.services.variant_service import VariantService
 
@@ -53,8 +54,10 @@ class ProductService:
         slug_service: SlugService | None = None,
         variant_service: VariantService | None = None,
         cache: CacheService | None = None,
+        product_queries: ProductQueries | None = None,
     ) -> None:
         self._repo = product_repo or ProductRepository()
+        self._queries = product_queries or ProductQueries()
         self._slug_service = slug_service or SlugService()
         self._variant_service = variant_service or VariantService(product_repo=self._repo)
         self._cache = cache or cache_service
@@ -134,6 +137,9 @@ class ProductService:
     ) -> dict:
         """Return the full public listing response dict via cache-aside.
 
+        Uses ``ProductQueries.get_summaries()`` — a read-optimized path
+        that avoids loading full translation/variant/category trees.
+
         Only the default unfiltered listing is cached. Filtered requests fall
         through to the repository on every call (no cache read or write). When
         ``CACHE_ENABLED`` is False the cache is bypassed entirely, producing
@@ -147,11 +153,11 @@ class ProductService:
             if cached is not None:
                 return cached
 
-        items, total = await self._repo.get_with_filters(session, filters)
-        promotions = await self._apply_promotions(session, items)
+        # Read-optimized query path: ProductSummaryDTO with minimal joins
+        summaries, total = await self._queries.get_summaries(session, filters)
+        promotions = await self._apply_promotions(session, summaries)
         data = [
-            build_product_response(p, lang=filters.lang, promotion_info=promotions)
-            for p in items
+            build_product_summary(s, promotion_info=promotions) for s in summaries
         ]
 
         response = {
@@ -217,7 +223,7 @@ class ProductService:
         return response
 
     async def _apply_promotions(
-        self, session: AsyncSession, products: list[Product]
+        self, session: AsyncSession, products: list  # Product | ProductSummaryDTO
     ) -> dict[UUID, dict]:
         """Resolve active promotions and compute sale pricing for *products*.
 

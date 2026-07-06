@@ -115,7 +115,7 @@ class ProductQueries:
                     sale_price=None,
                     discount_label=None,
                     promotion=None,
-                    colors=None,
+                    colors=[{"color": c} for c in product.colors] if product.colors else [],
                     sizes=None,
                     has_variants=False,
                     is_out_of_stock=False,
@@ -395,8 +395,8 @@ class ProductQueries:
             sizes = sizes_map.get(s.id, [])
             vc = variant_count_map.get(s.id, 0)
 
-            s.colors = colors if colors else None
-            s.sizes = sizes if sizes else None
+            s.colors = colors if colors else s.colors
+            s.sizes = sizes if sizes else s.sizes
             s.has_variants = vc > 1 or (
                 vc == 1 and (len(colors) > 0 or len(sizes) > 0)
             )

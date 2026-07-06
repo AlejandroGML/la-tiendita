@@ -14,9 +14,16 @@ export interface ProductVariant {
   sku: string;
 }
 
+export interface ProductColorSwatch {
+  color: string;
+  hex: string;
+}
+
 export interface Product {
   id: string;
   slug: string;
+  /** Pre-resolved translation name (summary DTO) or fallback */
+  name?: string;
   price: string;
   category_id: number;
   brand: string;
@@ -25,7 +32,8 @@ export interface Product {
   condition_details: ConditionDetails | null;
   target_gender: string | null;
   material: string | null;
-  colors: string[] | null;
+  /** Legacy: raw color strings. Summary DTO: array of {color, hex} objects. */
+  colors: (string | ProductColorSwatch)[] | null;
   trend: string | null;
   pattern: string | null;
   season: string | null;
@@ -33,8 +41,15 @@ export interface Product {
   usage: string | null;
   source_dataset: string | null;
   image_urls: string[];
-  variants: ProductVariant[];
-  translations: ProductTranslation[];
+  /** Summary DTO fields — absent in detail response */
+  stock_total?: number;
+  has_promotion?: boolean;
+  has_variants?: boolean;
+  is_out_of_stock?: boolean;
+  sizes?: string[];
+  /** Legacy arrays — absent in summary response */
+  variants?: ProductVariant[];
+  translations?: ProductTranslation[];
   created_at: string;
   sale_price?: string;
   discount_label?: string;

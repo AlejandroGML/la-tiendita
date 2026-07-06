@@ -78,10 +78,44 @@ class ProductResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class ProductSummaryDTO(BaseModel):
+    """Read-optimized product card DTO for listings.
+
+    Includes pre-resolved name (not translations array), pre-computed
+    stock total, variant-derived colors/sizes, and promotion info.
+    The frontend card renders directly from these fields without
+    iterating ``translations[]`` or ``variants[]`` arrays.
+    """
+
+    id: UUID
+    slug: str
+    name: str
+    price: Decimal
+    condition: str | None = None
+    condition_rating: int | None = None
+    brand: str | None = None
+    material: str | None = None
+    image_urls: list[str] = []
+    stock_total: int = 0
+    has_promotion: bool = False
+    created_at: datetime
+    sale_price: Decimal | None = None
+    discount_label: str | None = None
+    promotion: PromotionSummary | None = None
+    # Variant-derived fields (pre-computed server-side)
+    colors: list[dict] | None = None  # [{"color": "Black", "hex": "#000"}, ...]
+    sizes: list[str] | None = None  # ["XS", "S", "M", ...] sorted
+    has_variants: bool = False
+    is_out_of_stock: bool = False
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ProductListResponse(BaseModel):
-    """Paginated product listing."""
-    # Will be defined in Phase 2 controllers; schema exists for service usage.
-    pass
+    """Paginated product listing response."""
+    data: list[ProductSummaryDTO] = []
+    pagination: dict | None = None
+    meta: dict | None = None
 
 
 # ---------------------------------------------------------------------------
