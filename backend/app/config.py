@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     GOOGLE_CLIENT_SECRET: str = Field(default="")
 
     # Rate Limiting
-    RATE_LIMIT_REQUESTS: int = Field(default=5)
+    RATE_LIMIT_REQUESTS: int = Field(default=20)
     RATE_LIMIT_WINDOW: int = Field(default=60)
 
     # Image Upload
