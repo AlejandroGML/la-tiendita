@@ -14,8 +14,9 @@ services:
     command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
     volumes:
       - uploads:/app/uploads
+    env_file:
+      - .env
     environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/tiendita_prod
       EMAIL_MODE: log
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
@@ -54,6 +55,7 @@ services:
   # ── PostgreSQL: add prod database env variable ──
   db:
     environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: tiendita_prod
 
 volumes:

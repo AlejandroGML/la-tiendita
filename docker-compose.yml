@@ -5,7 +5,7 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
       POSTGRES_DB: tiendita_dev
     volumes:
       - pgdata:/var/lib/postgresql/data
@@ -41,7 +41,7 @@ services:
       - ./backend/migrations:/app/migrations
       - ./uploads:/app/uploads
     environment:
-      DATABASE_URL: postgresql+asyncpg://postgres:postgres@db:5432/tiendita_dev
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-postgres}@db:5432/tiendita_dev
       # Inside the compose network the Redis service is reachable by name.
       REDIS_URL: redis://redis:6379/0
     env_file:
