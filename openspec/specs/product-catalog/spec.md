@@ -8,57 +8,138 @@ Public product browsing: paginated product listing with search/filter/pagination
 
 ### Requirement: Product Listing with Filters
 
-The system MUST provide `GET /api/products` returning a paginated list of PUBLIC (non-deleted) products with i18n-aware translations. Query parameters: `?lang=`, `?page=`, `?per_page=`, `?search=`, `?category_id=`, `?size=`, `?condition=`, `?min_price=`, `?max_price=`, `?sort=`. Response MUST include `data` (array), `pagination` (page, per_page, total, pages), and `meta` (filters applied). Products with no translation for the requested lang SHALL fall back to `en`.
+The system MUST provide `GET /api/products` returning paginated public products as `ProductSummaryDTO[]` items — a read-optimized DTO that includes pre-resolved fields instead of full translation/variant/category arrays. Query params: `?lang=`, `?page=`, `?per_page=`, `?search=`, `?category_id=`, `?size=`, `?condition=`, `?min_price=`, `?max_price=`, `?sort=`. Search SHALL use PostgreSQL tsvector stemming via `search_vector`. Falls back to `en` when translation missing.
+(Previously: Used ILIKE `%keyword%` substring matching for search, returned full `ProductResponse[]`.)
 
 #### Scenario: Unfiltered catalog listing
 
-- GIVEN 25 public products exist in the database
+- GIVEN 25 public products exist
 - WHEN `GET /api/products?per_page=12&page=1`
 - THEN 200 with 12 products, `pagination.total=25`, `pagination.pages=3`
-- AND each product contains `name` and `description` in the requested language (default `en`)
 
-#### Scenario: Search filter narrows results
+#### Scenario: Search with stemming narrows results
 
-- GIVEN products named "Chaqueta Denim" and "Pantalón Negro" exist
-- WHEN `GET /api/products?search=denim&lang=es`
-- THEN 200 with only products whose translations contain "denim"
-- AND translations are in Spanish
+- GIVEN products with translations "Chaqueta Denim" (es) and "Pantalón Negro" (es)
+- WHEN `GET /api/products?search=chaquetas&lang=es`
+- THEN 200 with only "Chaqueta Denim" (stemming normalizes "chaquetas" → "chaqueta")
 
-#### Scenario: Multi-filter combination (category + price + size)
+#### Scenario: Multi-filter combination
 
-- GIVEN products exist across categories and price ranges
+- GIVEN products across categories and price ranges
 - WHEN `GET /api/products?category_id=3&min_price=10&max_price=50&size=M`
 - THEN only products matching ALL filters are returned
 
 #### Scenario: Empty result set
 
 - GIVEN no products match the filter criteria
-- WHEN `GET /api/products?search=nonexistent`
-- THEN 200 with empty `data` array, `pagination.total=0`
+- WHEN `GET /api/products?search=xyznotfound`
+- THEN 200 with empty `data`, `pagination.total=0`
 
-#### Scenario: Product card shows variant summary
+#### Scenario: Product card variant summary
 
-- GIVEN a product with variants in sizes XS, S, M, L and colors Black and White
-- WHEN `GET /api/products` renders product cards
-- THEN the card shows size range (e.g. "XS-L") and color count (e.g. "2 colors") below the product name
+- GIVEN product with variants XS, S, M, L and colors Black, White
+- WHEN card renders
+- THEN size range "XS-L" and "2 colors" shown
 
 #### Scenario: Invalid pagination params
 
 - GIVEN a valid catalog
 - WHEN `GET /api/products?page=-1&per_page=200`
-- THEN 422 with validation error on out-of-range values
+- THEN 422 validation error
 
 #### Scenario: Listing includes sale pricing
 
-- GIVEN 3 products; 1 with active 15% promotion
-- WHEN `GET /api/products?per_page=12`
-- THEN 1 product card shows strike-through base price + `sale_price` + badge; 2 products show base price only
+- GIVEN 1 of 3 products has active 15% promotion
+- WHEN listing renders
+- THEN promoted card shows `sale_price` + badge; others show base only
 
 #### Scenario: No promotions active
 
 - GIVEN no active promotions
 - WHEN `GET /api/products`
-- THEN all products return `sale_price=null`; UI shows base prices only — zero behavioral change
+- THEN all `sale_price=null`
+
+### Requirement: Stemmed Full-Text Search
+
+`GET /api/products?search=` MUST use `search_vector @@ plainto_tsquery(lang_config, :query)`. Queries SHALL be stemmed (plural/singular match). The tsvector SHALL index `name` and `description`.
+
+#### Scenario: Plural matches singular via stemming
+
+- GIVEN a product with Spanish `name` "chaqueta"
+- WHEN `GET /api/products?search=chaquetas&lang=es`
+- THEN the product is returned (both stem to shared root)
+
+#### Scenario: Stemming matches across description
+
+- GIVEN a product with Spanish `description` containing "vestido elegante"
+- WHEN `GET /api/products?search=vestidos&lang=es`
+- THEN the product is returned
+
+#### Scenario: Unrelated terms yield no match
+
+- GIVEN products only have translations with "camisa"
+- WHEN `GET /api/products?search=pantalones&lang=es`
+- THEN 200 with empty `data`
+
+### Requirement: Relevance-Ordered Search Results
+
+When `search` is present, results MUST default to `ts_rank() DESC`. Existing `sort` options (`newest`, `price_asc`, `price_desc`) SHALL apply unchanged when `search` is absent.
+
+#### Scenario: Relevance is default when searching
+
+- GIVEN products "Chaqueta Denim" and "Denim Jacket Blue Denim" (en)
+- WHEN `GET /api/products?search=denim&lang=en`
+- THEN "Denim Jacket Blue Denim" (2 matches) ranks above "Chaqueta Denim" (1 match)
+
+#### Scenario: Price sort preserved without search
+
+- GIVEN products with prices 50, 100, 25
+- WHEN `GET /api/products?sort=price_asc` (no search)
+- THEN products ordered cheapest first (existing behavior unchanged)
+
+#### Scenario: Explicit sort overrides relevance
+
+- GIVEN products matching "denim"
+- WHEN `GET /api/products?search=denim&sort=price_asc`
+- THEN ordered by price asc, not relevance
+
+### Requirement: Language-Configurable Search Dictionary
+
+The search dictionary MUST map `language_code`: `'es'`→`spanish`, `'en'→`english`, `'sv'`→`swedish`. Unknown codes SHALL fall back to `'simple'`. Applies to both `to_tsvector()` and `plainto_tsquery()`.
+
+#### Scenario: Spanish dictionary handles accents
+
+- GIVEN a product with Spanish `name` "niños"
+- WHEN `GET /api/products?search=nino&lang=es`
+- THEN product matches (dictionary normalizes "niño"/"niños"/"nino")
+
+#### Scenario: Swedish dictionary stems compound forms
+
+- GIVEN a product with Swedish `name` "byxor"
+- WHEN `GET /api/products?search=byxa&lang=sv`
+- THEN product matches (Swedish stems to shared lexeme)
+
+#### Scenario: Fallback to simple for unknown language
+
+- GIVEN `language_code='fr'` with no mapped dictionary
+- WHEN search is performed with `lang=fr`
+- THEN `simple` dictionary used (case-insensitive exact-word match only)
+
+### Requirement: Full-Text Search Composes with Filters
+
+FTS search MUST compose with existing filters (`category_id`, `size`, `condition`, `min_price`, `max_price`) via `AND`. Filtered searches bypass cache (unchanged).
+
+#### Scenario: Search + category + price range
+
+- GIVEN products across categories and price ranges
+- WHEN `GET /api/products?search=denim&category_id=1&min_price=20&lang=es`
+- THEN only denim products in category 1 priced ≥20 are returned
+
+#### Scenario: Search + condition + size
+
+- GIVEN products with conditions "new" and "fair"
+- WHEN `GET /api/products?search=camisa&condition=new&size=M&lang=es`
+- THEN only new size-M camisas match
 
 ### Requirement: Product Detail by Slug
 
@@ -262,3 +343,132 @@ Products with `boundary-*`, `empty-cond-*`, `partial-cond-*`, `positive-*`, `mat
 - GIVEN a backend test inserts products with `boundary-*` slugs
 - WHEN the test finishes
 - THEN the teardown deletes all products with that slug pattern
+
+---
+
+### Requirement: Default Product Listing Is Cached
+
+The default unfiltered `GET /api/products` listing (no filters other than `lang` and `page`) MUST be served through the cache-aside wrapper with `CACHE_TTL_PRODUCTS_LIST`. The cached value is the serialized response dict. The external response contract (status, shape, ordering, translation fallback) MUST remain identical to the uncached baseline.
+
+#### Scenario: Warm cache serves listing without DB hit
+
+- GIVEN a prior request populated `tiendita:products:list:en:1:default`
+- WHEN a second identical request arrives within TTL
+- THEN the response is served from cache and NO repository query runs
+
+#### Scenario: Response unchanged vs uncached baseline
+
+- GIVEN the cache is warm
+- WHEN `GET /api/products?lang=es&page=1` is called
+- THEN the response is byte-for-byte equivalent to the uncached baseline (same ordering, same `pagination`, same translations)
+
+### Requirement: Product Detail by Slug Is Cached
+
+`GET /api/products/{slug}` (existing product, not soft-deleted) MUST be served through cache-aside with `CACHE_TTL_PRODUCT_DETAIL`, keyed by `tiendita:products:detail:{slug}`. The cached dict is the full detail response including variants, translations, and resolved promotion pricing.
+
+#### Scenario: Warm detail cache skips DB
+
+- GIVEN `tiendita:products:detail:chaqueta-denim` exists and is fresh
+- WHEN `GET /api/products/chaqueta-denim` is called
+- THEN the response is returned from cache without a repository query
+
+#### Scenario: Cache miss hydrates detail
+
+- GIVEN no cache entry for a valid slug exists
+- WHEN `GET /api/products/{slug}` is called
+- THEN the repository is queried and the result dict is stored under the detail key
+
+#### Scenario: Soft-deleted product still 404s through cache path
+
+- GIVEN a soft-deleted product's stale cache entry exists
+- WHEN `GET /api/products/{slug}` is called
+- THEN invalidation has already removed the key and the response is 404 (no stale detail served)
+
+### Requirement: Filtered Product Listings Are NOT Cached
+
+`GET /api/products` requests carrying any of `search`, `category_id`, `size`, `condition`, `min_price`, `max_price`, `sort`, `order_by`, or `has_promotion` MUST bypass the cache and query the database directly. Only the default unfiltered listing is cacheable.
+
+#### Scenario: Search query bypasses cache
+
+- GIVEN the cache is warm for the default listing
+- WHEN `GET /api/products?search=denim` is called
+- THEN Redis is neither read nor written and the repository is queried directly
+
+#### Scenario: Price filter bypasses cache
+
+- GIVEN a request with `min_price=10&max_price=50`
+- WHEN the service evaluates the request
+- THEN it falls through to the repository without consulting the cache
+
+### Requirement: Cache Miss Triggers DB Query and Stores Result
+
+On any cacheable path miss, the service MUST query the repository, serialize the resulting dict, and store it with the configured TTL before returning. A subsequent identical request MUST hit the cache.
+
+#### Scenario: Miss then hit
+
+- GIVEN the cache is cold for a cacheable key
+- WHEN the request is issued twice in succession
+- THEN the first call queries the DB via `ProductQueries.get_summaries()` and stores the summary dict; the second call is served from cache with no DB query
+
+### Requirement: ProductSummaryDTO for Listing Endpoint
+
+`GET /api/v1/products` SHALL return `ProductSummaryDTO[]` items instead of full `ProductResponse[]`. The DTO SHALL include all fields the product card component renders. The detail endpoint (`GET /api/v1/products/{slug}`) SHALL remain unchanged and continue returning full `ProductResponse` with `translations[]` and `variants[]` arrays.
+
+#### Scenario: Listing returns summary DTO
+
+- GIVEN 12 products exist
+- WHEN `GET /api/v1/products?lang=es&page=1&per_page=12`
+- THEN 200 with 12 items, each containing `id`, `slug`, `name`, `price`, `condition`, `condition_rating`, `brand`, `material`, `image_urls`, `stock_total`, `has_promotion`, `created_at`, `sale_price`, `discount_label`, `promotion`, `colors`, `sizes`, `has_variants`, `is_out_of_stock`
+- AND items do NOT contain `translations[]` or `variants[]` arrays
+
+#### Scenario: Translation name resolved server-side
+
+- GIVEN product has translations ES="Chaqueta Denim" and EN="Denim Jacket"
+- WHEN `GET /api/v1/products?lang=es`
+- THEN `name` is "Chaqueta Denim" (pre-resolved, no `translations` array)
+
+#### Scenario: Stock total computed via subquery
+
+- GIVEN product has variants with stock 5, 10, 0
+- WHEN listing renders
+- THEN `stock_total` is 15 (sum of non-deleted variant stocks)
+
+#### Scenario: has_promotion boolean from subquery
+
+- GIVEN product has an active promotion
+- WHEN listing renders
+- THEN `has_promotion` is `true` and `sale_price`/`discount_label` are present
+
+#### Scenario: Variant-derived fields pre-computed
+
+- GIVEN product variants: Black-S, Black-M, White-S
+- WHEN listing renders
+- THEN `colors` is `[{color: "Black", hex: "#000"}, {color: "White", hex: "#fff"}]` and `sizes` is `["S", "M"]` and `has_variants` is `true`
+
+#### Scenario: Out of stock detection
+
+- GIVEN all variants have stock=0
+- WHEN listing renders
+- THEN `is_out_of_stock` is `true` and `stock_total` is 0
+
+#### Scenario: Detail endpoint unchanged
+
+- GIVEN product "chaqueta-denim" exists
+- WHEN `GET /api/v1/products/chaqueta-denim`
+- THEN returns full `ProductResponse` with `translations[]` and `variants[]` arrays (no change)
+
+### Requirement: ProductQueries Read-Optimized Path
+
+The system SHALL provide `ProductQueries.get_summaries(session, filters)` that queries products with minimal joins: scalar subqueries for `stock_total` and `has_promotion`, a scalar subquery for the translation `name` filtered by `language_code`, and a post-query aggregation for variant-derived fields (colors, sizes). No `selectinload(Product.variants)` or `selectinload(Product.category)` SHALL be emitted.
+
+#### Scenario: Query uses ≤2 joins
+
+- GIVEN a listing request
+- WHEN `ProductQueries.get_summaries()` executes
+- THEN the SQL contains at most 2 JOINs (translation join + optional FTS search join) — no variant join, no category join
+
+#### Scenario: No selectinload on variants or category
+
+- GIVEN `get_summaries()` is called
+- WHEN the query executes
+- THEN no `selectinload(Product.variants)` or `selectinload(Product.category)` is emitted
