@@ -1,0 +1,17 @@
+<button (click)="nativeShare()" aria-label="Compartir" class="flex items-center gap-2 px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
+  <i class="pi pi-share-alt"></i>
+  <span class="hidden sm:inline">Compartir</span>
+</button>
+@if (open()) {
+  <div class="absolute right-0 mt-2 bg-white shadow-xl rounded-lg border p-2 z-50 flex gap-1 min-w-[180px]">
+    <a [href]="whatsappUrl" target="_blank" rel="noopener" class="flex flex-col items-center p-2 text-xs text-gray-600 hover:bg-gray-50 rounded" (click)="open.set(false)">
+      <i class="pi pi-whatsapp text-xl"></i>WhatsApp
+    </a>
+    <a [href]="facebookUrl" target="_blank" rel="noopener" class="flex flex-col items-center p-2 text-xs text-gray-600 hover:bg-gray-50 rounded" (click)="open.set(false)">
+      <i class="pi pi-facebook text-xl"></i>Facebook
+    </a>
+    <button (click)="copyLink()" class="flex flex-col items-center p-2 text-xs text-gray-600 hover:bg-gray-50 rounded">
+      <i class="pi pi-copy text-xl"></i>Copiar
+    </button>
+  </div>
+}

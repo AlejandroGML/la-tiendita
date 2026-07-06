@@ -1,0 +1,28 @@
+<nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] border-t border-gray-200 grid grid-cols-5 pb-[env(safe-area-inset-bottom,0px)]">
+  <a routerLink="/" routerLinkActive="text-emerald-600" [routerLinkActiveOptions]="{exact:true}" class="flex flex-col items-center py-1.5 text-xs text-gray-500 [&.active]:text-emerald-600">
+    <i class="pi pi-home text-xl mb-0.5"></i>
+    <span>Inicio</span>
+  </a>
+  <a routerLink="/productos" routerLinkActive="text-emerald-600" class="flex flex-col items-center py-1.5 text-xs text-gray-500 [&.active]:text-emerald-600">
+    <i class="pi pi-search text-xl mb-0.5"></i>
+    <span>Buscar</span>
+  </a>
+  <a routerLink="/perfil/wishlist" routerLinkActive="text-emerald-600" class="flex flex-col items-center py-1.5 text-xs text-gray-500 [&.active]:text-emerald-600 relative">
+    <i class="pi pi-heart text-xl mb-0.5"></i>
+    @if (wishlistCount() > 0) {
+      <span class="absolute -top-0.5 right-3 bg-red-500 text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1">{{ wishlistCount() }}</span>
+    }
+    <span>Favoritos</span>
+  </a>
+  <a routerLink="/carrito" routerLinkActive="text-emerald-600" class="flex flex-col items-center py-1.5 text-xs text-gray-500 [&.active]:text-emerald-600 relative">
+    <i class="pi pi-shopping-cart text-xl mb-0.5"></i>
+    @if (cartCount() > 0) {
+      <span class="absolute -top-0.5 right-3 bg-red-500 text-white text-[10px] rounded-full min-w-[16px] h-[16px] flex items-center justify-center px-1">{{ cartCount() }}</span>
+    }
+    <span>Carrito</span>
+  </a>
+  <a [routerLink]="isAuth() ? '/perfil' : '/login'" routerLinkActive="text-emerald-600" class="flex flex-col items-center py-1.5 text-xs text-gray-500 [&.active]:text-emerald-600">
+    <i class="pi pi-user text-xl mb-0.5"></i>
+    <span>{{ isAuth() ? 'Perfil' : 'Ingresar' }}</span>
+  </a>
+</nav>

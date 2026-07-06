@@ -1,0 +1,16 @@
+@if (visible()) {
+  <div class="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t border-gray-200 p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
+    <p class="text-sm text-gray-600 flex-1">
+      🍪 Utilizamos cookies para mejorar tu experiencia de navegación. Al continuar, aceptas nuestra
+      <a routerLink="/privacidad" class="text-emerald-600 underline">política de privacidad</a>.
+    </p>
+    <div class="flex gap-2 shrink-0">
+      <a routerLink="/privacidad" class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
+        Más información
+      </a>
+      <button (click)="accept()" class="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
+        Aceptar
+      </button>
+    </div>
+  </div>
+}

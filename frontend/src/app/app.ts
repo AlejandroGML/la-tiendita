@@ -52,6 +52,8 @@ export class App implements OnInit {
       register: 'Registro',
       admin: 'Administración',
       perfil: 'Mi Perfil',
+      privacidad: 'Política de Privacidad',
+      terminos: 'Términos y Condiciones',
     };
 
     // Exact match for known routes

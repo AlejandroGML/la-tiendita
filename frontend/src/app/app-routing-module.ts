@@ -6,6 +6,8 @@ import { AdminLayoutComponent } from './layout/admin-layout/admin-layout';
 import { RegistrationSuccess } from './features/auth/registration-success/registration-success';
 import { AdminLogin } from './features/admin/login/admin-login';
 import { AdminVerify2fa } from './features/admin/login/admin-verify-2fa';
+import { PrivacyComponent } from './features/legal/privacy/privacy';
+import { TermsComponent } from './features/legal/terms/terms';
 
 /** Only match auth-prefixed paths so the AuthModule is lazy-loaded on demand. */
 const authCanMatch: CanMatchFn = (_route, segments) => {
@@ -217,6 +219,14 @@ const routes: Routes = [
     path: '',
     loadChildren: () =>
       import('./features/home/home-module').then((m) => m.HomeModule),
+  },
+  {
+    path: 'privacidad',
+    component: PrivacyComponent,
+  },
+  {
+    path: 'terminos',
+    component: TermsComponent,
   },
   { path: '**', redirectTo: '' },
 ];

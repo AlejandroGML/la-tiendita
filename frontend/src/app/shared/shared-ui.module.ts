@@ -26,6 +26,13 @@ import { SearchBarComponent } from './components/search-bar/search-bar';
 import { PaginationComponent } from './components/pagination/pagination';
 import { StarRatingComponent } from './components/star-rating/star-rating';
 import { SizingGuideComponent } from './components/sizing-guide/sizing-guide';
+import { NewsletterPopupComponent } from './components/newsletter-popup/newsletter-popup';
+import { RecentlyViewedComponent } from './components/recently-viewed/recently-viewed';
+
+const STANDALONE_COMPONENTS = [
+  NewsletterPopupComponent,
+  RecentlyViewedComponent,
+];
 
 const UI_COMPONENTS = [
   ProductCardComponent,
@@ -52,7 +59,7 @@ const PRIME_NG_UI = [
 
 @NgModule({
   declarations: UI_COMPONENTS,
-  imports: [CommonModule, FormsModule, ...PRIME_NG_UI, TranslateModule, SharedPipesModule],
-  exports: UI_COMPONENTS,
+  imports: [CommonModule, FormsModule, ...STANDALONE_COMPONENTS, ...PRIME_NG_UI, TranslateModule, SharedPipesModule],
+  exports: [...UI_COMPONENTS, ...STANDALONE_COMPONENTS],
 })
 export class SharedUiModule {}
