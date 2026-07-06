@@ -126,7 +126,21 @@ uploads_router = create_static_files_router(
 
 
 async def on_startup() -> None:
-    """Initialise the event bus, subscribe handlers, and probe the cache."""
+    """Apply pending migrations, initialise the event bus, subscribe handlers, and probe the cache."""
+
+    # ── Database migrations ────────────────────────────────────────────
+    # Apply any pending Alembic migrations before the app serves traffic.
+    # This guarantees the schema is up-to-date on every deploy without
+    # requiring a manual ``docker exec backend alembic upgrade head``.
+    try:
+        from alembic.config import Config
+        from alembic import command
+
+        alembic_cfg = Config("alembic.ini")
+        command.upgrade(alembic_cfg, "head")
+        logger.info("Database migrations up to date")
+    except Exception:
+        logger.exception("Migration upgrade failed — app may be degraded")
     from app.core.cache import cache_service
     from app.core.email_handler import EmailHandler
     from app.core.event_bus import event_bus
