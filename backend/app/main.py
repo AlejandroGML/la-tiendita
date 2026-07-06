@@ -1,11 +1,58 @@
 """La Tiendita API — Litestar application entrypoint."""
 
+import json
 import logging
 
+# ---------------------------------------------------------------------------
+# JSON log formatter — production log aggregation compatible
+# ---------------------------------------------------------------------------
+
+
+class _JSONFormatter(logging.Formatter):
+    """Output structured JSON lines for log aggregators (Datadog, Loki, etc.).
+
+    In DEBUG mode the app uses plain-text formatting for readability.
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        entry: dict[str, object] = {
+            "timestamp": self.formatTime(record, self.datefmt),
+            "level": record.levelname,
+            "logger": record.name,
+            "message": record.getMessage(),
+            "module": record.module,
+            "line": record.lineno,
+        }
+        if record.exc_info and record.exc_info[0]:
+            entry["exception"] = self.formatException(record.exc_info)
+        return json.dumps(entry, default=str)
+
+
+# Read debug flag BEFORE importing app modules (to avoid circular imports).
+_debug_mode = False
+try:
+    from app.config import settings  # type: ignore[import-untyped]
+
+    _debug_mode = settings.DEBUG
+except (ImportError, Exception):
+    pass
+
+_log_format = (
+    "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    if _debug_mode
+    else None
+)
+_log_fmt_date = "%Y-%m-%d %H:%M:%S"
+_log_handler = logging.StreamHandler()
+_log_handler.setFormatter(
+    _JSONFormatter(datefmt=_log_fmt_date)
+    if not _debug_mode
+    else logging.Formatter(fmt=_log_format, datefmt=_log_fmt_date)
+)
+
 logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-    datefmt="%Y-%m-%d %H:%M:%S",
+    level=logging.DEBUG if _debug_mode else logging.INFO,
+    handlers=[_log_handler],
 )
 logging.getLogger("httpx").setLevel(logging.WARNING)
 logging.getLogger("httpcore").setLevel(logging.WARNING)
