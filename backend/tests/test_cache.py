@@ -35,6 +35,7 @@ from app.core.events import (
 )
 from app.core.handlers.cache_invalidation import CacheInvalidationHandler
 from app.schemas.common import ProductFilter
+from app.schemas.product import ProductSummaryDTO
 from app.services.product_service import ProductService
 from app.services.promotion_service import PromotionService
 
@@ -86,6 +87,41 @@ def _product_orm(slug="chaqueta-denim", pid=None):
     )
 
 
+def _summary_dto(orm_product, stock_total=5, has_promotion=False) -> ProductSummaryDTO:
+    """Build a ProductSummaryDTO from a fake ORM product for cache tests."""
+    return ProductSummaryDTO(
+        id=orm_product.id,
+        slug=orm_product.slug,
+        name="Jacket",  # pre-resolved
+        price=orm_product.price,
+        condition=orm_product.condition.value if hasattr(orm_product.condition, "value") else orm_product.condition,
+        condition_rating=orm_product.condition_rating,
+        brand=orm_product.brand,
+        material=orm_product.material,
+        image_urls=list(orm_product.image_urls) if orm_product.image_urls else [],
+        stock_total=stock_total,
+        has_promotion=has_promotion,
+        created_at=orm_product.created_at,
+        colors=[{"color": "Blue", "hex": "#0000FF"}],
+        sizes=["S", "M"],
+        has_variants=True,
+        is_out_of_stock=False,
+    )
+
+
+class _FakeProductQueries:
+    """Queries stub that returns ProductSummaryDTOs (no DB)."""
+
+    def __init__(self, summaries=None, total=0):
+        self._summaries = summaries or []
+        self._total = total
+        self.get_summaries_calls = 0
+
+    async def get_summaries(self, session, filters):
+        self.get_summaries_calls += 1
+        return self._summaries, self._total
+
+
 class _FakeProductRepo:
     """Repo stub that records call counts (no DB)."""
 
@@ -105,6 +141,11 @@ class _FakeProductRepo:
             if p.slug == slug:
                 return p
         return None
+
+
+# ---------------------------------------------------------------------------
+# CacheService unit tests
+# ---------------------------------------------------------------------------
 
 
 # ---------------------------------------------------------------------------
@@ -317,30 +358,34 @@ async def test_handler_subscribes_to_bus(cache):
 
 
 def _product_service(cache, products=None, total=0):
+    """Create a ProductService with fake repo, fake queries, and stubbed promotions."""
     repo = _FakeProductRepo(products=products, total=total)
-    svc = ProductService(product_repo=repo, cache=cache)
+    # Build summary DTOs from the fake ORM products
+    summaries = [_summary_dto(p) for p in (products or [])]
+    queries = _FakeProductQueries(summaries=summaries, total=total)
+    svc = ProductService(product_repo=repo, cache=cache, product_queries=queries)
     # Promotions are resolved via another service/DB; stub it out.
     svc._apply_promotions = AsyncMock(return_value={})
-    return svc, repo
+    return svc, repo, queries
 
 
 @pytest.mark.asyncio
 async def test_list_products_cached_miss_then_hit(cache):
-    svc, repo = _product_service(cache, products=[_product_orm()], total=1)
+    svc, repo, queries = _product_service(cache, products=[_product_orm()], total=1)
     filters = ProductFilter(lang="en", page=1, per_page=12)
 
     first = await svc.list_products_cached(session=None, filters=filters)
-    assert repo.get_with_filters_calls == 1
+    assert queries.get_summaries_calls == 1
 
     second = await svc.list_products_cached(session=None, filters=filters)
-    # Second call served from cache → repo not hit again.
-    assert repo.get_with_filters_calls == 1
+    # Second call served from cache → queries not hit again.
+    assert queries.get_summaries_calls == 1
     assert first == second
 
 
 @pytest.mark.asyncio
 async def test_list_products_cached_key_shape_includes_per_page(cache):
-    svc, _ = _product_service(cache, products=[_product_orm()], total=1)
+    svc, _, _ = _product_service(cache, products=[_product_orm()], total=1)
     filters = ProductFilter(lang="es", page=2, per_page=24)
 
     await svc.list_products_cached(session=None, filters=filters)
@@ -351,21 +396,21 @@ async def test_list_products_cached_key_shape_includes_per_page(cache):
 
 @pytest.mark.asyncio
 async def test_filtered_listing_bypasses_cache(cache):
-    svc, repo = _product_service(cache, products=[_product_orm()], total=1)
+    svc, _, queries = _product_service(cache, products=[_product_orm()], total=1)
     filters = ProductFilter(lang="en", page=1, per_page=12, category=5)
 
     await svc.list_products_cached(session=None, filters=filters)
 
     # No cache key written for filtered queries.
     assert await cache.get("tiendita:products:list:en:1:12:default") is None
-    # Repo was still consulted (passthrough).
-    assert repo.get_with_filters_calls == 1
+    # Queries was still consulted (passthrough).
+    assert queries.get_summaries_calls == 1
 
 
 @pytest.mark.asyncio
 async def test_get_product_by_slug_cached_miss_then_hit(cache):
     product = _product_orm(slug="chaqueta-denim")
-    svc, repo = _product_service(cache, products=[product], total=1)
+    svc, repo, _ = _product_service(cache, products=[product], total=1)
 
     first = await svc.get_product_by_slug_cached(session=None, slug="chaqueta-denim")
     assert repo.get_by_slug_calls == 1
@@ -379,7 +424,7 @@ async def test_get_product_by_slug_cached_miss_then_hit(cache):
 
 @pytest.mark.asyncio
 async def test_get_product_by_slug_cached_missing_returns_none(cache):
-    svc, repo = _product_service(cache, products=[], total=0)
+    svc, repo, _ = _product_service(cache, products=[], total=0)
 
     result = await svc.get_product_by_slug_cached(session=None, slug="nope")
 
@@ -490,8 +535,10 @@ async def test_cache_disabled_makes_zero_redis_calls(monkeypatch):
     spy = AsyncMock()
     spy.get = AsyncMock(return_value=None)
     spy.set = AsyncMock()
+    summaries = [_summary_dto(_product_orm())]
     svc = ProductService(
         product_repo=_FakeProductRepo(products=[_product_orm()], total=1),
+        product_queries=_FakeProductQueries(summaries=summaries, total=1),
         cache=CacheService(redis=spy),
     )
     svc._apply_promotions = AsyncMock(return_value={})
@@ -500,7 +547,7 @@ async def test_cache_disabled_makes_zero_redis_calls(monkeypatch):
         session=None, filters=ProductFilter(lang="es", page=1, per_page=12)
     )
 
-    # Redis was never read or written, and the repo path still produced a result.
+    # Redis was never read or written, and the queries path still produced a result.
     spy.get.assert_not_called()
     spy.set.assert_not_called()
     assert "data" in result and "pagination" in result
@@ -530,7 +577,7 @@ async def test_cache_disabled_detail_makes_zero_redis_calls(monkeypatch):
 async def test_cache_disabled_then_enabled_restores_caching(monkeypatch, cache):
     """Toggling CACHE_ENABLED back on re-enables caching (no sticky state)."""
     monkeypatch.setattr(settings, "CACHE_ENABLED", False)
-    svc_off, repo_off = _product_service(cache, products=[_product_orm()], total=1)
+    svc_off, _, _ = _product_service(cache, products=[_product_orm()], total=1)
     await svc_off.list_products_cached(
         session=None, filters=ProductFilter(lang="en", page=1, per_page=12)
     )
@@ -538,7 +585,7 @@ async def test_cache_disabled_then_enabled_restores_caching(monkeypatch, cache):
     assert await cache.get("tiendita:products:list:en:1:12:default") is None
 
     monkeypatch.setattr(settings, "CACHE_ENABLED", True)
-    svc_on, repo_on = _product_service(cache, products=[_product_orm()], total=1)
+    svc_on, _, _ = _product_service(cache, products=[_product_orm()], total=1)
     await svc_on.list_products_cached(
         session=None, filters=ProductFilter(lang="en", page=1, per_page=12)
     )

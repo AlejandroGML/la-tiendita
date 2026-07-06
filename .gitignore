@@ -36,3 +36,40 @@ Thumbs.db
 
 # Docker
 .dockerignore
+
+# Debug/audit artifacts (root level)
+/audit-*.png
+/mobile-*.png
+/re-audit-*.png
+/productos-*.png
+/header-*.png
+/filters-*.png
+/lang-*.png
+/cart-*.png
+/checkout-*.png
+/detalle-*.png
+/login-*.png
+/register-*.png
+/wishlist-*.png
+/home*.png
+/category-*.png
+/home-seeded.png
+/frontend-*.md
+/product-detail-*.md
+/productos*.md
+/filters-*.md
+/cart-items.md
+/lang-switcher.md
+/reshop-template.png
+/tiendavista-*.png
+/uniqlo-*.png
+/tiendavirtual-homepage.png
+/tiendavita-*.png
+
+# Playwright test artifacts
+.playwright-mcp/
+frontend/playwright-report/data/
+frontend/test-results/
+
+# Graph knowledge base artifacts
+graphify-out/
