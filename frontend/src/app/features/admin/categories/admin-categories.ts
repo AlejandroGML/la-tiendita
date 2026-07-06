@@ -27,7 +27,7 @@ export class AdminCategories implements OnInit {
     this.loading.set(true);
     this.error.set(false);
 
-    this.http.get<Category[]>('/api/categories', { params: { lang: 'es' } }).subscribe({
+    this.http.get<Category[]>('/api/v1/categories', { params: { lang: 'es' } }).subscribe({
       next: (data) => {
         this.categories.set(data);
         this.loading.set(false);

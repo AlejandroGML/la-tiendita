@@ -1,14 +1,14 @@
 <div class="home-page">
   <!-- HERO SECTION -->
   <section class="hero relative overflow-hidden">
-    <div class="absolute inset-0 bg-gradient-to-br from-green-900 via-green-700 to-emerald-600 dark:from-gray-950 dark:via-emerald-950 dark:to-teal-950">
+    <div class="absolute inset-0 bg-green-800 lg:bg-gradient-to-br lg:from-green-900 lg:via-green-700 lg:to-emerald-600 dark:bg-gray-950 dark:lg:bg-gradient-to-br dark:lg:from-gray-950 dark:lg:via-emerald-950 dark:lg:to-teal-950">
       <div class="absolute inset-0 opacity-20" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2220%22 cy=%2230%22 r=%2215%22 fill=%22white%22 opacity=%220.15%22/><circle cx=%2280%22 cy=%2270%22 r=%2220%22 fill=%22white%22 opacity=%220.1%22/><circle cx=%2250%22 cy=%2220%22 r=%2210%22 fill=%22white%22 opacity=%220.12%22/></svg>')"></div>
     </div>
 
     <div class="relative container mx-auto px-4 sm:px-8 py-20 md:py-32 flex flex-col lg:flex-row items-center gap-12">
       <div class="flex-1 text-white space-y-6 max-w-2xl">
         <span class="inline-block px-4 py-2 bg-white/15 backdrop-blur-sm rounded-full text-sm font-medium tracking-wide">
-          ♻️ {{ 'home.sustainable' | translate }}
+          <i class="pi pi-recycle mr-1"></i> {{ 'home.sustainable' | translate }}
         </span>
         <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">
           {{ 'home.heroTitle' | translate }}<br>
@@ -81,13 +81,13 @@
         <h2 class="text-3xl md:text-4xl font-extrabold text-[var(--color-text)] mt-2">{{ 'home.categories' | translate }}</h2>
         <p class="text-[var(--color-text-secondary)] mt-3 max-w-xl mx-auto">{{ 'home.categoriesDesc' | translate }}</p>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
         <a *ngFor="let cat of categories() | slice:0:12"
            [routerLink]="['/productos']"
            [queryParams]="{ category_id: cat.id }"
            class="group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer border border-gray-100 dark:border-gray-700">
           <div class="w-14 h-14 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mb-3 group-hover:bg-[var(--color-primary)]/20 transition-colors text-2xl">
-            {{ getCategoryIcon(cat.slug) }}
+            <i [ngClass]="'pi ' + getCategoryIcon(cat.slug)"></i>
           </div>
           <span class="text-sm font-semibold text-[var(--color-text)] text-center leading-tight">
             {{ getCategoryName(cat) || cat.slug }}
@@ -110,9 +110,9 @@
         </a>
       </div>
 
-      <!-- Loading -->
-      <div *ngIf="loading()" class="flex justify-center py-16">
-        <p-progressSpinner [style]="{width: '56px', height: '56px'}" strokeWidth="5"></p-progressSpinner>
+      <!-- Skeleton loading -->
+      <div *ngIf="loading()" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        <div *ngFor="let _ of [1,2,3,4]" class="skeleton-card"></div>
       </div>
 
       <!-- Error -->
@@ -126,7 +126,7 @@
 
       <!-- Product Grid -->
       <div *ngIf="!loading() && !error() && featuredProducts().length > 0"
-           class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+           class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
         <app-product-card *ngFor="let product of featuredProducts()" [product]="product"></app-product-card>
       </div>
 
@@ -145,6 +145,9 @@
       </div>
     </div>
   </section>
+
+  <!-- RECENTLY VIEWED -->
+  <app-recently-viewed></app-recently-viewed>
 
   <!-- PROMO BANNER -->
   <section class="promo py-16 bg-gradient-to-r from-[var(--color-secondary)]/20 to-[var(--color-accent)]/20">

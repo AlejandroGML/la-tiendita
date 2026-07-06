@@ -10,14 +10,14 @@ interface CategoryItem {
 }
 
 const CATEGORY_ICONS: Record<string, string> = {
-  'accessories': '💍', 'bag': '👜', 'belt': '🔗', 'blazer': '🧥',
-  'blouse': '👚', 'boots': '🥾', 'cardigan': '🧶', 'coat': '🧥',
-  'dress': '👗', 'hat': '🧢', 'heels': '👠', 'jacket': '🧥',
-  'jeans': '👖', 'jumpsuit': '🦺', 'pants': '👖', 'playsuit': '🦺',
-  'poncho': '🧣', 'sandals': '🩴', 'scarf': '🧣', 'shirt': '👔',
-  'shoes': '👟', 'shorts': '🩳', 'skirt': '👗', 'sneakers': '👟',
-  'sweater': '🧶', 't-shirt': '👕', 'tank-top': '🎽', 'top': '👚',
-  'tunic': '👚', 'vest': '🦺',
+  'accessories': 'pi-box', 'bag': 'pi-briefcase', 'belt': 'pi-tag', 'blazer': 'pi-tag',
+  'blouse': 'pi-heart', 'boots': 'pi-box', 'cardigan': 'pi-sun', 'coat': 'pi-tag',
+  'dress': 'pi-image', 'hat': 'pi-box', 'heels': 'pi-box', 'jacket': 'pi-tag',
+  'jeans': 'pi-ticket', 'jumpsuit': 'pi-box', 'pants': 'pi-ticket', 'playsuit': 'pi-box',
+  'poncho': 'pi-box', 'sandals': 'pi-box', 'scarf': 'pi-box', 'shirt': 'pi-briefcase',
+  'shoes': 'pi-box', 'shorts': 'pi-box', 'skirt': 'pi-image', 'sneakers': 'pi-box',
+  'sweater': 'pi-sun', 't-shirt': 'pi-ticket', 'tank-top': 'pi-th-large', 'top': 'pi-heart',
+  'tunic': 'pi-heart', 'vest': 'pi-box',
 };
 
 @Component({
@@ -40,7 +40,7 @@ export class Home {
   }
 
   getCategoryIcon(slug: string): string {
-    return CATEGORY_ICONS[slug] || '🏷️';
+    return CATEGORY_ICONS[slug] || 'pi-tag';
   }
 
   constructor() {
@@ -52,7 +52,7 @@ export class Home {
     this.error.set(null);
 
     const params = new HttpParams().set('lang', 'es');
-    this.http.get<CategoryItem[]>('/api/categories', { params }).subscribe({
+    this.http.get<CategoryItem[]>('/api/v1/categories', { params }).subscribe({
       next: (data) => this.categories.set(data),
       error: () => this.error.set('catalog.error'),
     });

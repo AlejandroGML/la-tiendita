@@ -4,8 +4,8 @@
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
-          <input pInputText type="email" formControlName="email" placeholder="you@example.com" class="w-full" />
-          <label>{{ 'auth.email' | translate }}</label>
+          <input pInputText type="email" id="login-email" formControlName="email" placeholder="you@example.com" class="w-full" />
+          <label for="login-email">{{ 'auth.email' | translate }}</label>
         </p-floatLabel>
         <small *ngIf="form.get('email')?.hasError('required')" class="p-error block mt-1">{{ 'auth.emailRequired' | translate }}</small>
         <small *ngIf="form.get('email')?.hasError('email')" class="p-error block mt-1">{{ 'auth.emailInvalid' | translate }}</small>
@@ -13,8 +13,8 @@
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
-          <input pInputText type="password" formControlName="password" placeholder="••••••••" class="w-full" />
-          <label>{{ 'auth.password' | translate }}</label>
+          <input pInputText type="password" id="login-password" formControlName="password" placeholder="••••••••" class="w-full" />
+          <label for="login-password">{{ 'auth.password' | translate }}</label>
         </p-floatLabel>
         <small *ngIf="form.get('password')?.hasError('required')" class="p-error block mt-1">{{ 'auth.passwordRequired' | translate }}</small>
         <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error block mt-1">{{ 'auth.passwordMinLength' | translate }}</small>
@@ -41,5 +41,9 @@
       ></p-button>
       <a pButton [text]="true" routerLink="/register" class="text-sm">{{ 'auth.noAccount' | translate }} {{ 'auth.register' | translate }}</a>
     </div>
+
+    <a routerLink="/" class="block text-center text-sm text-gray-500 mt-4 hover:text-gray-700">
+      &larr; {{ 'common.backToHome' | translate }}
+    </a>
   </p-card>
 </div>

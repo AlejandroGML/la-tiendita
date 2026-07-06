@@ -57,7 +57,7 @@ export class AdminLogin {
     this.errorMessage = null;
 
     const { email, password } = this.form.value;
-    this.http.post<any>('/api/auth/admin-login', { email, password }).subscribe({
+    this.http.post<any>('/api/v1/auth/admin-login', { email, password }).subscribe({
       next: (res) => {
         this.loading = false;
         if (res.require_2fa) {

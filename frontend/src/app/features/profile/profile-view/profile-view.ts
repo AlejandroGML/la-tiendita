@@ -48,7 +48,7 @@ export class ProfileView implements OnInit {
   }
 
   private loadProfile(): void {
-    this.http.get<UserResponse>('/api/profile/').subscribe({
+    this.http.get<UserResponse>('/api/v1/profile/').subscribe({
       next: (user) => {
         this.form.patchValue({
           name: user.name,
@@ -92,7 +92,7 @@ export class ProfileView implements OnInit {
     if (phone !== undefined) body['phone'] = phone;
     if (preferred_lang) body['preferred_lang'] = preferred_lang;
 
-    this.http.put<UserResponse>('/api/profile/', body).subscribe({
+    this.http.put<UserResponse>('/api/v1/profile/', body).subscribe({
       next: (user) => {
         this.saving = false;
         this.editing = false;
@@ -117,7 +117,7 @@ export class ProfileView implements OnInit {
   }
 
   load2faStatus(): void {
-    this.http.get<{ totp_enabled: boolean }>('/api/profile/2fa/status').subscribe({
+    this.http.get<{ totp_enabled: boolean }>('/api/v1/profile/2fa/status').subscribe({
       next: (res) => this.totpEnabled = res.totp_enabled,
     });
   }
