@@ -12,9 +12,9 @@ export interface CurrencyInfo {
 const STORAGE_KEY = 'currency-preference';
 
 const CURRENCIES: Record<CurrencyCode, CurrencyInfo> = {
-  SEK: { code: 'SEK', symbol: 'kr', name: 'Svenska kronor', flag: '🇸🇪' },
-  EUR: { code: 'EUR', symbol: '€', name: 'Euro', flag: '🇪🇺' },
-  USD: { code: 'USD', symbol: '$', name: 'US Dollar', flag: '🇺🇸' },
+  SEK: { code: 'SEK', symbol: 'SEK', name: 'Svenska kronor', flag: 'SE' },
+  EUR: { code: 'EUR', symbol: '\u20AC', name: 'Euro', flag: 'EU' },
+  USD: { code: 'USD', symbol: '$', name: 'US Dollar', flag: 'US' },
 };
 
 /** Fixed exchange rates base: SEK (1 SEK = X) */
@@ -59,7 +59,7 @@ export class CurrencyService {
     const code = this.currency();
 
     if (code === 'SEK') {
-      return `${converted.toLocaleString('sv-SE')} kr`;
+      return `${converted.toLocaleString('sv-SE', { minimumFractionDigits: 2 })} SEK`;
     }
     if (code === 'EUR') {
       return `${converted.toLocaleString('de-DE')} €`;

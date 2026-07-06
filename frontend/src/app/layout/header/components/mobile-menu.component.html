@@ -25,7 +25,7 @@
          [queryParams]="{category_id: cat.id}"
          class="!px-3 !py-1 !text-xs !rounded-full !font-medium !text-gray-600 dark:!text-gray-400 hover:!bg-emerald-50 dark:hover:!bg-gray-800 hover:!text-emerald-700 dark:hover:!text-emerald-400"
          (click)="closed.emit()">
-        {{ getCategoryIcon(cat.slug) }} {{ cat.name || cat.slug }}
+        <i [ngClass]="'pi ' + getCategoryIcon(cat.slug)" class="mr-1"></i>{{ cat.name || cat.slug }}
       </a>
     </div>
 
@@ -65,7 +65,7 @@
        (click)="closed.emit()">
       <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="'cart' | svgIcon:'w-4 h-4'"></span>
       {{ 'nav.cart' | translate }}
-      <span *ngIf="cartCount > 0" class="ml-auto bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ cartCount }}</span>
+      <span *ngIf="cartCount() > 0" class="ml-auto bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ cartCount() }}</span>
     </a>
     <a pButton [text]="true" routerLink="/login"
        class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"

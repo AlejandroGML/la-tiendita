@@ -1,35 +1,38 @@
 import { inject, Injectable } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { toObservable } from '@angular/core/rxjs-interop';
+import { Observable } from 'rxjs';
 
 import type { CartResponse } from '../../shared/models/cart.model';
 import { CartApiService } from './cart-api.service';
-import { CartStateService } from './cart-state.service';
+import { CartStore } from '../stores/cart.store';
 
 /**
- * Facade over CartApiService (HTTP) + CartStateService (state).
+ * Facade over CartApiService (HTTP) + CartStore (signal-based state).
  *
  * Preserves the same public API as the original god-node CartService so
  * all 7 existing consumers compile and work without changes.
  *
- * New consumers should prefer injecting CartStateService directly for
- * reactive reads (cart$, totalItems$) and CartApiService for HTTP-only
- * operations.
+ * New consumers should prefer injecting `CartStore` directly for
+ * synchronous signal reads (`cart`, `totalItems`, `loading`, `error`).
  */
 @Injectable({ providedIn: 'root' })
 export class CartService {
   private readonly cartApi = inject(CartApiService);
-  private readonly cartState = inject(CartStateService);
+  private readonly cartStore = inject(CartStore);
 
-  /** Observable stream of the full cart response, or null when empty. */
-  readonly cart$ = this.cartState.cart$;
+  /**
+   * Observable stream of the full cart response, or null when empty.
+   * Derived from CartStore's signal for backward compatibility.
+   */
+  readonly cart$: Observable<CartResponse | null> = toObservable(
+    this.cartStore.cart,
+  );
 
   // ── HTTP + state sync ──────────────────────────────────────────────
 
-  /** Fetch current cart state and update the subject. */
+  /** Fetch current cart state and update the signal. */
   getCart(): Observable<CartResponse> {
-    return this.cartApi
-      .getCart()
-      .pipe(tap((res) => this.cartState.setCart(res)));
+    return this.cartStore.load();
   }
 
   /** Add a product to the cart (quantity defaults to 1). Optionally pass a variantId. */
@@ -38,41 +41,37 @@ export class CartService {
     quantity: number = 1,
     variantId?: string,
   ): Observable<CartResponse> {
-    return this.cartApi
-      .addItem(productId, quantity, variantId)
-      .pipe(tap((res) => this.cartState.setCart(res)));
+    return this.cartStore.addItem(productId, quantity, variantId);
   }
 
   /** Update line-item quantity. Setting quantity to 0 removes the item. */
   updateQuantity(itemId: string, quantity: number): Observable<CartResponse> {
-    return this.cartApi
-      .updateQuantity(itemId, quantity)
-      .pipe(tap((res) => this.cartState.setCart(res)));
+    return this.cartStore.updateQty(itemId, quantity);
   }
 
   /** Remove a single item from the cart. */
   removeItem(itemId: string): Observable<CartResponse> {
-    return this.cartApi
-      .removeItem(itemId)
-      .pipe(tap((res) => this.cartState.setCart(res)));
+    return this.cartStore.removeItem(itemId);
   }
 
   /** Empty the entire cart — emits null on success. */
   clearCart(): Observable<CartResponse> {
-    return this.cartApi
-      .clearCart()
-      .pipe(tap(() => this.cartState.setCart(null)));
+    return this.cartStore.clear();
   }
 
   // ── Lifecycle (one-line delegation) ────────────────────────────────
 
-  /** Ensure guest session ID is generated before the first cart API call. */
+  /**
+   * Ensure guest session ID is generated before the first cart API call.
+   * @deprecated Use `CartApiService` directly for session management.
+   *   Guest session IDs are now handled transparently by `CartApiService`.
+   */
   init(): void {
-    this.cartState.init();
+    // Session ID generation is handled by CartApiService.cartHeaders()
   }
 
   /** Reset local state without an API call (e.g. after logout). */
   resetState(): void {
-    this.cartState.resetState();
+    this.cartStore.resetState();
   }
 }

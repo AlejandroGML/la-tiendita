@@ -21,6 +21,11 @@ import { getSessionId } from '../utils/session-id.util';
  * Lifecycle:
  *   - `init()`        — eagerly generates a guest session ID if unauthenticated
  *   - `resetState()`  — clears state to null (e.g. on logout)
+ *
+ * @deprecated Use {@link CartStore} from `../stores/cart.store` instead.
+ *   `CartStore` provides the same state as signals (`cart`, `totalItems`,
+ *   `loading`, `error`) with less boilerplate. This class is kept for
+ *   backward compatibility with existing tests.
  */
 @Injectable({ providedIn: 'root' })
 export class CartStateService {

@@ -1,53 +1,50 @@
 import {
   Component,
+  computed,
   inject,
   Input,
   Output,
   EventEmitter,
   ChangeDetectionStrategy,
-  ChangeDetectorRef,
   HostListener,
-  OnInit,
-  OnDestroy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 
-import { CartStateService } from '../../../core/services/cart-state.service';
+import { CartStore } from '../../../core/stores/cart.store';
 import { type CategoryItem } from '../../../core/services/category.service';
 
 const CATEGORY_ICONS: Record<string, string> = {
-  accessories: '💍',
-  bag: '👜',
-  belt: '🔗',
-  blazer: '🧥',
-  blouse: '👚',
-  boots: '🥾',
-  cardigan: '🧶',
-  coat: '🧥',
-  dress: '👗',
-  hat: '🧢',
-  heels: '👠',
-  jacket: '🧥',
-  jeans: '👖',
-  jumpsuit: '🦺',
-  pants: '👖',
-  playsuit: '🦺',
-  poncho: '🧣',
-  sandals: '🩴',
-  scarf: '🧣',
-  shirt: '👔',
-  shoes: '👟',
-  shorts: '🩳',
-  skirt: '👗',
-  sneakers: '👟',
-  sweater: '🧶',
-  't-shirt': '👕',
-  'tank-top': '🎽',
-  top: '👚',
-  tunic: '👚',
-  vest: '🦺',
+  accessories: 'pi-box',
+  bag: 'pi-briefcase',
+  belt: 'pi-tag',
+  blazer: 'pi-tag',
+  blouse: 'pi-heart',
+  boots: 'pi-box',
+  cardigan: 'pi-sun',
+  coat: 'pi-tag',
+  dress: 'pi-image',
+  hat: 'pi-box',
+  heels: 'pi-box',
+  jacket: 'pi-tag',
+  jeans: 'pi-ticket',
+  jumpsuit: 'pi-box',
+  pants: 'pi-ticket',
+  playsuit: 'pi-box',
+  poncho: 'pi-box',
+  sandals: 'pi-box',
+  scarf: 'pi-box',
+  shirt: 'pi-briefcase',
+  shoes: 'pi-box',
+  shorts: 'pi-box',
+  skirt: 'pi-image',
+  sneakers: 'pi-box',
+  sweater: 'pi-sun',
+  't-shirt': 'pi-ticket',
+  'tank-top': 'pi-th-large',
+  top: 'pi-heart',
+  tunic: 'pi-heart',
+  vest: 'pi-box',
 };
 
 @Component({
@@ -56,19 +53,19 @@ const CATEGORY_ICONS: Record<string, string> = {
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MobileMenuComponent implements OnInit, OnDestroy {
+export class MobileMenuComponent {
   @Input() isOpen = false;
   @Input() categories: CategoryItem[] = [];
   @Output() closed = new EventEmitter<void>();
 
   private readonly router = inject(Router);
-  private readonly cdr = inject(ChangeDetectorRef);
   private readonly translate = inject(TranslateService);
-  private readonly cartState = inject(CartStateService);
+  private readonly cartStore = inject(CartStore);
 
-  cartCount = 0;
+  /** Reactive cart item count via CartStore computed signal. */
+  readonly cartCount = computed(() => this.cartStore.totalItems());
+
   searchTerm = '';
-  private cartSub: Subscription | null = null;
 
   protected readonly LANG_CYCLE = ['es', 'en', 'sv'];
   protected readonly LANG_NAMES: Record<string, string> = {
@@ -76,17 +73,6 @@ export class MobileMenuComponent implements OnInit, OnDestroy {
     en: 'English',
     sv: 'Svenska',
   };
-
-  ngOnInit(): void {
-    this.cartSub = this.cartState.totalItems$.subscribe((count) => {
-      this.cartCount = count;
-      this.cdr.markForCheck();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.cartSub?.unsubscribe();
-  }
 
   protected onSearch(term: string): void {
     if (term.trim()) {
@@ -105,7 +91,7 @@ export class MobileMenuComponent implements OnInit, OnDestroy {
   }
 
   protected getCategoryIcon(slug: string): string {
-    return CATEGORY_ICONS[slug] || '🏷️';
+    return CATEGORY_ICONS[slug] || 'pi-tag';
   }
 
   /** Close when clicking outside the component */

@@ -1,9 +1,10 @@
-import { Component, OnDestroy, OnInit, computed, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, signal, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subject, takeUntil } from 'rxjs';
 import type { CartResponse, CartItem } from '../../shared/models/cart.model';
 import { CartService } from '../../core/services/cart.service';
 import { AuthStateService } from '../../core/services/auth-state.service';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-cart',
@@ -35,6 +36,7 @@ export class CartComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly route: ActivatedRoute,
     private readonly authState: AuthStateService,
+    private readonly confirmationService: ConfirmationService,
   ) {}
 
   ngOnInit(): void {
@@ -110,6 +112,17 @@ export class CartComponent implements OnInit, OnDestroy {
           this.error.set('cart.error');
         },
       });
+  }
+
+  confirmRemove(item: CartItem): void {
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de eliminar este producto del carrito?',
+      header: 'Confirmar eliminación',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Eliminar',
+      rejectLabel: 'Cancelar',
+      accept: () => { this.removeItem(item); }
+    });
   }
 
   removeItem(item: CartItem): void {
