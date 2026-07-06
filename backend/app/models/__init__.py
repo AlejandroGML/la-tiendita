@@ -14,6 +14,7 @@ from app.models.product_variant import ProductVariant  # noqa: F401
 from app.models.promotion import Promotion, PromotionTranslation  # noqa: F401
 from app.models.password_reset import PasswordResetToken  # noqa: F401
 from app.models.refresh_token import RefreshToken  # noqa: F401
+from app.models.newsletter_subscriber import NewsletterSubscriber  # noqa: F401
 from app.models.review import Review  # noqa: F401
 from app.models.user import PreferredLang, User, UserRole  # noqa: F401
 from app.models.wishlist import Wishlist  # noqa: F401

@@ -1,0 +1,80 @@
+<!-- Overlay -->
+<div
+  *ngIf="visible()"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4"
+  (click)="dismiss()"
+>
+  <!-- Modal -->
+  <div
+    class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md p-8 relative"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Close button -->
+    <button
+      class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+      (click)="dismiss()"
+      aria-label="Cerrar"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+
+    <!-- Thank you state -->
+    <ng-container *ngIf="submitted(); else formTemplate">
+      <div class="text-center py-4">
+        <div class="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center mx-auto mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-2">¡Gracias por suscribirte!</h3>
+        <p class="text-gray-500 dark:text-gray-400">Recibirás nuestras ofertas y novedades en tu correo.</p>
+        <button
+          class="mt-6 px-6 py-2 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 transition-colors"
+          (click)="dismiss()"
+        >
+          Cerrar
+        </button>
+      </div>
+    </ng-container>
+
+    <!-- Form -->
+    <ng-template #formTemplate>
+      <div class="text-center mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">Suscríbete a nuestro newsletter</h2>
+        <p class="text-gray-500 dark:text-gray-400">Recibe ofertas exclusivas y novedades directamente en tu correo.</p>
+      </div>
+
+      <form (submit)="submit(); $event.preventDefault()">
+        <div class="mb-4">
+          <input
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            required
+            placeholder="tu@email.com"
+            class="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-transparent outline-none transition-all"
+          />
+        </div>
+
+        <p *ngIf="error()" class="text-red-500 text-sm mb-3">{{ error() }}</p>
+
+        <button
+          type="submit"
+          [disabled]="loading() || !email().trim()"
+          class="w-full py-3 bg-emerald-600 text-white rounded-lg font-semibold hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        >
+          <span *ngIf="!loading()">Suscribirme</span>
+          <span *ngIf="loading()" class="inline-flex items-center gap-2">
+            <svg class="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+            </svg>
+            Suscribiendo...
+          </span>
+        </button>
+      </form>
+    </ng-template>
+  </div>
+</div>

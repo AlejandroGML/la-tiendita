@@ -13,6 +13,7 @@ from app.controllers.admin import AdminController, AdminProductVariantController
 from app.controllers.auth import AuthController
 from app.controllers.cart import CartController
 from app.controllers.categories import AdminCategoryController, CategoryController
+from app.controllers.newsletter import NewsletterController
 from app.controllers.orders import OrderController
 from app.controllers.stripe import StripeWebhookController
 from app.controllers.products import AdminProductController, ProductController
@@ -175,6 +176,7 @@ app = Litestar(
         CartController,
         CategoryController,
         AdminCategoryController,
+        NewsletterController,
         OrderController,
         StripeWebhookController,
         ProductController,
