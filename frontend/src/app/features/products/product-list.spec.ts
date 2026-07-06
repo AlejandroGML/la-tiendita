@@ -195,7 +195,7 @@ describe('ProductList', () => {
   });
 
   it('should load categories on init', () => {
-    expect(http.get).toHaveBeenCalledWith('/api/categories');
+    expect(http.get).toHaveBeenCalledWith('/api/v1/categories');
   });
 
   it('should call getProducts when search term changes', () => {

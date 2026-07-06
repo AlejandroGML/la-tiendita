@@ -45,6 +45,7 @@ export class ProductList implements OnInit, OnDestroy {
   readonly perPage = signal(12);
   readonly total = signal(0);
   readonly searchTerm = signal('');
+  showFilters = false;
 
   readonly filters = signal<FilterState>({
     category_id: null,
@@ -108,7 +109,7 @@ export class ProductList implements OnInit, OnDestroy {
 
   private loadCategories(): void {
     this.http
-      .get<Category[]>('/api/categories')
+      .get<Category[]>('/api/v1/categories')
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (data) => this.categories.set(data),

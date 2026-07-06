@@ -54,6 +54,16 @@
           {{ 'product.newArrival' | translate }}
         </span>
       </div>
+      <!-- Wishlist heart button (top-right, below condition badge) -->
+      <button
+        type="button"
+        class="absolute top-11 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
+        [class.heart-animate]="animateHeart"
+        (click)="toggleWishlist($event)"
+        aria-label="Add to wishlist"
+      >
+        <i class="pi pi-heart text-lg" [class.pi-heart-fill]="isWishlisted()" [style.color]="isWishlisted() ? '#EF4444' : ''"></i>
+      </button>
       <!-- Condition badge (top-right) -->
       <app-product-condition-badge
         *ngIf="product.condition"
@@ -111,8 +121,8 @@
             [price]="product.price"
             [salePrice]="product.sale_price ?? null"
           />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 line-clamp-1">
-            {{ product.material || ('common.notApplicable' | translate) }}
+          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate hidden sm:block">
+            {{ product.material || 'Material variado' }} &middot; {{ (product.condition | translate) || 'Buen estado' }}
           </p>
         </div>
         <span class="text-xs text-gray-400 dark:text-gray-500 font-medium">

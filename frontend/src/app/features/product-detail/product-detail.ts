@@ -8,6 +8,7 @@ import type { Product, ProductVariant } from '../../shared/models/product.model'
 import { ProductService } from '../../core/services/product.service';
 import { CartService } from '../../core/services/cart.service';
 import { SeoService } from '../../core/services/seo.service';
+import { WishlistService } from '../../core/services/wishlist.service';
 import { SizingGuideComponent } from '../../shared/components/sizing-guide/sizing-guide';
 
 const SIZE_ORDER: Record<string, number> = {
@@ -47,6 +48,8 @@ export class ProductDetail implements OnDestroy {
 
   readonly selectedSize = signal<string | null>(null);
   readonly selectedColor = signal<string | null>(null);
+  readonly isWishlisted = signal(false);
+  animateHeart = false;
 
   /** Unique sizes across all variants, sorted naturally */
   readonly availableSizes = computed(() => {
@@ -163,6 +166,16 @@ export class ProductDetail implements OnDestroy {
     return Math.round((1 - parseFloat(p.sale_price) / parseFloat(p.price)) * 100);
   });
 
+  readonly categoryName = computed(() => {
+    const p = this.product();
+    if (!p) return 'Catálogo';
+    const CATEGORY_NAMES: Record<number, string> = {
+      1: 'Accesorios', 2: 'Bolsos', 3: 'Chaquetas', 4: 'Vestidos',
+      5: 'Pantalones', 6: 'Camisas', 7: 'Calzado', 8: 'Faldas',
+    };
+    return CATEGORY_NAMES[p.category_id] || 'Catálogo';
+  });
+
   private sub: Subscription;
 
   constructor(
@@ -170,6 +183,7 @@ export class ProductDetail implements OnDestroy {
     private productService: ProductService,
     private translate: TranslateService,
     private cartService: CartService,
+    private wishlistService: WishlistService,
     private seoService: SeoService,
     private messageService: MessageService,
   ) {
@@ -190,6 +204,7 @@ export class ProductDetail implements OnDestroy {
           this.product.set(product);
           this.loading.set(false);
           this.updateSeo();
+          this.addToRecentlyViewed(product);
         },
         error: (err) => {
           this.loading.set(false);
@@ -218,6 +233,24 @@ export class ProductDetail implements OnDestroy {
     if (p) {
       this.seoService.setProductStructuredData(p, name, desc);
     }
+  }
+
+  private addToRecentlyViewed(product: Product): void {
+    const key = 'recently_viewed';
+    const raw = localStorage.getItem(key);
+    let items: any[] = raw ? JSON.parse(raw) : [];
+    const newItem = {
+      id: product.id,
+      slug: product.slug,
+      name: product.name,
+      image_url: product.image_urls?.[0] || '',
+      price: product.price,
+      viewedAt: Date.now(),
+    };
+    items = items.filter((i) => i.id !== newItem.id);
+    items.unshift(newItem);
+    items = items.slice(0, 10);
+    localStorage.setItem(key, JSON.stringify(items));
   }
 
   ngOnDestroy(): void {
@@ -333,5 +366,22 @@ export class ProductDetail implements OnDestroy {
       summary: this.translate.instant('reviews.submitted'),
       life: 4000,
     });
+  }
+
+  toggleWishlist(): void {
+    const p = this.product();
+    if (!p) return;
+    this.animateHeart = true;
+    setTimeout(() => this.animateHeart = false, 400);
+
+    if (this.isWishlisted()) {
+      this.wishlistService.removeFromWishlist(p.id).subscribe({
+        next: () => this.isWishlisted.set(false),
+      });
+    } else {
+      this.wishlistService.addToWishlist(p.id).subscribe({
+        next: () => this.isWishlisted.set(true),
+      });
+    }
   }
 }

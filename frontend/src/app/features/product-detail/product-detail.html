@@ -23,9 +23,20 @@
   <!-- Product Detail -->
   <ng-container *ngIf="product() as p">
     <!-- Back link -->
-    <a routerLink="/productos" class="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 mb-6">
+    <a routerLink="/productos" class="inline-flex items-center text-sm text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 mb-2">
       <i class="pi pi-arrow-left mr-1"></i>{{ 'catalog.backToCatalog' | translate }}
     </a>
+
+    <!-- Breadcrumb -->
+    <nav aria-label="Breadcrumb" class="text-sm py-2 px-2 text-gray-500">
+      <a routerLink="/" class="hover:text-gray-700">Inicio</a>
+      <span class="mx-1">/</span>
+      <a [routerLink]="['/productos']" [queryParams]="{category_id: product()?.category_id}" class="hover:text-gray-700">
+        {{ categoryName() }}
+      </a>
+      <span class="mx-1">/</span>
+      <span class="text-gray-900 font-medium">{{ displayName }}</span>
+    </nav>
 
     <div class="flex flex-col lg:flex-row gap-8">
       <!-- Image Gallery -->
@@ -73,11 +84,16 @@
           {{ displayDescription }}
         </p>
 
+        <!-- Share button -->
+        <div class="relative inline-block mb-6">
+          <app-share-button [title]="displayName" [image]="product()?.image_urls?.[0] || ''"></app-share-button>
+        </div>
+
         <!-- Attributes -->
         <app-product-detail-attributes
           [brand]="p.brand"
           [material]="p.material"
-          [colors]="p.colors"
+          [colors]="p.colors?.filter(c => typeof c === 'string') ?? null"
           [pattern]="p.pattern"
           [cut]="p.cut"
           [trend]="p.trend"
@@ -195,15 +211,26 @@
           </div>
         </ng-container>
 
-        <!-- Add to Cart -->
-        <button
-          pButton
-          class="w-full md:w-auto"
-          [disabled]="!canAddToCart()"
-          (click)="addToCart()"
-        >
-          {{ 'product.addToCart' | translate }}
-        </button>
+        <!-- Add to Cart + Wishlist -->
+        <div class="flex items-center gap-3 flex-wrap">
+          <button
+            pButton
+            class="w-full md:w-auto"
+            [disabled]="!canAddToCart()"
+            (click)="addToCart()"
+          >
+            {{ 'product.addToCart' | translate }}
+          </button>
+          <button
+            type="button"
+            class="w-11 h-11 flex items-center justify-center rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+            [class.heart-animate]="animateHeart"
+            (click)="toggleWishlist()"
+            aria-label="Add to wishlist"
+          >
+            <i class="pi pi-heart text-lg" [class.pi-heart-fill]="isWishlisted()" [style.color]="isWishlisted() ? '#EF4444' : ''"></i>
+          </button>
+        </div>
       </div>
     </div>
 
