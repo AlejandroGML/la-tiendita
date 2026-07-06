@@ -1,10 +1,12 @@
-"""Rate-limit ASGI middleware — per-IP counter with sliding window.
+"""Rate-limit ASGI middleware — per-IP counter backed by Redis.
 
-State is stored in an in-memory ``defaultdict`` (per-process, lost on restart).
-Upgradable to Redis for multi-process deployments (Change 7).
+Uses Redis ``INCR`` + ``EXPIRE`` for atomic sliding-window counters.
+Gracefully degrades to in-memory ``defaultdict`` when Redis is unreachable
+(e.g., on first deploy before the cache service is healthy).
 
-Limits auth endpoints to 5 requests per 60 seconds per client IP.
-Returns 429 Too Many Requests with a ``Retry-After`` header when exceeded.
+Limits auth endpoints to ``RATE_LIMIT_REQUESTS`` per ``RATE_LIMIT_WINDOW``
+seconds per client IP. Returns 429 Too Many Requests with a ``Retry-After``
+header when exceeded.
 """
 
 import time
@@ -12,12 +14,14 @@ from collections import defaultdict
 
 from litestar.types import ASGIApp, Message, Receive, Scope, Send
 
-# Per-IP → list of request timestamps (unix seconds)
+# ── In-memory fallback (when Redis is unreachable) ─────────────────────
 _buckets: dict[str, list[float]] = defaultdict(list)
+
+_REDIS_KEY_PREFIX = "rate_limit:"
 
 
 def _prune(ip: str, window: int) -> None:
-    """Remove timestamps outside the sliding window."""
+    """Remove timestamps outside the sliding window (in-memory fallback)."""
     now = time.monotonic()
     _buckets[ip] = [t for t in _buckets[ip] if now - t < window]
 
@@ -49,17 +53,32 @@ class RateLimitMiddleware:
 
         # Resolve client IP (x-forwarded-for for proxy support)
         headers = dict(scope.get("headers", []))
-        forwarded: str = (
-            headers.get(b"x-forwarded-for", b"").decode()
-        )
+        forwarded: str = headers.get(b"x-forwarded-for", b"").decode()
         if forwarded:
             ip = forwarded.split(",")[0].strip()
         else:
             ip = (scope.get("client") or ("unknown", 0))[0]
 
-        _prune(ip, _s.RATE_LIMIT_WINDOW)
+        # ── Redis-backed counter (atomic INCR + EXPIRE) ────────────────
+        # Gracefully falls back to in-memory if Redis is unreachable.
+        try:
+            import redis.asyncio as aioredis
 
-        if len(_buckets[ip]) >= _s.RATE_LIMIT_REQUESTS:
+            r = aioredis.from_url(_s.REDIS_URL, socket_connect_timeout=1)
+            key = f"{_REDIS_KEY_PREFIX}{ip}:{path}"
+            count = await r.incr(key)
+            if count == 1:
+                await r.expire(key, _s.RATE_LIMIT_WINDOW)
+            await r.aclose()
+            within_limit = count <= _s.RATE_LIMIT_REQUESTS
+        except Exception:
+            # Redis unreachable — fall back to in-memory sliding window
+            _prune(ip, _s.RATE_LIMIT_WINDOW)
+            within_limit = len(_buckets[ip]) < _s.RATE_LIMIT_REQUESTS
+            if within_limit:
+                _buckets[ip].append(time.monotonic())
+
+        if not within_limit:
             body = b'{"detail":"too many requests"}'
             await send({
                 "type": "http.response.start",
@@ -75,5 +94,4 @@ class RateLimitMiddleware:
             })
             return
 
-        _buckets[ip].append(time.monotonic())
         await self.app(scope, receive, send)
