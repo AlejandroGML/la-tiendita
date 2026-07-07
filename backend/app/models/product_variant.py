@@ -44,6 +44,7 @@ class ProductVariant(Base):
         String(7), nullable=True, comment="CSS hex e.g. #FF5733"
     )
     stock: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
+    reserved_stock: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     sku: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, index=True

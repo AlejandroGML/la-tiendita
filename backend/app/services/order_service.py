@@ -330,16 +330,20 @@ class OrderService:
                 f"Order with status '{order.status.value}' cannot be cancelled"
             )
 
-        # Release stock: increment variant stock for each order item
-        if order.status == OS.CONFIRMED:
-            for item in order.items:
-                variant_id = item.product_snapshot.get("variant_id")
-                if variant_id:
-                    from app.models.product_variant import ProductVariant
+        # Release stock: decrement reserved_stock for each order item.
+        # If the order was CONFIRMED (stock already deducted), also restore stock.
+        for item in order.items:
+            variant_id = item.product_snapshot.get("variant_id")
+            if variant_id:
+                from app.models.product_variant import ProductVariant
 
-                    variant = await session.get(ProductVariant, UUID(variant_id))
-                    if variant:
+                variant = await session.get(ProductVariant, UUID(variant_id))
+                if variant:
+                    if order.status == OS.CONFIRMED:
                         variant.stock += item.quantity
+                    variant.reserved_stock -= min(
+                        variant.reserved_stock, item.quantity
+                    )
 
         order.status = OS.CANCELLED
         order.payment_status = PaymentStatus.REFUNDED
@@ -367,15 +371,19 @@ class OrderService:
     async def _build_order_items(
         self, session: AsyncSession, cart_items: list[CartItem]
     ) -> tuple[Decimal, list[dict]]:
-        """Build order item data from cart items WITHOUT deducting stock.
+        """Build order item data from cart items, ALSO reserving stock.
 
-        Stock deduction is deferred to ``finalize_payment()`` at webhook time.
+        Stock deduction is deferred to ``finalize_payment()`` at webhook time,
+        BUT stock is reserved at checkout so the same item cannot be
+        over-sold between checkout and webhook confirmation.
+
         Product snapshots are captured at checkout time for order history.
         Active promotion codes are resolved and stored in the snapshot so
         ``finalize_payment()`` can increment ``current_uses``.
 
-        Returns:
-            (total, list of order_item_dicts)
+        Raises:
+            StockInsufficientError: if any variant has insufficient stock
+                after accounting for existing reservations.
         """
         from app.services.promotion_service import PromotionService
 
@@ -403,6 +411,23 @@ class OrderService:
                 "price": price,
             })
 
+        # Reserve stock: increment variant.reserved_stock with availability check
+        for cart_item in cart_items:
+            if cart_item.variant_id:
+                from app.models.product_variant import ProductVariant
+
+                variant = await session.get(ProductVariant, cart_item.variant_id)
+                if variant is None:
+                    continue
+                available = variant.stock - variant.reserved_stock
+                if available < cart_item.quantity:
+                    raise StockInsufficientError(
+                        f"Insufficient stock for variant {variant.id}: "
+                        f"requested {cart_item.quantity}, available {available}"
+                    )
+                variant.reserved_stock += cart_item.quantity
+
+        await session.flush()
         return total, order_items_data
 
     async def _deduct_stock_for_item(
@@ -438,7 +463,10 @@ class OrderService:
                 ProductVariant.stock >= item.quantity,
                 ProductVariant.deleted_at.is_(None),
             )
-            .values(stock=ProductVariant.stock - item.quantity)
+            .values(
+                stock=ProductVariant.stock - item.quantity,
+                reserved_stock=ProductVariant.reserved_stock - item.quantity,
+            )
             .returning(ProductVariant.id)
         )
 
