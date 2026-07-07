@@ -5,13 +5,16 @@ Registered at ``/auth``. Uses Litestar DI for ``AuthService``, ``TokenService``,
 """
 
 from litestar import Controller, get, post
+from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import HTTPException, NotAuthorizedException
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config import settings
 from app.db.engine import async_session as _async_session_fn
+from app.models.user import User
 from app.services.auth_service import AuthService
 from app.services.password_reset_service import PasswordResetService
 from app.services.token_service import TokenService
@@ -26,6 +29,7 @@ from app.schemas.auth import (
     TokenResponse,
     Verify2faRequest,
 )
+from app.schemas.user import UserResponse
 
 
 async def provide_auth_service() -> AuthService:
@@ -217,3 +221,16 @@ class AuthController(Controller):
             raise NotAuthorizedException(
                 detail=str(exc), status_code=501
             ) from exc
+
+    @get("/me")
+    async def get_me(
+        self, request: ASGIConnection
+    ) -> UserResponse:
+        """Return the currently authenticated user.
+
+        The ``request.user`` is populated by the JWT guard's
+        ``retrieve_user_handler`` during token validation, so no
+        explicit database query is needed here.
+        """
+        user: User = request.user
+        return UserResponse.model_validate(user)
