@@ -39,7 +39,7 @@ export class AdminVerify2fa {
   private readonly router = inject(Router);
 
   private readonly loginToken: string | null =
-    (history.state as Record<string, string | null> | null)?.loginToken ?? null;
+    (history.state as Record<string, string | null> | null)?.['loginToken'] ?? null;
 
   readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.minLength(6)]],
