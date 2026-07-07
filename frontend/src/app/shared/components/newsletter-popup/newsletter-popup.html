@@ -50,7 +50,8 @@
         <div class="mb-4">
           <input
             type="email"
-            [(ngModel)]="email"
+            [ngModel]="email()"
+            (ngModelChange)="email.set($event)"
             name="email"
             required
             placeholder="tu@email.com"
