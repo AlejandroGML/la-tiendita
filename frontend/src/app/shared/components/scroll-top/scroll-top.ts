@@ -16,10 +16,16 @@ import { Component, HostListener, signal } from '@angular/core';
 })
 export class ScrollTopComponent {
   visible = signal(false);
+  private ticking = false;
 
   @HostListener('window:scroll')
-  onScroll() {
-    this.visible.set(window.scrollY > 500);
+  onScroll(): void {
+    if (this.ticking) return;
+    this.ticking = true;
+    requestAnimationFrame(() => {
+      this.visible.set(window.scrollY > 500);
+      this.ticking = false;
+    });
   }
 
   scrollTop() {
