@@ -39,7 +39,7 @@ export class Login {
     this.errorMessage = null;
     const { email, password } = this.form.value;
 
-    this.auth.login(email, password).subscribe({
+    this.auth.login(email ?? '', password ?? '').subscribe({
       next: () => {
         this.submitting = false;
         // Redirect admins to dashboard, customers to home
@@ -53,5 +53,4 @@ export class Login {
       },
     });
   }
-}
 }
