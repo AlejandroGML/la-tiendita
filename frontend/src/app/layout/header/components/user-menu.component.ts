@@ -45,6 +45,10 @@ export class UserMenuComponent implements DoCheck, OnDestroy {
     return this.currentUser?.name || '';
   }
 
+  protected get isAdmin(): boolean {
+    return this.authState.isAdmin();
+  }
+
   // ── Lifecycle ──
 
   ngDoCheck(): void {
