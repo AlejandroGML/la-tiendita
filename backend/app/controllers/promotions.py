@@ -103,7 +103,7 @@ class AdminPromotionController(Controller):
         """Paginated list of all promotions (admin-only)."""
         items, total = await service.get_all(session, page, per_page)
         return {
-            "data": [item.model_dump() for item in items],
+            "data": [item.model_dump(mode="json") for item in items],
             "pagination": {
                 "page": page,
                 "per_page": per_page,
