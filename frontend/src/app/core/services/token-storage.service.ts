@@ -139,8 +139,12 @@ export class LocalStorageTokenStorage implements TokenStorage {
 
     if (oldAccess !== null || oldRefresh !== null) {
       try {
-        localStorage.setItem(ACCESS_KEY, oldAccess ?? '');
-        localStorage.setItem(REFRESH_KEY, oldRefresh ?? '');
+        if (oldAccess !== null) {
+          localStorage.setItem(ACCESS_KEY, oldAccess);
+        }
+        if (oldRefresh !== null) {
+          localStorage.setItem(REFRESH_KEY, oldRefresh);
+        }
       } catch {
         // Migration failed — clean up new keys so it retries on next boot
         localStorage.removeItem(ACCESS_KEY);
