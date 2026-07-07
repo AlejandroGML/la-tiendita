@@ -31,7 +31,7 @@ export class CartService {
   // ── HTTP + state sync ──────────────────────────────────────────────
 
   /** Fetch current cart state and update the signal. */
-  getCart(): Observable<CartResponse> {
+  getCart(): Observable<CartResponse | null> {
     return this.cartStore.load();
   }
 
@@ -40,22 +40,22 @@ export class CartService {
     productId: string,
     quantity: number = 1,
     variantId?: string,
-  ): Observable<CartResponse> {
+  ): Observable<CartResponse | null> {
     return this.cartStore.addItem(productId, quantity, variantId);
   }
 
   /** Update line-item quantity. Setting quantity to 0 removes the item. */
-  updateQuantity(itemId: string, quantity: number): Observable<CartResponse> {
+  updateQuantity(itemId: string, quantity: number): Observable<CartResponse | null> {
     return this.cartStore.updateQty(itemId, quantity);
   }
 
   /** Remove a single item from the cart. */
-  removeItem(itemId: string): Observable<CartResponse> {
+  removeItem(itemId: string): Observable<CartResponse | null> {
     return this.cartStore.removeItem(itemId);
   }
 
   /** Empty the entire cart — emits null on success. */
-  clearCart(): Observable<CartResponse> {
+  clearCart(): Observable<CartResponse | null> {
     return this.cartStore.clear();
   }
 

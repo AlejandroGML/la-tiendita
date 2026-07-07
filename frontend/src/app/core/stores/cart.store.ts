@@ -1,5 +1,6 @@
 import { computed, inject, Injectable, signal } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, of, tap } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import type { CartResponse } from '../../shared/models/cart.model';
 import { CartApiService } from '../services/cart-api.service';
@@ -12,8 +13,8 @@ import { calculateTotalItems } from '../utils/cart-calculator';
  * reactive state. Exposes `cart`, `totalItems`, `loading`, and `error` as
  * signals for synchronous template reads.
  *
- * HTTP methods return `Observable<CartResponse>` so callers can subscribe
- * for completion/error handling, matching the existing `CartService` pattern.
+ * HTTP methods return `null` on error — consumers should read the `error`
+ * signal for error state and fall back to the previous cart value.
  *
  * New consumers should inject `CartStore` directly. Legacy consumers can
  * continue using `CartService` (which now delegates to this store).
@@ -41,19 +42,15 @@ export class CartStore {
   // ── Actions ───────────────────────────────────────────────────────────
 
   /** Fetch the current cart from the server and update state. */
-  load(): Observable<CartResponse> {
+  load(): Observable<CartResponse | null> {
     this.loading.set(true);
     this.error.set(null);
     return this.cartApi.getCart().pipe(
-      tap({
-        next: (res) => {
-          this.cart.set(res);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.loading.set(false);
-          this.error.set(this.formatError(err));
-        },
+      tap({ next: (res) => { this.cart.set(res); this.loading.set(false); } }),
+      catchError((err) => {
+        this.loading.set(false);
+        this.error.set(this.formatError(err));
+        return of(null);
       }),
     );
   }
@@ -63,73 +60,57 @@ export class CartStore {
     productId: string,
     quantity: number = 1,
     variantId?: string,
-  ): Observable<CartResponse> {
+  ): Observable<CartResponse | null> {
     this.loading.set(true);
     this.error.set(null);
     return this.cartApi.addItem(productId, quantity, variantId).pipe(
-      tap({
-        next: (res) => {
-          this.cart.set(res);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.loading.set(false);
-          this.error.set(this.formatError(err));
-        },
+      tap({ next: (res) => { this.cart.set(res); this.loading.set(false); } }),
+      catchError((err) => {
+        this.loading.set(false);
+        this.error.set(this.formatError(err));
+        return of(null);
       }),
     );
   }
 
   /** Update line-item quantity. Setting quantity to 0 removes the item. */
-  updateQty(itemId: string, quantity: number): Observable<CartResponse> {
+  updateQty(itemId: string, quantity: number): Observable<CartResponse | null> {
     this.loading.set(true);
     this.error.set(null);
     return this.cartApi.updateQuantity(itemId, quantity).pipe(
-      tap({
-        next: (res) => {
-          this.cart.set(res);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.loading.set(false);
-          this.error.set(this.formatError(err));
-        },
+      tap({ next: (res) => { this.cart.set(res); this.loading.set(false); } }),
+      catchError((err) => {
+        this.loading.set(false);
+        this.error.set(this.formatError(err));
+        return of(null);
       }),
     );
   }
 
   /** Remove a single item from the cart. */
-  removeItem(itemId: string): Observable<CartResponse> {
+  removeItem(itemId: string): Observable<CartResponse | null> {
     this.loading.set(true);
     this.error.set(null);
     return this.cartApi.removeItem(itemId).pipe(
-      tap({
-        next: (res) => {
-          this.cart.set(res);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.loading.set(false);
-          this.error.set(this.formatError(err));
-        },
+      tap({ next: (res) => { this.cart.set(res); this.loading.set(false); } }),
+      catchError((err) => {
+        this.loading.set(false);
+        this.error.set(this.formatError(err));
+        return of(null);
       }),
     );
   }
 
   /** Empty the entire cart — sets cart signal to null on success. */
-  clear(): Observable<CartResponse> {
+  clear(): Observable<CartResponse | null> {
     this.loading.set(true);
     this.error.set(null);
     return this.cartApi.clearCart().pipe(
-      tap({
-        next: () => {
-          this.cart.set(null);
-          this.loading.set(false);
-        },
-        error: (err) => {
-          this.loading.set(false);
-          this.error.set(this.formatError(err));
-        },
+      tap({ next: () => { this.cart.set(null); this.loading.set(false); } }),
+      catchError((err) => {
+        this.loading.set(false);
+        this.error.set(this.formatError(err));
+        return of(null);
       }),
     );
   }
