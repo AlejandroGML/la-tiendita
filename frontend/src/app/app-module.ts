@@ -7,6 +7,8 @@ import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { providePrimeNG } from 'primeng/config';
 import { ConfirmationService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
+import { of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import Aura from '@primeuix/themes/aura';
 
 import { AppRoutingModule } from './app-routing-module';
@@ -46,9 +48,11 @@ import { provideTokenStorage } from './core/services/token-storage.service';
       const authService = inject(AuthService);
 
       if (tokenStorage.getAccessToken()) {
-        return authService.fetchCurrentUser();
+        return authService.fetchCurrentUser().pipe(
+          catchError(() => of(undefined)),
+        );
       }
-      return Promise.resolve();
+      return of(undefined);
     }),
     provideAnimations(),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
