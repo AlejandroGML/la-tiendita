@@ -151,7 +151,19 @@
     </div>
 
     <div *ngIf="totpEnabled" class="mt-4">
-      <button pButton label="Desactivar 2FA" icon="pi pi-trash" (click)="disable2fa()" [loading]="totpLoading" severity="danger" [text]="true"></button>
+      <ng-container *ngIf="!showPasswordConfirm; else passwordConfirm">
+        <button pButton label="Desactivar 2FA" icon="pi pi-trash" (click)="disable2fa()" [loading]="totpLoading" severity="danger" [text]="true"></button>
+      </ng-container>
+      <ng-template #passwordConfirm>
+        <div class="flex flex-col gap-2">
+          <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Ingresa tu contraseña para desactivar 2FA</label>
+          <div class="flex gap-2">
+            <input pInputText type="password" [(ngModel)]="confirmPassword" placeholder="Contraseña" class="!w-48" />
+            <button pButton label="Confirmar" (click)="disable2fa()" [loading]="totpLoading" severity="danger"></button>
+            <button pButton label="Cancelar" severity="secondary" [text]="true" (click)="showPasswordConfirm = false; confirmPassword = ''"></button>
+          </div>
+        </div>
+      </ng-template>
     </div>
   </p-card>
 

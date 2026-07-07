@@ -28,6 +28,8 @@ export class ProfileView implements OnInit {
   totpSetupCode = '';
   totpLoading = false;
   totpMessage: string | null = null;
+  showPasswordConfirm = false;
+  confirmPassword = '';
 
   readonly form: FormGroup = this.fb.group({
     name: ['', Validators.required],
@@ -159,26 +161,29 @@ export class ProfileView implements OnInit {
   }
 
   disable2fa(): void {
-    if (!confirm('¿Desactivar 2FA? Tu cuenta será menos segura.')) return;
-    this.totpLoading = true;
-    // The TwoFactorService.disable requires the user's password as confirmation.
-    // Prompt the user for it since the old endpoint didn't require one.
-    const password = prompt('Ingresa tu contraseña para confirmar:');
-    if (!password) {
-      this.totpLoading = false;
+    if (this.showPasswordConfirm) {
+      // Second step: user entered password, proceed with disabling
+      const password = this.confirmPassword;
+      if (!password) return;
+      this.totpLoading = true;
+      this.confirmPassword = '';
+      this.showPasswordConfirm = false;
+      this.twoFactorService.disable(password).subscribe({
+        next: () => {
+          this.totpLoading = false;
+          this.totpEnabled = false;
+          this.totpMessage = '2FA desactivado';
+        },
+        error: (err) => {
+          this.totpLoading = false;
+          this.totpMessage = err?.error?.detail || 'Error al desactivar 2FA';
+        },
+      });
       return;
     }
-    this.twoFactorService.disable(password).subscribe({
-      next: () => {
-        this.totpLoading = false;
-        this.totpEnabled = false;
-        this.totpMessage = '2FA desactivado';
-      },
-      error: (err) => {
-        this.totpLoading = false;
-        this.totpMessage = err?.error?.detail || 'Error al desactivar 2FA';
-      },
-    });
+
+    // First step: confirm user intent
+    this.showPasswordConfirm = true;
   }
 
   cancel2faSetup(): void {
