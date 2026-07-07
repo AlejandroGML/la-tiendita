@@ -143,7 +143,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   }
 
   get totalSavings(): string {
-    return this.cart()?.savings ?? '0';
+    return this.cart()?.total_savings ?? '0';
   }
 
   selectShipping(method: ShippingMethod): void {
