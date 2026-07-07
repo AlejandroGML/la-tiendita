@@ -53,35 +53,5 @@
 
     <hr class="border-gray-100 dark:border-gray-800 my-2" />
 
-    <!-- Account links -->
-    <a pButton [text]="true" routerLink="/perfil/wishlist"
-       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
-       (click)="closed.emit()">
-      <span class="mr-3 text-pink-500 dark:text-pink-400" [innerHTML]="'heart' | svgIcon:'w-4 h-4'"></span>
-      {{ 'nav.wishlist' | translate }}
-    </a>
-    <a pButton [text]="true" routerLink="/carrito"
-       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
-       (click)="closed.emit()">
-      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="'cart' | svgIcon:'w-4 h-4'"></span>
-      {{ 'nav.cart' | translate }}
-      <span *ngIf="cartCount() > 0" class="ml-auto bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">{{ cartCount() }}</span>
-    </a>
-    <a pButton [text]="true" routerLink="/login"
-       class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300"
-       (click)="closed.emit()">
-      <span class="mr-3 text-emerald-500 dark:text-emerald-400" [innerHTML]="'user' | svgIcon:'w-4 h-4'"></span>
-      {{ 'header.iniciarSesion' | translate }}
-    </a>
-
-    <hr class="border-gray-100 dark:border-gray-800 my-2" />
-
-    <!-- Language toggle mobile -->
-    <button pButton [text]="true"
-            (click)="setLang(LANG_CYCLE[(LANG_CYCLE.indexOf(currentLang) + 1) % LANG_CYCLE.length])"
-            class="!w-full !justify-start !font-medium !text-gray-700 dark:!text-gray-300">
-      <span class="mr-3 text-sky-500 dark:text-sky-400" [innerHTML]="'globe' | svgIcon:'w-4 h-4'"></span>
-      {{ LANG_NAMES[currentLang] || currentLang }}
-    </button>
   </div>
 </div>

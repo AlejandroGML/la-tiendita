@@ -1,6 +1,5 @@
 import {
   Component,
-  computed,
   inject,
   Input,
   Output,
@@ -9,9 +8,7 @@ import {
   HostListener,
 } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
 
-import { CartStore } from '../../../core/stores/cart.store';
 import { type CategoryItem } from '../../../core/services/category.service';
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -59,35 +56,14 @@ export class MobileMenuComponent {
   @Output() closed = new EventEmitter<void>();
 
   private readonly router = inject(Router);
-  private readonly translate = inject(TranslateService);
-  private readonly cartStore = inject(CartStore);
-
-  /** Reactive cart item count via CartStore computed signal. */
-  readonly cartCount = computed(() => this.cartStore.totalItems());
 
   searchTerm = '';
-
-  protected readonly LANG_CYCLE = ['es', 'en', 'sv'];
-  protected readonly LANG_NAMES: Record<string, string> = {
-    es: 'Español',
-    en: 'English',
-    sv: 'Svenska',
-  };
 
   protected onSearch(term: string): void {
     if (term.trim()) {
       this.router.navigate(['/productos'], { queryParams: { q: term } });
       this.closed.emit();
     }
-  }
-
-  protected get currentLang(): string {
-    return this.translate.currentLang || 'es';
-  }
-
-  protected setLang(lang: string): void {
-    this.translate.use(lang);
-    this.closed.emit();
   }
 
   protected getCategoryIcon(slug: string): string {
