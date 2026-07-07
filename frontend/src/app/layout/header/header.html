@@ -22,14 +22,6 @@
         <!-- Right Icons -->
         <nav aria-label="Navegación principal" class="flex items-center gap-0.5 sm:gap-1">
 
-          <!-- Mobile Search Toggle -->
-          <button type="button"
-                  (click)="mobileOpen = true"
-                  class="md:hidden p-2 text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800 active:bg-emerald-100 dark:active:bg-gray-700"
-                  [attr.aria-label]="'header.buscarAria' | translate">
-            <span [innerHTML]="'search' | svgIcon"></span>
-          </button>
-
           <!-- Help — Desktop -->
           <a routerLink="/ayuda"
              class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800">
@@ -40,11 +32,11 @@
           <span class="hidden sm:inline-flex">
           <app-wishlist-badge></app-wishlist-badge>
           </span>
-          <app-cart-badge></app-cart-badge>
-          <app-user-menu></app-user-menu>
-          <app-language-switcher class="hidden md:inline-flex"></app-language-switcher>
-          <app-currency-switcher class="hidden md:inline-flex"></app-currency-switcher>
-          <app-theme-toggle class="hidden md:inline-flex"></app-theme-toggle>
+          <app-cart-badge class="hidden sm:inline-flex"></app-cart-badge>
+          <app-user-menu class="hidden sm:inline-flex"></app-user-menu>
+          <app-language-switcher class="inline-flex"></app-language-switcher>
+          <app-currency-switcher class="inline-flex"></app-currency-switcher>
+          <app-theme-toggle class="inline-flex"></app-theme-toggle>
 
           <!-- Hamburger — Mobile -->
           <button type="button"
