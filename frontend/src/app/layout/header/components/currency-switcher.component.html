@@ -1,6 +1,4 @@
-<div class="relative"
-     (mouseenter)="currencyOpen = true"
-     (mouseleave)="onCurrencyLeave()">
+<div class="relative">
   <button type="button"
           (click)="currencyOpen = !currencyOpen"
           class="relative px-2 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800"
@@ -9,8 +7,6 @@
   </button>
 
   <div *ngIf="currencyOpen"
-       (mouseenter)="clearCurrencyTimeout(); currencyOpen = true"
-       (mouseleave)="currencyOpen = false"
        class="absolute top-full right-0 mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-gray-900/80 border border-gray-100 dark:border-gray-700 py-1 z-50 overflow-hidden">
     <button *ngFor="let c of currencyService.availableCurrencies"
             type="button"

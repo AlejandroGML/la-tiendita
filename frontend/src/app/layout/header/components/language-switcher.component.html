@@ -1,6 +1,4 @@
-<div class="relative"
-     (mouseenter)="langOpen = true"
-     (mouseleave)="onLangLeave()">
+<div class="relative">
   <button type="button"
           (click)="langOpen = !langOpen"
           class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-sky-500 dark:hover:text-sky-400 transition-colors rounded-lg hover:bg-sky-50 dark:hover:bg-gray-800 active:bg-sky-100 dark:active:bg-gray-700"
@@ -12,8 +10,6 @@
   </button>
 
   <div *ngIf="langOpen"
-       (mouseenter)="clearLangTimeout(); langOpen = true"
-       (mouseleave)="langOpen = false"
        class="absolute top-full right-0 mt-2 w-40 bg-white dark:bg-gray-900 rounded-xl shadow-lg dark:shadow-gray-900/80 border border-gray-100 dark:border-gray-700 py-1 z-50 overflow-hidden">
     <button *ngFor="let lang of LANG_CYCLE"
             type="button"
