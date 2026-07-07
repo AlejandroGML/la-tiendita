@@ -1,5 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
+import { Subject, takeUntil } from 'rxjs';
+import { forkJoin } from 'rxjs';
 import { ProductService } from '../../core/services/product.service';
 import type { Product } from '../../shared/models/product.model';
 
@@ -25,7 +27,7 @@ const CATEGORY_ICONS: Record<string, string> = {
   templateUrl: './home.html',
   standalone: false,
 })
-export class Home {
+export class Home implements OnDestroy {
   private readonly http = inject(HttpClient);
   private readonly productService = inject(ProductService);
 
@@ -43,6 +45,8 @@ export class Home {
     return CATEGORY_ICONS[slug] || 'pi-tag';
   }
 
+  private readonly destroy$ = new Subject<void>();
+
   constructor() {
     this.fetchAll();
   }
@@ -52,21 +56,27 @@ export class Home {
     this.error.set(null);
 
     const params = new HttpParams().set('lang', 'es');
-    this.http.get<CategoryItem[]>('/api/v1/categories', { params }).subscribe({
-      next: (data) => this.categories.set(data),
-      error: () => this.error.set('catalog.error'),
-    });
+    forkJoin({
+      categories: this.http.get<CategoryItem[]>('/api/v1/categories', { params }),
+      products: this.productService.getProducts({ per_page: 8 }),
+    })
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: ({ categories, products }) => {
+          this.categories.set(categories);
+          this.featuredProducts.set(products.data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.error.set('catalog.error');
+          this.loading.set(false);
+        },
+      });
+  }
 
-    this.productService.getProducts({ per_page: 8 }).subscribe({
-      next: (res) => {
-        this.featuredProducts.set(res.data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.error.set('catalog.error');
-        this.loading.set(false);
-      },
-    });
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   retry(): void {
