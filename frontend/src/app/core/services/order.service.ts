@@ -29,8 +29,11 @@ export class OrderService {
   }
 
   /** Submit a checkout request — returns Stripe redirect URL */
-  checkout(shippingAddress: ShippingAddress, guestEmail?: string): Observable<CheckoutResponse> {
-    const body: CheckoutRequest = { shipping_address: shippingAddress };
+  checkout(shippingAddress: ShippingAddress, shippingMethod?: string, guestEmail?: string): Observable<CheckoutResponse> {
+    const body: CheckoutRequest = {
+      shipping_address: shippingAddress,
+      shipping_method: shippingMethod,
+    };
     if (guestEmail) {
       body.guest_email = guestEmail;
     }

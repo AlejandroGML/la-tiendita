@@ -50,6 +50,7 @@ jwt_auth = JWTAuth[User](
         "/auth/oauth/google",
         "/auth/oauth/google/callback",
         "/api/v1/stripe/webhook",
+        "/api/v1/shipping/",
     ],
 )
 """Configured JWTAuth instance — import and use as ``guards=[jwt_auth]``."""

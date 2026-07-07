@@ -18,6 +18,13 @@ export interface ShippingAddress {
   phone: string;
 }
 
+export interface ShippingMethod {
+  id: string;
+  name: string;
+  price: number;
+  estimated_days: string;
+}
+
 export interface OrderItem {
   id: string;
   product_id: string;
@@ -36,6 +43,8 @@ export interface Order {
   status: OrderStatus;
   total: string;
   shipping_address: ShippingAddress;
+  shipping_method?: string;
+  shipping_cost?: string;
   items: OrderItem[];
   payment_status: string;
   created_at: string;
@@ -44,6 +53,7 @@ export interface Order {
 
 export interface CheckoutRequest {
   shipping_address: ShippingAddress;
+  shipping_method?: string;
   guest_email?: string;
 }
 

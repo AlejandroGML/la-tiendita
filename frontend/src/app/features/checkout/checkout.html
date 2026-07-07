@@ -115,6 +115,35 @@
               </div>
             </div>
           </form>
+
+          <!-- Shipping Method Selector -->
+          <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
+            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ 'checkout.shippingMethod' | translate }}</h3>
+            <div *ngFor="let method of shippingMethods()"
+                 (click)="selectShipping(method)"
+                 class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors mb-2"
+                 [class.border-emerald-500]="selectedShipping()?.id === method.id"
+                 [class.bg-emerald-50]="selectedShipping()?.id === method.id"
+                 [class.dark:bg-emerald-900/20]="selectedShipping()?.id === method.id"
+                 [class.border-gray-200]="selectedShipping()?.id !== method.id"
+                 [class.dark:border-gray-600]="selectedShipping()?.id !== method.id"
+                 [class.dark:hover:border-gray-500]="selectedShipping()?.id !== method.id"
+                 data-testid="shipping-option">
+              <input type="radio"
+                     [value]="method.id"
+                     [checked]="selectedShipping()?.id === method.id"
+                     class="accent-emerald-600"
+                     name="shippingMethod" />
+              <div class="flex-1">
+                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ method.name }}</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400">{{ method.estimated_days }}</p>
+              </div>
+              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100"
+                    [class.text-emerald-600]="method.price === 0">
+                {{ method.price === 0 ? ('checkout.free' | translate) : (method.price | currency) }}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -141,9 +170,21 @@
           </div>
 
           <div class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center text-sm mb-1">
+              <span class="text-gray-600 dark:text-gray-400">{{ 'checkout.subtotal' | translate }}</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ total | currency }}</span>
+            </div>
+            <div *ngIf="selectedShipping() && selectedShipping()!.price > 0" class="flex justify-between items-center text-sm mb-1">
+              <span class="text-gray-600 dark:text-gray-400">{{ 'checkout.shipping' | translate }}</span>
+              <span class="font-medium text-gray-900 dark:text-gray-100">{{ selectedShipping()!.price | currency }}</span>
+            </div>
+            <div *ngIf="selectedShipping() && selectedShipping()!.price === 0" class="flex justify-between items-center text-sm mb-1">
+              <span class="text-gray-600 dark:text-gray-400">{{ 'checkout.shipping' | translate }}</span>
+              <span class="font-medium text-emerald-600">{{ 'checkout.free' | translate }}</span>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
               <span class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ 'checkout.total' | translate }}</span>
-              <span class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ total | currency }}</span>
+              <span class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ totalWithShipping | currency }}</span>
             </div>
           </div>
 
