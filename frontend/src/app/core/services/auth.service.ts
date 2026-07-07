@@ -1,10 +1,11 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError, finalize, share } from 'rxjs';
 
 import { TOKEN_STORAGE, type TokenStorage } from './token-storage.service';
 import { AuthStateService } from './auth-state.service';
+import { getSessionId } from '../utils/session-id.util';
 
 // ---------------------------------------------------------------------------
 // Shared models
@@ -68,7 +69,9 @@ export class AuthService {
    */
   login(email: string, password: string): Observable<TokenResponse> {
     return this.http
-      .post<TokenResponse>('/api/v1/auth/login', { email, password })
+      .post<TokenResponse>('/api/v1/auth/login', { email, password }, {
+        headers: new HttpHeaders({ 'X-Session-Id': getSessionId() }),
+      })
       .pipe(
         tap((res) => {
           if (!this.is2faResponse(res)) {
@@ -93,7 +96,9 @@ export class AuthService {
     name: string;
   }): Observable<TokenResponse> {
     return this.http
-      .post<TokenResponse>('/api/v1/auth/register', data)
+      .post<TokenResponse>('/api/v1/auth/register', data, {
+        headers: new HttpHeaders({ 'X-Session-Id': getSessionId() }),
+      })
       .pipe(
         tap((res) => {
           this.tokenStorage.setTokens(res.access_token, res.refresh_token);
