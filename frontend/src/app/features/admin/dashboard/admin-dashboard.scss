@@ -33,9 +33,14 @@
 
 .mini-table-card {
   min-height: 260px;
+  /* Allow horizontal scroll if table content is wider than card */
+  overflow-x: auto;
 
   /* Compact p-table cells inside mini-tables */
   .p-datatable {
+    table-layout: fixed;
+    width: 100%;
+
     .p-datatable-thead > tr > th {
       font-size: 0.8125rem;
       padding: 0.625rem 0.875rem;
