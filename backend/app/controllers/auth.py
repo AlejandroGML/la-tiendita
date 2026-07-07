@@ -15,6 +15,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config import settings
 from app.db.engine import async_session as _async_session_fn
 from app.models.user import User
+from app.repositories.cart_repository import CartRepository
 from app.services.auth_service import AuthService
 from app.services.password_reset_service import PasswordResetService
 from app.services.token_service import TokenService
@@ -76,10 +77,17 @@ class AuthController(Controller):
         data: RegisterRequest,
         auth_service: AuthService,
         session: AsyncSession,
+        request: ASGIConnection,
     ) -> TokenResponse:
-        """Register a new user and return access + refresh tokens."""
+        """Register a new user and return access + refresh tokens.
+
+        If the request carries an ``X-Session-Id`` header, any guest cart
+        items are merged into the new user's account.
+        """
         try:
-            return await auth_service.register(session, data)
+            token = await auth_service.register(session, data)
+            await self._maybe_merge_cart(session, request, token)
+            return token
         except ValueError as exc:
             if "already registered" in str(exc):
                 raise NotAuthorizedException(
@@ -123,10 +131,17 @@ class AuthController(Controller):
         data: LoginRequest,
         auth_service: AuthService,
         session: AsyncSession,
+        request: ASGIConnection,
     ) -> TokenResponse:
-        """Authenticate with email/password and return tokens."""
+        """Authenticate with email/password and return tokens.
+
+        If the request carries an ``X-Session-Id`` header, any guest cart
+        items are merged into the user's account.
+        """
         try:
-            return await auth_service.login(session, data)
+            token = await auth_service.login(session, data)
+            await self._maybe_merge_cart(session, request, token)
+            return token
         except ValueError as exc:
             raise NotAuthorizedException(
                 detail=str(exc), status_code=401
@@ -234,3 +249,34 @@ class AuthController(Controller):
         """
         user: User = request.user
         return UserResponse.model_validate(user)
+
+    # ── Cart merge helper ──────────────────────────────────────────────
+
+    async def _maybe_merge_cart(
+        self,
+        session: AsyncSession,
+        request: ASGIConnection,
+        token: TokenResponse,
+    ) -> None:
+        """Merge a guest cart into the authenticated user's cart.
+
+        Checks for an ``X-Session-Id`` header.  When present, moves all
+        guest cart items to the user by calling
+        ``CartRepository.merge_guest_cart()``.  Items already in the
+        user's cart are merged by quantity.
+        """
+        session_id = request.headers.get("X-Session-Id")
+        if not session_id:
+            return  # no guest session — nothing to merge
+
+        try:
+            from uuid import UUID
+
+            session_uuid = UUID(session_id)
+        except ValueError:
+            return  # malformed session id — ignore
+
+        user_id = token.user.id
+        await CartRepository().merge_guest_cart(
+            session, session_uuid, user_id
+        )

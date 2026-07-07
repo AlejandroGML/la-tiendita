@@ -283,6 +283,62 @@ class CartRepository(BaseRepository[CartItem]):
         await session.flush()
 
     # ------------------------------------------------------------------
+    # Guest cart merge
+    # ------------------------------------------------------------------
+
+    async def merge_guest_cart(
+        self, session: AsyncSession, session_id: UUID, user_id: UUID
+    ) -> None:
+        """Move all guest cart items (by *session_id*) to *user_id*.
+
+        Items that already exist in the user's cart are merged by adding
+        quantities. Items unique to the guest session are transferred by
+        setting ``user_id`` and clearing ``session_id``.
+
+        This is called after a guest logs in or registers so their
+        anonymous cart is preserved and merged into their account.
+        """
+        # 1. Load all guest items
+        guest_scope = self._scope_filter(session_id=session_id)
+        guest_stmt = (
+            select(CartItem)
+            .where(guest_scope)
+        )
+        result = await session.execute(guest_stmt)
+        guest_items = list(result.scalars().all())
+
+        if not guest_items:
+            return
+
+        # 2. Load existing user items for merge
+        user_scope = self._scope_filter(user_id=user_id)
+        user_stmt = (
+            select(CartItem)
+            .where(user_scope)
+        )
+        result = await session.execute(user_stmt)
+        user_items_by_key: dict[tuple[UUID, UUID | None], CartItem] = {}
+        for item in result.scalars().all():
+            key = (item.product_id, item.variant_id)
+            user_items_by_key[key] = item
+
+        # 3. Merge or transfer each guest item
+        for guest_item in guest_items:
+            key = (guest_item.product_id, guest_item.variant_id)
+            existing = user_items_by_key.get(key)
+
+            if existing is not None:
+                # Same product+variant already in user cart → merge quantities
+                existing.quantity += guest_item.quantity
+                await session.delete(guest_item)
+            else:
+                # Unique item → transfer to user
+                guest_item.user_id = user_id
+                guest_item.session_id = None
+
+        await session.flush()
+
+    # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------
 
