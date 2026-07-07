@@ -77,6 +77,7 @@ from app.controllers.products import AdminProductController, ProductController
 from app.controllers.profile import ProfileController
 from app.controllers.promotions import AdminPromotionController, PromotionController
 from app.controllers.reviews import ReviewController
+from app.controllers.shipping import ShippingController
 from app.controllers.upload import UploadController
 from app.controllers.wishlist import WishlistController
 from app.db.engine import async_session
@@ -328,6 +329,7 @@ app = Litestar(
         ProfileController,
         PromotionController,
         ReviewController,
+        ShippingController,
         UploadController,
         WishlistController,
         uploads_router,

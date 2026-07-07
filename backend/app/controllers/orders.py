@@ -156,6 +156,7 @@ class OrderController(Controller):
                 customer_email=customer_email,
                 guest_email=guest_email_val,
                 shipping_address=data.shipping_address,
+                shipping_method=data.shipping_method,
             )
             return self._with_response_headers(result, session_id)
         except CartEmptyError as exc:

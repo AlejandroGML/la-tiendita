@@ -72,6 +72,12 @@ class Order(Base):
     shipping_address: Mapped[dict] = mapped_column(
         JSONB, nullable=False
     )
+    shipping_method: Mapped[str | None] = mapped_column(
+        String(50), nullable=True
+    )
+    shipping_cost: Mapped[Decimal | None] = mapped_column(
+        Numeric(10, 2), nullable=True
+    )
     notes: Mapped[str | None] = mapped_column(String(1000), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False

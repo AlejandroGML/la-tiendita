@@ -68,6 +68,7 @@ class OrderService:
         customer_email: str | None,
         guest_email: str | None,
         shipping_address: dict,
+        shipping_method: str | None = None,
     ) -> CheckoutResponse:
         """Convert the cart into an order and create a Stripe session.
 
@@ -119,12 +120,18 @@ class OrderService:
                 session, cart_items
             )
 
+            # 4b. Resolve shipping cost
+            shipping_cost = self._get_shipping_cost(shipping_method)
+            total += Decimal(str(shipping_cost))
+
             # 5. Create order — set user_id for users, guest_email for guests
             order = Order(
                 user_id=user_id,
                 guest_email=guest_email if is_guest else None,
                 total=total,
                 shipping_address=shipping_address,
+                shipping_method=shipping_method,
+                shipping_cost=Decimal(str(shipping_cost)) if shipping_cost else None,
             )
             session.add(order)
             await session.flush()
@@ -402,6 +409,20 @@ class OrderService:
                 f"Insufficient stock for variant {variant_id} "
                 f"(order_item {item.id}, requested {item.quantity})"
             )
+
+    @staticmethod
+    def _get_shipping_cost(shipping_method: str | None) -> Decimal:
+        """Return the shipping cost for a given method ID.
+
+        Mirrors ``controllers/shipping.py`` method definitions.
+        Returns 0 when *shipping_method* is ``None`` or unknown.
+        """
+        if shipping_method == "express":
+            return Decimal("99.00")
+        if shipping_method == "standard":
+            return Decimal("49.00")
+        # pickup, unknown, or None → free
+        return Decimal("0.00")
 
     @staticmethod
     def _build_product_snapshot(

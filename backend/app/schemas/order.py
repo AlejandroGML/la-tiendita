@@ -16,6 +16,7 @@ class CheckoutRequest(BaseModel):
     """Payload for POST /api/checkout — convert cart to order."""
 
     shipping_address: dict
+    shipping_method: str | None = None
     guest_email: str | None = None
 
 
@@ -45,6 +46,8 @@ class OrderResponse(BaseModel):
     stripe_session_id: str | None
     total: Decimal
     shipping_address: dict
+    shipping_method: str | None = None
+    shipping_cost: Decimal | None = None
     items: list[OrderItemResponse]
     created_at: datetime
     updated_at: datetime
@@ -68,6 +71,8 @@ class OrderAdminListItem(BaseModel):
     payment_status: str
     stripe_session_id: str | None
     total: Decimal
+    shipping_method: str | None = None
+    shipping_cost: Decimal | None = None
     user_name: str
     created_at: datetime
 
