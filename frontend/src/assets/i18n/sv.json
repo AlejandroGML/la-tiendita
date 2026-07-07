@@ -200,6 +200,7 @@
     "statusUpdated": "Status uppdaterad",
     "statusUpdateError": "Fel vid uppdatering av status",
     "categories": "Kategorier",
+    "promotions": "Kampanjer",
     "logout": "Logga ut"
   },
   "condition": {

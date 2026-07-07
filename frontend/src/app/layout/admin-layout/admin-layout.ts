@@ -28,6 +28,7 @@ export class AdminLayoutComponent {
     { label: 'admin.users', icon: 'pi pi-users', route: '/admin/usuarios' },
     { label: 'admin.orders', icon: 'pi pi-receipt', route: '/admin/ordenes' },
     { label: 'admin.categories', icon: 'pi pi-tags', route: '/admin/categorias' },
+    { label: 'admin.promotions', icon: 'pi pi-percentage', route: '/admin/promociones' },
   ];
 
   readonly isAdmin = this.authState.isAdmin;

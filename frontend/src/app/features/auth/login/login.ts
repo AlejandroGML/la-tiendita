@@ -1,17 +1,17 @@
 import { Component, inject } from '@angular/core';
-import {
-  FormBuilder,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
-import { CommonModule } from '@angular/common';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 import { AuthService } from '../../../core/services/auth.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
+import { CommonModule } from '@angular/common';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { InputTextModule } from 'primeng/inputtext';
+import { PasswordModule } from 'primeng/password';
+import { InputGroupModule } from 'primeng/inputgroup';
+import { InputGroupAddonModule } from 'primeng/inputgroupaddon';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
   selector: 'app-login',
@@ -21,15 +21,16 @@ import { AuthService } from '../../../core/services/auth.service';
 export class Login {
   private readonly fb = inject(FormBuilder);
   private readonly auth = inject(AuthService);
+  private readonly authState = inject(AuthStateService);
   private readonly router = inject(Router);
 
-  readonly form: FormGroup = this.fb.group({
+  readonly form = this.fb.group({
     email: ['', [Validators.required, Validators.email]],
-    password: ['', [Validators.required, Validators.minLength(8)]],
+    password: ['', Validators.required],
   });
 
-  errorMessage: string | null = null;
   submitting = false;
+  errorMessage: string | null = null;
 
   submit(): void {
     if (this.form.invalid) return;
@@ -41,7 +42,9 @@ export class Login {
     this.auth.login(email, password).subscribe({
       next: () => {
         this.submitting = false;
-        this.router.navigate(['/']);
+        // Redirect admins to dashboard, customers to home
+        const target = this.authState.isAdmin() ? '/admin' : '/';
+        this.router.navigate([target]);
       },
       error: (err) => {
         this.submitting = false;
@@ -50,4 +53,5 @@ export class Login {
       },
     });
   }
+}
 }

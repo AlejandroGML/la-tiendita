@@ -200,6 +200,7 @@
     "statusUpdated": "Status updated",
     "statusUpdateError": "Error updating status",
     "categories": "Categories",
+    "promotions": "Promotions",
     "logout": "Log out"
   },
   "condition": {

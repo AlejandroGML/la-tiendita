@@ -200,6 +200,7 @@
     "statusUpdated": "Estado actualizado",
     "statusUpdateError": "Error al actualizar estado",
     "categories": "Categorías",
+    "promotions": "Promociones",
     "logout": "Cerrar sesión"
   },
   "condition": {
