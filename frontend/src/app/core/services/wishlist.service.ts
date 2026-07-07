@@ -26,24 +26,20 @@ export class WishlistService {
       .pipe(tap((res) => this.wishlistSubject.next(res)));
   }
 
-  addToWishlist(productId: string): Observable<{ message: string }> {
+  addToWishlist(productId: string): Observable<WishlistResponse> {
     return this.http
-      .post<{ message: string }>(`/api/v1/wishlist/${productId}`, {})
-      .pipe(tap(() => this.refreshWishlist()));
+      .post<WishlistResponse>(`/api/v1/wishlist/${productId}`, {})
+      .pipe(tap((res) => this.wishlistSubject.next(res)));
   }
 
-  removeFromWishlist(productId: string): Observable<void> {
+  removeFromWishlist(productId: string): Observable<WishlistResponse> {
     return this.http
-      .delete<void>(`/api/v1/wishlist/${productId}`)
-      .pipe(tap(() => this.refreshWishlist()));
+      .delete<WishlistResponse>(`/api/v1/wishlist/${productId}`)
+      .pipe(tap((res) => this.wishlistSubject.next(res)));
   }
 
   /** Reset local state without an API call (e.g. after logout) */
   resetState(): void {
     this.wishlistSubject.next(null);
-  }
-
-  private refreshWishlist(): void {
-    this.getWishlist().subscribe();
   }
 }
