@@ -3,6 +3,7 @@ import {
   Component,
   EventEmitter,
   Input,
+  OnDestroy,
   Output,
 } from '@angular/core';
 
@@ -12,7 +13,7 @@ import {
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
-export class ImageUploadComponent {
+export class ImageUploadComponent implements OnDestroy {
   @Input() imageFiles: File[] = [];
   @Input() existingUrls: string[] = [];
   @Input() submitting = false;
@@ -75,5 +76,11 @@ export class ImageUploadComponent {
     this.blobUrls = this.blobUrls.filter((_, i) => i !== fileIndex);
     this.imageFiles = this.imageFiles.filter((_, i) => i !== fileIndex);
     this.filesChanged.emit([...this.imageFiles]);
+  }
+
+  ngOnDestroy(): void {
+    for (const url of this.blobUrls) {
+      URL.revokeObjectURL(url);
+    }
   }
 }
