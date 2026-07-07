@@ -71,6 +71,8 @@ def build_product_summary(
         "sizes": summary.sizes,
         "has_variants": summary.has_variants,
         "is_out_of_stock": summary.is_out_of_stock,
+        "avg_rating": summary.avg_rating if summary.avg_rating else None,
+        "total_reviews": summary.total_reviews or 0,
     }
 
 

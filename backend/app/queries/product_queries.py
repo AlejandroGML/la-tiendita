@@ -89,6 +89,8 @@ class ProductQueries:
             name: str | None = row[1]  # summary_name
             stock_total: int = row[2] or 0  # stock_total
             has_promotion: bool = row[3] or False  # has_promotion
+            avg_rating: float = float(row[4]) if row[4] is not None else 0.0  # avg_rating
+            total_reviews: int = row[5] or 0  # total_reviews
 
             product_ids.append(product.id)
 
@@ -111,6 +113,8 @@ class ProductQueries:
                     ),
                     stock_total=stock_total,
                     has_promotion=has_promotion,
+                    avg_rating=avg_rating,
+                    total_reviews=total_reviews,
                     created_at=product.created_at,
                     sale_price=None,
                     discount_label=None,
@@ -150,6 +154,24 @@ class ProductQueries:
             .correlate(Product)
             .scalar_subquery()
             .label("stock_total")
+        )
+
+        from app.models.review import Review
+
+        avg_rating_subq = (
+            select(func.coalesce(func.avg(Review.rating), 0.0))
+            .where(Review.product_id == Product.id)
+            .correlate(Product)
+            .scalar_subquery()
+            .label("avg_rating")
+        )
+
+        total_reviews_subq = (
+            select(func.count(Review.id))
+            .where(Review.product_id == Product.id)
+            .correlate(Product)
+            .scalar_subquery()
+            .label("total_reviews")
         )
 
         now = datetime.now(timezone.utc)
@@ -197,6 +219,8 @@ class ProductQueries:
                 translation_name_subq,
                 stock_total_subq,
                 has_promo_subq,
+                avg_rating_subq,
+                total_reviews_subq,
             )
             .where(Product.deleted_at.is_(None))
         )

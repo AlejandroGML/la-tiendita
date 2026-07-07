@@ -1,9 +1,7 @@
-import { Component, Input, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, Input, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 import type { Product, ProductColorSwatch } from '../../models/product.model';
-import { ReviewService } from '../../../core/services/review.service';
 import { WishlistService } from '../../../core/services/wishlist.service';
 
 const SIZE_ORDER: Record<string, number> = {
@@ -21,7 +19,7 @@ interface ColorSwatch {
   styleUrls: ['./product-card.scss'],
   standalone: false,
 })
-export class ProductCardComponent implements OnInit, OnDestroy {
+export class ProductCardComponent implements OnInit {
   @Input() product!: Product;
   /** @todo Wire isBestseller from templates when backend bestseller data is available */
   @Input() isBestseller = false;
@@ -33,32 +31,20 @@ export class ProductCardComponent implements OnInit, OnDestroy {
   readonly isWishlisted = signal(false);
   animateHeart = false;
 
-  private reviewSub: Subscription | null = null;
-
   constructor(
     private translate: TranslateService,
-    private reviewService: ReviewService,
     private router: Router,
     private wishlistService: WishlistService,
   ) {}
 
   ngOnInit(): void {
-    if (!this.product?.slug) return;
-    this.ratingLoading.set(true);
-    this.reviewSub = this.reviewService.getProductReviews(this.product.slug, 1, 1).subscribe({
-      next: (res) => {
-        this.avgRating.set(res.avg_rating);
-        this.totalReviews.set(res.total_reviews);
-        this.ratingLoading.set(false);
-      },
-      error: () => {
-        this.ratingLoading.set(false);
-      },
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.reviewSub?.unsubscribe();
+    // Read avg_rating and total_reviews from Summary DTO (if present).
+    // The ProductSummaryDTO carries pre-computed review aggregates directly
+    // in the response — no need for a separate HTTP request per card.
+    if (this.product?.avg_rating !== undefined) {
+      this.avgRating.set(this.product.avg_rating);
+      this.totalReviews.set(this.product.total_reviews ?? 0);
+    }
   }
 
   /** First product image URL */

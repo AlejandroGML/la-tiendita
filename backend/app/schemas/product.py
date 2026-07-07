@@ -107,6 +107,9 @@ class ProductSummaryDTO(BaseModel):
     sizes: list[str] | None = None  # ["XS", "S", "M", ...] sorted
     has_variants: bool = False
     is_out_of_stock: bool = False
+    # Review-derived fields (pre-computed server-side)
+    avg_rating: float | None = None
+    total_reviews: int = 0
 
     model_config = ConfigDict(from_attributes=True)
 

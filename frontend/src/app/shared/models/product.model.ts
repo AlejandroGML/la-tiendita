@@ -47,6 +47,8 @@ export interface Product {
   has_variants?: boolean;
   is_out_of_stock?: boolean;
   sizes?: string[];
+  avg_rating?: number;
+  total_reviews?: number;
   /** Legacy arrays — absent in summary response */
   variants?: ProductVariant[];
   translations?: ProductTranslation[];
