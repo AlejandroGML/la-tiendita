@@ -156,4 +156,4 @@ class PromotionRepository(BaseRepository[Promotion]):
     ) -> tuple[list[Promotion], int]:
         from sqlalchemy.orm import selectinload
         stmt = select(Promotion).options(selectinload(Promotion.translations)).order_by(Promotion.created_at.desc())
-        return await self.get_paginated(session, stmt, page=page, per_page=per_page)
+        return await self.get_paginated(session, stmt=stmt, page=page, per_page=per_page)
