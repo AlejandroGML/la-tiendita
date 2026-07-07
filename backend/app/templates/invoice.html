@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Factura #{{ order_id[:8] }}</title>
+  <style>
+    body { font-family: 'Inter', Arial, sans-serif; margin: 0; padding: 40px; color: #1a1a2e; }
+    .header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 40px; }
+    .header .logo { font-size: 24px; font-weight: 800; color: #2d6a4f; }
+    .invoice-title { font-size: 32px; font-weight: 700; color: #1a1a2e; margin-bottom: 4px; }
+    .invoice-meta { color: #6b7280; font-size: 14px; line-height: 1.6; }
+    table { width: 100%; border-collapse: collapse; margin: 24px 0; }
+    th { text-align: left; padding: 12px 8px; border-bottom: 2px solid #e5e7eb; font-size: 12px; text-transform: uppercase; color: #6b7280; letter-spacing: 0.5px; }
+    td { padding: 12px 8px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }
+    .total-row td { font-weight: 700; font-size: 16px; border-top: 2px solid #1a1a2e; border-bottom: none; }
+    .address-box { background: #f9fafb; padding: 16px; border-radius: 8px; font-size: 14px; line-height: 1.6; margin-bottom: 24px; }
+    .address-box h3 { margin: 0 0 8px; font-size: 14px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; }
+    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid #e5e7eb; text-align: center; color: #9ca3af; font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div>
+      <div class="logo">La Tiendita</div>
+      <p class="invoice-meta">Ropa Segunda Mano · hello@latiendita.cl</p>
+    </div>
+    <div style="text-align: right;">
+      <div class="invoice-title">FACTURA</div>
+      <p class="invoice-meta">
+        N° {{ order_id[:8].upper() }}<br>
+        Fecha: {{ created_at }}
+      </p>
+    </div>
+  </div>
+
+  <div class="address-box">
+    <h3>Dirección de Envío</h3>
+    <p>{{ shipping_address.get('name', '') }}<br>
+       {{ shipping_address.get('address', '') }}<br>
+       {{ shipping_address.get('city', '') }}</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Cant</th>
+        <th style="text-align: right;">Precio</th>
+        <th style="text-align: right;">Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.product_snapshot.get('name', 'Producto') }}</td>
+        <td>{{ item.quantity }}</td>
+        <td style="text-align: right;">{{ '%.2f'|format(item.price) }} SEK</td>
+        <td style="text-align: right;">{{ '%.2f'|format(item.price * item.quantity) }} SEK</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colspan="3" style="text-align: right; font-weight: 600;">Subtotal</td>
+        <td style="text-align: right;">{{ '%.2f'|format(subtotal) }} SEK</td>
+      </tr>
+      {% if shipping_cost %}
+      <tr>
+        <td colspan="3" style="text-align: right; font-weight: 600;">Envío ({{ shipping_method }})</td>
+        <td style="text-align: right;">{{ '%.2f'|format(shipping_cost) }} SEK</td>
+      </tr>
+      {% endif %}
+      <tr class="total-row">
+        <td colspan="3" style="text-align: right;">TOTAL</td>
+        <td style="text-align: right;">{{ '%.2f'|format(total) }} SEK</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="footer">
+    La Tiendita · hello@latiendita.cl · Älta, Stockholm, Sweden<br>
+    Gracias por tu compra 💚
+  </div>
+</body>
+</html>

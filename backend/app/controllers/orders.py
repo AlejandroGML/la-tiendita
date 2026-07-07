@@ -18,6 +18,7 @@ from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import (
     HTTPException,
+    NotAuthorizedException,
     NotFoundException,
     ValidationException,
 )
@@ -251,3 +252,50 @@ class OrderController(Controller):
             raise HTTPException(
                 status_code=400, detail=str(exc)
             ) from exc
+
+    @get("/orders/{order_id:uuid}/invoice", media_type="text/html")
+    async def get_invoice(
+        self,
+        order_id: UUID,
+        request: ASGIConnection,
+        session: AsyncSession,
+        order_repo: OrderRepository,
+    ) -> str:
+        """Return an HTML invoice for a completed order."""
+        from jinja2 import Environment, FileSystemLoader
+        from pathlib import Path
+
+        order = await order_repo.get_with_items(session, order_id)
+        if order is None:
+            raise NotFoundException(detail="Order not found")
+
+        # Only owner or admin can download
+        user = request.user
+        if user.role != UserRole.ADMIN and order.user_id != user.id:
+            raise NotAuthorizedException(detail="Not your order")
+
+        items = [
+            {
+                "product_snapshot": oi.product_snapshot,
+                "quantity": oi.quantity,
+                "price": float(oi.price),
+            }
+            for oi in order.items
+        ]
+        subtotal = float(order.total) - float(order.shipping_cost or 0)
+
+        loader = FileSystemLoader(
+            str(Path(__file__).resolve().parent.parent / "templates")
+        )
+        env = Environment(loader=loader)
+        template = env.get_template("invoice.html")
+        return template.render(
+            order_id=str(order.id),
+            created_at=order.created_at.strftime("%Y-%m-%d %H:%M"),
+            shipping_address=order.shipping_address,
+            shipping_method=order.shipping_method or "N/A",
+            shipping_cost=float(order.shipping_cost) if order.shipping_cost else None,
+            total=float(order.total),
+            subtotal=subtotal,
+            items=items,
+        )
