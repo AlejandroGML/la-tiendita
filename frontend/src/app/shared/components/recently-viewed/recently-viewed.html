@@ -26,7 +26,7 @@
             {{ product.name }}
           </p>
           <p class="text-sm font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
-            {{ product.price | number:'1.0-0' }} kr
+            {{ product.price | currency:currency() }}
           </p>
         </div>
       </a>
