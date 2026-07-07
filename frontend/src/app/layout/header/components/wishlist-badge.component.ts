@@ -32,7 +32,7 @@ export class WishlistBadgeComponent implements OnInit, OnDestroy {
   }
 
   protected navigateToWishlist(): void {
-    this.router.navigate(['/wishlist']);
+    this.router.navigate(['/perfil/wishlist']);
   }
 
   ngOnDestroy(): void {

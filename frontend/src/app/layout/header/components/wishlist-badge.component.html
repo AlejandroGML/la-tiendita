@@ -1,6 +1,5 @@
-<a routerLink="/perfil/wishlist"
-   (click)="navigateToWishlist()"
-   class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors rounded-lg hover:bg-pink-50 dark:hover:bg-gray-800 active:bg-pink-100 dark:active:bg-gray-700"
+<a (click)="navigateToWishlist()"
+   class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors rounded-lg hover:bg-pink-50 dark:hover:bg-gray-800 active:bg-pink-100 dark:active:bg-gray-700 cursor-pointer"
    [attr.aria-label]="'Favoritos'">
   <span [innerHTML]="'heart' | svgIcon"></span>
   <span *ngIf="wishlistCount > 0"
