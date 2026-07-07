@@ -63,6 +63,7 @@ export class CartComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
+          if (!res) return;
           this.cart.set(res);
           this.items.set(res.items);
           this.loading.set(false);
@@ -81,6 +82,7 @@ export class CartComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
+          if (!res) return;
           this.cart.set(res);
           this.items.set(res.items);
           this.loading.set(false);
@@ -103,6 +105,7 @@ export class CartComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
+          if (!res) return;
           this.cart.set(res);
           this.items.set(res.items);
           this.loading.set(false);
@@ -132,6 +135,7 @@ export class CartComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
+          if (!res) return;
           this.cart.set(res);
           this.items.set(res.items);
           this.loading.set(false);

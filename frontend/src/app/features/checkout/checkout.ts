@@ -51,6 +51,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (cart) => {
+          if (!cart) return;
           this.cart.set(cart);
           this.loading.set(false);
           if (cart.items.length === 0) {

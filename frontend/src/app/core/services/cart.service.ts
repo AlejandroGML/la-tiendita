@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { toObservable } from '@angular/core/rxjs-interop';
 import { Observable } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 import type { CartResponse } from '../../shared/models/cart.model';
 import { CartApiService } from './cart-api.service';
@@ -9,8 +10,8 @@ import { CartStore } from '../stores/cart.store';
 /**
  * Facade over CartApiService (HTTP) + CartStore (signal-based state).
  *
- * Preserves the same public API as the original god-node CartService so
- * all 7 existing consumers compile and work without changes.
+ * Filters out `null` emissions from CartStore errors so legacy consumers
+ * that subscribe to method calls always receive a `CartResponse`.
  *
  * New consumers should prefer injecting `CartStore` directly for
  * synchronous signal reads (`cart`, `totalItems`, `loading`, `error`).
@@ -31,8 +32,10 @@ export class CartService {
   // ── HTTP + state sync ──────────────────────────────────────────────
 
   /** Fetch current cart state and update the signal. */
-  getCart(): Observable<CartResponse | null> {
-    return this.cartStore.load();
+  getCart(): Observable<CartResponse> {
+    return this.cartStore.load().pipe(
+      filter((res): res is CartResponse => res !== null),
+    );
   }
 
   /** Add a product to the cart (quantity defaults to 1). Optionally pass a variantId. */
@@ -40,23 +43,31 @@ export class CartService {
     productId: string,
     quantity: number = 1,
     variantId?: string,
-  ): Observable<CartResponse | null> {
-    return this.cartStore.addItem(productId, quantity, variantId);
+  ): Observable<CartResponse> {
+    return this.cartStore.addItem(productId, quantity, variantId).pipe(
+      filter((res): res is CartResponse => res !== null),
+    );
   }
 
   /** Update line-item quantity. Setting quantity to 0 removes the item. */
-  updateQuantity(itemId: string, quantity: number): Observable<CartResponse | null> {
-    return this.cartStore.updateQty(itemId, quantity);
+  updateQuantity(itemId: string, quantity: number): Observable<CartResponse> {
+    return this.cartStore.updateQty(itemId, quantity).pipe(
+      filter((res): res is CartResponse => res !== null),
+    );
   }
 
   /** Remove a single item from the cart. */
-  removeItem(itemId: string): Observable<CartResponse | null> {
-    return this.cartStore.removeItem(itemId);
+  removeItem(itemId: string): Observable<CartResponse> {
+    return this.cartStore.removeItem(itemId).pipe(
+      filter((res): res is CartResponse => res !== null),
+    );
   }
 
   /** Empty the entire cart — emits null on success. */
-  clearCart(): Observable<CartResponse | null> {
-    return this.cartStore.clear();
+  clearCart(): Observable<CartResponse> {
+    return this.cartStore.clear().pipe(
+      filter((res): res is CartResponse => res !== null),
+    );
   }
 
   // ── Lifecycle (one-line delegation) ────────────────────────────────
