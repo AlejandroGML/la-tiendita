@@ -35,7 +35,7 @@ export class NewsletterPopupComponent implements AfterViewInit {
       if (Date.now() - dismissedAt < SEVEN_DAYS_MS) return;
     }
 
-    setTimeout(() => this.visible.set(true), 8000);
+    setTimeout(() => this.visible.set(true), 20000);
   }
 
   submit(): void {
