@@ -49,7 +49,10 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
         // Attach human-readable message to the error for components to display
         const friendly = humanMessage(error);
         console.error(`[HTTP ${error.status}] ${friendly}`, error.url);
-        return throwError(() => error);
+        return throwError(() => {
+          (error as HttpErrorResponse & { userMessage?: string }).userMessage = friendly;
+          return error;
+        });
       }
 
       // Avoid refresh loops on auth endpoints themselves
