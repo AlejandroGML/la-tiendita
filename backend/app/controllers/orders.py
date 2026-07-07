@@ -28,6 +28,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.engine import async_session as _async_session_fn
 from app.models.user import UserRole
 from app.repositories.order_repository import OrderRepository
+from app.schemas.auth import MessageResponse
 from app.schemas.order import CheckoutRequest, CheckoutResponse, OrderResponse
 from app.exceptions import StripeError
 from app.services.order_service import (
@@ -227,3 +228,26 @@ class OrderController(Controller):
             )
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc
+
+    @post("/orders/{order_id:uuid}/cancel")
+    async def cancel_order(
+        self,
+        order_id: UUID,
+        request: ASGIConnection,
+        service: OrderService,
+        session: AsyncSession,
+    ) -> MessageResponse:
+        """Cancel a pending/confirmed order and release stock.
+
+        Only the order owner can cancel. Stock is restored and the order
+        status transitions to ``CANCELLED``.
+        """
+        try:
+            await service.cancel_order(
+                session, request.user.id, order_id
+            )
+            return MessageResponse(message="Order cancelled")
+        except ValueError as exc:
+            raise HTTPException(
+                status_code=400, detail=str(exc)
+            ) from exc

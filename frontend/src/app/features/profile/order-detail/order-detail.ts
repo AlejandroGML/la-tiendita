@@ -24,6 +24,7 @@ export class OrderDetailComponent implements OnDestroy {
   readonly order = signal<Order | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  readonly cancelling = signal(false);
 
   private sub: Subscription;
 
@@ -130,5 +131,30 @@ export class OrderDetailComponent implements OnDestroy {
       refunded: 'bg-gray-100 text-gray-800',
     };
     return map[status ?? ''] ?? 'bg-amber-100 text-amber-800';
+  }
+
+  cancelOrder(): void {
+    const order = this.order();
+    if (!order || !confirm('¿Estás seguro de cancelar esta orden?')) return;
+    this.cancelling.set(true);
+    this.orderService.cancelOrder(order.id).subscribe({
+      next: () => {
+        this.cancelling.set(false);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Orden cancelada',
+          life: 5000,
+        });
+        this.loadOrder();
+      },
+      error: () => {
+        this.cancelling.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error al cancelar la orden',
+          life: 5000,
+        });
+      },
+    });
   }
 }

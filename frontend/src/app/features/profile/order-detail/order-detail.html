@@ -166,6 +166,20 @@
               </div>
             </div>
           </div>
+
+          <!-- Cancel order (only for pending/confirmed orders) -->
+          <div *ngIf="order()?.status === 'pending' || order()?.status === 'confirmed'"
+               class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+            <p-button
+              severity="danger"
+              [text]="true"
+              [loading]="cancelling()"
+              icon="pi pi-trash"
+              [label]="'Cancelar orden'"
+              (onClick)="cancelOrder()"
+              data-testid="btn-cancel-order"
+            ></p-button>
+          </div>
         </div>
       </div>
     </div>

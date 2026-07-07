@@ -16,7 +16,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from app.models.cart import CartItem
-from app.models.order import Order, OrderItem, OrderStatus
+from app.models.order import Order, OrderItem, OrderStatus, PaymentStatus
 from app.models.product import Product, ProductTranslation
 from app.models.product_variant import ProductVariant
 from app.repositories.cart_repository import CartRepository
@@ -302,6 +302,48 @@ class OrderService:
         logger.info(
             "Order %s finalized — stock deducted, status confirmed", order.id
         )
+
+    # ------------------------------------------------------------------
+    # Cancellation
+    # ------------------------------------------------------------------
+
+    async def cancel_order(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+        order_id: UUID,
+    ) -> None:
+        """Cancel a pending or confirmed order and release stock.
+
+        Only the order owner can cancel.  Orders with status ``SHIPPED``,
+        ``DELIVERED``, or ``CANCELLED`` cannot be cancelled.
+        """
+        from app.models.order import OrderStatus as OS
+
+        order = await session.get(Order, order_id)
+        if order is None:
+            raise ValueError("Order not found")
+        if order.user_id != user_id:
+            raise ValueError("Order does not belong to this user")
+        if order.status not in (OS.PENDING, OS.CONFIRMED):
+            raise ValueError(
+                f"Order with status '{order.status.value}' cannot be cancelled"
+            )
+
+        # Release stock: increment variant stock for each order item
+        if order.status == OS.CONFIRMED:
+            for item in order.items:
+                variant_id = item.product_snapshot.get("variant_id")
+                if variant_id:
+                    from app.models.product_variant import ProductVariant
+
+                    variant = await session.get(ProductVariant, UUID(variant_id))
+                    if variant:
+                        variant.stock += item.quantity
+
+        order.status = OS.CANCELLED
+        order.payment_status = PaymentStatus.REFUNDED
+        await session.flush()
 
     # ------------------------------------------------------------------
     # Internal helpers

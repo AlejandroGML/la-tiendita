@@ -49,4 +49,9 @@ export class OrderService {
   getOrder(orderId: string): Observable<Order> {
     return this.http.get<Order>(`/api/v1/orders/${orderId}`);
   }
+
+  /** Cancel a pending/confirmed order */
+  cancelOrder(orderId: string): Observable<{ message: string }> {
+    return this.http.post<{ message: string }>(`/api/v1/orders/${orderId}/cancel`, {});
+  }
 }
