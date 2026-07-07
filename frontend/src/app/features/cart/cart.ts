@@ -41,7 +41,7 @@ export class CartComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.cartService.init();
-    this.route.queryParams.subscribe((params) => {
+    this.route.queryParams.pipe(takeUntil(this.destroy$)).subscribe((params) => {
       if (params['payment'] === 'cancelled') {
         this.showCancelledBanner.set(true);
       }

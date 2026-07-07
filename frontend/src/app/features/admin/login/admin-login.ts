@@ -61,8 +61,9 @@ export class AdminLogin {
       next: (res) => {
         this.loading = false;
         if (res.require_2fa) {
-          sessionStorage.setItem('login_token', res.login_token);
-          this.router.navigate(['/admin/login/verify-2fa']);
+          this.router.navigate(['/admin/login/verify-2fa'], {
+            state: { loginToken: res.login_token },
+          });
         } else {
           this.tokenStorage.setTokens(res.access_token, res.refresh_token);
           this.authState.setUser(res.user);

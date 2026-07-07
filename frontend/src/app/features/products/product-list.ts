@@ -87,10 +87,14 @@ export class ProductList implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.loadCategories();
-    this.translate.onLangChange.subscribe(() => this.langKey.update(v => v + 1));
+    this.translate.onLangChange
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.langKey.update(v => v + 1));
 
     // Listen for URL query param changes (e.g. from megamenu clicks)
-    this.route.queryParamMap.subscribe((params) => {
+    this.route.queryParamMap
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((params) => {
       const categoryId = params.get('category_id');
       const gender = params.get('gender');
       this.filters.update(f => ({

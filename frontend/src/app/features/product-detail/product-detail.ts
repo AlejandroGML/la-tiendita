@@ -1,7 +1,7 @@
 import { Component, OnDestroy, signal, computed, inject, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Subscription } from 'rxjs';
-import { switchMap } from 'rxjs/operators';
+import { Subscription, Subject } from 'rxjs';
+import { switchMap, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import type { Product, ProductVariant } from '../../shared/models/product.model';
@@ -43,6 +43,7 @@ export class ProductDetail implements OnDestroy {
   readonly product = signal<Product | null>(null);
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
+  private readonly destroy$ = new Subject<void>();
   readonly notFound = signal(false);
   readonly addingToCart = signal(false);
 
@@ -255,6 +256,8 @@ export class ProductDetail implements OnDestroy {
 
   ngOnDestroy(): void {
     this.sub.unsubscribe();
+    this.destroy$.next();
+    this.destroy$.complete();
     this.seoService.removeStructuredData();
   }
 
@@ -316,7 +319,9 @@ export class ProductDetail implements OnDestroy {
     this.addingToCart.set(true);
     this.error.set(null);
 
-    this.cartService.addItem(p.id, 1, variantId).subscribe({
+    this.cartService.addItem(p.id, 1, variantId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
       next: () => {
         this.messageService.add({
           severity: 'success',
@@ -375,13 +380,17 @@ export class ProductDetail implements OnDestroy {
     setTimeout(() => this.animateHeart = false, 400);
 
     if (this.isWishlisted()) {
-      this.wishlistService.removeFromWishlist(p.id).subscribe({
-        next: () => this.isWishlisted.set(false),
-      });
+      this.wishlistService.removeFromWishlist(p.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => this.isWishlisted.set(false),
+        });
     } else {
-      this.wishlistService.addToWishlist(p.id).subscribe({
-        next: () => this.isWishlisted.set(true),
-      });
+      this.wishlistService.addToWishlist(p.id)
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => this.isWishlisted.set(true),
+        });
     }
   }
 }

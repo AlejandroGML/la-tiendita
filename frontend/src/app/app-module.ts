@@ -1,4 +1,4 @@
-import { NgModule, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { NgModule, inject, provideAppInitializer, provideBrowserGlobalErrorListeners } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
@@ -20,6 +20,8 @@ import { MobileNavComponent } from './layout/mobile-nav/mobile-nav';
 import { ScrollTopComponent } from './shared/components/scroll-top/scroll-top';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
+import { AuthService } from './core/services/auth.service';
+import { TOKEN_STORAGE } from './core/services/token-storage.service';
 import { provideTokenStorage } from './core/services/token-storage.service';
 
 @NgModule({
@@ -39,6 +41,15 @@ import { provideTokenStorage } from './core/services/token-storage.service';
   ],
   providers: [
     provideBrowserGlobalErrorListeners(),
+    provideAppInitializer(() => {
+      const tokenStorage = inject(TOKEN_STORAGE);
+      const authService = inject(AuthService);
+
+      if (tokenStorage.getAccessToken()) {
+        return authService.fetchCurrentUser();
+      }
+      return Promise.resolve();
+    }),
     provideAnimations(),
     provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
     provideTokenStorage(),

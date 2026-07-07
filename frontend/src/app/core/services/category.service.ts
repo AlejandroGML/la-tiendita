@@ -52,8 +52,8 @@ export class CategoryService {
    * Subsequent calls are **idempotent** — if data has already been loaded, the
    * cached value is emitted synchronously and no HTTP request is made.
    *
-   * Errors are logged to the console and propagated through the `categories$`
-   * observable error channel so consumers can react to failures.
+   * On failure, `null` is emitted and `loaded` stays `false` so the next
+   * consumer can retry by calling `load()` again.
    */
   load(): void {
     if (this.loaded) {
@@ -70,7 +70,7 @@ export class CategoryService {
           },
           error: (err) => {
             console.error('[CategoryService] Failed to load categories:', err);
-            this.categoriesSubject.error(err);
+            this.categoriesSubject.next(null);
           },
         }),
       )

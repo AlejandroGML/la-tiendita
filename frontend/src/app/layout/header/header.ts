@@ -1,4 +1,5 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { CategoryService, type CategoryItem } from '../../core/services/category.service';
@@ -8,7 +9,8 @@ import { CategoryService, type CategoryItem } from '../../core/services/category
   templateUrl: './header.html',
   standalone: false,
 })
-export class Header implements OnInit {
+export class Header implements OnInit, OnDestroy {
+  private readonly destroy$ = new Subject<void>();
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
   private readonly categoryService = inject(CategoryService);
@@ -18,11 +20,18 @@ export class Header implements OnInit {
 
   ngOnInit(): void {
     this.categoryService.load();
-    this.categoryService.categories$.subscribe((data) => {
-      if (data) {
-        this.categories = data;
-      }
-    });
+    this.categoryService.categories$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((data) => {
+        if (data) {
+          this.categories = data;
+        }
+      });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   onSearch(term: string): void {

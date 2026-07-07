@@ -38,6 +38,9 @@ export class AdminVerify2fa {
   private readonly twoFactorService = inject(TwoFactorService);
   private readonly router = inject(Router);
 
+  private readonly loginToken: string | null =
+    (history.state as Record<string, string | null> | null)?.loginToken ?? null;
+
   readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.minLength(6)]],
   });
@@ -50,7 +53,7 @@ export class AdminVerify2fa {
     this.loading = true;
     this.errorMessage = null;
 
-    const loginToken = sessionStorage.getItem('login_token');
+    const loginToken = this.loginToken;
     if (!loginToken) {
       this.errorMessage = 'Sesión expirada. Inicia sesión nuevamente.';
       this.loading = false;
@@ -61,7 +64,6 @@ export class AdminVerify2fa {
     this.twoFactorService.validate(code, loginToken).subscribe({
       next: () => {
         this.loading = false;
-        sessionStorage.removeItem('login_token');
         this.router.navigate(['/admin']);
       },
       error: (err) => {
