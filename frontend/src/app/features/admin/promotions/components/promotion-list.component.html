@@ -10,7 +10,7 @@
   data-testid="promotions-error"
 >
   <i class="pi pi-exclamation-circle text-4xl text-red-400 mb-2 block"></i>
-  <p class="text-gray-500">{{ 'admin.promotionsError' | translate }}</p>
+  <p class="text-gray-500 dark:text-gray-400">{{ 'admin.promotionsError' | translate }}</p>
   <p-button
     [outlined]="true"
     [label]="'catalog.retry' | translate"
@@ -23,7 +23,7 @@
 <!-- Empty State -->
 <div
   *ngIf="!loading && !error && promotions.length === 0"
-  class="text-center text-gray-500 py-16"
+  class="text-center text-gray-500 dark:text-gray-400 py-16"
   data-testid="no-promotions"
 >
   <i class="pi pi-tag text-6xl mb-4 block"></i>
@@ -62,20 +62,20 @@
         <!-- Product -->
         <td>
           <span *ngIf="promotion.product_id" class="text-xs font-mono">{{ promotion.product_id }}</span>
-          <span *ngIf="!promotion.product_id" class="text-gray-400 text-sm">—</span>
+          <span *ngIf="!promotion.product_id" class="text-gray-400 dark:text-gray-500 text-sm">—</span>
         </td>
         <!-- Dates -->
         <td>
           <div class="text-xs">
             <div *ngIf="promotion.start_date">
-              <span class="text-gray-500">{{ 'promotions.from' | translate }}:</span>
+              <span class="text-gray-500 dark:text-gray-400">{{ 'promotions.from' | translate }}:</span>
               {{ promotion.start_date | date: 'short' }}
             </div>
             <div *ngIf="promotion.end_date">
-              <span class="text-gray-500">{{ 'promotions.to' | translate }}:</span>
+              <span class="text-gray-500 dark:text-gray-400">{{ 'promotions.to' | translate }}:</span>
               {{ promotion.end_date | date: 'short' }}
             </div>
-            <div class="text-gray-400 mt-1">
+            <div class="text-gray-400 dark:text-gray-500 mt-1">
               {{ getUsageInfo(promotion) }}
             </div>
           </div>
