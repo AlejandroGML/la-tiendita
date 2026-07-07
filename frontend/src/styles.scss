@@ -183,3 +183,42 @@ html.dark-theme {
   border-radius: 0.25rem;
 }
 .skeleton-card { height: 200px; border-radius: 0.5rem; }
+
+/* ============================================
+   Force all Angular component host elements to
+   display: block. Without this, components render
+   as inline (HTML default) and break CSS Grid
+   layouts in parent containers.
+   ============================================ */
+app-root,
+app-admin-layout,
+app-admin-dashboard,
+app-home,
+app-products,
+app-product-list,
+app-product-detail,
+app-cart,
+app-checkout,
+app-profile,
+app-legal,
+app-newsletter-popup,
+app-cookie-consent,
+app-search-bar,
+app-product-card,
+app-product-grid,
+app-product-filter-sidebar,
+app-header,
+app-footer,
+app-mobile-nav,
+app-scroll-top,
+app-confirm-dialog-host,
+app-login,
+app-register,
+app-admin-login,
+app-admin-products,
+app-admin-users,
+app-admin-orders,
+app-admin-categories,
+app-admin-promotions {
+  display: block;
+}
