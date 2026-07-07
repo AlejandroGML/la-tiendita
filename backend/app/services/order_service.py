@@ -293,15 +293,11 @@ class OrderService:
             raise
 
         # Emit confirmation event via event bus (fire-and-forget)
-        if order.user_id is not None:
-            event_bus.emit(OrderConfirmationEvent(
-                user_id=order.user_id,
-                order_id=order.id,
-            ))
-        else:
-            logger.info(
-                "Skipping confirmation email for guest order %s", order.id
-            )
+        event_bus.emit(OrderConfirmationEvent(
+            user_id=order.user_id,
+            order_id=order.id,
+            guest_email=order.guest_email,
+        ))
 
         logger.info(
             "Order %s finalized — stock deducted, status confirmed", order.id

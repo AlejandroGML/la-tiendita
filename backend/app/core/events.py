@@ -48,12 +48,14 @@ class OrderConfirmationEvent:
     """Emitted after an order is paid and confirmed.
 
     Attributes:
-        user_id:  The ordering user's UUID.
+        user_id:  The ordering user's UUID (``None`` for guests).
         order_id: The confirmed order's UUID.
+        guest_email: The guest's email (``None`` for registered users).
     """
 
-    user_id: UUID
+    user_id: UUID | None
     order_id: UUID
+    guest_email: str | None = None
 
 
 @dataclass(frozen=True)

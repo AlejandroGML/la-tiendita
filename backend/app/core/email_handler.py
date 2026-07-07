@@ -77,9 +77,19 @@ class EmailHandler:
             order = await self._load_order(session, event.order_id)
             if order is None:
                 return
-            if order.user_id != event.user_id:
+
+            # For guest orders, use guest_email from the event
+            dest_user_id = event.user_id
+            dest_email = event.guest_email or (order.user.email if order.user else None)
+            if dest_user_id is not None and order.user_id != dest_user_id:
                 logger.warning(
                     "Order %s user_id mismatch — skipping confirmation email",
+                    event.order_id,
+                )
+                return
+            if dest_user_id is None and not dest_email:
+                logger.warning(
+                    "Order %s has no user or guest email — skipping confirmation",
                     event.order_id,
                 )
                 return
@@ -97,7 +107,7 @@ class EmailHandler:
                 for item in order.items
             ]
             await self._email_svc.send_order_confirmation(
-                session, event.user_id, order, order_items_data
+                session, dest_user_id if dest_user_id else dest_email, order, order_items_data
             )
 
     async def _handle_order_shipped(self, event: OrderShippedEvent) -> None:
