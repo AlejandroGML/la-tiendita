@@ -1,16 +1,64 @@
-@if (visible()) {
-  <div class="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg border-t border-gray-200 p-4 flex flex-col sm:flex-row gap-3 items-center justify-between">
-    <p class="text-sm text-gray-600 flex-1">
-      🍪 Utilizamos cookies para mejorar tu experiencia de navegación. Al continuar, aceptas nuestra
-      <a routerLink="/privacidad" class="text-emerald-600 underline">política de privacidad</a>.
-    </p>
-    <div class="flex gap-2 shrink-0">
-      <a routerLink="/privacidad" class="px-4 py-2 text-sm text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50">
-        Más información
-      </a>
-      <button (click)="accept()" class="px-4 py-2 text-sm bg-emerald-600 text-white rounded-lg hover:bg-emerald-700">
-        Aceptar
-      </button>
+<div *ngIf="visible()" class="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-2xl">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+    <div class="flex-1 text-sm text-gray-700 dark:text-gray-300">
+      <p>
+        🍪 {{ 'cookie.text' | translate }}
+        <a routerLink="/privacidad" class="text-emerald-600 dark:text-emerald-400 underline ml-1">{{ 'cookie.moreInfo' | translate }}</a>.
+      </p>
+    </div>
+    <div class="flex flex-wrap gap-2 shrink-0">
+      <p-button [label]="'cookie.essential' | translate" severity="secondary" [outlined]="true" size="small" (click)="acceptEssential()"></p-button>
+      <p-button [label]="'cookie.customize' | translate" severity="secondary" size="small" (click)="openPreferences()"></p-button>
+      <p-button [label]="'cookie.acceptAll' | translate" severity="primary" size="small" (click)="acceptAll()"></p-button>
     </div>
   </div>
-}
+</div>
+
+<!-- Preferences modal -->
+<p-dialog
+  [(visible)]="showModal"
+  [header]="'cookie.preferencesTitle' | translate"
+  [modal]="true"
+  [closable]="false"
+  [draggable]="false"
+  styleClass="w-full max-w-md"
+>
+  <div class="space-y-4">
+    <!-- Essential (always on) -->
+    <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+      <p-checkbox [ngModel]="true" [disabled]="true" binary="true" inputId="essential" />
+      <div class="flex-1">
+        <label class="font-medium text-sm text-gray-900 dark:text-gray-100 cursor-not-allowed">{{ 'cookie.essential' | translate }}</label>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ 'cookie.essentialDesc' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Functional -->
+    <div class="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+      <p-checkbox [(ngModel)]="functional" binary="true" inputId="functional" />
+      <div class="flex-1">
+        <label for="functional" class="font-medium text-sm text-gray-900 dark:text-gray-100 cursor-pointer">{{ 'cookie.functional' | translate }}</label>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ 'cookie.functionalDesc' | translate }}</p>
+      </div>
+    </div>
+
+    <!-- Analytics / Marketing -->
+    <div class="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+      <p-checkbox [(ngModel)]="analytics" binary="true" inputId="analytics" />
+      <div class="flex-1">
+        <label for="analytics" class="font-medium text-sm text-gray-900 dark:text-gray-100 cursor-pointer">{{ 'cookie.analytics' | translate }}</label>
+        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ 'cookie.analyticsDesc' | translate }}</p>
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-between gap-2">
+      <p-button [label]="'cookie.essentialOnly' | translate" severity="secondary" [outlined]="true" (click)="acceptEssential()"></p-button>
+      <div class="flex gap-2">
+        <p-button [label]="'common.cancel' | translate" severity="secondary" (click)="cancelPreferences()"></p-button>
+        <p-button [label]="'cookie.save' | translate" severity="primary" (click)="savePreferences()"></p-button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
