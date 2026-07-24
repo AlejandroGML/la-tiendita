@@ -1,7 +1,8 @@
 {
   "common": {
     "notApplicable": "Not specified",
-    "noImage": "No image"
+    "noImage": "No image",
+    "cancel": "Cancel"
   },
   "nav": {
     "products": "Products",
@@ -233,7 +234,8 @@
     "paymentCancelled": "Payment was cancelled. Your items are still in the cart.",
     "dismiss": "Dismiss",
     "guestWarning": "Your cart is temporary — create an account to save it and access from any device",
-    "createAccount": "Create account"
+    "createAccount": "Create account",
+    "signIn": "Sign in"
   },
   "checkout": {
     "title": "Checkout",
@@ -447,6 +449,32 @@
     "passwordMismatch": "Passwords do not match",
     "createAccountButton": "Create Account",
     "hasAccount": "Already have an account?",
-    "registrationFailed": "Registration failed"
+    "registrationFailed": "Registration failed",
+    "acceptTerms": "I accept the",
+    "terms": "Terms and Conditions",
+    "privacy": "Privacy Policy",
+    "and": "and the",
+    "marketingConsent": "I want to receive offers and news by email"
+  },
+  "session": {
+    "expiringTitle": "Session expiring",
+    "expiringMessage": "Your session is about to expire due to inactivity. Do you want to stay?",
+    "keepAlive": "Stay logged in",
+    "logout": "Log out"
+  },
+  "cookie": {
+    "text": "We use essential and functional cookies to make the store work properly. We also use optional analytics cookies if you give us your consent.",
+    "moreInfo": "More info",
+    "acceptAll": "Accept all",
+    "essential": "Essential only",
+    "customize": "Customize",
+    "preferencesTitle": "Cookie preferences",
+    "essentialDesc": "Required for basic site functionality (cart, session, security). Cannot be disabled.",
+    "functional": "Functional",
+    "functionalDesc": "Remember your language, currency and display preferences.",
+    "analytics": "Analytics & marketing",
+    "analyticsDesc": "Help us improve the site and show you relevant content. We currently do not use any analytics tools.",
+    "essentialOnly": "Essential only",
+    "save": "Save preferences"
   }
 }

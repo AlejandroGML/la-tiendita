@@ -1,7 +1,8 @@
 {
   "common": {
     "notApplicable": "Ej specificerat",
-    "noImage": "Ingen bild"
+    "noImage": "Ingen bild",
+    "cancel": "Avbryt"
   },
   "nav": {
     "products": "Produkter",
@@ -233,7 +234,8 @@
     "paymentCancelled": "Betalningen avbröts. Dina varor finns kvar i varukorgen.",
     "dismiss": "Stäng",
     "guestWarning": "Din varukorg är tillfällig — skapa ett konto för att spara den och komma åt från vilken enhet som helst",
-    "createAccount": "Skapa konto"
+    "createAccount": "Skapa konto",
+    "signIn": "Logga in"
   },
   "checkout": {
     "title": "Kassa",
@@ -447,6 +449,32 @@
     "passwordMismatch": "Lösenorden matchar inte",
     "createAccountButton": "Skapa Konto",
     "hasAccount": "Har du redan ett konto?",
-    "registrationFailed": "Registrering misslyckades"
+    "registrationFailed": "Registrering misslyckades",
+    "acceptTerms": "Jag godkänner",
+    "terms": "Allmänna villkor",
+    "privacy": "Integritetspolicy",
+    "and": "och",
+    "marketingConsent": "Jag vill få erbjudanden och nyheter via e-post"
+  },
+  "session": {
+    "expiringTitle": "Sessionen går ut",
+    "expiringMessage": "Din session är på väg att gå ut på grund av inaktivitet. Vill du fortsätta?",
+    "keepAlive": "Fortsätt vara inloggad",
+    "logout": "Logga ut"
+  },
+  "cookie": {
+    "text": "Vi använder nödvändiga och funktionella cookies för att butiken ska fungera korrekt. Vi använder även valfria analyscookies om du ger ditt samtycke.",
+    "moreInfo": "Mer info",
+    "acceptAll": "Acceptera alla",
+    "essential": "Endast nödvändiga",
+    "customize": "Anpassa",
+    "preferencesTitle": "Cookie-inställningar",
+    "essentialDesc": "Krävs för grundläggande funktion (varukorg, session, säkerhet). Kan inte inaktiveras.",
+    "functional": "Funktionella",
+    "functionalDesc": "Kommer ihåg ditt språk, valuta och visningspreferenser.",
+    "analytics": "Analys och marknadsföring",
+    "analyticsDesc": "Hjälper oss förbättra sidan och visa relevant innehåll. Vi använder för närvarande inga analysverktyg.",
+    "essentialOnly": "Endast nödvändiga",
+    "save": "Spara inställningar"
   }
 }

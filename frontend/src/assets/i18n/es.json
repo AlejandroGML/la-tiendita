@@ -1,7 +1,8 @@
 {
   "common": {
     "notApplicable": "No especificado",
-    "noImage": "Sin imagen"
+    "noImage": "Sin imagen",
+    "cancel": "Cancelar"
   },
   "nav": {
     "products": "Productos",
@@ -233,7 +234,8 @@
     "paymentCancelled": "El pago fue cancelado. Tus productos siguen en el carrito.",
     "dismiss": "Cerrar",
     "guestWarning": "Tu carrito es temporal — regístrate para guardarlo y acceder desde cualquier dispositivo",
-    "createAccount": "Crear cuenta"
+    "createAccount": "Crear cuenta",
+    "signIn": "Iniciar sesión"
   },
   "checkout": {
     "title": "Finalizar Compra",
@@ -447,6 +449,32 @@
     "passwordMismatch": "Las contraseñas no coinciden",
     "createAccountButton": "Crear Cuenta",
     "hasAccount": "¿Ya tienes cuenta?",
-    "registrationFailed": "Error al registrarse"
+    "registrationFailed": "Error al registrarse",
+    "acceptTerms": "Acepto los",
+    "terms": "Términos y Condiciones",
+    "privacy": "Política de Privacidad",
+    "and": "y la",
+    "marketingConsent": "Quiero recibir ofertas y novedades por correo electrónico"
+  },
+  "session": {
+    "expiringTitle": "Sesión por expirar",
+    "expiringMessage": "Tu sesión está por expirar por inactividad. ¿Deseas mantenerla?",
+    "keepAlive": "Seguir conectado",
+    "logout": "Cerrar sesión"
+  },
+  "cookie": {
+    "text": "Utilizamos cookies esenciales y funcionales para que la tienda funcione correctamente. También utilizamos cookies de análisis opcionales si nos das tu consentimiento.",
+    "moreInfo": "Más información",
+    "acceptAll": "Aceptar todo",
+    "essential": "Solo esenciales",
+    "customize": "Personalizar",
+    "preferencesTitle": "Preferencias de cookies",
+    "essentialDesc": "Necesarias para el funcionamiento básico del sitio (carrito, sesión, seguridad). No se pueden desactivar.",
+    "functional": "Funcionales",
+    "functionalDesc": "Recuerdan tu idioma, moneda y preferencias de visualización.",
+    "analytics": "Análisis y marketing",
+    "analyticsDesc": "Nos ayudan a mejorar el sitio y mostrarte contenido relevante. Actualmente no utilizamos herramientas de análisis.",
+    "essentialOnly": "Solo esenciales",
+    "save": "Guardar preferencias"
   }
 }
