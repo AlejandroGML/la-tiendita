@@ -1,6 +1,6 @@
 import type { APIRequestContext } from '@playwright/test';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://localhost:8000/api/v1';
 
 /**
  * Create a category via the admin API.

@@ -1,43 +1,46 @@
 /**
- * Reusable DOM selectors for the Tiendita app.
+ * Reusable DOM selectors for the Tiendita app (PrimeNG).
  *
- * Prefer `data-testid` first, then accessible roles, then classes as last resort.
- * All selectors return Playwright-compatible strings.
+ * Prefers accessible roles first, then CSS classes, then Angular component
+ * element selectors as last resort.
+ * WARNING: The app currently has ZERO `data-testid` attributes in the main
+ * UI (home, catalog, cart, etc.). Admin product-form has some (btn-save,
+ * btn-cancel). Any test relying on data-testid will fail.
  */
 
 // ---- Layout ----
-export const header = 'mat-toolbar';
-export const headerBrand = 'mat-toolbar a[routerLink="/"]';
-export const navProducts = 'a[routerLink="/productos"]';
-export const navCart = 'a[routerLink="/carrito"]';
-export const navAdmin = 'a[routerLink="/admin"]';
-export const menuButton = 'button[aria-label="Open navigation menu"]';
+export const header = 'app-header';
+export const headerBrand = 'app-header a[href="/"]';
+export const navProducts = 'app-header a[href="/productos"]';
+export const navCart = 'app-header a[href="/carrito"]';
+export const navAdmin = 'a[href="/admin"]';
+export const menuButton = 'app-header button:has([class*="menu"])';
 
-// ---- Product Cards ----
-export const productCard = '.product-card';
-export const productCardName = '.product-card h3';
-export const productCardPrice = '.product-card .text-lg';
-export const productCardImage = '.product-card img';
+// ---- Product Cards (catalog + homepage) ----
+export const productCard = 'a.block[href*="/productos/"]';
+export const productCardName = 'a.block[href*="/productos/"] h3';
+export const productCardPrice = 'a.block[href*="/productos/"] p:first-of-type';
+export const productCardImage = 'a.block[href*="/productos/"] img';
 
 // ---- Product List (Catalog) ----
 export const catalogTitle = 'h1';
-export const filtersSidebar = '.filters-sidebar';
-export const categoryFilter = '.filters-sidebar mat-select';
-export const searchInput = 'app-search-bar input';
-export const paginationContainer = 'app-pagination';
+export const filtersSidebar = 'aside.filters-sidebar';
+export const categoryFilter = 'aside.filters-sidebar [role="combobox"]';
+export const searchInput = '[role="combobox"][aria-label*="search" i], [role="combobox"][aria-label*="buscar" i]';
+export const paginationContainer = '[role="navigation"] button';
 
 // ---- Product Detail ----
-export const productTitle = '.product-info h1';
-export const productPrice = '.product-info .text-2xl.font-bold';
-export const addToCartButton = 'button:has-text("Agregar al carrito"), button:has-text("Add to Cart")';
-export const productImage = '.main-image img';
+export const productTitle = 'h1[data-testid="product-title"], .product-info h1';
+export const productPrice = '.text-2xl.font-bold';
+export const addToCartButton = 'button:has-text("Agregar"), button:has-text("Add to"), button[aria-label*="cart" i]';
+export const productImage = 'img[alt*="product" i], .main-image img';
 
 // ---- Cart ----
 export const cartPage = '[data-testid="cart-page"]';
 export const cartEmpty = '[data-testid="cart-empty"]';
 export const cartTable = '[data-testid="cart-table"]';
 export const cartCheckoutButton = '[data-testid="checkout-button"]';
-export const cartItemRows = '[data-testid="cart-table"] tr.mat-mdc-row';
+export const cartItemRows = '[data-testid="cart-table"] tr';
 
 // ---- Checkout ----
 export const checkoutPage = '[data-testid="checkout-page"]';
@@ -53,9 +56,9 @@ export const loginForm = 'form';
 export const loginEmailInput = 'input[type="email"]';
 export const loginPasswordInput = 'input[type="password"]';
 export const loginSubmitButton = 'button[type="submit"]';
-export const loginError = '.text-red-600';
-export const registerLink = 'a[routerLink="/register"]';
-export const loginLink = 'a[routerLink="/login"]';
+export const loginError = '.text-red-600, .text-red-500, [class*="error"]';
+export const registerLink = 'a[href="/register"]';
+export const loginLink = 'a[href="/login"]';
 
 // ---- Admin ----
 export const adminDashboard = '[data-testid="dashboard-stats"]';
@@ -76,34 +79,34 @@ export const wishlistEmpty = '[data-testid="wishlist-empty"]';
 export const wishlistError = '[data-testid="wishlist-error"]';
 export const wishlistBrowseButton = '[data-testid="btn-browse"]';
 
-// ---- Snackbar / Toasts ----
-export const snackbar = '.mat-mdc-snack-bar-container, snack-bar-container';
-export const snackbarText = '.mat-mdc-snack-bar-container .mat-mdc-snack-bar-label';
+// ---- Snackbar / Toasts (PrimeNG Toast) ----
+export const snackbar = 'p-toast, [role="alertdialog"]';
+export const snackbarText = '[role="alertdialog"] .p-toast-message-text, [role="alertdialog"]';
 
-// ---- Spinner / Loading ----
-export const spinner = 'mat-spinner, .mat-mdc-progress-spinner';
-export const progressBar = 'mat-progress-bar';
+// ---- Spinner / Loading (PrimeNG) ----
+export const spinner = 'p-progressspinner, p-progressbar, [role="progressbar"]';
+export const progressBar = 'p-progressbar';
 
 // ---- Homepage ----
-export const heroBanner = '.hero';
-export const categoriesSection = '.categories';
-export const featuredSection = '.featured';
+export const heroBanner = '[class*="hero"]';
+export const categoriesSection = '[class*="categories"]';
+export const featuredSection = '[class*="featured"]';
 
 // ---- Catalog ----
-export const sortDropdown = '.product-list-page p-select, [data-testid="sort-select"]';
-export const searchBar = 'app-search-bar input';
+export const sortDropdown = '[role="combobox"][aria-label*="sort" i], [role="combobox"][aria-label*="order" i]';
+export const searchBar = '[role="combobox"][aria-label*="search" i], [role="combobox"][aria-label*="buscar" i]';
 
 // ---- Product Detail ----
-export const reviewSection = '#reviews';
+export const reviewSection = '#reviews, [data-testid="reviews-section"]';
 export const relatedProducts = '[data-testid="related-products"]';
 
 // ---- Auth ----
-export const forgotPasswordLink = 'a[routerLink="/recuperar"], a:has-text("Olvidé"), a:has-text("Forgot")';
-export const forgotPasswordForm = '[data-testid="forgot-password-form"]';
+export const forgotPasswordLink = 'a[href*="recuperar"], a[href*="forgot"], a:has-text("Olvidé"), a:has-text("Forgot")';
+export const forgotPasswordForm = '[data-testid="forgot-password-form"], form:has(input[formControlName="email"]):has(button:has-text("Recuperar"))';
 
 // ---- Cart ----
-export const qtyInput = '[data-testid="qty-input"], input[type="number"]';
-export const removeItemButton = '[data-testid="btn-remove"], button:has-text("Quitar"), button:has-text("Remove")';
+export const qtyInput = 'input[type="number"], [data-testid="qty-input"]';
+export const removeItemButton = 'button:has-text("Quitar"), button:has-text("Remove"), [data-testid="btn-remove"]';
 
 // ---- Checkout ----
 export const orderConfirmation = '[data-testid="checkout-success-guest"]';
@@ -122,4 +125,4 @@ export const adminSelectCategory = '[data-testid="select-category"]';
 export const adminInputBrand = '[data-testid="input-brand"]';
 
 // ---- Language ----
-export const languageSelect = '[aria-label*="language" i], [aria-label*="idioma" i], select[aria-label]';
+export const languageSelect = 'button:has-text("ES"), button:has-text("EN"), button:has-text("SV")';

@@ -1,6 +1,6 @@
 import type { Page } from '@playwright/test';
 
-const API_URL = 'http://localhost:8000';
+const API_URL = 'http://localhost:8000/api/v1';
 
 const LS_KEYS = {
   accessToken: 'access_token',
