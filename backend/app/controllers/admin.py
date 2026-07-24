@@ -30,6 +30,7 @@ from app.schemas.admin import (
     UserRoleUpdate,
 )
 from app.schemas.order import OrderAdminListItem
+from app.schemas.user import UserAdminUpdate
 from app.schemas.product_variant import (
     ProductVariantCreate,
     ProductVariantResponse,
@@ -163,6 +164,31 @@ class AdminController(Controller):
             raise ValidationException(detail=str(exc)) from exc
         except ValueError as exc:
             raise NotFoundException(detail=str(exc)) from exc
+
+        return item.model_dump()
+
+    @put("/users/{user_id:uuid}")
+    async def update_user(
+        self,
+        user_id: UUID,
+        data: UserAdminUpdate,
+        request: ASGIConnection,
+        user_svc: AdminUserService,
+        session: AsyncSession,
+    ) -> dict:
+        """Update user fields (admin-only). Only provided fields are changed."""
+        try:
+            item = await user_svc.update_user(
+                session,
+                user_id=user_id,
+                data=data,
+                requesting_user_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
+            )
+        except SelfDemotionError as exc:
+            raise ValidationException(detail=str(exc)) from exc
+        except ValueError as exc:
+            raise ValidationException(detail=str(exc)) from exc
 
         return item.model_dump()
 

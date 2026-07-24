@@ -148,6 +148,76 @@ class AdminUserService:
             created_at=user.created_at,
         )
 
+    async def update_user(
+        self,
+        session: AsyncSession,
+        user_id: uuid.UUID,
+        data: "UserAdminUpdate",
+        requesting_user_id: uuid.UUID,
+        ip_address: str | None = None,
+    ) -> UserAdminItem:
+        """Update user fields (admin-only).
+
+        Only provided (non-None) fields are updated.
+        """
+        from app.schemas.user import UserAdminUpdate as _Schema
+
+        user = await self._user_repo.get_by_id(session, user_id)
+        if user is None:
+            raise ValueError(f"user {user_id} not found")
+
+        changed: list[str] = []
+
+        if data.name is not None and data.name != user.name:
+            user.name = data.name
+            changed.append("name")
+        if data.email is not None and data.email != user.email:
+            # TODO: validate email uniqueness
+            user.email = data.email
+            changed.append("email")
+        if data.role is not None:
+            if user_id == requesting_user_id:
+                raise SelfDemotionError("cannot change your own role")
+            try:
+                user.role = UserRole(data.role)
+                changed.append("role")
+            except ValueError:
+                raise ValueError(f"invalid role '{data.role}'") from None
+        if data.is_verified is not None:
+            user.is_verified = data.is_verified
+            changed.append("is_verified")
+        if data.marketing_consent is not None:
+            user.marketing_consent = data.marketing_consent
+            changed.append("marketing_consent")
+
+        if not changed:
+            raise ValueError("no fields to update")
+
+        await session.flush()
+
+        event_bus.emit(
+            AuditEvent(
+                actor_id=requesting_user_id,
+                action=AuditAction.USER_ROLE_CHANGE,
+                entity_type="user",
+                entity_id=str(user_id),
+                details={"changed": changed},
+                ip_address=ip_address,
+            )
+        )
+
+        orders_count = await self._order_repo.count_by_user(session, user_id)
+
+        return UserAdminItem(
+            id=user.id,
+            email=user.email,
+            name=user.name,
+            role=user.role.value,
+            is_verified=user.is_verified,
+            orders_count=orders_count,
+            created_at=user.created_at,
+        )
+
     async def delete_user(
         self,
         session: AsyncSession,

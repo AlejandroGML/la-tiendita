@@ -120,4 +120,46 @@ export class AdminUsers implements OnInit, OnDestroy {
         },
       });
   }
+
+  // ── Edit user modal ──
+
+  editVisible = false;
+  selectedUser: UserAdminItem & { marketing_consent?: boolean } | null = null;
+  savingEdit = signal(false);
+
+  openEdit(user: UserAdminItem): void {
+    this.selectedUser = { ...user };
+    this.editVisible = true;
+  }
+
+  closeEdit(): void {
+    this.editVisible = false;
+    this.selectedUser = null;
+  }
+
+  saveEdit(): void {
+    if (!this.selectedUser) return;
+    this.savingEdit.set(true);
+
+    this.adminUserService.updateUser(this.selectedUser.id, {
+      name: this.selectedUser.name,
+      email: this.selectedUser.email,
+      role: this.selectedUser.role,
+      is_verified: this.selectedUser.is_verified,
+      marketing_consent: (this.selectedUser as any).marketing_consent,
+    }).pipe(takeUntil(this.destroy$)).subscribe({
+      next: (updated) => {
+        this.users.update((list) =>
+          list.map((u) => (u.id === updated.id ? { ...u, ...updated } : u)),
+        );
+        this.savingEdit.set(false);
+        this.closeEdit();
+        this.messageService.add({ severity: 'success', detail: 'admin.userUpdated', life: 3000 });
+      },
+      error: () => {
+        this.savingEdit.set(false);
+        this.messageService.add({ severity: 'error', detail: 'admin.roleUpdateError', life: 3000 });
+      },
+    });
+  }
 }

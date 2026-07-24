@@ -22,6 +22,14 @@ export interface UserAdminListResponse {
   };
 }
 
+export interface UserAdminUpdate {
+  name?: string;
+  email?: string;
+  role?: string;
+  is_verified?: boolean;
+  marketing_consent?: boolean;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AdminUserService {
   private readonly http = inject(HttpClient);
@@ -38,6 +46,10 @@ export class AdminUserService {
 
   updateUserRole(userId: string, role: string): Observable<UserAdminItem> {
     return this.http.patch<UserAdminItem>(`/api/v1/admin/users/${userId}/role`, { role });
+  }
+
+  updateUser(userId: string, data: UserAdminUpdate): Observable<UserAdminItem> {
+    return this.http.put<UserAdminItem>(`/api/v1/admin/users/${userId}`, data);
   }
 
   deleteUser(userId: string): Observable<void> {

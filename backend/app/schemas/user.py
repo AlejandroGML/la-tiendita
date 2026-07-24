@@ -32,8 +32,11 @@ class UserUpdate(BaseModel):
 class UserAdminUpdate(BaseModel):
     """Fields an admin can modify on any user account."""
 
+    name: str | None = None
+    email: str | None = None
     role: str | None = None
     is_verified: bool | None = None
+    marketing_consent: bool | None = None
 
 
 class Setup2faResponse(BaseModel):

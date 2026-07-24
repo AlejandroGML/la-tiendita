@@ -186,6 +186,9 @@
     "roleUpdated": "Roll uppdaterad",
     "roleUpdateError": "Fel vid uppdatering av roll",
     "verified": "Verifierad",
+    "editUser": "Redigera användare",
+    "userUpdated": "Användare uppdaterad",
+    "marketingConsent": "Marknadsföringssamtycke"
     "unverified": "Overifierad",
     "created": "Skapad",
     "noUsers": "Inga användare",

@@ -186,6 +186,9 @@
     "roleUpdated": "Rol actualizado",
     "roleUpdateError": "Error al actualizar rol",
     "verified": "Verificado",
+    "editUser": "Editar Usuario",
+    "userUpdated": "Usuario actualizado",
+    "marketingConsent": "Consentimiento de marketing"
     "unverified": "No verificado",
     "created": "Creado",
     "noUsers": "No hay usuarios",

@@ -76,14 +76,23 @@
         </td>
         <td>{{ user.created_at | date:'shortDate' }}</td>
         <td>
-          <p-button
-            *ngIf="user.id !== currentUserId"
-            icon="pi pi-trash"
-            [rounded]="true"
-            [text]="true"
-            severity="danger"
-            (click)="deleteUser(user)"
-          ></p-button>
+          <div class="flex gap-1">
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              [text]="true"
+              severity="info"
+              (click)="openEdit(user)"
+            ></p-button>
+            <p-button
+              *ngIf="user.id !== currentUserId"
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              severity="danger"
+              (click)="deleteUser(user)"
+            ></p-button>
+          </div>
         </td>
       </tr>
     </ng-template>
@@ -100,3 +109,37 @@
 </div>
 
 <p-toast position="bottom-right"></p-toast>
+
+<!-- Edit user modal -->
+<p-dialog [(visible)]="editVisible" [modal]="true" [closable]="true" [draggable]="false"
+          [header]="'admin.editUser' | translate" styleClass="w-full max-w-md">
+  <div class="flex flex-col gap-4" *ngIf="selectedUser">
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'admin.name' | translate }}</label>
+      <input pInputText [(ngModel)]="selectedUser.name" class="w-full" />
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'admin.email' | translate }}</label>
+      <input pInputText [(ngModel)]="selectedUser.email" class="w-full" />
+    </div>
+    <div class="flex flex-col gap-1">
+      <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ 'admin.role' | translate }}</label>
+      <p-select [options]="roleOptions" optionLabel="label" optionValue="value"
+                [(ngModel)]="selectedUser.role" appendTo="body" styleClass="w-full"></p-select>
+    </div>
+    <div class="flex items-center gap-2">
+      <p-checkbox [(ngModel)]="selectedUser.is_verified" binary="true" inputId="editVerified"></p-checkbox>
+      <label for="editVerified" class="text-sm text-gray-700 dark:text-gray-300">{{ 'admin.verified' | translate }}</label>
+    </div>
+    <div class="flex items-center gap-2">
+      <p-checkbox [(ngModel)]="selectedUser.marketing_consent" binary="true" inputId="editMarketing"></p-checkbox>
+      <label for="editMarketing" class="text-sm text-gray-700 dark:text-gray-300">{{ 'admin.marketingConsent' | translate }}</label>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2">
+      <p-button [label]="'common.cancel' | translate" severity="secondary" [outlined]="true" (click)="closeEdit()"></p-button>
+      <p-button [label]="'admin.save' | translate" severity="primary" (click)="saveEdit()" [loading]="savingEdit()"></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
