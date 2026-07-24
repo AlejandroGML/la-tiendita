@@ -25,10 +25,17 @@ User authentication: registration, login, JWT session management, Google OAuth, 
 | R15 | Register page renders in Spanish by default | MUST |
 | R16 | Register page respects language change | MUST |
 | R17 | Backend auth errors fall back to auth.* keys | MUST |
+| R18 | GDPR marketing consent on registration | MUST |
+| R19 | GDPR terms acceptance on registration | MUST |
+| R20 | Session expiration warning with auto-refresh | MUST |
+| R21 | GDPR account self-deletion with cascade | MUST |
+| R22 | GDPR data export (portability, Art. 20) | MUST |
 
 ### Requirement: User Registration
 
-The system MUST accept `POST /auth/register` with `email`, `password` (8+ chars), `name`, and optional `preferred_lang`. Password MUST be bcrypt-hashed before storage. Response MUST return access + refresh tokens.
+The system MUST accept `POST /auth/register` with `email`, `password` (8+ chars), `name`, optional `preferred_lang`, optional `marketing_consent` (boolean, default false), and optional `terms_accepted` (boolean, default false). Password MUST be bcrypt-hashed before storage. When `marketing_consent` or `terms_accepted` is true, `consent_at` MUST be set to current UTC timestamp. When `terms_accepted` is true, `terms_accepted_at` MUST also be set. Response MUST return access + refresh tokens.
+
+(Previously: registration did not capture consent fields.)
 
 #### Scenario: Successful registration
 
@@ -337,3 +344,95 @@ When the auth API returns an error (e.g., 401 invalid credentials, 409 duplicate
 - GIVEN user submits `/register` with a duplicate email in Spanish mode
 - WHEN the backend returns 409
 - THEN the form displays "Error al registrarse" (from `auth.registrationFailed`)
+
+### Requirement: GDPR Marketing Consent on Registration
+
+The registration form MUST include an optional marketing consent checkbox. When checked, `marketing_consent=true` is sent to the backend and `consent_at` is recorded. The frontend MUST display a link to the privacy policy next to the checkbox.
+
+#### Scenario: User opts into marketing
+
+- GIVEN a new user fills the registration form
+- WHEN they check the "I want to receive offers and news by email" checkbox
+- THEN the register payload includes `marketing_consent: true`
+- AND the backend stores `marketing_consent=true` with `consent_at` set to current UTC
+
+#### Scenario: User declines marketing
+
+- GIVEN a new user leaves the marketing checkbox unchecked
+- WHEN they submit registration
+- THEN `marketing_consent: false` is stored, `consent_at` is null
+
+### Requirement: GDPR Terms Acceptance on Registration
+
+The registration form MUST require acceptance of Terms and Privacy Policy via a required checkbox (`acceptTerms` with `requiredTrue` validator). When checked, `terms_accepted: true` is sent to the backend and `terms_accepted_at` is recorded.
+
+#### Scenario: Registration blocked without terms acceptance
+
+- GIVEN a user fills all fields but leaves the terms checkbox unchecked
+- WHEN they try to submit
+- THEN the form is invalid and submission does not proceed
+
+#### Scenario: Terms accepted timestamp recorded
+
+- GIVEN a user checks the terms checkbox and submits
+- WHEN the backend processes registration
+- THEN `terms_accepted_at` is set to current UTC timestamp
+
+### Requirement: Session Expiration Warning with Auto-Refresh
+
+The frontend MUST monitor JWT access token expiration. Two minutes before expiry, a confirmation dialog MUST appear offering to extend the session. If the user accepts, a token refresh is attempted. If refresh fails or the user declines, the session is cleared and the user is redirected to home.
+
+#### Scenario: Warning appears before expiry
+
+- GIVEN an authenticated user with a token expiring in less than 2 minutes
+- WHEN the SessionExpirationService detects the threshold
+- THEN a confirmation dialog appears with "Stay logged in" and "Log out" buttons
+
+#### Scenario: User extends session
+
+- GIVEN the expiration warning dialog is visible
+- WHEN the user clicks "Stay logged in"
+- THEN a token refresh is attempted
+- AND on success, monitoring restarts with the new token expiry
+
+#### Scenario: Session expires after decline or refresh failure
+
+- GIVEN the expiration warning dialog is visible
+- WHEN the user clicks "Log out" OR the refresh fails
+- THEN tokens are cleared from storage
+- AND auth state is reset
+- AND the user is redirected to `/`
+
+### Requirement: GDPR Account Self-Deletion with Cascade
+
+`DELETE /api/v1/profile/` MUST delete the authenticated user and all associated personal data. The deletion MUST cascade to: cart items, reviews, wishlists, refresh tokens, password reset tokens. Orders SHALL have `user_id` set to NULL (preserved for accounting). Audit logs for the user SHALL be deleted. The endpoint MUST require authentication.
+
+#### Scenario: User deletes own account
+
+- GIVEN an authenticated user
+- WHEN they call `DELETE /api/v1/profile/`
+- THEN 204 No Content
+- AND all personal records are deleted
+- AND orders remain with `user_id=NULL`
+
+#### Scenario: Unauthenticated deletion rejected
+
+- GIVEN no valid JWT
+- WHEN calling `DELETE /api/v1/profile/`
+- THEN 401 Unauthorized
+
+### Requirement: GDPR Data Export (Portability, Art. 20)
+
+`GET /api/v1/profile/export` MUST return all user data in JSON format for GDPR portability. The response MUST include: user profile, cart items, reviews, wishlist, and orders (with items). The endpoint MUST require authentication.
+
+#### Scenario: Authenticated user exports data
+
+- GIVEN an authenticated user with orders, reviews, and cart items
+- WHEN they call `GET /api/v1/profile/export`
+- THEN 200 with JSON containing `user`, `cart_items`, `reviews`, `wishlist`, `orders`
+
+#### Scenario: Export with empty data
+
+- GIVEN an authenticated user with no orders, reviews, or cart
+- WHEN they call `GET /api/v1/profile/export`
+- THEN 200 with empty arrays for `cart_items`, `reviews`, `wishlist`, `orders`

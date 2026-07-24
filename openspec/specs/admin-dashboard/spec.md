@@ -17,6 +17,9 @@ Admin-only backend API and frontend interface for store monitoring (dashboard st
 | R7 | Admin route guards | MUST |
 | R8 | Recent Orders mini-table | SHALL |
 | R9 | Recent Users mini-table | SHALL |
+| R10 | Admin user edit (full profile) | MUST |
+| R11 | Admin category CRUD with translations | MUST |
+| R12 | Admin user deletion with cascade | MUST |
 
 ### Requirement: Dashboard Aggregate Stats
 
@@ -83,7 +86,7 @@ The admin dashboard page MUST render all 12 stats as stat cards in a 4-column re
 
 ### Requirement: Admin Role and Verification Management
 
-`PATCH /api/admin/users/{id}/role` MUST update a user's role. The admin MUST NOT be able to change their own role. `PATCH /api/admin/users/{id}` SHALL support verification status change.
+`PATCH /api/admin/users/{id}/role` MUST update a user's role. The admin MUST NOT be able to change their own role. `PUT /api/admin/users/{id}` SHALL support updating name, email, role, is_verified, and marketing_consent. `DELETE /api/admin/users/{id}` SHALL delete a user with cascade (blocks self-deletion).
 
 #### Scenario: Admin promotes customer
 
@@ -102,6 +105,86 @@ The admin dashboard page MUST render all 12 stats as stat cards in a 4-column re
 - GIVEN an admin PATCHes with `{ "role": "superadmin" }`
 - WHEN the request is processed
 - THEN response 422 with validation error
+
+### Requirement: Admin User Edit (Full Profile)
+
+`PUT /api/admin/users/{id}` MUST accept optional fields: `name`, `email`, `role`, `is_verified`, `marketing_consent`. Only provided (non-None) fields SHALL be updated. The admin MUST NOT be able to change their own role via this endpoint (self-demotion guard). The response MUST return the updated `UserAdminItem` with `orders_count`.
+
+#### Scenario: Admin edits user name and email
+
+- GIVEN user B exists with name "Old Name"
+- WHEN an admin PUTs `/api/admin/users/{B.id}` with `{ "name": "New Name", "email": "new@test.com" }`
+- THEN response 200 with updated user, name and email changed
+- AND an audit event is emitted with `details.changed: ["name", "email"]`
+
+#### Scenario: Admin cannot change own role via edit
+
+- GIVEN admin user A tries to change their own role
+- WHEN PUT `/api/admin/users/{A.id}` with `{ "role": "customer" }`
+- THEN response 400 with "cannot change your own role"
+
+#### Scenario: No fields to update
+
+- GIVEN an admin PUTs with an empty body `{}`
+- WHEN the request is processed
+- THEN response 400 with "no fields to update"
+
+#### Scenario: Admin user edit modal UI
+
+- GIVEN admin is on the users list page
+- WHEN they click the edit (pencil) button on a user row
+- THEN a modal dialog opens with fields: name, email, role dropdown, is_verified checkbox, marketing_consent checkbox
+- AND saving calls `PUT /api/admin/users/{id}` and updates the table row
+
+### Requirement: Admin User Deletion with Cascade
+
+`DELETE /api/admin/users/{id}` MUST delete a user and cascade to personal records (cart items, reviews, wishlists, refresh tokens, password reset tokens). Orders SHALL have `user_id` set to NULL. Audit logs for the user SHALL be deleted. The admin MUST NOT be able to delete themselves.
+
+#### Scenario: Admin deletes another user
+
+- GIVEN admin A and user B exist
+- WHEN admin A calls `DELETE /api/admin/users/{B.id}`
+- THEN response 204
+- AND user B and personal records are deleted
+- AND orders remain with `user_id=NULL`
+- AND an audit event with `action=USER_DELETE` is emitted
+
+#### Scenario: Admin cannot delete self
+
+- GIVEN admin A tries to delete themselves
+- WHEN `DELETE /api/admin/users/{A.id}`
+- THEN response 400 with "no puedes eliminar tu propia cuenta"
+
+### Requirement: Admin Category CRUD with Translations
+
+The admin panel MUST provide full CRUD for categories: `POST /api/admin/categories` (create with translations), `GET /api/admin/categories/{id}` (single with translations), `PUT /api/admin/categories/{id}` (update with translations upsert), `DELETE /api/admin/categories/{id}` (delete, fails with 409 if products are linked). The frontend MUST provide a modal form with slug, image_url, and name fields for ES/EN/SV.
+
+#### Scenario: Admin creates category with translations
+
+- GIVEN an admin with valid token
+- WHEN they POST `/api/admin/categories` with slug, image_url, and translations for es/en/sv
+- THEN response 201 with the created category including translations
+- AND an audit event with `action=CATEGORY_CREATE` is emitted
+
+#### Scenario: Admin updates category translations (upsert)
+
+- GIVEN category with existing ES translation
+- WHEN admin PUTs with new ES name and adds EN translation
+- THEN response 200 with updated category
+- AND existing translation is updated, new translation is inserted
+
+#### Scenario: Delete category with linked products fails
+
+- GIVEN category C has 3 products linked
+- WHEN admin DELETEs `/api/admin/categories/{C.id}`
+- THEN response 409 with "category has associated products"
+
+#### Scenario: Admin category modal UI
+
+- GIVEN admin is on the categories page
+- WHEN they click "Nueva categoría" or the edit button
+- THEN a modal opens with slug, image_url, and three name inputs (ES/EN/SV)
+- AND saving calls POST or PUT and reloads the table
 
 ### Requirement: Admin Order Listing (All Users)
 
