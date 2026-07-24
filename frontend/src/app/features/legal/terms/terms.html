@@ -1,100 +1,358 @@
 <div class="container mx-auto px-4 py-8 max-w-3xl">
-  <h1 class="text-3xl font-bold mb-6">Términos y Condiciones</h1>
-  <p class="text-sm text-gray-500 mb-8">Última actualización: Junio 2026</p>
+  <!-- ==================== ES ==================== -->
+  <ng-container *ngIf="lang() === 'es'">
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Términos y Condiciones</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Última actualización: Julio 2026</p>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">1. Disposiciones generales</h2>
-    <p class="mb-3">Los presentes términos y condiciones regulan el uso del sitio web La Tiendita (en adelante, "el Sitio") y la compra de productos a través del mismo.</p>
-    <p class="mb-3">Al utilizar el Sitio y/o realizar una compra, aceptas estos términos en su totalidad. Si no estás de acuerdo con alguna parte, no debes utilizar el Sitio.</p>
-    <p>Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios entrarán en vigor desde su publicación. El uso continuado del Sitio después de cualquier modificación implica la aceptación de los nuevos términos.</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">1. Disposiciones generales</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Estos términos y condiciones regulan el uso del sitio web La Tiendita (en adelante, "el Sitio") y la compra de productos de segunda mano a través del mismo. La Tiendita es una tienda de ropa vintage y de segunda mano con sede en Estocolmo, Suecia.</p>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Al utilizar el Sitio y/o realizar una compra, aceptas estos términos en su totalidad. Si no estás de acuerdo con alguna parte, no debes utilizar el Sitio.</p>
+      <p class="text-gray-700 dark:text-gray-300">Nos reservamos el derecho de modificar estos términos en cualquier momento. Los cambios entrarán en vigor desde su publicación en el Sitio. El uso continuado del Sitio después de cualquier modificación implica la aceptación de los nuevos términos.</p>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">2. Registro y cuenta</h2>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li>Debes ser mayor de 18 años para crear una cuenta y realizar compras.</li>
-      <li>Eres responsable de mantener la confidencialidad de tu contraseña y de todas las actividades que ocurran bajo tu cuenta.</li>
-      <li>Debes proporcionar información veraz, precisa y actualizada. No nos hacemos responsables por problemas derivados de información incorrecta o falsa.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">2. Registro y cuenta</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Debes ser mayor de 18 años para crear una cuenta y realizar compras.</li>
+        <li>Eres responsable de mantener la confidencialidad de tu contraseña y de todas las actividades que ocurran bajo tu cuenta. Notifícanos inmediatamente si sospechas de un uso no autorizado.</li>
+        <li>Debes proporcionar información veraz, precisa y actualizada. No nos hacemos responsables por problemas derivados de información incorrecta o falsa.</li>
+        <li>Nos reservamos el derecho de suspender o cancelar cuentas en caso de incumplimiento de estos términos o por actividad fraudulenta.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">3. Productos y precios</h2>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li>Todos los precios están expresados en pesos chilenos (CLP) e incluyen IVA, salvo que se indique lo contrario.</li>
-      <li>Nos esforzamos por mostrar los colores e imágenes de los productos con la mayor precisión posible, pero no podemos garantizar que tu pantalla los reproduzca fielmente.</li>
-      <li>Nos reservamos el derecho de modificar precios y descripciones de productos sin previo aviso. El precio aplicable será el vigente al momento de la compra.</li>
-      <li>En caso de error manifiesto en el precio (precio irrisorio o notoriamente inferior al de mercado), nos reservamos el derecho de cancelar la orden y reembolsar el pago.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">3. Productos y precios</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Todos los precios están expresados en coronas suecas (SEK) e incluyen el impuesto al valor agregado (moms) vigente, salvo que se indique lo contrario.</li>
+        <li>Los productos ofrecidos son de segunda mano y se describen con el mayor detalle posible, incluyendo estado, talla y materiales. Las fotografías son referenciales; pueden existir ligeras variaciones de color debido a la calibración de tu pantalla.</li>
+        <li>Nos reservamos el derecho de modificar precios y descripciones sin previo aviso. El precio aplicable será el vigente al momento de realizar la compra.</li>
+        <li>En caso de error manifiesto en el precio (precio irrisorio o notoriamente inferior al de mercado), nos reservamos el derecho de cancelar la orden y reembolsar el importe pagado.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">4. Proceso de compra</h2>
-    <ol class="list-decimal pl-6 space-y-2 text-gray-700">
-      <li>Seleccionas los productos y los agregas al carrito.</li>
-      <li>Proporcionas la información de envío y facturación.</li>
-      <li>Seleccionas el método de pago y realizas el pago.</li>
-      <li>Recibes una confirmación por correo electrónico con los detalles de tu pedido.</li>
-    </ol>
-    <p class="mt-3">La confirmación del pedido no constituye aceptación del mismo. Nos reservamos el derecho de rechazar o cancelar cualquier pedido por razones de stock, sospecha de fraude o cualquier otra causa justificada. En tal caso, se realizará el reembolso completo del importe pagado.</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">4. Proceso de compra</h2>
+      <ol class="list-decimal pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Seleccionas los productos y los agregas al carrito de compras.</li>
+        <li>Proporcionas la información de envío y facturación necesaria.</li>
+        <li>Seleccionas el método de pago y completas la transacción.</li>
+        <li>Recibes una confirmación del pedido por correo electrónico con los detalles de tu compra.</li>
+      </ol>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">La confirmación del pedido no constituye necesariamente la aceptación del mismo. Nos reservamos el derecho de rechazar o cancelar cualquier pedido por razones de disponibilidad de stock, sospecha de fraude o cualquier otra causa justificada. En tal caso, se realizará el reembolso completo del importe pagado en un plazo máximo de 14 días.</p>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">5. Pagos</h2>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li>Aceptamos tarjetas de crédito, débito y transferencias bancarias a través de nuestros procesadores de pago.</li>
-      <li>Los pagos son procesados de forma segura mediante encriptación SSL/TLS.</li>
-      <li>No almacenamos los datos completos de tu tarjeta de crédito.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">5. Pagos</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Aceptamos pagos con tarjeta de crédito y débito a través de Stripe, así como Swish y Klarna como opciones de pago.</li>
+        <li>Todos los pagos son procesados de forma segura mediante encriptación SSL/TLS. Stripe actúa como procesador de pagos y no almacenamos los datos completos de tu tarjeta bancaria.</li>
+        <li>Klarna permite opciones de pago flexible, incluyendo pago a plazos, sujeto a aprobación crediticia.</li>
+        <li>El cargo se realiza al momento de confirmar la compra, salvo que se indique lo contrario en el método de pago seleccionado.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">6. Envíos</h2>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li>Realizamos envíos a todo Chile continental. Para otras regiones, consulta disponibilidad.</li>
-      <li>Los tiempos de entrega estimados son de 3 a 7 días hábiles para la Región Metropolitana y de 5 a 10 días hábiles para otras regiones.</li>
-      <li>El costo de envío se calcula en función del destino y peso del pedido y se muestra antes de finalizar la compra.</li>
-      <li>No nos hacemos responsables por retrasos atribuibles a la empresa de transporte, condiciones climáticas o fuerza mayor.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">6. Envíos</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Realizamos envíos a toda Suecia y a países seleccionados dentro de la Unión Europea.</li>
+        <li>El plazo de entrega estimado para envíos dentro de Suecia es de 2 a 5 días hábiles. Para envíos internacionales dentro de la UE, el plazo puede variar entre 5 y 10 días hábiles.</li>
+        <li>El costo de envío se calcula en función del peso del paquete y el destino, y se muestra antes de finalizar la compra.</li>
+        <li>No nos hacemos responsables por retrasos atribuibles a la empresa de transporte, condiciones climáticas, huelgas o casos de fuerza mayor.</li>
+        <li>El comprador es responsable de los posibles aranceles aduaneros o impuestos de importación aplicables en envíos fuera de Suecia.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">7. Devoluciones y garantía</h2>
-    <p class="mb-3">De acuerdo con la Ley del Consumidor chilena (Ley 19.496), tienes los siguientes derechos:</p>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li><strong>Derecho de retracto:</strong> puedes arrepentirte de tu compra dentro de los 10 días siguientes a la recepción del producto, siempre que esté sin uso y en su embalaje original.</li>
-      <li><strong>Garantía legal:</strong> todos los productos tienen una garantía legal de 6 meses por defectos de fabricación.</li>
-      <li>Para ejercer estos derechos, contáctanos a devoluciones&#64;latiendita.cl indicando tu número de pedido.</li>
-      <li>Los costos de envío por devolución corren por cuenta del comprador, salvo que el producto presente defectos de fabricación.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">7. Derecho de desistimiento</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">De acuerdo con la ley sueca de contratos a distancia (Distansavtalslagen) y la directiva europea sobre derechos del consumidor, tienes derecho a desistir de tu compra dentro de un plazo de 14 días sin necesidad de justificación.</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>El plazo de desistimiento comienza el día en que recibes el producto o, en caso de pedidos múltiples, el día en que recibes el último artículo.</li>
+        <li>Para ejercer tu derecho de desistimiento, debes notificarnos por escrito a hello&#64;latiendita.cl indicando tu número de pedido y la intención de desistir de la compra.</li>
+        <li>Debes devolver el producto en las mismas condiciones en que lo recibiste, sin uso y con su etiqueta original si corresponde.</li>
+        <li>Los costos directos de devolución corren por tu cuenta, salvo que el producto sea defectuoso o incorrecto.</li>
+        <li>Te reembolsaremos el importe completo del producto más los gastos de envío estándar dentro de los 14 días siguientes a la recepción de tu notificación de desistimiento. Podemos retener el reembolso hasta haber recibido los productos de vuelta.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">8. Propiedad intelectual</h2>
-    <p>Todos los contenidos del Sitio (textos, imágenes, logotipos, diseño, código fuente) son propiedad de La Tiendita o de sus licenciantes y están protegidos por las leyes de propiedad intelectual. Queda prohibida su reproducción total o parcial sin autorización previa por escrito.</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">8. Devoluciones y garantía</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">De acuerdo con la ley sueca de compraventa al consumidor (Konsumentköplagen, SFS 1990:932), los productos adquiridos en La Tiendita cuentan con una garantía de conformidad de 3 años desde la fecha de recepción.</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Si el producto presenta un defecto de fabricación o no corresponde a la descripción proporcionada, tienes derecho a reclamar dentro del plazo de garantía.</li>
+        <li>Los primeros 6 meses se presume que el defecto existía al momento de la entrega. Después de ese período, corresponde al comprador demostrar que el defecto es de origen.</li>
+        <li>En caso de defecto, puedes optar por la reparación, el reemplazo, una reducción del precio o la resolución del contrato, según corresponda según Konsumentköplagen.</li>
+        <li>Para productos de segunda mano, la garantía puede ser limitada si se acordó explícitamente en la descripción del producto, siempre dentro del marco legal aplicable.</li>
+        <li>Para iniciar una devolución o reclamo de garantía, contáctanos a hello&#64;latiendita.cl indicando tu número de pedido y describiendo el problema.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">9. Limitación de responsabilidad</h2>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li>No garantizamos que el Sitio esté libre de errores o interrupciones, aunque hacemos nuestros mejores esfuerzos para mantenerlo operativo.</li>
-      <li>No nos hacemos responsables por daños indirectos, incidentales o consecuentes derivados del uso del Sitio o de los productos adquiridos.</li>
-      <li>Nuestra responsabilidad total por cualquier reclamo relacionado con una compra se limita al monto pagado por dicha compra.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">9. Reclamaciones</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Si no estás satisfecho con tu compra o consideras que tus derechos como consumidor han sido vulnerados, puedes presentar una reclamación ante las siguientes instancias:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Allmänna reklamationsnämnden (ARN):</strong> Puedes presentar una reclamación gratuita ante el Tribunal Nacional de Reclamaciones al Consumidor de Suecia a través de su sitio web <a href="https://www.arn.se" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-900 dark:hover:text-gray-100">www.arn.se</a>.</li>
+        <li><strong>Plataforma de resolución de litigios en línea de la UE:</strong> Para consumidores residentes en la UE, está disponible la plataforma ODR de la Comisión Europea en <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-900 dark:hover:text-gray-100">ec.europa.eu/consumers/odr</a>.</li>
+        <li>Te recomendamos contactarnos primero para resolver cualquier inconveniente de manera directa antes de acudir a estas instancias.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">10. Ley aplicable y jurisdicción</h2>
-    <p>Estos términos se rigen por las leyes de la República de Chile. Cualquier controversia será sometida a los tribunales de justicia de Santiago, sin perjuicio de los derechos que la Ley del Consumidor te confiere para demandar ante el juzgado de policía local de tu domicilio.</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">10. Limitación de responsabilidad</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>No garantizamos que el Sitio esté libre de errores técnicos o interrupciones, aunque realizamos nuestros mejores esfuerzos para mantenerlo operativo de forma segura y continua.</li>
+        <li>La Tiendita no se hace responsable por daños indirectos, incidentales o consecuentes derivados del uso del Sitio o de los productos adquiridos, en la medida máxima permitida por la ley sueca.</li>
+        <li>Nuestra responsabilidad total por cualquier reclamo relacionado con una compra se limita al monto pagado por dicha compra, sin perjuicio de los derechos irrenunciables que te confiere Konsumentköplagen.</li>
+        <li>El Sitio puede contener enlaces a sitios externos; no nos hacemos responsables por el contenido o las prácticas de privacidad de dichos sitios.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">11. Contacto</h2>
-    <p class="mb-2">Para consultas sobre estos términos y condiciones:</p>
-    <ul class="space-y-1 text-gray-700">
-      <li><strong>Email:</strong> contacto&#64;latiendita.cl</li>
-      <li><strong>Teléfono:</strong> +56 9 1234 5678</li>
-      <li><strong>Dirección:</strong> Av. Providencia 1234, Santiago, Chile</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">11. Contacto y ley aplicable</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Estos términos y condiciones se rigen e interpretan de conformidad con las leyes de Suecia. Cualquier controversia que surja en relación con estos términos será sometida a los tribunales de Estocolmo, sin perjuicio de las disposiciones legales sobre protección al consumidor que puedan aplicar en tu país de residencia.</p>
+      <p class="mb-2 text-gray-700 dark:text-gray-300">Para consultas sobre estos términos o cualquier asunto relacionado:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>Email:</strong> hello&#64;latiendita.cl</li>
+        <li><strong>Dirección:</strong> La Tiendita, Estocolmo, Suecia</li>
+      </ul>
+    </section>
+  </ng-container>
+
+  <!-- ==================== EN ==================== -->
+  <ng-container *ngIf="lang() === 'en'">
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Terms and Conditions</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Last updated: July 2026</p>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">1. General</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">These terms and conditions govern the use of the La Tiendita website (hereinafter "the Site") and the purchase of second-hand products through it. La Tiendita is a vintage and second-hand clothing store based in Stockholm, Sweden.</p>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">By using the Site and/or making a purchase, you accept these terms in full. If you do not agree with any part, you must not use the Site.</p>
+      <p class="text-gray-700 dark:text-gray-300">We reserve the right to modify these terms at any time. Changes will take effect upon publication on the Site. Continued use of the Site after any modification implies acceptance of the new terms.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">2. Account Registration</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>You must be at least 18 years old to create an account and make purchases.</li>
+        <li>You are responsible for maintaining the confidentiality of your password and for all activities that occur under your account. Notify us immediately if you suspect unauthorized use.</li>
+        <li>You must provide truthful, accurate, and up-to-date information. We are not responsible for issues arising from incorrect or false information.</li>
+        <li>We reserve the right to suspend or cancel accounts in case of breach of these terms or fraudulent activity.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">3. Products and Pricing</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>All prices are expressed in Swedish kronor (SEK) and include the applicable value-added tax (moms), unless otherwise stated.</li>
+        <li>Products are second-hand and are described in as much detail as possible, including condition, size, and materials. Photographs are for reference; slight color variations may occur due to your screen calibration.</li>
+        <li>We reserve the right to change prices and descriptions without prior notice. The applicable price is the one in effect at the time of purchase.</li>
+        <li>In the event of a manifest pricing error (absurd or significantly below market price), we reserve the right to cancel the order and refund the amount paid.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">4. Order Process</h2>
+      <ol class="list-decimal pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>You select the products and add them to your shopping cart.</li>
+        <li>You provide the necessary shipping and billing information.</li>
+        <li>You select the payment method and complete the transaction.</li>
+        <li>You receive an order confirmation by email with your purchase details.</li>
+      </ol>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">Order confirmation does not necessarily constitute acceptance of the order. We reserve the right to reject or cancel any order due to stock availability, suspected fraud, or any other justified cause. In such case, a full refund will be issued within a maximum of 14 days.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">5. Payment</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>We accept credit and debit card payments through Stripe, as well as Swish and Klarna as payment options.</li>
+        <li>All payments are processed securely via SSL/TLS encryption. Stripe acts as our payment processor and we do not store your full card details.</li>
+        <li>Klarna offers flexible payment options, including installments, subject to credit approval.</li>
+        <li>The charge is made at the time of purchase confirmation, unless otherwise specified for the selected payment method.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">6. Shipping</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>We ship to all of Sweden and to selected countries within the European Union.</li>
+        <li>Estimated delivery time for shipments within Sweden is 2–5 business days. For international shipments within the EU, delivery time may vary between 5 and 10 business days.</li>
+        <li>Shipping cost is calculated based on package weight and destination, and is displayed before checkout.</li>
+        <li>We are not responsible for delays attributable to the carrier, weather conditions, strikes, or force majeure.</li>
+        <li>The buyer is responsible for any applicable customs duties or import taxes on shipments outside Sweden.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">7. Right of Withdrawal</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">In accordance with the Swedish Distance Contracts Act (Distansavtalslagen) and the EU Consumer Rights Directive, you have the right to withdraw from your purchase within 14 days without giving any reason.</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>The withdrawal period begins on the day you receive the product or, for multiple orders, on the day you receive the last item.</li>
+        <li>To exercise your right of withdrawal, you must notify us in writing at hello&#64;latiendita.cl stating your order number and your intention to withdraw from the purchase.</li>
+        <li>You must return the product in the same condition as received, unworn and with its original tag if applicable.</li>
+        <li>Direct return shipping costs are your responsibility, unless the product is defective or incorrect.</li>
+        <li>We will refund the full product price plus standard shipping costs within 14 days of receiving your withdrawal notice. We may withhold the refund until we have received the returned products.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">8. Returns and Warranty</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">In accordance with the Swedish Consumer Purchase Act (Konsumentköplagen, SFS 1990:932), products purchased from La Tiendita carry a 3-year conformity warranty from the date of receipt.</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>If the product has a manufacturing defect or does not match the description provided, you are entitled to make a claim within the warranty period.</li>
+        <li>During the first 6 months, the defect is presumed to have existed at the time of delivery. After that period, you must prove that the defect is of origin.</li>
+        <li>In case of a defect, you may choose between repair, replacement, a price reduction, or contract cancellation, as applicable under Konsumentköplagen.</li>
+        <li>For second-hand goods, the warranty may be limited if explicitly agreed in the product description, always within the applicable legal framework.</li>
+        <li>To initiate a return or warranty claim, contact us at hello&#64;latiendita.cl stating your order number and describing the issue.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">9. Complaints</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">If you are not satisfied with your purchase or believe your consumer rights have been violated, you may file a complaint with the following bodies:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Allmänna reklamationsnämnden (ARN):</strong> You may file a free complaint with the Swedish National Board for Consumer Disputes at <a href="https://www.arn.se" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-900 dark:hover:text-gray-100">www.arn.se</a>.</li>
+        <li><strong>EU Online Dispute Resolution platform:</strong> For consumers residing in the EU, the European Commission's ODR platform is available at <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-900 dark:hover:text-gray-100">ec.europa.eu/consumers/odr</a>.</li>
+        <li>We recommend contacting us first to resolve any issues directly before resorting to these bodies.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">10. Limitation of Liability</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>We do not guarantee that the Site is free of technical errors or interruptions, although we make every effort to keep it running securely and continuously.</li>
+        <li>La Tiendita is not liable for indirect, incidental, or consequential damages arising from the use of the Site or purchased products, to the maximum extent permitted by Swedish law.</li>
+        <li>Our total liability for any claim relating to a purchase is limited to the amount paid for that purchase, without prejudice to your non-waivable rights under Konsumentköplagen.</li>
+        <li>The Site may contain links to external sites; we are not responsible for the content or privacy practices of those sites.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">11. Contact and Governing Law</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">These terms and conditions are governed by and construed in accordance with the laws of Sweden. Any dispute arising in connection with these terms shall be submitted to the courts of Stockholm, without prejudice to consumer protection provisions that may apply in your country of residence.</p>
+      <p class="mb-2 text-gray-700 dark:text-gray-300">For questions regarding these terms or any related matter:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>Email:</strong> hello&#64;latiendita.cl</li>
+        <li><strong>Address:</strong> La Tiendita, Stockholm, Sweden</li>
+      </ul>
+    </section>
+  </ng-container>
+
+  <!-- ==================== SV ==================== -->
+  <ng-container *ngIf="lang() === 'sv'">
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Allmänna villkor</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Senast uppdaterad: Juli 2026</p>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">1. Allmänt</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Dessa allmänna villkor reglerar användningen av webbplatsen La Tiendita (nedan "Webbplatsen") och köp av second-hand-produkter via den. La Tiendita är en vintage- och second-hand-klädbutik baserad i Stockholm, Sverige.</p>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Genom att använda Webbplatsen och/eller göra ett köp accepterar du dessa villkor i sin helhet. Om du inte godtar någon del får du inte använda Webbplatsen.</p>
+      <p class="text-gray-700 dark:text-gray-300">Vi förbehåller oss rätten att ändra dessa villkor när som helst. Ändringar träder i kraft vid publicering på Webbplatsen. Fortsatt användning av Webbplatsen efter en ändring innebär godkännande av de nya villkoren.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">2. Registrering av konto</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Du måste vara minst 18 år för att skapa ett konto och göra köp.</li>
+        <li>Du ansvarar för att hålla ditt lösenord konfidentiellt och för alla aktiviteter som utförs under ditt konto. Meddela oss omedelbart om du misstänker obehörig användning.</li>
+        <li>Du måste lämna sanningsenlig, korrekt och aktuell information. Vi ansvarar inte för problem som uppstår på grund av felaktig eller falsk information.</li>
+        <li>Vi förbehåller oss rätten att stänga av eller avsluta konton vid brott mot dessa villkor eller vid bedräglig verksamhet.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">3. Produkter och priser</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Alla priser anges i svenska kronor (SEK) och inkluderar gällande mervärdesskatt (moms), om inte annat anges.</li>
+        <li>Produkterna är second-hand och beskrivs så detaljerat som möjligt, inklusive skick, storlek och material. Foton är vägledande; mindre färgvariationer kan förekomma på grund av din skärms kalibrering.</li>
+        <li>Vi förbehåller oss rätten att ändra priser och beskrivningar utan föregående meddelande. Gällande pris är det som gäller vid köptillfället.</li>
+        <li>Vid ett uppenbart prisfel (orimligt eller betydligt under marknadspris) förbehåller vi oss rätten att annullera beställningen och återbetala det betalda beloppet.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">4. Beställningsprocess</h2>
+      <ol class="list-decimal pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Du väljer produkter och lägger dem i varukorgen.</li>
+        <li>Du anger nödvändig leverans- och faktureringsinformation.</li>
+        <li>Du väljer betalningsmetod och genomför transaktionen.</li>
+        <li>Du får en orderbekräftelse via e-post med dina köpuppgifter.</li>
+      </ol>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">Orderbekräftelsen innebär inte nödvändigtvis att beställningen är accepterad. Vi förbehåller oss rätten att avvisa eller annullera en beställning på grund av lagertillgång, misstänkt bedrägeri eller annan befogad orsak. I sådana fall görs en full återbetalning inom högst 14 dagar.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">5. Betalning</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Vi accepterar betalningar med kredit- och betalkort via Stripe, samt Swish och Klarna som betalningsalternativ.</li>
+        <li>Alla betalningar behandlas säkert via SSL/TLS-kryptering. Stripe fungerar som vår betalningsförmedlare och vi lagrar inte dina fullständiga kortuppgifter.</li>
+        <li>Klarna erbjuder flexibla betalningsalternativ, inklusive delbetalning, efter kreditprövning.</li>
+        <li>Beloppet dras vid köpets bekräftelse, om inte annat anges för den valda betalningsmetoden.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">6. Frakt</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Vi skickar inom hela Sverige och till utvalda länder inom Europeiska unionen.</li>
+        <li>Beräknad leveranstid för leveranser inom Sverige är 2–5 arbetsdagar. För internationella leveranser inom EU kan leveranstiden variera mellan 5 och 10 arbetsdagar.</li>
+        <li>Fraktkostnaden beräknas baserat på paketets vikt och destination, och visas före slutförande av köpet.</li>
+        <li>Vi ansvarar inte för förseningar som orsakas av transportföretaget, väderförhållanden, strejker eller force majeure.</li>
+        <li>Köparen ansvarar för eventuella tullavgifter eller importskatter vid leveranser utanför Sverige.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">7. Ångerrätt</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Enligt distansavtalslagen och EU:s konsumenträttsdirektiv har du rätt att ångra ditt köp inom 14 dagar utan att ange någon anledning.</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Ångerfristen börjar den dag du tar emot produkten eller, vid flera beställningar, den dag du tar emot den sista varan.</li>
+        <li>För att utöva din ångerrätt måste du meddela oss skriftligen på hello&#64;latiendita.cl med uppgift om ditt ordernummer och din avsikt att ångra köpet.</li>
+        <li>Du måste returnera produkten i samma skick som du tog emot den, oanvänd och med originalets etikett om sådan finns.</li>
+        <li>Direkta returfraktkostnader står du för, om inte produkten är defekt eller felaktig.</li>
+        <li>Vi återbetalar det fulla produktpriset plus standardfraktkostnader inom 14 dagar från det att vi mottog ditt ångermeddelande. Vi får hålla inne återbetalningen tills vi har tagit emot de returnerade produkterna.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">8. Returer och garanti</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Enligt konsumentköplagen (SFS 1990:932) har produkter som köpts från La Tiendita en 3-årig reklamationsrätt från och med mottagningsdatumet.</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Om produkten har ett tillverkningsfel eller inte överensstämmer med beskrivningen har du rätt att reklamera inom garantiperioden.</li>
+        <li>Under de första 6 månaderna presumeras felet ha funnits vid leveransen. Efter den perioden måste du bevisa att felet är ursprungligt.</li>
+        <li>Vid ett fel kan du välja mellan reparation, omleverans, prisavdrag eller hävning av köpet, i enlighet med konsumentköplagen.</li>
+        <li>För second-hand-varor kan garantin vara begränsad om detta uttryckligen avtalats i produktbeskrivningen, alltid inom ramen för tillämplig lagstiftning.</li>
+        <li>För att påbörja en retur eller reklamation, kontakta oss på hello&#64;latiendita.cl med ditt ordernummer och en beskrivning av problemet.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">9. Reklamationer</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Om du inte är nöjd med ditt köp eller anser att dina konsumenträttigheter har kränkts kan du lämna in ett klagomål till följande instanser:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Allmänna reklamationsnämnden (ARN):</strong> Du kan kostnadsfritt anmäla ett klagomål till ARN via deras webbplats <a href="https://www.arn.se" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-900 dark:hover:text-gray-100">www.arn.se</a>.</li>
+        <li><strong>EU:s plattform för tvistlösning online:</strong> För konsumenter bosatta inom EU finns EU-kommissionens ODR-plattform på <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-900 dark:hover:text-gray-100">ec.europa.eu/consumers/odr</a>.</li>
+        <li>Vi rekommenderar att du kontaktar oss först för att lösa eventuella problem direkt innan du vänder dig till dessa instanser.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">10. Ansvarsbegränsning</h2>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Vi garanterar inte att Webbplatsen är fri från tekniska fel eller avbrott, även om vi gör vårt bästa för att hålla den säker och kontinuerligt tillgänglig.</li>
+        <li>La Tiendita ansvarar inte för indirekta skador, tillfälliga skador eller följdskador som uppstår vid användning av Webbplatsen eller köpta produkter, i den utsträckning svensk lag tillåter.</li>
+        <li>Vårt totala ansvar för ett krav relaterat till ett köp är begränsat till det belopp som betalats för köpet, utan att det påverkar dina oavvisliga rättigheter enligt konsumentköplagen.</li>
+        <li>Webbplatsen kan innehålla länkar till externa webbplatser; vi ansvarar inte för innehållet eller integritetspraxis på dessa webbplatser.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">11. Kontakt och tillämplig lag</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Dessa allmänna villkor regleras och tolkas i enlighet med svensk lag. Tvister som uppstår i samband med dessa villkor ska avgöras vid Stockholms tingsrätt, utan att det påverkar konsumentskyddsbestämmelser som kan gälla i ditt hemland.</p>
+      <p class="mb-2 text-gray-700 dark:text-gray-300">För frågor om dessa villkor eller relaterade ärenden:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>E-post:</strong> hello&#64;latiendita.cl</li>
+        <li><strong>Adress:</strong> La Tiendita, Stockholm, Sverige</li>
+      </ul>
+    </section>
+  </ng-container>
 </div>

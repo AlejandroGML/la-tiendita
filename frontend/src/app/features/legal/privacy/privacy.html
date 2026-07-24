@@ -1,92 +1,368 @@
 <div class="container mx-auto px-4 py-8 max-w-3xl">
-  <h1 class="text-3xl font-bold mb-6">Política de Privacidad</h1>
-  <p class="text-sm text-gray-500 mb-8">Última actualización: Junio 2026</p>
+  <!-- ============ SPANISH ============ -->
+  <div *ngIf="lang() === 'es'">
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Política de Privacidad</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Última actualización: Julio 2026</p>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">1. Información que recopilamos</h2>
-    <p class="mb-3">Cuando utilizas La Tiendita, podemos recopilar los siguientes tipos de información:</p>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li><strong>Información de cuenta:</strong> nombre, correo electrónico, dirección de envío y facturación cuando creas una cuenta o realizas una compra.</li>
-      <li><strong>Información de pago:</strong> los datos de tu tarjeta de crédito o débito son procesados por nuestro proveedor de pagos. No almacenamos los números completos de tu tarjeta.</li>
-      <li><strong>Información de navegación:</strong> dirección IP, tipo de navegador, páginas visitadas, tiempo de visita y otros datos de uso mediante cookies y tecnologías similares.</li>
-      <li><strong>Historial de compras:</strong> productos adquiridos, fechas y montos de las transacciones.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">1. Información que recopilamos</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">En La Tiendita, recopilamos tu información personal solo cuando es necesario para operar nuestra tienda de segunda mano y brindarte el mejor servicio posible. Los tipos de datos que podemos recopilar incluyen:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Información de cuenta:</strong> nombre, correo electrónico, dirección de envío y facturación, y número de teléfono cuando creas una cuenta o realizas una compra.</li>
+        <li><strong>Información de pago:</strong> los datos de tu tarjeta de crédito o débito son procesados directamente por Stripe, nuestro proveedor de pagos. No almacenamos los números completos de tu tarjeta ni códigos de seguridad.</li>
+        <li><strong>Información de navegación:</strong> dirección IP, tipo de navegador, páginas visitadas, tiempo de navegación y preferencias mediante cookies y tecnologías similares.</li>
+        <li><strong>Historial de compras:</strong> productos adquiridos, fechas, montos y direcciones de envío asociadas a tus transacciones.</li>
+        <li><strong>Comunicaciones:</strong> cualquier mensaje que nos envíes, incluyendo consultas de atención al cliente y solicitudes de devolución.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">2. Cómo usamos tu información</h2>
-    <p class="mb-3">Utilizamos la información recopilada para los siguientes fines:</p>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li>Procesar y entregar tus pedidos.</li>
-      <li>Enviar confirmaciones de compra y actualizaciones de envío.</li>
-      <li>Personalizar tu experiencia de navegación y mostrarte productos relevantes.</li>
-      <li>Mejorar nuestro sitio web y nuestros servicios.</li>
-      <li>Enviar comunicaciones promocionales (siempre con tu consentimiento previo).</li>
-      <li>Cumplir con obligaciones legales y fiscales.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">2. Cómo usamos tu información</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">La información que recopilamos se utiliza exclusivamente para los siguientes fines:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Procesar tus pedidos y gestionar pagos de forma segura a través de Stripe.</li>
+        <li>Coordinar el envío de tus productos con nuestros socios logísticos.</li>
+        <li>Enviar confirmaciones de compra, actualizaciones de envío y notificaciones relacionadas con tu cuenta.</li>
+        <li>Personalizar tu experiencia en la tienda y recomendarte productos de segunda mano que puedan interesarte.</li>
+        <li>Mejorar nuestro sitio web y servicios basándonos en cómo los usuarios interactúan con la plataforma.</li>
+        <li>Enviar comunicaciones promocionales y de marketing, solo si nos has otorgado tu consentimiento explícito.</li>
+        <li>Cumplir con nuestras obligaciones legales y fiscales, incluyendo la ley contable sueca.</li>
+        <li>Prevenir el fraude y garantizar la seguridad de nuestras transacciones.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">3. Cookies</h2>
-    <p class="mb-3">Utilizamos cookies y tecnologías similares para:</p>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li><strong>Cookies esenciales:</strong> necesarias para el funcionamiento del sitio (carrito de compras, sesión de usuario).</li>
-      <li><strong>Cookies de análisis:</strong> nos ayudan a entender cómo usas el sitio (Google Analytics).</li>
-      <li><strong>Cookies de preferencias:</strong> recuerdan tus preferencias de idioma y moneda.</li>
-      <li><strong>Cookies de marketing:</strong> muestran anuncios relevantes basados en tus intereses.</li>
-    </ul>
-    <p class="mt-3">Puedes gestionar tus preferencias de cookies desde la configuración de tu navegador. Ten en cuenta que deshabilitar ciertas cookies puede afectar la funcionalidad del sitio.</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">3. Base legal (RGPD)</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">De conformidad con el Reglamento General de Protección de Datos (RGPD) de la Unión Europea, procesamos tus datos personales bajo las siguientes bases legales:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Consentimiento:</strong> para cookies no esenciales, marketing y comunicaciones promocionales. Puedes retirar tu consentimiento en cualquier momento.</li>
+        <li><strong>Ejecución de un contrato:</strong> para procesar tus compras, gestionar pagos y coordinar envíos. Este tratamiento es necesario para cumplir con el pedido que realizaste.</li>
+        <li><strong>Obligación legal:</strong> para cumplir con la legislación contable sueca (Bokföringslag 1999:1078) que exige conservar registros financieros por 7 años, y otras obligaciones fiscales y legales.</li>
+        <li><strong>Interés legítimo:</strong> para mejorar nuestro sitio web, prevenir el fraude y garantizar la seguridad de nuestras operaciones. No procesamos más datos de los necesarios para estos fines.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">4. Compartir información</h2>
-    <p class="mb-3">No vendemos tu información personal. Podemos compartir tus datos con:</p>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li><strong>Proveedores de servicios:</strong> empresas de envío, procesadores de pago y servicios de hosting que operan en nuestro nombre.</li>
-      <li><strong>Autoridades legales:</strong> cuando sea requerido por ley o para proteger nuestros derechos.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">4. Cookies</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Utilizamos cookies y tecnologías de rastreo similares para garantizar el funcionamiento de la tienda y mejorar tu experiencia. Clasificamos las cookies de la siguiente manera:</p>
+       <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Cookies esenciales:</strong> necesarias para el funcionamiento básico del sitio, como el carrito de compras, la sesión de usuario y la seguridad. No requieren consentimiento previo.</li>
+        <li><strong>Cookies funcionales:</strong> recuerdan tus preferencias de idioma, moneda y región para ofrecerte una experiencia personalizada.</li>
+      </ul>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">Al visitar nuestro sitio por primera vez, se te presentará un banner de cookies donde puedes gestionar tus preferencias. Puedes cambiar tus ajustes en cualquier momento desde la configuración de cookies. Ten en cuenta que deshabilitar ciertas cookies puede afectar la funcionalidad del sitio.</p>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">5. Tus derechos (GDPR y ley chilena)</h2>
-    <p class="mb-3">De acuerdo con el Reglamento General de Protección de Datos (GDPR) y la Ley 19.628 chilena, tienes derecho a:</p>
-    <ul class="list-disc pl-6 space-y-2 text-gray-700">
-      <li><strong>Acceso:</strong> solicitar una copia de los datos personales que tenemos sobre ti.</li>
-      <li><strong>Rectificación:</strong> corregir cualquier información inexacta o incompleta.</li>
-      <li><strong>Supresión:</strong> solicitar la eliminación de tus datos personales.</li>
-      <li><strong>Oposición:</strong> oponerte al procesamiento de tus datos para fines de marketing.</li>
-      <li><strong>Portabilidad:</strong> recibir tus datos en un formato estructurado y transferirlos a otro responsable.</li>
-      <li><strong>Limitación:</strong> solicitar la limitación del tratamiento de tus datos en determinadas circunstancias.</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">5. Compartir información</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">En La Tiendita <strong>no vendemos tu información personal</strong> a terceros bajo ninguna circunstancia. Podemos compartir tus datos únicamente con:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Stripe:</strong> nuestro procesador de pagos, que maneja la información de tu tarjeta de crédito o débito de forma segura y cumple con los estándares PCI-DSS. Stripe opera bajo su propia política de privacidad.</li>
+        <li><strong>Socios de envío:</strong> empresas de logística que necesitan tu nombre, dirección y número de teléfono para entregar tus pedidos.</li>
+        <li><strong>Autoridades legales:</strong> cuando la ley sueca o europea nos obligue a divulgar información, o para proteger nuestros derechos legales.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">6. Conservación de datos</h2>
-    <p>Conservamos tu información personal mientras tu cuenta esté activa o mientras sea necesaria para proporcionarte nuestros servicios. Los datos de transacciones se conservan por el período requerido por la legislación fiscal chilena (mínimo 6 años).</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">6. Tus derechos (RGPD)</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Como residente de la Unión Europea o del Espacio Económico Europeo, tienes los siguientes derechos sobre tus datos personales:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Acceso:</strong> solicitar una copia de todos los datos personales que tenemos sobre ti.</li>
+        <li><strong>Rectificación:</strong> corregir cualquier información personal inexacta o incompleta.</li>
+        <li><strong>Supresión (derecho al olvido):</strong> solicitar la eliminación de tus datos personales cuando ya no sean necesarios para los fines para los que fueron recopilados.</li>
+        <li><strong>Limitación del tratamiento:</strong> restringir el procesamiento de tus datos en determinadas circunstancias, como cuando impugnas la exactitud de los datos.</li>
+        <li><strong>Portabilidad:</strong> recibir tus datos personales en un formato estructurado, de uso común y lectura mecánica, y transferirlos a otro responsable del tratamiento.</li>
+        <li><strong>Oposición:</strong> oponerte al procesamiento de tus datos para fines de marketing directo o cuando el tratamiento se base en nuestro interés legítimo.</li>
+        <li><strong>Reclamación ante IMY:</strong> presentar una reclamación ante la autoridad de protección de datos sueca, Integritetsskyddsmyndigheten (IMY), si consideras que hemos infringido tus derechos.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">7. Seguridad</h2>
-    <p>Implementamos medidas técnicas y organizativas para proteger tu información contra acceso no autorizado, pérdida o alteración. Utilizamos encriptación SSL/TLS para todas las comunicaciones y almacenamos las contraseñas mediante hash con salt.</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">7. Conservación de datos</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Conservamos tus datos personales solo durante el tiempo necesario para cumplir con los fines descritos en esta política. Los criterios que aplicamos son:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Cuentas activas:</strong> mantenemos tus datos mientras tu cuenta esté activa. Si cierras tu cuenta, eliminamos los datos asociados, salvo que la ley exija su conservación.</li>
+        <li><strong>Registros financieros:</strong> de acuerdo con la ley contable sueca (Bokföringslag 1999:1078), los registros de transacciones financieras deben conservarse por un mínimo de 7 años.</li>
+        <li><strong>Comunicaciones de marketing:</strong> conservamos tu consentimiento para marketing mientras esté vigente. Si lo retiras, eliminamos tus datos de nuestras listas de marketing de forma inmediata.</li>
+        <li><strong>Datos de navegación:</strong> los datos de cookies analíticas se conservan por un máximo de 26 meses, conforme a las directrices de la Agencia Española de Protección de Datos y las recomendaciones europeas.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">8. Menores de edad</h2>
-    <p>Nuestros servicios no están dirigidos a menores de 18 años. No recopilamos intencionalmente información de menores. Si eres padre o tutor y crees que tu hijo nos ha proporcionado datos personales, contáctanos para eliminarlos.</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">8. Seguridad</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Implementamos medidas técnicas y organizativas robustas para proteger tu información personal contra accesos no autorizados, pérdida, alteración o divulgación:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Todas las comunicaciones entre tu navegador y nuestros servidores están cifradas mediante SSL/TLS.</li>
+        <li>Las contraseñas se almacenan utilizando hash con sal (bcrypt) y nunca en texto plano.</li>
+        <li>El acceso a los datos personales está restringido únicamente al personal autorizado que necesita dicha información para operar la tienda.</li>
+        <li>Realizamos auditorías de seguridad periódicas y mantenemos nuestros sistemas actualizados con los últimos parches de seguridad.</li>
+        <li>Stripe, nuestro procesador de pagos, está certificado bajo los estándares PCI-DSS Level 1, el nivel más alto de seguridad en la industria de pagos.</li>
+      </ul>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">9. Cambios a esta política</h2>
-    <p>Podemos actualizar esta política ocasionalmente. Te notificaremos los cambios significativos por correo electrónico o mediante un aviso en nuestro sitio web. Te recomendamos revisar esta página periódicamente.</p>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">9. Cambios a esta política</h2>
+      <p class="text-gray-700 dark:text-gray-300">Podemos actualizar esta política de privacidad ocasionalmente para reflejar cambios en nuestras prácticas, requisitos legales o normativas aplicables. Si realizamos cambios significativos, te notificaremos por correo electrónico o mediante un aviso destacado en nuestro sitio web. Te recomendamos revisar esta página periódicamente para mantenerte informado sobre cómo protegemos tu información. La fecha de la última actualización aparece al inicio de esta página.</p>
+    </section>
 
-  <section class="mb-8">
-    <h2 class="text-xl font-semibold mb-3">10. Contacto</h2>
-    <p class="mb-2">Si tienes preguntas sobre esta política de privacidad o deseas ejercer tus derechos, contáctanos:</p>
-    <ul class="space-y-1 text-gray-700">
-      <li><strong>Email:</strong> privacidad&#64;latiendita.cl</li>
-      <li><strong>Teléfono:</strong> +56 9 1234 5678</li>
-      <li><strong>Dirección:</strong> Av. Providencia 1234, Santiago, Chile</li>
-    </ul>
-  </section>
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">10. Contacto e IMY</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Si tienes preguntas sobre esta política de privacidad, deseas ejercer tus derechos RGPD, o necesitas asistencia con tus datos personales, puedes contactarnos por los siguientes medios:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>Email de privacidad:</strong> privacidad&#64;latiendita.cl</li>
+        <li><strong>Email general:</strong> hello&#64;latiendita.cl</li>
+        <li><strong>Dirección postal:</strong> La Tiendita, [Dirección en Estocolmo], Stockholm, Sweden</li>
+      </ul>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">Si no estás satisfecho con nuestra respuesta o consideras que hemos infringido la normativa de protección de datos, tienes derecho a presentar una reclamación ante la autoridad de control sueca:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>Integritetsskyddsmyndigheten (IMY)</strong></li>
+        <li><strong>Web:</strong> https://www.imy.se</li>
+        <li><strong>Dirección:</strong> Box 8114, 104 20 Stockholm, Sweden</li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- ============ ENGLISH ============ -->
+  <div *ngIf="lang() === 'en'">
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Privacy Policy</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Last updated: July 2026</p>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">1. Information We Collect</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">At La Tiendita, we collect your personal information only when necessary to operate our second-hand store and provide you with the best possible service. The types of data we may collect include:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Account information:</strong> name, email address, shipping and billing address, and phone number when you create an account or make a purchase.</li>
+        <li><strong>Payment information:</strong> your credit or debit card details are processed directly by Stripe, our payment provider. We do not store full card numbers or security codes.</li>
+        <li><strong>Browsing information:</strong> IP address, browser type, pages visited, browsing time, and preferences collected through cookies and similar technologies.</li>
+        <li><strong>Purchase history:</strong> items purchased, dates, amounts, and shipping addresses associated with your transactions.</li>
+        <li><strong>Communications:</strong> any messages you send us, including customer service inquiries and return requests.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">2. How We Use Your Information</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">The information we collect is used exclusively for the following purposes:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Process your orders and manage payments securely through Stripe.</li>
+        <li>Arrange shipment of your products with our logistics partners.</li>
+        <li>Send purchase confirmations, shipping updates, and account-related notifications.</li>
+        <li>Personalise your shopping experience and recommend second-hand products you may like.</li>
+        <li>Improve our website and services based on how users interact with the platform.</li>
+        <li>Send promotional and marketing communications only if you have given your explicit consent.</li>
+        <li>Comply with our legal and fiscal obligations, including the Swedish Accounting Act.</li>
+        <li>Prevent fraud and ensure the security of our transactions.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">3. Legal Basis (GDPR)</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">In accordance with the General Data Protection Regulation (GDPR) of the European Union, we process your personal data under the following legal bases:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Consent:</strong> for non-essential cookies, marketing, and promotional communications. You may withdraw your consent at any time.</li>
+        <li><strong>Contract performance:</strong> to process your purchases, manage payments, and arrange shipping. This processing is necessary to fulfil the order you placed.</li>
+        <li><strong>Legal obligation:</strong> to comply with the Swedish Accounting Act (Bokföringslag 1999:1078), which requires financial records to be kept for 7 years, and other fiscal and legal obligations.</li>
+        <li><strong>Legitimate interest:</strong> to improve our website, prevent fraud, and ensure the security of our operations. We do not process more data than necessary for these purposes.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">4. Cookies</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">We use cookies and similar tracking technologies to ensure the store functions properly and to enhance your experience. We categorise cookies as follows:</p>
+       <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Essential cookies:</strong> necessary for the basic functioning of the site, such as the shopping cart, user session, and security. These do not require prior consent.</li>
+        <li><strong>Functional cookies:</strong> remember your language, currency, and region preferences to provide a personalised experience.</li>
+      </ul>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">When you first visit our site, a cookie banner will appear where you can manage your preferences. You can change your settings at any time from the cookie configuration. Please note that disabling certain cookies may affect the functionality of the site.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">5. Data Sharing</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">At La Tiendita <strong>we do not sell your personal information</strong> to third parties under any circumstances. We may share your data only with:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Stripe:</strong> our payment processor, which handles your credit or debit card information securely and complies with PCI-DSS standards. Stripe operates under its own privacy policy.</li>
+        <li><strong>Shipping partners:</strong> logistics companies that need your name, address, and phone number to deliver your orders.</li>
+        <li><strong>Legal authorities:</strong> when Swedish or EU law requires us to disclose information, or to protect our legal rights.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">6. Your Rights (GDPR)</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">As a resident of the European Union or the European Economic Area, you have the following rights regarding your personal data:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Access:</strong> request a copy of all personal data we hold about you.</li>
+        <li><strong>Rectification:</strong> correct any inaccurate or incomplete personal information.</li>
+        <li><strong>Erasure (right to be forgotten):</strong> request the deletion of your personal data when it is no longer necessary for the purposes for which it was collected.</li>
+        <li><strong>Restriction of processing:</strong> restrict the processing of your data in certain circumstances, such as when you contest the accuracy of the data.</li>
+        <li><strong>Data portability:</strong> receive your personal data in a structured, commonly used, and machine-readable format, and transmit it to another data controller.</li>
+        <li><strong>Objection:</strong> object to the processing of your data for direct marketing purposes or when processing is based on our legitimate interest.</li>
+        <li><strong>Complaint to IMY:</strong> lodge a complaint with the Swedish data protection authority, Integritetsskyddsmyndigheten (IMY), if you believe we have infringed your rights.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">7. Data Retention</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">We retain your personal data only as long as necessary to fulfil the purposes described in this policy. The criteria we apply are:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Active accounts:</strong> we keep your data while your account is active. If you close your account, we delete associated data unless the law requires its retention.</li>
+        <li><strong>Financial records:</strong> in accordance with the Swedish Accounting Act (Bokföringslag 1999:1078), financial transaction records must be kept for a minimum of 7 years.</li>
+        <li><strong>Marketing communications:</strong> we retain your marketing consent while it is valid. If you withdraw it, we immediately remove your data from our marketing lists.</li>
+        <li><strong>Browsing data:</strong> functional cookie data is retained for a maximum of 12 months, after which it is automatically cleared.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">8. Security</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">We implement robust technical and organisational measures to protect your personal information against unauthorised access, loss, alteration, or disclosure:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>All communications between your browser and our servers are encrypted using SSL/TLS.</li>
+        <li>Passwords are stored using salted hashing (bcrypt) and never in plain text.</li>
+        <li>Access to personal data is restricted to authorised personnel who need the information to operate the store.</li>
+        <li>We conduct regular security audits and keep our systems updated with the latest security patches.</li>
+        <li>Stripe, our payment processor, is PCI-DSS Level 1 certified, the highest level of security in the payment industry.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">9. Changes to This Policy</h2>
+      <p class="text-gray-700 dark:text-gray-300">We may update this privacy policy occasionally to reflect changes in our practices, legal requirements, or applicable regulations. If we make significant changes, we will notify you by email or through a prominent notice on our website. We encourage you to review this page periodically to stay informed about how we protect your information. The date of the last update appears at the top of this page.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">10. Contact &amp; IMY</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">If you have questions about this privacy policy, wish to exercise your GDPR rights, or need assistance with your personal data, you can reach us through the following channels:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>Privacy email:</strong> privacidad&#64;latiendita.cl</li>
+        <li><strong>General email:</strong> hello&#64;latiendita.cl</li>
+        <li><strong>Postal address:</strong> La Tiendita, [Address in Stockholm], Stockholm, Sweden</li>
+      </ul>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">If you are not satisfied with our response or believe we have infringed data protection regulations, you have the right to lodge a complaint with the Swedish supervisory authority:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>Integritetsskyddsmyndigheten (IMY)</strong></li>
+        <li><strong>Website:</strong> https://www.imy.se</li>
+        <li><strong>Address:</strong> Box 8114, 104 20 Stockholm, Sweden</li>
+      </ul>
+    </section>
+  </div>
+
+  <!-- ============ SWEDISH ============ -->
+  <div *ngIf="lang() === 'sv'">
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-gray-100">Integritetspolicy</h1>
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-8">Senast uppdaterad: Juli 2026</p>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">1. Information vi samlar in</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">På La Tiendita samlar vi in din personliga information endast när det är nödvändigt för att driva vår second-hand-butik och ge dig bästa möjliga service. De typer av uppgifter vi kan samla in inkluderar:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Kontoinformation:</strong> namn, e-postadress, leverans- och faktureringsadress samt telefonnummer när du skapar ett konto eller gör ett köp.</li>
+        <li><strong>Betalningsinformation:</strong> dina kredit- eller betalkortsuppgifter behandlas direkt av Stripe, vår betalningsleverantör. Vi lagrar inte fullständiga kortnummer eller säkerhetskoder.</li>
+        <li><strong>Webbläsarinformation:</strong> IP-adress, webbläsartyp, besökta sidor, surfningstid och preferenser som samlas in via cookies och liknande tekniker.</li>
+        <li><strong>Köphistorik:</strong> köpta produkter, datum, belopp och leveransadresser kopplade till dina transaktioner.</li>
+        <li><strong>Kommunikation:</strong> alla meddelanden du skickar till oss, inklusive kundtjänstförfrågningar och returärenden.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">2. Hur vi använder din information</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Informationen vi samlar in används uteslutande för följande ändamål:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>Behandla dina beställningar och hantera betalningar säkert via Stripe.</li>
+        <li>Samordna leverans av dina produkter med våra logistikpartner.</li>
+        <li>Skicka köpbekräftelser, leveransuppdateringar och kontorelaterade meddelanden.</li>
+        <li>Personalisera din shoppingupplevelse och rekommendera second-hand-produkter du kan gilla.</li>
+        <li>Förbättra vår webbplats och våra tjänster baserat på hur användare interagerar med plattformen.</li>
+        <li>Skicka marknadsföringskommunikation endast om du har gett ditt uttryckliga samtycke.</li>
+        <li>Uppfylla våra juridiska och skattemässiga skyldigheter, inklusive svenska bokföringslagen.</li>
+        <li>Förhindra bedrägerier och säkerställa säkerheten för våra transaktioner.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">3. Rättslig grund (GDPR)</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">I enlighet med EU:s allmänna dataskyddsförordning (GDPR) behandlar vi dina personuppgifter på följande rättsliga grunder:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Samtycke:</strong> för icke-nödvändiga cookies, marknadsföring och reklamkommunikation. Du kan när som helst återkalla ditt samtycke.</li>
+        <li><strong>Fullgörande av avtal:</strong> för att behandla dina köp, hantera betalningar och ordna leverans. Denna behandling är nödvändig för att fullfölja den beställning du har lagt.</li>
+        <li><strong>Rättslig förpliktelse:</strong> för att uppfylla den svenska bokföringslagen (1999:1078), som kräver att finansiella poster bevaras i 7 år, samt andra skattemässiga och juridiska skyldigheter.</li>
+        <li><strong>Berättigat intresse:</strong> för att förbättra vår webbplats, förhindra bedrägerier och säkerställa säkerheten för vår verksamhet. Vi behandlar inte mer uppgifter än nödvändigt för dessa ändamål.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">4. Cookies</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Vi använder cookies och liknande spårningstekniker för att butiken ska fungera korrekt och för att förbättra din upplevelse. Vi kategoriserar cookies enligt följande:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Nödvändiga cookies:</strong> krävs för webbplatsens grundläggande funktioner, såsom varukorgen, användarsessionen och säkerhet. Dessa kräver inte förhandssamtycke.</li>
+        <li><strong>Funktionella cookies:</strong> kommer ihåg dina språk-, valuta- och regioninställningar för att ge en personlig upplevelse.</li>
+        <li><strong>Analytiska cookies:</strong> hjälper oss att förstå hur användare navigerar på vår webbplats, vilka sidor de besöker och hur vi kan förbättra oss. Dessa cookies kräver ditt uttryckliga samtycke enligt GDPR.</li>
+      </ul>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">När du besöker vår webbplats för första gången visas en cookie-banner där du kan hantera dina inställningar. Du kan när som helst ändra dina inställningar från cookie-konfigurationen. Observera att om du inaktiverar vissa cookies kan webbplatsens funktionalitet påverkas.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">5. Delning av uppgifter</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">På La Tiendita <strong>säljer vi inte din personliga information</strong> till tredje part under några omständigheter. Vi kan dela dina uppgifter endast med:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Stripe:</strong> vår betalningsleverantör, som hanterar dina kredit- eller betalkortsuppgifter säkert och följer PCI-DSS-standarder. Stripe omfattas av sin egen integritetspolicy.</li>
+        <li><strong>Transportpartner:</strong> logistikföretag som behöver ditt namn, adress och telefonnummer för att leverera dina beställningar.</li>
+        <li><strong>Rättsliga myndigheter:</strong> när svensk eller EU-lag kräver att vi lämnar ut information, eller för att skydda våra juridiska rättigheter.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">6. Dina rättigheter (GDPR)</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Som bosatt i Europeiska unionen eller Europeiska ekonomiska samarbetsområdet har du följande rättigheter gällande dina personuppgifter:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Registerutdrag:</strong> begära en kopia av alla personuppgifter vi har om dig.</li>
+        <li><strong>Rättelse:</strong> korrigera felaktiga eller ofullständiga personuppgifter.</li>
+        <li><strong>Radering (rätten att bli bortglömd):</strong> begära att dina personuppgifter tas bort när de inte längre är nödvändiga för de ändamål för vilka de samlades in.</li>
+        <li><strong>Begränsning av behandling:</strong> begränsa behandlingen av dina uppgifter under vissa omständigheter, till exempel när du bestrider uppgifternas korrekthet.</li>
+        <li><strong>Dataportabilitet:</strong> få dina personuppgifter i ett strukturerat, allmänt använt och maskinläsbart format och överföra dem till en annan personuppgiftsansvarig.</li>
+        <li><strong>Invändning:</strong> invända mot behandling av dina uppgifter för direktmarknadsföring eller när behandlingen grundar sig på vårt berättigade intresse.</li>
+        <li><strong>Klagomål till IMY:</strong> lämna in ett klagomål till den svenska tillsynsmyndigheten, Integritetsskyddsmyndigheten (IMY), om du anser att vi har kränkt dina rättigheter.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">7. Lagring av uppgifter</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Vi behåller dina personuppgifter endast så länge som det är nödvändigt för att uppfylla ändamålen som beskrivs i denna policy. De kriterier vi tillämpar är:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li><strong>Aktiva konton:</strong> vi behåller dina uppgifter medan ditt konto är aktivt. Om du stänger ditt konto raderar vi tillhörande uppgifter om inte lagen kräver att de bevaras.</li>
+        <li><strong>Finansiella poster:</strong> i enlighet med svenska bokföringslagen (1999:1078) måste finansiella transaktionsposter bevaras i minst 7 år.</li>
+        <li><strong>Marknadsföringskommunikation:</strong> vi behåller ditt marknadsföringssamtycke så länge det är giltigt. Om du återkallar det tar vi omedelbart bort dina uppgifter från våra marknadsföringslistor.</li>
+        <li><strong>Surfdata:</strong> analytisk cookie-data sparas i högst 26 månader, i enlighet med europeiska dataskyddsriktlinjer.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">8. Säkerhet</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Vi implementerar robusta tekniska och organisatoriska åtgärder för att skydda din personliga information mot obehörig åtkomst, förlust, ändring eller utlämnande:</p>
+      <ul class="list-disc pl-6 space-y-2 text-gray-700 dark:text-gray-300">
+        <li>All kommunikation mellan din webbläsare och våra servrar är krypterad med SSL/TLS.</li>
+        <li>Lösenord lagras med saltad hashning (bcrypt) och aldrig i klartext.</li>
+        <li>Åtkomst till personuppgifter är begränsad till auktoriserad personal som behöver informationen för att driva butiken.</li>
+        <li>Vi genomför regelbundna säkerhetsrevisioner och håller våra system uppdaterade med de senaste säkerhetsuppdateringarna.</li>
+        <li>Stripe, vår betalningsleverantör, är PCI-DSS Level 1-certifierad, den högsta säkerhetsnivån inom betalningsindustrin.</li>
+      </ul>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">9. Ändringar av denna policy</h2>
+      <p class="text-gray-700 dark:text-gray-300">Vi kan uppdatera denna integritetspolicy då och då för att återspegla förändringar i vår praxis, juridiska krav eller tillämpliga regler. Om vi gör väsentliga ändringar kommer vi att meddela dig via e-post eller genom ett framträdande meddelande på vår webbplats. Vi uppmuntrar dig att regelbundet granska denna sida för att hålla dig informerad om hur vi skyddar din information. Datumet för senaste uppdatering visas högst upp på denna sida.</p>
+    </section>
+
+    <section class="mb-8">
+      <h2 class="text-xl font-semibold mb-3 text-gray-900 dark:text-gray-100">10. Kontakt &amp; IMY</h2>
+      <p class="mb-3 text-gray-700 dark:text-gray-300">Om du har frågor om denna integritetspolicy, vill utöva dina GDPR-rättigheter eller behöver hjälp med dina personuppgifter, kan du nå oss via följande kanaler:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>E-post för integritetsfrågor:</strong> privacidad&#64;latiendita.cl</li>
+        <li><strong>Allmän e-post:</strong> hello&#64;latiendita.cl</li>
+        <li><strong>Postadress:</strong> La Tiendita, [Address in Stockholm], Stockholm, Sweden</li>
+      </ul>
+      <p class="mt-3 text-gray-700 dark:text-gray-300">Om du inte är nöjd med vårt svar eller anser att vi har brutit mot dataskyddsreglerna har du rätt att lämna in ett klagomål till den svenska tillsynsmyndigheten:</p>
+      <ul class="space-y-1 text-gray-700 dark:text-gray-300">
+        <li><strong>Integritetsskyddsmyndigheten (IMY)</strong></li>
+        <li><strong>Webbplats:</strong> https://www.imy.se</li>
+        <li><strong>Adress:</strong> Box 8114, 104 20 Stockholm, Sweden</li>
+      </ul>
+    </section>
+  </div>
 </div>
