@@ -541,6 +541,41 @@ class ProductService:
             )
         return True
 
+    async def update_product_by_slug(
+        self,
+        session: AsyncSession,
+        slug: str,
+        data: UpdateProductRequest,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
+    ) -> Product | None:
+        """Lookup product by slug, then delegate to update_product."""
+        product = await self._repo.find_one(
+            session, Product.slug == slug, Product.deleted_at.is_(None)
+        )
+        if product is None:
+            return None
+        return await self.update_product(
+            session, product.id, data, actor_id=actor_id, ip_address=ip_address
+        )
+
+    async def delete_product_by_slug(
+        self,
+        session: AsyncSession,
+        slug: str,
+        actor_id: UUID | None = None,
+        ip_address: str | None = None,
+    ) -> bool:
+        """Lookup product by slug, then delegate to delete_product."""
+        product = await self._repo.find_one(
+            session, Product.slug == slug, Product.deleted_at.is_(None)
+        )
+        if product is None:
+            return False
+        return await self.delete_product(
+            session, product.id, actor_id=actor_id, ip_address=ip_address
+        )
+
     # ------------------------------------------------------------------
     # Internal helpers
     # ------------------------------------------------------------------

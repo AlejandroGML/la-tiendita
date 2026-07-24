@@ -248,6 +248,27 @@ class AdminProductController(Controller):
             raise NotFoundException(detail="product not found")
         return build_product_response(product)
 
+    @put("/slug/{product_slug:str}", status_code=200)
+    async def update_product_by_slug(
+        self,
+        product_slug: str,
+        data: UpdateProductRequest,
+        request: ASGIConnection,
+        service: ProductService,
+        session: AsyncSession,
+    ) -> dict:
+        """Update a product by slug (frontend-friendly)."""
+        product = await service.update_product_by_slug(
+            session,
+            product_slug,
+            data,
+            actor_id=request.user.id,
+            ip_address=request.client.host if request.client else None,
+        )
+        if product is None:
+            raise NotFoundException(detail="product not found by slug")
+        return build_product_response(product)
+
     @delete("/{product_id:uuid}", status_code=204)
     async def delete_product(
         self,
@@ -265,3 +286,21 @@ class AdminProductController(Controller):
         )
         if not deleted:
             raise NotFoundException(detail="product not found")
+
+    @delete("/slug/{product_slug:str}", status_code=204)
+    async def delete_product_by_slug(
+        self,
+        product_slug: str,
+        request: ASGIConnection,
+        service: ProductService,
+        session: AsyncSession,
+    ) -> None:
+        """Soft-delete a product by slug."""
+        deleted = await service.delete_product_by_slug(
+            session,
+            product_slug,
+            actor_id=request.user.id,
+            ip_address=request.client.host if request.client else None,
+        )
+        if not deleted:
+            raise NotFoundException(detail="product not found by slug")
