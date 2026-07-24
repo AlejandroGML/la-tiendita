@@ -133,6 +133,16 @@ export class OrderDetailComponent implements OnDestroy {
     return map[status ?? ''] ?? 'bg-amber-100 text-amber-800';
   }
 
+  private loadOrder(): void {
+    const id = this.route.snapshot.params['id'];
+    if (!id) return;
+    this.orderService.getOrder(id).subscribe({
+      next: (order) => {
+        this.order.set(order);
+      },
+    });
+  }
+
   cancelOrder(): void {
     const order = this.order();
     if (!order || !confirm('¿Estás seguro de cancelar esta orden?')) return;

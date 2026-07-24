@@ -167,6 +167,29 @@
     </div>
   </p-card>
 
+  <!-- GDPR / Privacy Section -->
+  <p-card styleClass="w-full mt-6">
+    <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-4">Privacidad y datos</h2>
+
+    <!-- Export data -->
+    <div class="flex items-center justify-between py-4 border-b border-gray-100 dark:border-gray-800">
+      <div>
+        <p class="text-sm font-medium text-gray-900 dark:text-gray-100">Exportar mis datos</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Descarga toda tu información en formato JSON</p>
+      </div>
+      <p-button label="Descargar" icon="pi pi-download" severity="secondary" [text]="true" [loading]="exporting()" (onClick)="exportData()"></p-button>
+    </div>
+
+    <!-- Delete account -->
+    <div class="flex items-center justify-between py-4">
+      <div>
+        <p class="text-sm font-medium text-red-600 dark:text-red-400">Eliminar cuenta</p>
+        <p class="text-xs text-gray-500 dark:text-gray-400">Tus datos serán eliminados permanentemente</p>
+      </div>
+      <p-button label="Eliminar" icon="pi pi-trash" severity="danger" [text]="true" [loading]="deleting()" (onClick)="deleteAccount()"></p-button>
+    </div>
+  </p-card>
+
   <!-- Account info -->
   <div class="mt-6 text-xs text-gray-400 dark:text-gray-500 text-center space-y-1">
     <p>Miembro desde: {{ currentUser?.created_at ? (currentUser!.created_at | date:'longDate') : '—' }}</p>

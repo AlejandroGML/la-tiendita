@@ -1,7 +1,10 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 import { AuthStateService } from '../../../core/services/auth-state.service';
+import { AuthService } from '../../../core/services/auth.service';
 import { TwoFactorService } from '../../../core/services/two-factor.service';
 import { type UserResponse } from '../../../core/services/auth.service';
 
@@ -15,11 +18,16 @@ export class ProfileView implements OnInit {
   private readonly http = inject(HttpClient);
   private readonly authState = inject(AuthStateService);
   private readonly twoFactorService = inject(TwoFactorService);
+  private readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+  private readonly messageService = inject(MessageService);
 
   editing = false;
   saving = false;
   successMessage: string | null = null;
   errorMessage: string | null = null;
+  exporting = signal(false);
+  deleting = signal(false);
 
   // 2FA
   totpEnabled = false;
@@ -190,5 +198,43 @@ export class ProfileView implements OnInit {
     this.totpSetupSecret = null;
     this.totpQrUrl = null;
     this.totpSetupCode = '';
+  }
+
+  // ── GDPR / Privacy ──
+
+  exportData(): void {
+    this.exporting.set(true);
+    this.http.get('/api/v1/profile/export').subscribe({
+      next: (data) => {
+        this.exporting.set(false);
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `latiendita-datos-${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        window.URL.revokeObjectURL(url);
+        this.successMessage = 'Datos exportados correctamente';
+      },
+      error: () => {
+        this.exporting.set(false);
+        this.errorMessage = 'Error al exportar datos';
+      },
+    });
+  }
+
+  deleteAccount(): void {
+    if (!confirm('¿Estás seguro? Esta acción eliminará tu cuenta y todos tus datos de forma permanente.')) return;
+    this.deleting.set(true);
+    this.http.delete('/api/v1/profile').subscribe({
+      next: () => {
+        this.authService.logout().subscribe();
+        this.router.navigate(['/']);
+      },
+      error: () => {
+        this.deleting.set(false);
+        this.errorMessage = 'Error al eliminar cuenta';
+      },
+    });
   }
 }
