@@ -20,7 +20,7 @@
         <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error block mt-1">{{ 'auth.passwordMinLength' | translate }}</small>
       </div>
 
-      <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage | translate }}</div>
+      <div *ngIf="errorMessage" class="text-red-600 text-sm border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded-lg">{{ errorMessage }}</div>
 
       <p-button
         [label]="'auth.signInButton' | translate"

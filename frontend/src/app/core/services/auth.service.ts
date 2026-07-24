@@ -94,6 +94,8 @@ export class AuthService {
     email: string;
     password: string;
     name: string;
+    marketing_consent?: boolean;
+    terms_accepted?: boolean;
   }): Observable<TokenResponse> {
     return this.http
       .post<TokenResponse>('/api/v1/auth/register', data, {

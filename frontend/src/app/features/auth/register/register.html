@@ -43,6 +43,25 @@
 
       <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage | translate }}</div>
 
+      <!-- Terms acceptance -->
+      <div class="flex items-start gap-2">
+        <p-checkbox formControlName="acceptTerms" [binary]="true" inputId="acceptTerms"></p-checkbox>
+        <label for="acceptTerms" class="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+          {{ 'auth.acceptTerms' | translate }}
+          <a routerLink="/terminos" class="text-emerald-600 dark:text-emerald-400 underline">{{ 'auth.terms' | translate }}</a>
+          {{ 'auth.and' | translate }}
+          <a routerLink="/privacidad" class="text-emerald-600 dark:text-emerald-400 underline">{{ 'auth.privacy' | translate }}</a>
+        </label>
+      </div>
+
+      <!-- Marketing consent -->
+      <div class="flex items-start gap-2">
+        <p-checkbox formControlName="marketingConsent" [binary]="true" inputId="marketingConsent"></p-checkbox>
+        <label for="marketingConsent" class="text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
+          {{ 'auth.marketingConsent' | translate }}
+        </label>
+      </div>
+
       <p-button
         [label]="'auth.createAccountButton' | translate"
         severity="primary"
