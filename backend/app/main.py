@@ -60,6 +60,7 @@ logging.getLogger("sqlalchemy.engine").setLevel(logging.WARNING)
 
 from litestar import Litestar, get, Response
 from litestar.config.cors import CORSConfig
+from litestar.exceptions import HTTPException
 from litestar.openapi import OpenAPIConfig
 from litestar.response import Redirect
 from litestar.static_files import create_static_files_router
@@ -180,12 +181,20 @@ async def on_startup() -> None:
     # Apply any pending Alembic migrations before the app serves traffic.
     # This guarantees the schema is up-to-date on every deploy without
     # requiring a manual ``docker exec backend alembic upgrade head``.
+    #
+    # ``alembic.command.upgrade()`` calls ``asyncio.run()`` internally
+    # (via env.py run_migrations_online), which crashes when called from an
+    # already-running event loop.  Run it in a thread instead.
     try:
+        import asyncio
         from alembic.config import Config
         from alembic import command
 
-        alembic_cfg = Config("alembic.ini")
-        command.upgrade(alembic_cfg, "head")
+        def _run_migrations() -> None:
+            cfg = Config("alembic.ini")
+            command.upgrade(cfg, "head")
+
+        await asyncio.to_thread(_run_migrations)
         logger.info("Database migrations up to date")
     except Exception:
         logger.exception("Migration upgrade failed — app may be degraded")
@@ -261,7 +270,7 @@ async def _stripe_error_handler(_request, exc):
     )
 
 
-async def _stock_insufficient_handler(_request, exc):
+def _stock_insufficient_handler(_request, exc):
     """Map StockInsufficientError to 409 Conflict."""
     return Response(
         content={"detail": str(exc)},
@@ -269,7 +278,7 @@ async def _stock_insufficient_handler(_request, exc):
     )
 
 
-async def _value_error_handler(_request, exc):
+def _value_error_handler(_request, exc):
     """Map generic ValueError to 400 Bad Request."""
     return Response(
         content={"detail": str(exc)},
@@ -277,8 +286,19 @@ async def _value_error_handler(_request, exc):
     )
 
 
-async def _global_exception_handler(_request, exc):
+def _http_exception_handler(_request, exc: HTTPException):
+    """Pass HTTPException through so Litestar uses its native status code."""
+    return Response(
+        content={"detail": exc.detail},
+        status_code=exc.status_code,
+    )
+
+
+def _global_exception_handler(_request, exc):
     """Catch-all exception handler — logs full trace, returns generic 500.
+
+    MUST be sync — Litestar 2.x exception handlers don't always await
+    async handlers correctly in all versions (uvicorn warning).
 
     Also forwards the exception to Sentry when error tracking is active
     (``settings.SENTRY_DSN`` is set). This is safe to call even when Sentry
@@ -306,6 +326,7 @@ app = Litestar(
         StripeError: _stripe_error_handler,
         StockInsufficientError: _stock_insufficient_handler,
         ValueError: _value_error_handler,
+        HTTPException: _http_exception_handler,
         Exception: _global_exception_handler,
     },
     route_handlers=[
