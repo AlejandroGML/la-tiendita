@@ -15,7 +15,7 @@ class UserResponse(BaseModel):
     role: str
     preferred_lang: str
     is_verified: bool
-    marketing_consent: bool = False
+    marketing_consent: bool | None = False
     created_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
