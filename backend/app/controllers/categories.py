@@ -113,6 +113,32 @@ class AdminCategoryController(Controller):
         "session": Provide(provide_session, sync_to_thread=False),
     }
 
+    @get("/{category_id:int}")
+    async def get_category(
+        self,
+        category_id: int,
+        repo: CategoryRepository,
+        session: AsyncSession,
+    ) -> dict:
+        """Get a single category with all translations."""
+        from sqlalchemy.orm import joinedload
+
+        category = await repo.get_by_id(
+            session, category_id, options=[joinedload(Category.translations)]
+        )
+        if category is None:
+            raise NotFoundException(detail="category not found")
+
+        return {
+            "id": category.id,
+            "slug": category.slug,
+            "image_url": category.image_url,
+            "translations": [
+                {"lang": t.language_code, "name": t.name}
+                for t in category.translations
+            ],
+        }
+
     @post("/", status_code=201)
     async def create_category(
         self,
