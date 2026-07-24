@@ -228,6 +228,7 @@ const routes: Routes = [
     path: 'terminos',
     component: TermsComponent,
   },
+  { path: 'ayuda', redirectTo: '/' },
   { path: '**', redirectTo: '' },
 ];
 

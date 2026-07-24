@@ -5,7 +5,7 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { TranslateModule } from '@ngx-translate/core';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { providePrimeNG } from 'primeng/config';
-import { ConfirmationService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { ConfirmDialog } from 'primeng/confirmdialog';
 import { of } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -23,6 +23,7 @@ import { ScrollTopComponent } from './shared/components/scroll-top/scroll-top';
 import { authInterceptor } from './core/interceptors/auth.interceptor';
 import { errorInterceptor } from './core/interceptors/error.interceptor';
 import { AuthService } from './core/services/auth.service';
+import { SessionExpirationService } from './core/services/session-expiration.service';
 import { TOKEN_STORAGE } from './core/services/token-storage.service';
 import { provideTokenStorage } from './core/services/token-storage.service';
 
@@ -46,10 +47,15 @@ import { provideTokenStorage } from './core/services/token-storage.service';
     provideAppInitializer(() => {
       const tokenStorage = inject(TOKEN_STORAGE);
       const authService = inject(AuthService);
+      const sessionExp = inject(SessionExpirationService);
 
       if (tokenStorage.getAccessToken()) {
+        sessionExp.start();
         return authService.fetchCurrentUser().pipe(
-          catchError(() => of(undefined)),
+          catchError(() => {
+            sessionExp.stop();
+            return of(undefined);
+          }),
         );
       }
       return of(undefined);
@@ -68,6 +74,7 @@ import { provideTokenStorage } from './core/services/token-storage.service';
       }
     }),
     ConfirmationService,
+    MessageService,
   ],
   bootstrap: [App],
 })
