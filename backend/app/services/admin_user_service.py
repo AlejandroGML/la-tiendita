@@ -147,3 +147,66 @@ class AdminUserService:
             orders_count=orders_count,
             created_at=user.created_at,
         )
+
+    async def delete_user(
+        self,
+        session: AsyncSession,
+        user_id: uuid.UUID,
+        requesting_user_id: uuid.UUID,
+        ip_address: str | None = None,
+    ) -> None:
+        """Delete a user and all related data. Blocks self-deletion."""
+        if user_id == requesting_user_id:
+            raise ValueError("no puedes eliminar tu propia cuenta")
+
+        user = await self._user_repo.get_by_id(session, user_id)
+        if user is None:
+            raise ValueError(f"usuario {user_id} no encontrado")
+
+        # Delete related records to avoid FK violations
+        from app.models.cart import CartItem
+        from app.models.review import Review
+        from app.models.wishlist import Wishlist
+        from app.models.refresh_token import RefreshToken
+        from app.models.password_reset import PasswordResetToken
+
+        for model, fk_field in [
+            (CartItem, "user_id"),
+            (Review, "user_id"),
+            (Wishlist, "user_id"),
+            (RefreshToken, "user_id"),
+            (PasswordResetToken, "user_id"),
+        ]:
+            stmt = select(model).where(getattr(model, fk_field) == user_id)
+            result = await session.execute(stmt)
+            for row in result.scalars():
+                await session.delete(row)
+
+        # Set orders.user_id to NULL (keep order history)
+        from app.models.order import Order
+        from sqlalchemy import update as sa_update
+
+        await session.execute(
+            sa_update(Order).where(Order.user_id == user_id).values(user_id=None)
+        )
+
+        # Delete audit logs for this actor
+        from app.models.audit_log import AuditLog
+
+        audit_stmt = select(AuditLog).where(AuditLog.actor_id == user_id)
+        audit_result = await session.execute(audit_stmt)
+        for row in audit_result.scalars():
+            await session.delete(row)
+
+        await session.delete(user)
+        await session.flush()
+
+        event_bus.emit(
+            AuditEvent(
+                actor_id=requesting_user_id,
+                action=AuditAction.USER_DELETE,
+                entity_type="user",
+                entity_id=str(user_id),
+                ip_address=ip_address,
+            )
+        )

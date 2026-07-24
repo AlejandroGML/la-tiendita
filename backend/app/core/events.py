@@ -29,6 +29,7 @@ class AuditAction(StrEnum):
     PROMOTION_UPDATE = "promotion.update"
     PROMOTION_DELETE = "promotion.delete"
     USER_ROLE_CHANGE = "user.role_change"
+    USER_DELETE = "user.delete"
     ORDER_STATUS_CHANGE = "order.status_change"
 
 

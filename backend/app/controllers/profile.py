@@ -9,7 +9,7 @@ HTTP concerns only.
 
 import pyotp
 
-from litestar import Controller, get, post, put
+from litestar import Controller, delete, get, post, put
 from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import HTTPException, NotAuthorizedException
@@ -92,6 +92,131 @@ class ProfileController(Controller):
         await session.refresh(db_user)
 
         return UserResponse.model_validate(db_user)
+
+    @delete("/", status_code=204)
+    async def delete_profile(
+        self,
+        request: ASGIConnection,
+    ) -> None:
+        """Delete the authenticated user's own account and all associated data."""
+        from app.db.engine import async_session as session_fn
+        from sqlalchemy import select, update as sa_update
+        from app.models.cart import CartItem
+        from app.models.review import Review
+        from app.models.wishlist import Wishlist
+        from app.models.refresh_token import RefreshToken
+        from app.models.password_reset import PasswordResetToken
+        from app.models.order import Order
+        from app.models.audit_log import AuditLog
+        from app.repositories.user_repository import UserRepository
+
+        async with session_fn() as session:
+            user_id = request.user.id
+
+            # Delete related records
+            for model, fk in [
+                (CartItem, "user_id"),
+                (Review, "user_id"),
+                (Wishlist, "user_id"),
+                (RefreshToken, "user_id"),
+                (PasswordResetToken, "user_id"),
+            ]:
+                stmt = select(model).where(getattr(model, fk) == user_id)
+                result = await session.execute(stmt)
+                for row in result.scalars():
+                    await session.delete(row)
+
+            # Nullify orders.user_id (keep order history for accounting)
+            await session.execute(
+                sa_update(Order).where(Order.user_id == user_id).values(user_id=None)
+            )
+
+            # Delete audit logs
+            audit_result = await session.execute(
+                select(AuditLog).where(AuditLog.actor_id == user_id)
+            )
+            for row in audit_result.scalars():
+                await session.delete(row)
+
+            # Delete user
+            repo = UserRepository()
+            db_user = await repo.get_by_id(session, user_id)
+            if db_user:
+                await session.delete(db_user)
+
+            await session.commit()
+
+    @get("/export", status_code=200)
+    async def export_profile(
+        self,
+        request: ASGIConnection,
+    ) -> dict:
+        """Export all user data for GDPR portability (Art. 20)."""
+        from app.db.engine import async_session as session_fn
+        from sqlalchemy import select
+        from app.models.cart import CartItem
+        from app.models.review import Review
+        from app.models.wishlist import Wishlist
+        from app.models.order import Order
+        from app.models.order import OrderItem
+
+        async with session_fn() as session:
+            user_id = request.user.id
+
+            # User info
+            user_data = UserResponse.model_validate(request.user).model_dump()
+
+            # Cart items
+            cart_result = await session.execute(
+                select(CartItem).where(CartItem.user_id == user_id)
+            )
+            cart_items = [
+                {"product_id": str(c.product_id), "quantity": c.quantity}
+                for c in cart_result.scalars()
+            ]
+
+            # Reviews
+            review_result = await session.execute(
+                select(Review).where(Review.user_id == user_id)
+            )
+            reviews = [
+                {
+                    "product_id": str(r.product_id),
+                    "rating": r.rating,
+                    "comment": r.comment,
+                    "created_at": r.created_at.isoformat(),
+                }
+                for r in review_result.scalars()
+            ]
+
+            # Wishlist
+            wish_result = await session.execute(
+                select(Wishlist).where(Wishlist.user_id == user_id)
+            )
+            wishlist = [str(w.product_id) for w in wish_result.scalars()]
+
+            # Orders
+            order_result = await session.execute(
+                select(Order).where(Order.user_id == user_id)
+            )
+            orders = []
+            for o in order_result.scalars():
+                order_data = {
+                    "id": str(o.id),
+                    "status": o.status.value if hasattr(o.status, 'value') else str(o.status),
+                    "total": str(o.total),
+                    "shipping_method": o.shipping_method,
+                    "created_at": o.created_at.isoformat(),
+                }
+                orders.append(order_data)
+
+        return {
+            "user": user_data,
+            "cart_items": cart_items,
+            "reviews": reviews,
+            "wishlist": wishlist,
+            "orders": orders,
+        }
 
     # ════════════════════════════════════════════════════════════════
     # 2FA Management (admin only)

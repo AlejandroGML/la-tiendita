@@ -166,6 +166,25 @@ class AdminController(Controller):
 
         return item.model_dump()
 
+    @delete("/users/{user_id:uuid}", status_code=204)
+    async def delete_user(
+        self,
+        user_id: UUID,
+        request: ASGIConnection,
+        user_svc: AdminUserService,
+        session: AsyncSession,
+    ) -> None:
+        """Soft-delete a user (admin-only). Cannot delete self."""
+        try:
+            await user_svc.delete_user(
+                session,
+                user_id=user_id,
+                requesting_user_id=request.user.id,
+                ip_address=request.client.host if request.client else None,
+            )
+        except ValueError as exc:
+            raise ValidationException(detail=str(exc)) from exc
+
     # ------------------------------------------------------------------
     # Orders
     # ------------------------------------------------------------------
