@@ -71,6 +71,9 @@ class AuthService:
             raise ValueError("email already registered")
 
         password_hash = self._hash_password(data.password)
+        from datetime import datetime, timezone
+
+        now = datetime.now(timezone.utc)
         user = User(
             email=data.email,
             password_hash=password_hash,
@@ -78,6 +81,9 @@ class AuthService:
             role=UserRole.CUSTOMER,
             preferred_lang=data.preferred_lang or "es",
             is_verified=False,
+            marketing_consent=data.marketing_consent,
+            consent_at=now if data.marketing_consent or data.terms_accepted else None,
+            terms_accepted_at=now if data.terms_accepted else None,
         )
         session.add(user)
         await session.flush()

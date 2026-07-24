@@ -12,6 +12,8 @@ class RegisterRequest(BaseModel):
     password: str = Field(..., min_length=8)
     name: str
     preferred_lang: str | None = None
+    marketing_consent: bool = False
+    terms_accepted: bool = False
 
     @field_validator("password")
     @classmethod
