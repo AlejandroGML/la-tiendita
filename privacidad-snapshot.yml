@@ -1,0 +1,386 @@
+- generic [active] [ref=f21e1]:
+  - link "Saltar al contenido principal" [ref=f21e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=f21e3]:
+    - banner [ref=f21e5]:
+      - generic [ref=f21e8]:
+        - link "LT La Tiendita" [ref=f21e9] [cursor=pointer]:
+          - /url: /
+          - generic [ref=f21e10]: LT
+          - generic [ref=f21e11]: La Tiendita
+        - generic [ref=f21e15]:
+          - generic [ref=f21e16]: 
+          - combobox "Buscar productos..." [ref=f21e17]
+        - navigation "Navegación principal" [ref=f21e18]:
+          - link "Ayuda" [ref=f21e19] [cursor=pointer]:
+            - /url: /ayuda
+            - img [ref=f21e21]
+            - generic [ref=f21e23]: Ayuda
+          - generic "Favoritos" [ref=f21e26] [cursor=pointer]:
+            - img [ref=f21e28]
+          - link "Carrito" [ref=f21e31] [cursor=pointer]:
+            - /url: /carrito
+            - img [ref=f21e33]
+          - link "Iniciar sesión" [ref=f21e38] [cursor=pointer]:
+            - /url: /login
+            - img [ref=f21e39]
+          - button "Cambiar idioma" [ref=f21e44] [cursor=pointer]:
+            - img [ref=f21e46]
+            - generic [ref=f21e49]: ES
+          - button "Cambiar moneda" [ref=f21e52] [cursor=pointer]: SEK
+          - button "Modo claro" [ref=f21e54] [cursor=pointer]:
+            - img [ref=f21e55]
+      - navigation "Categorías" [ref=f21e58]:
+        - generic [ref=f21e61]:
+          - button "Categorías" [ref=f21e64] [cursor=pointer]:
+            - img [ref=f21e66]
+            - generic [ref=f21e71]: Categorías
+            - img [ref=f21e73]
+          - link "Ofertas" [ref=f21e75] [cursor=pointer]:
+            - /url: /productos?oferta=true
+            - img [ref=f21e77]
+            - text: Ofertas
+          - link "Nuevo" [ref=f21e79] [cursor=pointer]:
+            - /url: /productos?sort=newest
+            - img [ref=f21e81]
+            - text: Nuevo
+          - link "Más popular" [ref=f21e83] [cursor=pointer]:
+            - /url: /productos?sort=popular
+            - img [ref=f21e85]
+            - text: Más popular
+          - generic [ref=f21e88]:
+            - img [ref=f21e90]
+            - text: Compra segura
+        - generic [ref=f21e94]:
+          - button "Mujer" [ref=f21e95] [cursor=pointer]
+          - button "Hombre" [ref=f21e96] [cursor=pointer]
+          - button "Kids" [ref=f21e97] [cursor=pointer]
+          - button "Unisex" [ref=f21e98] [cursor=pointer]
+    - main [ref=f21e99]:
+      - generic [ref=f21e101]:
+        - generic [ref=f21e102]:
+          - generic [ref=f21e105]:
+            - generic [ref=f21e106]:
+              - generic [ref=f21e107]: Moda Sostenible
+              - heading "Dale una segunda vida a la ropa que usas" [level=1] [ref=f21e108]:
+                - text: Dale una segunda vida
+                - text: a la ropa que usas
+              - paragraph [ref=f21e109]: Compra y vende ropa de segunda mano con estilo. Encuentra tesoros únicos, ahorra dinero y ayuda al planeta.
+              - generic [ref=f21e110]:
+                - link " Explorar Catálogo" [ref=f21e111] [cursor=pointer]:
+                  - /url: /productos
+                  - generic [ref=f21e112]: 
+                  - text: Explorar Catálogo
+                - link " Únete Gratis" [ref=f21e113] [cursor=pointer]:
+                  - /url: /register
+                  - generic [ref=f21e114]: 
+                  - text: Únete Gratis
+              - generic [ref=f21e115]:
+                - generic [ref=f21e116]:
+                  - generic [ref=f21e117]: 
+                  - generic [ref=f21e118]: Envío gratis +50k
+                - generic [ref=f21e119]:
+                  - generic [ref=f21e120]: 
+                  - generic [ref=f21e121]: Pago Seguro
+            - generic [ref=f21e217]:
+              - generic [ref=f21e218]:
+                - generic [ref=f21e219]: TOP VENTAS
+                - generic [ref=f21e221]: 
+                - paragraph [ref=f21e222]
+                - paragraph [ref=f21e223]: 25,00 SEK
+              - generic [ref=f21e224]:
+                - generic [ref=f21e225]: NUEVO
+                - generic [ref=f21e227]: 
+                - paragraph [ref=f21e228]
+                - paragraph [ref=f21e229]: 75,00 SEK
+              - generic [ref=f21e230]:
+                - generic [ref=f21e231]: OFERTA
+                - generic [ref=f21e233]: 
+                - paragraph [ref=f21e234]
+                - paragraph [ref=f21e235]: 25,00 SEK
+          - img [ref=f21e123]
+        - generic [ref=f21e237]:
+          - generic [ref=f21e238]:
+            - text: Explora
+            - heading "Categorías" [level=2] [ref=f21e239]
+            - paragraph [ref=f21e240]: Descubre nuestras categorías y encuentra exactamente lo que buscas
+          - generic [ref=f21e241]:
+            - link " Blazer" [ref=f21e242] [cursor=pointer]:
+              - /url: /productos?category_id=140
+              - generic [ref=f21e244]: 
+              - generic [ref=f21e245]: Blazer
+            - link " Blusa" [ref=f21e246] [cursor=pointer]:
+              - /url: /productos?category_id=141
+              - generic [ref=f21e248]: 
+              - generic [ref=f21e249]: Blusa
+            - link " Cárdigan" [ref=f21e250] [cursor=pointer]:
+              - /url: /productos?category_id=142
+              - generic [ref=f21e252]: 
+              - generic [ref=f21e253]: Cárdigan
+            - link " Vestido" [ref=f21e254] [cursor=pointer]:
+              - /url: /productos?category_id=143
+              - generic [ref=f21e256]: 
+              - generic [ref=f21e257]: Vestido
+            - link " Chaqueta" [ref=f21e258] [cursor=pointer]:
+              - /url: /productos?category_id=144
+              - generic [ref=f21e260]: 
+              - generic [ref=f21e261]: Chaqueta
+            - link " Camisón" [ref=f21e262] [cursor=pointer]:
+              - /url: /productos?category_id=145
+              - generic [ref=f21e264]: 
+              - generic [ref=f21e265]: Camisón
+            - link " Camisa" [ref=f21e266] [cursor=pointer]:
+              - /url: /productos?category_id=146
+              - generic [ref=f21e268]: 
+              - generic [ref=f21e269]: Camisa
+            - link " Suéter" [ref=f21e270] [cursor=pointer]:
+              - /url: /productos?category_id=147
+              - generic [ref=f21e272]: 
+              - generic [ref=f21e273]: Suéter
+            - link " Camiseta" [ref=f21e274] [cursor=pointer]:
+              - /url: /productos?category_id=148
+              - generic [ref=f21e276]: 
+              - generic [ref=f21e277]: Camiseta
+            - link " Top sin Mangas" [ref=f21e278] [cursor=pointer]:
+              - /url: /productos?category_id=149
+              - generic [ref=f21e280]: 
+              - generic [ref=f21e281]: Top sin Mangas
+            - link " Top" [ref=f21e282] [cursor=pointer]:
+              - /url: /productos?category_id=150
+              - generic [ref=f21e284]: 
+              - generic [ref=f21e285]: Top
+            - link " Túnica" [ref=f21e286] [cursor=pointer]:
+              - /url: /productos?category_id=151
+              - generic [ref=f21e288]: 
+              - generic [ref=f21e289]: Túnica
+        - generic [ref=f21e126]:
+          - generic [ref=f21e127]:
+            - generic [ref=f21e128]:
+              - text: Tendencias
+              - heading "Productos Destacados" [level=2] [ref=f21e129]
+            - link "Ver Todos" [ref=f21e130] [cursor=pointer]:
+              - /url: /productos
+              - generic [ref=f21e131]: 
+              - text: Ver Todos
+          - generic [ref=f21e290]:
+            - generic [ref=f21e292] [cursor=pointer]:
+              - generic [ref=f21e294]:
+                - img "Kappahl Blusa" [ref=f21e295]
+                - button "Add to wishlist" [ref=f21e296]:
+                  - generic [ref=f21e297]: 
+                - generic [ref=f21e298]: Regular
+              - generic [ref=f21e301]:
+                - heading "Kappahl Blusa" [level=3] [ref=f21e302]
+                - generic "Multicolor" [ref=f21e305]
+                - generic [ref=f21e307]: ★★★★☆
+                - generic [ref=f21e308]:
+                  - generic [ref=f21e309]:
+                    - paragraph [ref=f21e311]: 25,00 SEK
+                    - paragraph [ref=f21e312]: 45%nylon 55%polyester · fair
+                  - generic [ref=f21e313]: Kappahl
+            - generic [ref=f21e315] [cursor=pointer]:
+              - generic [ref=f21e317]:
+                - img "Multicolor Camisa" [ref=f21e318]
+                - button "Add to wishlist" [ref=f21e319]:
+                  - generic [ref=f21e320]: 
+                - generic [ref=f21e321]: Regular
+              - generic [ref=f21e324]:
+                - heading "Multicolor Camisa" [level=3] [ref=f21e325]
+                - generic "Multicolor" [ref=f21e328]
+                - generic [ref=f21e330]: ★★★★☆
+                - generic [ref=f21e331]:
+                  - generic [ref=f21e332]:
+                    - paragraph [ref=f21e334]: 75,00 SEK
+                    - paragraph [ref=f21e335]: 100%cotton · fair
+                  - generic [ref=f21e336]: Acne
+            - generic [ref=f21e338] [cursor=pointer]:
+              - generic [ref=f21e340]:
+                - img "Multicolor Camisa" [ref=f21e341]
+                - button "Add to wishlist" [ref=f21e342]:
+                  - generic [ref=f21e343]: 
+                - generic [ref=f21e344]: Regular
+              - generic [ref=f21e347]:
+                - heading "Multicolor Camisa" [level=3] [ref=f21e348]
+                - generic "Multicolor" [ref=f21e351]
+                - generic [ref=f21e353]: ★★★★☆
+                - generic [ref=f21e354]:
+                  - generic [ref=f21e355]:
+                    - paragraph [ref=f21e357]: 25,00 SEK
+                    - paragraph [ref=f21e358]: 100%cotton · fair
+                  - generic [ref=f21e359]: Westerlind
+            - generic [ref=f21e361] [cursor=pointer]:
+              - generic [ref=f21e363]:
+                - img "Soya/soyaconcept Camiseta" [ref=f21e364]
+                - button "Add to wishlist" [ref=f21e365]:
+                  - generic [ref=f21e366]: 
+                - generic [ref=f21e367]: Regular
+              - generic [ref=f21e370]:
+                - heading "Soya/soyaconcept Camiseta" [level=3] [ref=f21e371]
+                - generic "Multicolor" [ref=f21e374]
+                - generic [ref=f21e376]: ★★★★☆
+                - generic [ref=f21e377]:
+                  - generic [ref=f21e378]:
+                    - paragraph [ref=f21e380]: 25,00 SEK
+                    - paragraph [ref=f21e381]: 100%cotton · fair
+                  - generic [ref=f21e382]: Soya/soyaconcept
+            - generic [ref=f21e384] [cursor=pointer]:
+              - generic [ref=f21e386]:
+                - img "Dressman Camisa" [ref=f21e387]
+                - button "Add to wishlist" [ref=f21e388]:
+                  - generic [ref=f21e389]: 
+                - generic [ref=f21e390]: Regular
+              - generic [ref=f21e393]:
+                - heading "Dressman Camisa" [level=3] [ref=f21e394]
+                - generic "Multicolor" [ref=f21e397]
+                - generic [ref=f21e399]: ★★★★★
+                - generic [ref=f21e400]:
+                  - generic [ref=f21e401]:
+                    - paragraph [ref=f21e403]: 125,00 SEK
+                    - paragraph [ref=f21e404]: 100%cotton · fair
+                  - generic [ref=f21e405]: Dressman
+            - generic [ref=f21e407] [cursor=pointer]:
+              - generic [ref=f21e409]:
+                - img "Multicolor Top" [ref=f21e410]
+                - button "Add to wishlist" [ref=f21e411]:
+                  - generic [ref=f21e412]: 
+                - generic [ref=f21e413]: Bueno
+              - generic [ref=f21e416]:
+                - heading "Multicolor Top" [level=3] [ref=f21e417]
+                - generic "Multicolor" [ref=f21e420]
+                - generic [ref=f21e422]: ★★★☆☆
+                - generic [ref=f21e423]:
+                  - generic [ref=f21e424]:
+                    - paragraph [ref=f21e426]: 25,00 SEK
+                    - paragraph [ref=f21e427]: 100%polyester · good
+                  - generic [ref=f21e428]: Other
+            - generic [ref=f21e430] [cursor=pointer]:
+              - generic [ref=f21e432]:
+                - img "Lindex Cárdigan" [ref=f21e433]
+                - button "Add to wishlist" [ref=f21e434]:
+                  - generic [ref=f21e435]: 
+                - generic [ref=f21e436]: Como nuevo
+              - generic [ref=f21e439]:
+                - heading "Lindex Cárdigan" [level=3] [ref=f21e440]
+                - generic "Multicolor" [ref=f21e443]
+                - generic [ref=f21e445]: ★★☆☆☆
+                - generic [ref=f21e446]:
+                  - generic [ref=f21e447]:
+                    - paragraph [ref=f21e449]: 25,00 SEK
+                    - paragraph [ref=f21e450]: 67%acryl 33%cotton · like_new
+                  - generic [ref=f21e451]: Lindex
+            - generic [ref=f21e453] [cursor=pointer]:
+              - generic [ref=f21e455]:
+                - img "Multicolor Cárdigan" [ref=f21e456]
+                - button "Add to wishlist" [ref=f21e457]:
+                  - generic [ref=f21e458]: 
+                - generic [ref=f21e459]: Regular
+              - generic [ref=f21e462]:
+                - heading "Multicolor Cárdigan" [level=3] [ref=f21e463]
+                - generic "Multicolor" [ref=f21e466]
+                - generic [ref=f21e468]: ★★★★☆
+                - generic [ref=f21e469]:
+                  - generic [ref=f21e470]:
+                    - paragraph [ref=f21e472]: 25,00 SEK
+                    - paragraph [ref=f21e473]: 95%acryl 5%nylon · fair
+                  - generic [ref=f21e474]: Vero Moda
+          - text: 
+        - generic [ref=f21e139]:
+          - heading "Vistos recientemente" [level=2] [ref=f21e140]
+          - generic [ref=f21e141]:
+            - link "undefined 75,00 SEK" [ref=f21e142] [cursor=pointer]:
+              - /url: /productos/acne-shirt
+              - img "undefined" [ref=f21e144]
+              - generic [ref=f21e145]:
+                - paragraph
+                - paragraph [ref=f21e146]: 75,00 SEK
+            - link "undefined 25,00 SEK" [ref=f21e147] [cursor=pointer]:
+              - /url: /productos/kappahl-blouse
+              - img "undefined" [ref=f21e149]
+              - generic [ref=f21e150]:
+                - paragraph
+                - paragraph [ref=f21e151]: 25,00 SEK
+        - generic [ref=f21e156]:
+          - heading "¿Tienes ropa que ya no usas?" [level=3] [ref=f21e157]
+          - paragraph [ref=f21e158]: Conviértela en dinero extra. Publica tus prendas en minutos y llega a miles de compradores.
+          - link " Empieza a Vender" [ref=f21e159] [cursor=pointer]:
+            - /url: /register
+            - generic [ref=f21e160]: 
+            - text: Empieza a Vender
+    - generic [ref=f21e163]:
+      - generic [ref=f21e164]:
+        - generic [ref=f21e165]:
+          - heading "La Tiendita" [level=3] [ref=f21e166]
+          - paragraph [ref=f21e167]: Tu tienda de ropa segunda mano favorita. Calidad, estilo y sostenibilidad en cada prenda.
+          - generic [ref=f21e168]:
+            - link "" [ref=f21e169] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=f21e170]: 
+            - link "" [ref=f21e171] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=f21e172]: 
+            - link "" [ref=f21e173] [cursor=pointer]:
+              - /url: "#"
+              - generic [ref=f21e174]: 
+        - generic [ref=f21e175]:
+          - heading "Enlaces Rápidos" [level=4] [ref=f21e176]
+          - list [ref=f21e177]:
+            - listitem [ref=f21e178]:
+              - link "Productos" [ref=f21e179] [cursor=pointer]:
+                - /url: /productos
+            - listitem [ref=f21e180]:
+              - link "Carrito" [ref=f21e181] [cursor=pointer]:
+                - /url: /carrito
+            - listitem [ref=f21e182]:
+              - link "Iniciar Sesión" [ref=f21e183] [cursor=pointer]:
+                - /url: /login
+            - listitem [ref=f21e184]:
+              - link "Registrarse" [ref=f21e185] [cursor=pointer]:
+                - /url: /register
+        - generic [ref=f21e186]:
+          - heading "Categorías" [level=4] [ref=f21e187]
+          - list [ref=f21e188]:
+            - listitem [ref=f21e189]:
+              - link "Jackets" [ref=f21e190] [cursor=pointer]:
+                - /url: /productos?category_id=26
+            - listitem [ref=f21e191]:
+              - link "Dresses" [ref=f21e192] [cursor=pointer]:
+                - /url: /productos?category_id=23
+            - listitem [ref=f21e193]:
+              - link "Jeans" [ref=f21e194] [cursor=pointer]:
+                - /url: /productos?category_id=27
+            - listitem [ref=f21e195]:
+              - link "Sweaters" [ref=f21e196] [cursor=pointer]:
+                - /url: /productos?category_id=39
+        - generic [ref=f21e197]:
+          - heading "Contacto" [level=4] [ref=f21e198]
+          - list [ref=f21e199]:
+            - listitem [ref=f21e200]:
+              - generic [ref=f21e201]: 
+              - text: hello@latiendita.cl
+            - listitem [ref=f21e202]:
+              - generic [ref=f21e203]: 
+              - text: +56 9 1234 5678
+            - listitem [ref=f21e204]:
+              - generic [ref=f21e205]: 
+              - text: Santiago, Chile
+        - text:   
+      - generic [ref=f21e206]:
+        - generic [ref=f21e207]: © 2026 La Tiendita. Todos los derechos reservados.
+        - generic [ref=f21e208]:
+          - link "Privacidad" [ref=f21e209] [cursor=pointer]:
+            - /url: /privacidad
+          - link "Términos" [ref=f21e210] [cursor=pointer]:
+            - /url: /terminos
+    - generic:     
+    - generic:
+      - alertdialog
+    - generic [ref=f21e211]:
+      - paragraph [ref=f21e212]:
+        - text: 🍪 Utilizamos cookies para mejorar tu experiencia de navegación. Al continuar, aceptas nuestra
+        - link "política de privacidad" [ref=f21e213] [cursor=pointer]:
+          - /url: /privacidad
+        - text: .
+      - generic [ref=f21e214]:
+        - link "Más información" [ref=f21e215] [cursor=pointer]:
+          - /url: /privacidad
+        - button "Aceptar" [ref=f21e216] [cursor=pointer]
