@@ -6,7 +6,7 @@
     [outlined]="true"
     [severity]="!statusFilter() ? 'primary' : 'secondary'"
     [label]="'admin.allOrders' | translate"
-    (onClick)="filterByStatus(null)"
+    (click)="filterByStatus(null)"
     data-testid="filter-all"
   ></p-button>
   <p-button
@@ -14,7 +14,7 @@
     [outlined]="true"
     [severity]="statusFilter() === s ? 'primary' : 'secondary'"
     [label]="'order.status.' + s | translate"
-    (onClick)="filterByStatus(s)"
+    (click)="filterByStatus(s)"
     [attr.data-testid]="'filter-' + s"
   ></p-button>
 </div>
@@ -36,7 +36,7 @@
   <p-button
     [outlined]="true"
     [label]="'catalog.retry' | translate"
-    (onClick)="loadOrders()"
+    (click)="loadOrders()"
     styleClass="mt-3"
     data-testid="orders-retry"
   ></p-button>

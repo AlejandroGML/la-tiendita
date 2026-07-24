@@ -19,6 +19,14 @@ export class ProductBasicInfoComponent {
 
   readonly conditions = ['new', 'like_new', 'good', 'fair'];
 
+  readonly genderOptions = [
+    { label: 'Sin especificar', value: null },
+    { label: 'Mujer', value: 'female' },
+    { label: 'Hombre', value: 'male' },
+    { label: 'Kids', value: 'kids' },
+    { label: 'Unisex', value: 'unisex' },
+  ];
+
   getCategoryName(cat: Category): string {
     return cat.translations?.find((t) => t.language_code === 'es')?.name ?? cat.slug;
   }

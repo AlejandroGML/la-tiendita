@@ -17,7 +17,7 @@
   <p-button
     [outlined]="true"
     [label]="'catalog.retry' | translate"
-    (onClick)="loadStats()"
+    (click)="loadStats()"
     styleClass="mt-3"
     data-testid="dashboard-retry"
   ></p-button>
@@ -119,7 +119,7 @@
         <p-button
           [outlined]="true"
           [label]="'catalog.retry' | translate"
-          (onClick)="loadRecentOrders()"
+          (click)="loadRecentOrders()"
           size="small"
           data-testid="orders-retry"
         ></p-button>
@@ -200,7 +200,7 @@
         <p-button
           [outlined]="true"
           [label]="'catalog.retry' | translate"
-          (onClick)="loadRecentUsers()"
+          (click)="loadRecentUsers()"
           size="small"
           data-testid="users-retry"
         ></p-button>

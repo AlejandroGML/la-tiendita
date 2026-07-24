@@ -1,77 +1,69 @@
-<div class="footer-premium bg-gray-900 text-gray-300 pt-16 pb-8">
+<div class="footer-premium bg-gray-100 dark:bg-gray-900 text-gray-600 dark:text-gray-300 pt-16 pb-8 border-t border-gray-200 dark:border-gray-800">
   <div class="container mx-auto px-4 sm:px-8">
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 mb-12">
       <!-- Brand -->
       <div class="space-y-4">
-        <h3 class="text-white text-xl font-extrabold">{{ 'header.title' | translate }}</h3>
-        <p class="text-gray-400 text-sm leading-relaxed">{{ 'footer.brandDesc' | translate }}</p>
+        <h3 class="text-gray-900 dark:text-white text-xl font-extrabold">{{ 'header.title' | translate }}</h3>
+        <p class="text-gray-500 dark:text-gray-400 text-sm leading-relaxed">{{ 'footer.brandDesc' | translate }}</p>
         <div class="flex gap-3 pt-2">
-          <a href="#" class="w-9 h-9 bg-gray-700 hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors"><i class="pi pi-facebook"></i></a>
-          <a href="#" class="w-9 h-9 bg-gray-700 hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors"><i class="pi pi-instagram"></i></a>
-          <a href="#" class="w-9 h-9 bg-gray-700 hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors"><i class="pi pi-twitter"></i></a>
+          <span class="w-9 h-9 bg-gray-300 dark:bg-gray-700 hover:bg-emerald-500 dark:hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors cursor-pointer text-gray-600 dark:text-gray-300" title="Facebook"><i class="pi pi-facebook"></i></span>
+          <span class="w-9 h-9 bg-gray-300 dark:bg-gray-700 hover:bg-emerald-500 dark:hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors cursor-pointer text-gray-600 dark:text-gray-300" title="Instagram"><i class="pi pi-instagram"></i></span>
+          <span class="w-9 h-9 bg-gray-300 dark:bg-gray-700 hover:bg-emerald-500 dark:hover:bg-emerald-600 rounded-full flex items-center justify-center transition-colors cursor-pointer text-gray-600 dark:text-gray-300" title="Twitter"><i class="pi pi-twitter"></i></span>
         </div>
       </div>
       <!-- Quick links -->
       <div class="hidden md:block">
-        <h4 class="text-white font-bold mb-4">{{ 'footer.quickLinks' | translate }}</h4>
+        <h4 class="text-gray-900 dark:text-white font-bold mb-4">{{ 'footer.quickLinks' | translate }}</h4>
         <ul class="space-y-2.5">
-          <li><a routerLink="/productos" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'nav.products' | translate }}</a></li>
-          <li><a routerLink="/carrito" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'nav.cart' | translate }}</a></li>
-          <li><a routerLink="/login" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'footer.signIn' | translate }}</a></li>
-          <li><a routerLink="/register" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'footer.register' | translate }}</a></li>
+          <li><a routerLink="/productos" class="text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-white transition-colors text-sm">{{ 'nav.products' | translate }}</a></li>
+          <li><a routerLink="/carrito" class="text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-white transition-colors text-sm">{{ 'nav.cart' | translate }}</a></li>
+          <li><a routerLink="/login" class="text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-white transition-colors text-sm">{{ 'footer.signIn' | translate }}</a></li>
         </ul>
       </div>
       <details class="md:hidden mb-2">
-        <summary class="text-white font-bold py-2 cursor-pointer">{{ 'footer.quickLinks' | translate }}</summary>
+        <summary class="text-gray-900 dark:text-white font-bold py-2 cursor-pointer">{{ 'footer.quickLinks' | translate }}</summary>
         <ul class="space-y-2.5 mt-2">
-          <li><a routerLink="/productos" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'nav.products' | translate }}</a></li>
-          <li><a routerLink="/carrito" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'nav.cart' | translate }}</a></li>
-          <li><a routerLink="/login" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'footer.signIn' | translate }}</a></li>
-          <li><a routerLink="/register" class="text-gray-400 hover:text-white transition-colors text-sm">{{ 'footer.register' | translate }}</a></li>
+          <li><a routerLink="/productos" class="text-gray-500 dark:text-gray-400 transition-colors text-sm">{{ 'nav.products' | translate }}</a></li>
+          <li><a routerLink="/carrito" class="text-gray-500 dark:text-gray-400 transition-colors text-sm">{{ 'nav.cart' | translate }}</a></li>
+          <li><a routerLink="/login" class="text-gray-500 dark:text-gray-400 transition-colors text-sm">{{ 'footer.signIn' | translate }}</a></li>
         </ul>
       </details>
       <!-- Categories -->
       <div class="hidden md:block">
-        <h4 class="text-white font-bold mb-4">{{ 'home.categories' | translate }}</h4>
+        <h4 class="text-gray-900 dark:text-white font-bold mb-4">{{ 'home.categories' | translate }}</h4>
         <ul class="space-y-2.5">
-          <li><a routerLink="/productos" [queryParams]="{category_id: 26}" class="text-gray-400 hover:text-white transition-colors text-sm">Jackets</a></li>
-          <li><a routerLink="/productos" [queryParams]="{category_id: 23}" class="text-gray-400 hover:text-white transition-colors text-sm">Dresses</a></li>
-          <li><a routerLink="/productos" [queryParams]="{category_id: 27}" class="text-gray-400 hover:text-white transition-colors text-sm">Jeans</a></li>
-          <li><a routerLink="/productos" [queryParams]="{category_id: 39}" class="text-gray-400 hover:text-white transition-colors text-sm">Sweaters</a></li>
+          <li *ngFor="let cat of categories() | slice:0:3"><a routerLink="/productos" [queryParams]="{category_id: cat.id}" class="text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-white transition-colors text-sm">{{ cat.name }}</a></li>
         </ul>
       </div>
       <details class="md:hidden mb-2">
-        <summary class="text-white font-bold py-2 cursor-pointer">{{ 'home.categories' | translate }}</summary>
+        <summary class="text-gray-900 dark:text-white font-bold py-2 cursor-pointer">{{ 'home.categories' | translate }}</summary>
         <ul class="space-y-2.5 mt-2">
-          <li><a routerLink="/productos" [queryParams]="{category_id: 26}" class="text-gray-400 hover:text-white transition-colors text-sm">Jackets</a></li>
-          <li><a routerLink="/productos" [queryParams]="{category_id: 23}" class="text-gray-400 hover:text-white transition-colors text-sm">Dresses</a></li>
-          <li><a routerLink="/productos" [queryParams]="{category_id: 27}" class="text-gray-400 hover:text-white transition-colors text-sm">Jeans</a></li>
-          <li><a routerLink="/productos" [queryParams]="{category_id: 39}" class="text-gray-400 hover:text-white transition-colors text-sm">Sweaters</a></li>
+          <li *ngFor="let cat of categories() | slice:0:3"><a routerLink="/productos" [queryParams]="{category_id: cat.id}" class="text-gray-500 dark:text-gray-400 transition-colors text-sm">{{ cat.name }}</a></li>
         </ul>
       </details>
       <!-- Contact -->
       <div class="hidden md:block">
-        <h4 class="text-white font-bold mb-4">{{ 'footer.contact' | translate }}</h4>
+        <h4 class="text-gray-900 dark:text-white font-bold mb-4">{{ 'footer.contact' | translate }}</h4>
         <ul class="space-y-2.5 text-sm">
-          <li class="flex items-center gap-2"><i class="pi pi-envelope text-emerald-400"></i> hello&#64;latiendita.cl</li>
-          <li class="flex items-center gap-2"><i class="pi pi-phone text-emerald-400"></i> +56 9 1234 5678</li>
-          <li class="flex items-center gap-2"><i class="pi pi-map-marker text-emerald-400"></i> Santiago, Chile</li>
+          <li class="flex items-center gap-2"><i class="pi pi-envelope text-emerald-500 dark:text-emerald-400"></i> <span class="text-gray-600 dark:text-gray-300">hello&#64;latiendita.cl</span></li>
+          <li class="flex items-center gap-2"><i class="pi pi-phone text-emerald-500 dark:text-emerald-400"></i> <span class="text-gray-600 dark:text-gray-300">+56 9 1234 5678</span></li>
+          <li class="flex items-center gap-2"><i class="pi pi-map-marker text-emerald-500 dark:text-emerald-400"></i> <span class="text-gray-600 dark:text-gray-300">Santiago, Chile</span></li>
         </ul>
       </div>
       <details class="md:hidden mb-2">
-        <summary class="text-white font-bold py-2 cursor-pointer">{{ 'footer.contact' | translate }}</summary>
+        <summary class="text-gray-900 dark:text-white font-bold py-2 cursor-pointer">{{ 'footer.contact' | translate }}</summary>
         <ul class="space-y-2.5 text-sm mt-2">
-          <li class="flex items-center gap-2"><i class="pi pi-envelope text-emerald-400"></i> hello&#64;latiendita.cl</li>
-          <li class="flex items-center gap-2"><i class="pi pi-phone text-emerald-400"></i> +56 9 1234 5678</li>
-          <li class="flex items-center gap-2"><i class="pi pi-map-marker text-emerald-400"></i> Santiago, Chile</li>
+          <li class="flex items-center gap-2"><i class="pi pi-envelope text-emerald-500 dark:text-emerald-400"></i> <span class="text-gray-600 dark:text-gray-300">hello&#64;latiendita.cl</span></li>
+          <li class="flex items-center gap-2"><i class="pi pi-phone text-emerald-500 dark:text-emerald-400"></i> <span class="text-gray-600 dark:text-gray-300">+56 9 1234 5678</span></li>
+          <li class="flex items-center gap-2"><i class="pi pi-map-marker text-emerald-500 dark:text-emerald-400"></i> <span class="text-gray-600 dark:text-gray-300">Santiago, Chile</span></li>
         </ul>
       </details>
     </div>
-    <div class="border-t border-gray-700 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500">
+    <div class="border-t border-gray-300 dark:border-gray-700 pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-gray-500 dark:text-gray-500">
       <span>&copy; 2026 {{ 'header.title' | translate }}. {{ 'footer.rights' | translate }}</span>
       <div class="flex gap-6">
-        <a routerLink="/privacidad" class="hover:text-white transition-colors">{{ 'footer.privacy' | translate }}</a>
-        <a routerLink="/terminos" class="hover:text-white transition-colors">{{ 'footer.terms' | translate }}</a>
+        <a routerLink="/privacidad" class="hover:text-emerald-600 dark:hover:text-white transition-colors">{{ 'footer.privacy' | translate }}</a>
+        <a routerLink="/terminos" class="hover:text-emerald-600 dark:hover:text-white transition-colors">{{ 'footer.terms' | translate }}</a>
       </div>
     </div>
   </div>

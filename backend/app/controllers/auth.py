@@ -4,7 +4,7 @@ Registered at ``/auth``. Uses Litestar DI for ``AuthService``, ``TokenService``,
 ``PasswordResetService``, and ``AsyncSession``.
 """
 
-from litestar import Controller, get, post
+from litestar import Controller, Response, get, post
 from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import HTTPException, NotAuthorizedException
@@ -243,9 +243,9 @@ class AuthController(Controller):
     ) -> UserResponse:
         """Return the currently authenticated user.
 
-        The ``request.user`` is populated by the JWT guard's
-        ``retrieve_user_handler`` during token validation, so no
-        explicit database query is needed here.
+        Protected by JWT guard — anonymous callers get a 401 before
+        reaching this handler.  ``request.user`` is populated by the
+        guard's ``retrieve_user_handler`` during token validation.
         """
         user: User = request.user
         return UserResponse.model_validate(user)

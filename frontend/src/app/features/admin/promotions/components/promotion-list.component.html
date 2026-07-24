@@ -14,7 +14,7 @@
   <p-button
     [outlined]="true"
     [label]="'catalog.retry' | translate"
-    (onClick)="retry.emit()"
+    (click)="retry.emit()"
     styleClass="mt-3"
     data-testid="promotions-retry"
   ></p-button>
@@ -97,7 +97,7 @@
             severity="info"
             icon="pi pi-pencil"
             [attr.aria-label]="'admin.edit' | translate"
-            (onClick)="edit.emit(promotion)"
+            (click)="edit.emit(promotion)"
             data-testid="btn-edit"
           ></p-button>
           <p-button
@@ -106,7 +106,7 @@
             severity="danger"
             icon="pi pi-trash"
             [attr.aria-label]="'admin.delete' | translate"
-            (onClick)="onDelete(promotion)"
+            (click)="onDelete(promotion)"
             data-testid="btn-delete"
           ></p-button>
         </td>

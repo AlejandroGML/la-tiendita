@@ -1,6 +1,7 @@
-import { Component, Input, OnInit, signal } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
 import type { Product, ProductColorSwatch } from '../../models/product.model';
 import { WishlistService } from '../../../core/services/wishlist.service';
 
@@ -35,6 +36,7 @@ export class ProductCardComponent implements OnInit {
     private translate: TranslateService,
     private router: Router,
     private wishlistService: WishlistService,
+    private messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
@@ -192,13 +194,27 @@ export class ProductCardComponent implements OnInit {
     this.animateHeart = true;
     setTimeout(() => this.animateHeart = false, 400);
 
+    const productName = this.displayName || 'Producto';
+
     if (this.isWishlisted()) {
       this.wishlistService.removeFromWishlist(this.product.id).subscribe({
-        next: () => this.isWishlisted.set(false),
+        next: () => {
+          this.isWishlisted.set(false);
+          this.messageService.add({ severity: 'info', summary: productName, detail: 'Eliminado de favoritos', life: 2000 });
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: productName, detail: 'Error al eliminar de favoritos', life: 3000 });
+        },
       });
     } else {
       this.wishlistService.addToWishlist(this.product.id).subscribe({
-        next: () => this.isWishlisted.set(true),
+        next: () => {
+          this.isWishlisted.set(true);
+          this.messageService.add({ severity: 'success', summary: productName, detail: 'Agregado a favoritos', life: 2000 });
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', summary: productName, detail: 'Error al agregar a favoritos', life: 3000 });
+        },
       });
     }
   }

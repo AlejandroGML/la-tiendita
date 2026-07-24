@@ -54,6 +54,7 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
 
   megaOpen = false;
+  private openedByClick = false; // click stays open, hover closes after delay
   categories: CategoryItem[] = [];
   private categoriesSub: Subscription | null = null;
   private megaTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -89,6 +90,14 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
 
   // ── Hover logic ──
 
+  /** Toggle via click — stays open until clicking outside */
+  protected toggleMega(): void {
+    this.clearMegaTimeout();
+    this.openedByClick = !this.megaOpen;
+    this.megaOpen = !this.megaOpen;
+    this.cdr.markForCheck();
+  }
+
   /** Close when clicking outside the component */
   @HostListener('document:click', ['$event'])
   protected onDocumentClick(event: MouseEvent): void {
@@ -96,29 +105,35 @@ export class MegaMenuComponent implements OnInit, OnDestroy {
       const target = event.target as HTMLElement;
       if (!target.closest('app-mega-menu')) {
         this.megaOpen = false;
+        this.openedByClick = false;
         this.clearMegaTimeout();
         this.cdr.markForCheck();
       }
     }
   }
 
-  /** Open immediately (no delay on enter) */
+  /** Open on hover — only if not opened by click */
   protected onMegaEnter(): void {
+    if (this.openedByClick) return; // click-locked, don't interfere
     this.clearMegaTimeout();
     this.megaOpen = true;
     this.cdr.markForCheck();
   }
 
-  /** Close with 200ms grace period — allows moving to the panel */
+  /** Close on hover leave with grace period — only if not click-locked */
   protected onMegaLeave(): void {
+    if (this.openedByClick) return; // click-locked
     this.megaTimeout = setTimeout(() => {
       this.megaOpen = false;
       this.cdr.markForCheck();
-    }, 200);
+    }, 400); // increased from 200ms for better UX
   }
 
   /** Close immediately — for when the mouse leaves the panel itself */
   protected closeMegaPanel(): void {
+    if (this.openedByClick) {
+      // Still close via hover on the actual panel
+    }
     this.clearMegaTimeout();
     this.megaOpen = false;
     this.cdr.markForCheck();

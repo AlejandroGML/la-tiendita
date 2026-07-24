@@ -4,11 +4,12 @@
 
   <!-- Categories trigger button -->
   <button type="button"
-          (click)="megaOpen = !megaOpen"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 active:from-emerald-700 active:to-emerald-800 transition-all duration-200 rounded-full shadow-sm hover:shadow-md">
-    <span [innerHTML]="'grid' | svgIcon:'w-4 h-4'"></span>
+          (click)="toggleMega()"
+          class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white shadow-sm rounded-full transition-all duration-200"
+          style="background: linear-gradient(135deg, #059669, #047857);">
+    <i class="pi pi-th-large text-base"></i>
     <span>{{ 'header.categorias' | translate }}</span>
-    <span class="transition-transform duration-200" [class.rotate-180]="megaOpen" [innerHTML]="'chevronDown' | svgIcon:'w-3.5 h-3.5'"></span>
+    <i class="text-xs transition-transform duration-200" [ngClass]="megaOpen ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
   </button>
 
   <!-- Mega Menu Panel -->
@@ -28,7 +29,7 @@
                [queryParams]="{category_id: cat.id}"
                class="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors mega-link">
               <i [ngClass]="'pi ' + getCategoryIcon(cat.slug)" class="text-base flex-shrink-0"></i>
-              <span class="truncate">{{ 'category.' + cat.slug | translate }}</span>
+               <span class="truncate">{{ cat.name || cat.slug }}</span>
             </a>
           </div>
         </div>

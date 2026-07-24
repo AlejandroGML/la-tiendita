@@ -190,6 +190,13 @@ html.dark-theme {
    as inline (HTML default) and break CSS Grid
    layouts in parent containers.
    ============================================ */
+app-header {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
 app-root,
 app-admin-layout,
 app-admin-dashboard,

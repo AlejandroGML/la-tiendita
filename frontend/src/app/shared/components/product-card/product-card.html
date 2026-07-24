@@ -1,4 +1,4 @@
-<p-card styleClass="product-card-enhanced block w-full cursor-pointer group">
+<p-card styleClass="product-card-enhanced block w-full cursor-pointer group" (click)="navigateToDetail($event)">
   <ng-template pTemplate="header">
     <div
       class="relative overflow-hidden aspect-[3/4] bg-gray-100 dark:bg-gray-800"
@@ -54,10 +54,10 @@
           {{ 'product.newArrival' | translate }}
         </span>
       </div>
-      <!-- Wishlist heart button (top-right, below condition badge) -->
+      <!-- Wishlist heart button (top-right) -->
       <button
         type="button"
-        class="absolute top-11 right-3 z-10 w-9 h-9 flex items-center justify-center rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
+        class="absolute top-11 right-3 z-10 w-10 h-10 flex items-center justify-center rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
         [class.heart-animate]="animateHeart"
         (click)="toggleWishlist($event)"
         aria-label="Add to wishlist"

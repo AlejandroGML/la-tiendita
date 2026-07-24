@@ -1,7 +1,7 @@
 <a (click)="navigateToWishlist()"
-   class="relative p-2 text-gray-500 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors rounded-lg hover:bg-pink-50 dark:hover:bg-gray-800 active:bg-pink-100 dark:active:bg-gray-700 cursor-pointer"
+   class="relative w-10 h-10 flex items-center justify-center text-gray-500 dark:text-gray-400 hover:text-pink-500 dark:hover:text-pink-400 transition-colors rounded-lg hover:bg-pink-50 dark:hover:bg-gray-800 active:bg-pink-100 dark:active:bg-gray-700 cursor-pointer"
    [attr.aria-label]="'Favoritos'">
-  <span [innerHTML]="'heart' | svgIcon"></span>
+  <i class="pi pi-heart text-xl"></i>
   <span *ngIf="wishlistCount > 0"
         class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-pink-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-sm ring-2 ring-white dark:ring-gray-950">
     {{ wishlistCount > 9 ? '9+' : wishlistCount }}

@@ -17,7 +17,7 @@
   <p-button
     [outlined]="true"
     [label]="'catalog.retry' | translate"
-    (onClick)="loadUsers()"
+    (click)="loadUsers()"
     styleClass="mt-3"
     data-testid="users-retry"
   ></p-button>
@@ -46,6 +46,7 @@
         <th>{{ 'admin.orders' | translate }}</th>
         <th>{{ 'admin.status' | translate }}</th>
         <th>{{ 'admin.created' | translate }}</th>
+        <th>{{ 'admin.actions' | translate }}</th>
       </tr>
     </ng-template>
     <ng-template pTemplate="body" let-user>
@@ -74,6 +75,16 @@
           </span>
         </td>
         <td>{{ user.created_at | date:'shortDate' }}</td>
+        <td>
+          <p-button
+            *ngIf="user.id !== currentUserId"
+            icon="pi pi-trash"
+            [rounded]="true"
+            [text]="true"
+            severity="danger"
+            (click)="deleteUser(user)"
+          ></p-button>
+        </td>
       </tr>
     </ng-template>
   </p-table>

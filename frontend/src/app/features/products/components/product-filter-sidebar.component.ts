@@ -79,7 +79,7 @@ export class ProductFilterSidebarComponent implements OnInit, OnDestroy {
     const all = { label: this.translate.instant('catalog.allGenders'), value: null };
     const items = this.genders.map((g) => ({
       label: this.translate.instant('gender.' + g),
-      value: g === 'women' ? 'Ladies' : g === 'men' ? 'Men' : g === 'kids' ? 'Kids' : 'Unisex',
+      value: g,
     }));
     return [all, ...items];
   });

@@ -77,6 +77,16 @@ export class AdminProductForm implements OnInit, OnDestroy {
         category_id: [null, Validators.required],
         brand: [''],
         condition: ['good'],
+        condition_rating: [null],
+        condition_details: [null],
+        target_gender: [null],
+        material: [''],
+        colors: [''],
+        trend: [''],
+        pattern: [''],
+        season: [''],
+        cut: [''],
+        usage: [''],
         translations: this.fb.array([
           this.createTranslationGroup('es'),
           this.createTranslationGroup('en'),
@@ -155,6 +165,16 @@ export class AdminProductForm implements OnInit, OnDestroy {
       category_id: product.category_id,
       brand: product.brand,
       condition: product.condition,
+      condition_rating: product.condition_rating,
+      condition_details: product.condition_details,
+      target_gender: product.target_gender,
+      material: product.material,
+      colors: Array.isArray(product.colors) ? product.colors.join(', ') : product.colors,
+      trend: product.trend,
+      pattern: product.pattern,
+      season: product.season,
+      cut: Array.isArray(product.cut) ? product.cut.join(', ') : product.cut,
+      usage: product.usage,
     });
 
     // Populate translations
@@ -262,6 +282,20 @@ export class AdminProductForm implements OnInit, OnDestroy {
       category_id: formValue.category_id,
       brand: formValue.brand || undefined,
       condition: formValue.condition,
+      condition_rating: formValue.condition_rating || undefined,
+      condition_details: formValue.condition_details || undefined,
+      target_gender: formValue.target_gender || undefined,
+      material: formValue.material || undefined,
+      colors: typeof formValue.colors === 'string' && formValue.colors.trim()
+        ? formValue.colors.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+        : undefined,
+      trend: formValue.trend || undefined,
+      pattern: formValue.pattern || undefined,
+      season: formValue.season || undefined,
+      cut: typeof formValue.cut === 'string' && formValue.cut.trim()
+        ? formValue.cut.split(',').map((s: string) => s.trim()).filter((s: string) => s.length > 0)
+        : undefined,
+      usage: formValue.usage || undefined,
       image_urls: imageUrls,
       translations: formValue.translations
         .filter((t: { name: string }) => t.name?.trim())

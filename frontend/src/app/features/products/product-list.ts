@@ -100,7 +100,7 @@ export class ProductList implements OnInit, OnDestroy {
       this.filters.update(f => ({
         ...f,
         category_id: categoryId ? Number(categoryId) : null,
-        target_gender: gender ? ({ women: 'Ladies', men: 'Men', kids: 'Kids', unisex: 'Unisex' }[gender] || null) : null,
+        target_gender: gender ?? null,
       }));
       this.loadProducts();
     });
@@ -182,8 +182,7 @@ export class ProductList implements OnInit, OnDestroy {
     const params = new URLSearchParams();
     if (f.category_id) params.set('category_id', String(f.category_id));
     if (f.target_gender) {
-      const reverseMap: Record<string, string> = { Ladies: 'women', Men: 'men', Kids: 'kids', Unisex: 'unisex' };
-      params.set('gender', reverseMap[f.target_gender] || f.target_gender);
+      params.set('gender', f.target_gender);
     }
     if (f.sort) params.set('sort', f.sort);
     const qs = params.toString();

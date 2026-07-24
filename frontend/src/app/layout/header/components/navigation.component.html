@@ -4,9 +4,12 @@
 <!-- ════════════════════════════════════════════ -->
 <div class="hidden lg:block bg-white dark:bg-gray-950">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center h-10 gap-0.5 overflow-x-auto whitespace-nowrap scrollbar-hide">
+    <div class="flex items-center h-10 gap-0.5">
 
       <app-mega-menu></app-mega-menu>
+
+      <div class="flex items-center gap-0.5 overflow-x-auto overflow-y-visible whitespace-nowrap scrollbar-hide flex-1">
+
 
       <!-- Quick links -->
       <a routerLink="/productos" [queryParams]="{oferta: true}"
@@ -28,8 +31,10 @@
       <!-- Spacer -->
       <div class="flex-1"></div>
 
+      </div><!-- end scrollable wrapper -->
+
       <!-- Trust Badge -->
-      <div class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500">
+      <div class="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 flex-shrink-0">
         <span [innerHTML]="'shield' | svgIcon:'w-3.5 h-3.5'"></span>
         {{ 'header.compraSegura' | translate }}
       </div>

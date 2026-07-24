@@ -6,7 +6,7 @@
             [text]="true"
             severity="secondary"
             icon="pi pi-arrow-left"
-            (onClick)="onCancel()"
+            (click)="onCancel()"
             class="hover:!bg-emerald-50 dark:hover:!bg-gray-800"></button>
     <div>
       <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ pageTitle | translate }}</h1>
@@ -69,7 +69,7 @@
               [outlined]="true"
               severity="secondary"
               label="Cancelar"
-              (onClick)="onCancel()"
+              (click)="onCancel()"
               data-testid="btn-cancel"></button>
     </div>
 

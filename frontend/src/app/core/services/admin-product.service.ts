@@ -16,6 +16,16 @@ export interface CreateProductPayload {
   category_id: number;
   brand?: string;
   condition?: string;
+  condition_rating?: number;
+  condition_details?: Record<string, string>;
+  target_gender?: string;
+  material?: string;
+  colors?: string[];
+  trend?: string;
+  pattern?: string;
+  season?: string;
+  cut?: string[];
+  usage?: string;
   image_urls?: string[];
   translations: Array<{
     lang: string;
@@ -60,10 +70,10 @@ export class AdminProductService {
   }
 
   updateProduct(slug: string, data: UpdateProductPayload): Observable<Product> {
-    return this.http.put<Product>(`/api/v1/admin/products/${slug}`, data);
+    return this.http.put<Product>(`/api/v1/admin/products/slug/${slug}`, data);
   }
 
   deleteProduct(slug: string): Observable<void> {
-    return this.http.delete<void>(`/api/v1/admin/products/${slug}`);
+    return this.http.delete<void>(`/api/v1/admin/products/slug/${slug}`);
   }
 }

@@ -6,20 +6,17 @@
   <!-- Guest ephemeral cart warning -->
   <div
     *ngIf="isGuest()"
-    class="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between"
+    class="mb-6 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-4 flex items-center justify-between flex-wrap gap-3"
     data-testid="cart-guest-banner"
   >
     <div class="flex items-center gap-3">
-      <i class="pi pi-info-circle text-amber-600 text-xl"></i>
-      <p class="text-amber-800 font-medium">{{ 'cart.guestWarning' | translate }}</p>
+      <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-xl"></i>
+      <p class="text-amber-800 dark:text-amber-200 font-medium">{{ 'cart.guestWarning' | translate }}</p>
     </div>
-    <a
-      pButton
-      severity="warn"
-      [routerLink]="['/register']"
-    >
-      {{ 'cart.createAccount' | translate }}
-    </a>
+    <div class="flex gap-2">
+      <a pButton severity="secondary" [routerLink]="['/login']" styleClass="!bg-white dark:!bg-gray-700 !text-gray-700 dark:!text-gray-200 !border-gray-300 dark:!border-gray-600">{{ 'cart.signIn' | translate }}</a>
+      <a pButton severity="warn" [routerLink]="['/register']">{{ 'cart.createAccount' | translate }}</a>
+    </div>
   </div>
 
   <!-- Cancelled payment banner -->

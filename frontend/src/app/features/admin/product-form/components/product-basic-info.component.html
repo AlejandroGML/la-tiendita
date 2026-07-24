@@ -62,5 +62,76 @@
       <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Marca</label>
       <input pInputText id="brand" formControlName="brand" placeholder="Ej: Nike, Zara, Levi's" class="w-full" data-testid="input-brand" />
     </div>
+
+    <!-- Target Gender -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Género objetivo</label>
+      <p-select
+        inputId="target_gender"
+        [options]="genderOptions"
+        formControlName="target_gender"
+        appendTo="body"
+        styleClass="w-full"
+        placeholder="Seleccionar género"
+      >
+        <ng-template let-g pTemplate="item">{{ g.label }}</ng-template>
+        <ng-template let-g pTemplate="selectedItem">{{ g.label }}</ng-template>
+      </p-select>
+    </div>
+
+    <!-- Material -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Material</label>
+      <input pInputText id="material" formControlName="material" placeholder="Ej: 100% cotton, polyester" class="w-full" />
+    </div>
+
+    <!-- Colors (comma-separated) -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Colores</label>
+      <input pInputText id="colors" formControlName="colors" placeholder="Ej: Rojo, Azul, Negro (separados por coma)" class="w-full" />
+      <small class="text-xs text-gray-400 dark:text-gray-500 block mt-1">Separados por coma</small>
+    </div>
+
+    <!-- Trend -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Tendencia</label>
+      <input pInputText id="trend" formControlName="trend" placeholder="Ej: No trend, Vintage, Modern" class="w-full" />
+    </div>
+
+    <!-- Pattern -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Patrón</label>
+      <input pInputText id="pattern" formControlName="pattern" placeholder="Ej: floral, striped, solid" class="w-full" />
+    </div>
+
+    <!-- Season -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Temporada</label>
+      <input pInputText id="season" formControlName="season" placeholder="Ej: spring, summer, fall, winter" class="w-full" />
+    </div>
+
+    <!-- Condition Rating -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Valoración estado (1-5)</label>
+      <p-inputNumber
+        formControlName="condition_rating"
+        [min]="1"
+        [max]="5"
+        styleClass="w-full"
+      ></p-inputNumber>
+    </div>
+
+    <!-- Cut (comma-separated) -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Corte / Tipo</label>
+      <input pInputText id="cut" formControlName="cut" placeholder="Ej: slim, regular, oversized (separados por coma)" class="w-full" />
+      <small class="text-xs text-gray-400 dark:text-gray-500 block mt-1">Separados por coma</small>
+    </div>
+
+    <!-- Usage -->
+    <div>
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5">Uso</label>
+      <input pInputText id="usage" formControlName="usage" placeholder="Ej: casual, formal, sport" class="w-full" />
+    </div>
   </div>
 </div>

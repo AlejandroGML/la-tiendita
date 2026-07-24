@@ -4,7 +4,7 @@
     <p-button
       [label]="'admin.newProduct' | translate"
       icon="pi pi-plus"
-      (onClick)="navigateToNew()"
+      (click)="navigateToNew()"
       data-testid="btn-new-product"
     ></p-button>
   </header>
@@ -25,7 +25,7 @@
     <p-button
       [outlined]="true"
       [label]="'catalog.retry' | translate"
-      (onClick)="loadProducts()"
+      (click)="loadProducts()"
       styleClass="mt-3"
       data-testid="products-retry"
     ></p-button>
@@ -101,7 +101,7 @@
               [text]="true"
               severity="primary"
               [attr.aria-label]="'admin.edit' | translate"
-              (onClick)="editProduct(product.slug)"
+              (click)="editProduct(product.slug)"
               data-testid="btn-edit"
             ></p-button>
             <p-button
@@ -110,7 +110,7 @@
               [text]="true"
               severity="danger"
               [attr.aria-label]="'admin.delete' | translate"
-              (onClick)="deleteProduct(product)"
+              (click)="deleteProduct(product)"
               data-testid="btn-delete"
             ></p-button>
           </td>

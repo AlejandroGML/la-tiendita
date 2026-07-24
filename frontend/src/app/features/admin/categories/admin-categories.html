@@ -5,7 +5,7 @@
 <div *ngIf="error() && !loading()" class="text-center py-12" data-testid="categories-error">
   <i class="pi pi-exclamation-circle text-4xl text-red-400 mb-2 block"></i>
   <p class="text-gray-500 dark:text-gray-400">Error al cargar categorías</p>
-  <p-button [outlined]="true" label="Reintentar" (onClick)="loadCategories()" styleClass="mt-3"></p-button>
+  <p-button [outlined]="true" label="Reintentar" (click)="loadCategories()" styleClass="mt-3"></p-button>
 </div>
 
 <div *ngIf="!loading() && !error() && categories().length === 0" class="text-center py-12 text-gray-500 dark:text-gray-400" data-testid="no-categories">

@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core';
 import { MessageService } from 'primeng/api';
 import { type PaginatorState } from 'primeng/paginator';
 import { Subject, takeUntil } from 'rxjs';
@@ -6,6 +6,7 @@ import {
   AdminUserService,
   type UserAdminItem,
 } from '../../../core/services/admin-user.service';
+import { AuthStateService } from '../../../core/services/auth-state.service';
 
 const VALID_ROLES = ['customer', 'admin'] as const;
 
@@ -36,7 +37,12 @@ export class AdminUsers implements OnInit, OnDestroy {
   constructor(
     private readonly adminUserService: AdminUserService,
     private readonly messageService: MessageService,
+    private readonly authState: AuthStateService,
   ) {}
+
+  get currentUserId(): string | null {
+    return this.authState.currentUser()?.id ?? null;
+  }
 
   ngOnInit(): void {
     this.loadUsers();
@@ -96,5 +102,22 @@ export class AdminUsers implements OnInit, OnDestroy {
 
   getVerifiedLabel(isVerified: boolean): string {
     return isVerified ? 'admin.verified' : 'admin.unverified';
+  }
+
+  deleteUser(user: UserAdminItem): void {
+    const name = user.name || user.email;
+    if (!confirm(`¿Eliminar usuario "${name}"?`)) return;
+    this.adminUserService
+      .deleteUser(user.id)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: () => {
+          this.messageService.add({ severity: 'success', detail: `Usuario "${name}" eliminado`, life: 3000 });
+          this.loadUsers(this.page());
+        },
+        error: () => {
+          this.messageService.add({ severity: 'error', detail: 'admin.roleUpdateError', life: 3000 });
+        },
+      });
   }
 }
