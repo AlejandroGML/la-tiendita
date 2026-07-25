@@ -1,4 +1,4 @@
-<div class="product-list-page min-h-screen">
+<div class="product-list-page min-h-screen pb-16">
   <!-- Header: title + sort -->
   <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
     <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ 'catalog.title' | translate }}</h1>
@@ -15,9 +15,10 @@
     </div>
   </div>
 
-  <!-- Mobile filter toggle button -->
-  <button (click)="showFilters = !showFilters" class="lg:hidden w-full mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg text-left font-medium text-gray-900 dark:text-gray-100">
-    ☰ {{ 'catalog.filters' | translate }} {{ showFilters ? '▲' : '▼' }}
+  <!-- Mobile filter toggle button — WCAG 2.2 touch target ≥44px -->
+  <button (click)="showFilters = !showFilters" class="lg:hidden w-full mb-4 p-3 min-h-[44px] bg-gray-100 dark:bg-gray-800 rounded-lg text-left font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+    <i class="pi" [ngClass]="showFilters ? 'pi-times' : 'pi-filter'"></i>
+    {{ 'catalog.filters' | translate }}
   </button>
 
   <div class="flex flex-col lg:flex-row gap-6">

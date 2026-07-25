@@ -2,14 +2,14 @@
   <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
     <div class="flex-1 text-sm text-gray-700 dark:text-gray-300">
       <p>
-        🍪 {{ 'cookie.text' | translate }}
+        <i class="pi pi-cookie mr-1 text-amber-500"></i> {{ 'cookie.text' | translate }}
         <a routerLink="/privacidad" class="text-emerald-600 dark:text-emerald-400 underline ml-1">{{ 'cookie.moreInfo' | translate }}</a>.
       </p>
     </div>
     <div class="flex flex-wrap gap-2 shrink-0">
-      <p-button [label]="'cookie.essential' | translate" severity="secondary" [outlined]="true" size="small" (click)="acceptEssential()"></p-button>
-      <p-button [label]="'cookie.customize' | translate" severity="secondary" size="small" (click)="openPreferences()"></p-button>
-      <p-button [label]="'cookie.acceptAll' | translate" severity="primary" size="small" (click)="acceptAll()"></p-button>
+      <p-button [label]="'cookie.essential' | translate" severity="secondary" [outlined]="true" (click)="acceptEssential()"></p-button>
+      <p-button [label]="'cookie.customize' | translate" severity="secondary" (click)="openPreferences()"></p-button>
+      <p-button [label]="'cookie.acceptAll' | translate" severity="primary" (click)="acceptAll()"></p-button>
     </div>
   </div>
 </div>
