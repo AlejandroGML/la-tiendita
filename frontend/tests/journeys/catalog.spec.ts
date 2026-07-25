@@ -6,7 +6,7 @@ test.describe('Catalog Journey — Search, Filter, Sort, Pagination', () => {
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
 
-    const searchInput = page.locator(S.searchInput);
+    const searchInput = page.locator(S.searchInput).first();
     await expect(searchInput).toBeVisible({ timeout: 10_000 });
 
     // Type a search query and submit

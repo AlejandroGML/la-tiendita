@@ -101,11 +101,15 @@ test.describe('Admin Panel', () => {
     const statsOrError = page.locator(S.adminDashboard).or(page.locator(S.adminDashboardError));
     await expect(statsOrError).toBeVisible({ timeout: 5_000 });
   });
+});
 
-  test('non-admin cannot access admin routes', async ({ page }) => {
-    await clearTokens(page);
+test.describe('Admin Panel — Redirects', () => {
+  test('non-admin cannot access admin routes', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
     await page.goto('/admin');
     await page.waitForTimeout(5_000);
     expect(page.url()).toContain('/login');
+    await context.close();
   });
 });

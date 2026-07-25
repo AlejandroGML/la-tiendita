@@ -43,7 +43,7 @@ test.describe('Empty States', () => {
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
 
-    const search = page.locator('[role="combobox"]');
+    const search = page.locator('app-search-bar input');
     if (await search.isVisible({ timeout: 8_000 }).catch(() => false)) {
       await search.fill('zzzznothingmatchesthis');
       await search.press('Enter');

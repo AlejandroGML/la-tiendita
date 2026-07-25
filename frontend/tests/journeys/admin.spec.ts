@@ -151,11 +151,15 @@ test.describe('Admin Journey — Product + Order Lifecycle', () => {
       await expect(statusSelect).toBeVisible({ timeout: 5_000 });
     }
   });
+});
 
-  test('non-admin user is redirected away from admin routes', async ({ page }) => {
-    await clearTokens(page);
+test.describe('Admin Journey — Redirects', () => {
+  test('non-admin user is redirected away from admin routes', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
     await page.goto('/admin');
     await page.waitForTimeout(5_000);
     expect(page.url()).toContain('/login');
+    await context.close();
   });
 });

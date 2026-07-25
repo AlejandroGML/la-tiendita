@@ -26,14 +26,14 @@ export const productCardImage = 'a.block[href*="/productos/"] img';
 export const catalogTitle = 'h1';
 export const filtersSidebar = 'aside.filters-sidebar';
 export const categoryFilter = 'aside.filters-sidebar [role="combobox"]';
-export const searchInput = '[role="combobox"][aria-label*="search" i], [role="combobox"][aria-label*="buscar" i]';
+export const searchInput = 'app-search-bar input';
 export const paginationContainer = '[role="navigation"] button';
 
 // ---- Product Detail ----
 export const productTitle = 'h1[data-testid="product-title"], .product-info h1';
 export const productPrice = '.text-2xl.font-bold';
 export const addToCartButton = 'button:has-text("Agregar"), button:has-text("Add to"), button[aria-label*="cart" i]';
-export const productImage = 'img[alt*="product" i], .main-image img';
+export const productImage = 'img[alt]:not([alt=""]), .main-image img';
 
 // ---- Cart ----
 export const cartPage = '[data-testid="cart-page"]';

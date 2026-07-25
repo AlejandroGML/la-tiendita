@@ -60,7 +60,7 @@ test.describe('Browse Journey — Catalog + Product Detail', () => {
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
 
-    const searchInput = page.locator('[role="combobox"][aria-label*="search" i], [role="combobox"][aria-label*="buscar" i]');
+    const searchInput = page.locator('app-search-bar input').first();
     await expect(searchInput).toBeVisible({ timeout: 10_000 });
   });
 

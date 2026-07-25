@@ -128,8 +128,8 @@ test.describe('Cart Journey — Item Manipulation', () => {
       // After removal, expect empty state or no item rows
       const emptyState = page.locator(S.cartEmpty);
       const itemsLeft = page.locator(S.cartItemRows);
-      const emptyOrNoItems = emptyState.or(itemsLeft);
-      await expect(emptyOrNoItems).toBeVisible({ timeout: 5_000 });
+      // Use first() to avoid strict mode violation when both match
+      await expect(emptyState.or(itemsLeft).first()).toBeVisible({ timeout: 5_000 });
     }
 
     await clearTokens(page);
