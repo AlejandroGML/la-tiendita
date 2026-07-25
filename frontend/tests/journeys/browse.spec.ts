@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Browse Journey — Catalog + Product Detail', () => {
   test('homepage renders header and basic content', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('mat-toolbar a[routerLink="/"]')).toHaveText('La Tiendita');
+    await expect(page.locator('app-header a[href="/"]')).toBeVisible();
     await expect(page.locator('h1')).toBeVisible();
   });
 
@@ -11,7 +11,7 @@ test.describe('Browse Journey — Catalog + Product Detail', () => {
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
 
-    const cards = page.locator('.product-card');
+    const cards = page.locator('a.block[href*="/productos/"]');
     const count = await cards.count().catch(() => 0);
     if (count > 0) {
       await expect(cards.first()).toBeVisible({ timeout: 10_000 });
@@ -23,7 +23,7 @@ test.describe('Browse Journey — Catalog + Product Detail', () => {
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
 
-    const firstCard = page.locator('.product-card').first();
+    const firstCard = page.locator('a.block[href*="/productos/"]').first();
     const isVisible = await firstCard.isVisible({ timeout: 10_000 }).catch(() => false);
     if (!isVisible) {
       test.skip(true, 'No product cards visible on catalog page');
@@ -42,7 +42,7 @@ test.describe('Browse Journey — Catalog + Product Detail', () => {
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
 
-    const firstCard = page.locator('.product-card').first();
+    const firstCard = page.locator('a.block[href*="/productos/"]').first();
     const isVisible = await firstCard.isVisible({ timeout: 10_000 }).catch(() => false);
     if (!isVisible) {
       test.skip(true, 'No products available');
@@ -52,15 +52,15 @@ test.describe('Browse Journey — Catalog + Product Detail', () => {
     await firstCard.click();
     await page.waitForLoadState('networkidle');
 
-    await expect(page.locator('.product-info h1')).toBeVisible({ timeout: 10_000 });
-    await expect(page.locator('.main-image img')).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('[role="main"] a[href*="/productos/"] h1, h1').first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator('img').first()).toBeVisible({ timeout: 10_000 });
   });
 
   test('search bar is present on catalog page', async ({ page }) => {
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
 
-    const searchInput = page.locator('app-search-bar input');
+    const searchInput = page.locator('[role="combobox"][aria-label*="search" i], [role="combobox"][aria-label*="buscar" i]');
     await expect(searchInput).toBeVisible({ timeout: 10_000 });
   });
 

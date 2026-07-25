@@ -30,7 +30,7 @@ test.describe('Cart Journey — Item Manipulation', () => {
 
     // A snackbar or badge should confirm the action
     const snackbar = page.locator(S.snackbar);
-    const badge = page.locator('.mat-badge, [data-testid="cart-badge"], .cart-count');
+    const badge = page.locator('[data-testid="cart-badge"], .cart-count');
     const feedback = snackbar.or(badge);
     await expect(feedback.first()).toBeVisible({ timeout: 5_000 });
 

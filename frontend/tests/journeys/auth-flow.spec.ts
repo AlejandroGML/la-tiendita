@@ -52,9 +52,10 @@ test.describe('Auth Flow — Register, Login, Logout', () => {
     await clearTokens(page);
     // Reload so Angular discards in-memory auth
     await page.goto('/', { waitUntil: 'networkidle' });
-    // Visit a protected route — should redirect to login
-    await page.goto('/carrito', { waitUntil: 'networkidle' });
-    expect(page.url()).toContain('/login');
+    // Visit protected route — should redirect to login
+    await page.goto('/perfil');
+    await page.waitForTimeout(3_000);
+    await expect(page).toHaveURL(/\/login/);
   });
 
   test('register form has validation', async ({ page }) => {
@@ -90,8 +91,8 @@ test.describe('Auth Flow — Register, Login, Logout', () => {
 
   test('protected route redirects unauthenticated user to login', async ({ page }) => {
     await clearTokens(page);
-    await page.goto('/carrito');
-    await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/login');
+    await page.goto('/perfil');
+    await page.waitForTimeout(3_000);
+    await expect(page).toHaveURL(/\/login/);
   });
 });

@@ -6,7 +6,7 @@ test.describe('Error States', () => {
     await page.route('**/api/products?**', (route) => route.fulfill({ status: 500, body: '{}' }));
     await page.goto('/productos');
     await page.waitForTimeout(3_000);
-    await expect(page.locator('mat-toolbar')).toBeVisible();
+    await expect(page.locator('app-header')).toBeVisible();
   });
 
   test('product detail shows not-found state for invalid slug', async ({ page }) => {
@@ -27,7 +27,7 @@ test.describe('Error States', () => {
     await page.route('**/api/cart**', (route) => route.fulfill({ status: 500, body: '{}' }));
     await page.goto('/carrito');
     await page.waitForTimeout(3_000);
-    await expect(page.locator('mat-toolbar')).toBeVisible();
+    await expect(page.locator('app-header')).toBeVisible();
     await clearTokens(page);
   });
 
@@ -46,7 +46,7 @@ test.describe('Error States', () => {
 
   test('page does not crash when API is unreachable', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('mat-toolbar')).toBeVisible();
+    await expect(page.locator('app-header')).toBeVisible();
 
     // Block only API calls, not the page itself
     await page.route('**/api/**', (route) => route.abort());
@@ -54,6 +54,6 @@ test.describe('Error States', () => {
     await page.waitForTimeout(3_000);
 
     // Page should not crash — header should still be present
-    await expect(page.locator('mat-toolbar')).toBeVisible();
+    await expect(page.locator('app-header')).toBeVisible();
   });
 });

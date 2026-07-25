@@ -43,7 +43,7 @@ test.describe('Empty States', () => {
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
 
-    const search = page.locator('app-search-bar input');
+    const search = page.locator('[role="combobox"]');
     if (await search.isVisible({ timeout: 8_000 }).catch(() => false)) {
       await search.fill('zzzznothingmatchesthis');
       await search.press('Enter');
@@ -51,7 +51,7 @@ test.describe('Empty States', () => {
 
       // Either no-results text or no product cards
       const noResults = page.getByText(/no.*encontr|no.*result|no.*product/i);
-      const cardsGone = (await page.locator('.product-card').count()) === 0;
+      const cardsGone = (await page.locator('a.block[href*="/productos/"]').count()) === 0;
       const hasMessage = await noResults.first().isVisible().catch(() => false);
       expect(hasMessage || cardsGone).toBe(true);
     }

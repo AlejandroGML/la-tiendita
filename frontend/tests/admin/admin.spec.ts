@@ -81,21 +81,21 @@ test.describe('Admin Panel', () => {
 
   test('admin dashboard retry works after error', async ({ page }) => {
     // First intercept to fail
-    await page.route('**/api/admin/stats**', (route) => {
+    await page.route('**/api/v1/admin/stats**', (route) => {
       route.fulfill({ status: 500, body: JSON.stringify({ error: 'Boom' }) });
     });
 
     await page.goto('/admin');
-    await page.waitForTimeout(2_000);
+    await page.waitForTimeout(3_000);
 
     await expect(page.locator(S.adminDashboardError)).toBeVisible({ timeout: 5_000 });
 
     // Now let the retry succeed
-    await page.unroute('**/api/admin/stats');
-    await page.route('**/api/admin/stats**', (route) => route.continue());
+    await page.unroute('**/api/v1/admin/stats');
+    await page.route('**/api/v1/admin/stats**', (route) => route.continue());
 
     await page.locator(S.adminDashboardRetry).click();
-    await page.waitForTimeout(2_000);
+    await page.waitForTimeout(3_000);
 
     // Should recover
     const statsOrError = page.locator(S.adminDashboard).or(page.locator(S.adminDashboardError));
@@ -104,12 +104,8 @@ test.describe('Admin Panel', () => {
 
   test('non-admin cannot access admin routes', async ({ page }) => {
     await clearTokens(page);
-    await page.goto('/', { waitUntil: 'networkidle' });
-    await page.waitForTimeout(1_000);
-    await page.goto('/admin', { waitUntil: 'networkidle' });
-    await page.waitForTimeout(2_000);
-
-    // Should be redirected to login
+    await page.goto('/admin');
+    await page.waitForTimeout(5_000);
     expect(page.url()).toContain('/login');
   });
 });

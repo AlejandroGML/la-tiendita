@@ -9,7 +9,7 @@ test.describe('Cart + Checkout Journey', () => {
     // Navigate to first product and add to cart
     await page.goto('/productos');
     await page.waitForLoadState('networkidle');
-    const firstCard = page.locator('.product-card').first();
+    const firstCard = page.locator('a.block[href*="/productos/"]').first();
     if (!(await firstCard.isVisible({ timeout: 8_000 }).catch(() => false))) {
       test.skip(true, 'No products available');
       return;
@@ -28,10 +28,11 @@ test.describe('Cart + Checkout Journey', () => {
     await clearTokens(page);
   });
 
-  test('unauthenticated user is redirected from cart to login', async ({ page }) => {
+  test('unauthenticated user sees guest cart with login prompt', async ({ page }) => {
     await page.goto('/carrito');
     await page.waitForLoadState('networkidle');
-    expect(page.url()).toContain('/login');
+    // Cart is public for guests — expect cart page with guest banner or empty state
+    await expect(page.locator('[data-testid="cart-page"]')).toBeVisible({ timeout: 10_000 });
   });
 
   test('authenticated user with empty cart sees empty state', async ({ page, request }) => {

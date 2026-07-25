@@ -14,9 +14,9 @@ test.describe('Form Validation', () => {
     await page.locator('input[type="email"]').fill('not-an-email');
     await page.locator('input[type="password"]').fill('12345678');
     // Click outside to trigger blur validation
-    await page.locator('mat-card-title').click();
+    await page.locator('h1').click();
     // Email error should appear
-    const emailError = page.locator('mat-error').filter({ hasText: /email|v.li|correo/i });
+    const emailError = page.locator('.p-error').filter({ hasText: /email|v.li|correo/i });
     await expect(emailError.first()).toBeVisible({ timeout: 5_000 });
   });
 
@@ -33,7 +33,7 @@ test.describe('Form Validation', () => {
     await page.locator('input[formControlName="confirmPassword"]').fill('12');
     await page.locator('button[type="submit"]').click({ force: true });
     // Min length error
-    const minError = page.locator('mat-error').filter({ hasText: /8|caract|character/i });
+    const minError = page.locator('.p-error').filter({ hasText: /8|caract|character/i });
     await expect(minError.first()).toBeVisible({ timeout: 5_000 });
   });
 

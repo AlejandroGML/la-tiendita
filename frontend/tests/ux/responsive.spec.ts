@@ -15,7 +15,7 @@ test.describe('Responsive Layout', () => {
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(3_000);
 
-      const cards = page.locator('.product-card');
+      const cards = page.locator('a.block[href*="/productos/"]');
       const count = await cards.count().catch(() => 0);
       if (count > 0) {
         const box = await cards.first().boundingBox();
@@ -27,10 +27,10 @@ test.describe('Responsive Layout', () => {
 
     test('page is scrollable on small screen', async ({ page }) => {
       await page.goto('/');
-      await expect(page.locator('mat-toolbar')).toBeVisible();
+      await expect(page.locator('app-header')).toBeVisible();
       await page.goto('/productos');
       await page.waitForLoadState('networkidle');
-      await expect(page.locator('mat-toolbar')).toBeVisible();
+      await expect(page.locator('app-header')).toBeVisible();
     });
   });
 
@@ -39,10 +39,10 @@ test.describe('Responsive Layout', () => {
 
     test('layout adapts to tablet width', async ({ page }) => {
       await page.goto('/');
-      await expect(page.locator('mat-toolbar')).toBeVisible();
+      await expect(page.locator('app-header')).toBeVisible();
       await page.goto('/productos');
       await page.waitForLoadState('networkidle');
-      await expect(page.locator('mat-toolbar')).toBeVisible();
+      await expect(page.locator('app-header')).toBeVisible();
     });
 
     test('filter sidebar is visible on tablet', async ({ page }) => {
@@ -58,7 +58,7 @@ test.describe('Responsive Layout', () => {
 
     test('full layout renders with navigation visible', async ({ page }) => {
       await page.goto('/');
-      await expect(page.locator('mat-toolbar')).toBeVisible();
+      await expect(page.locator('app-header')).toBeVisible();
       // Desktop nav should have product link visible
       await expect(page.locator('a[routerLink="/productos"]').first()).toBeVisible();
     });
@@ -68,7 +68,7 @@ test.describe('Responsive Layout', () => {
       await page.waitForLoadState('networkidle');
       await page.waitForTimeout(3_000);
 
-      const cards = page.locator('.product-card');
+      const cards = page.locator('a.block[href*="/productos/"]');
       const count = await cards.count().catch(() => 0);
       if (count >= 2) {
         const firstBox = await cards.first().boundingBox();

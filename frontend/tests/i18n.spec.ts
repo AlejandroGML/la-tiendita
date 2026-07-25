@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('i18n — Language Switching', () => {
   test('homepage renders with correct brand', async ({ page }) => {
     await page.goto('/');
-    const brand = page.locator('mat-toolbar a[routerLink="/"]');
+    const brand = page.locator('app-header a[href="/"]');
     // Brand should be visible with some text (may be "La Tiendita" or translated)
     await expect(brand).toBeVisible();
     const text = await brand.textContent();
@@ -34,7 +34,7 @@ test.describe('i18n — Language Switching', () => {
     await page.goto('/carrito');
     await page.waitForTimeout(3_000);
     // Either on cart page or redirected to login
-    await expect(page.locator('mat-toolbar')).toBeVisible();
+    await expect(page.locator('app-header')).toBeVisible();
   });
 
   test('no raw translation keys are visible in the UI', async ({ page }) => {

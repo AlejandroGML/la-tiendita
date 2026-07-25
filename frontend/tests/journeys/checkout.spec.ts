@@ -114,7 +114,7 @@ test.describe('Checkout Journey', () => {
     }
   });
 
-  test('empty cart redirects from checkout or shows disabled state', async ({ page }) => {
+  test('empty cart redirects from checkout or shows disabled state', async ({ page, request }) => {
     // First clear tokens to start fresh
     await clearTokens(page);
 
