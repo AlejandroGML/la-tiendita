@@ -37,7 +37,7 @@ def _make_order(
     order.id = order_id or uuid.uuid4()
     order.status = status
     order.payment_status = payment_status
-    order.stripe_session_id = None
+    order.payment_reference = None
     order.total = total or Decimal("150.00")
     order.user = MagicMock()
     order.user.name = user_name

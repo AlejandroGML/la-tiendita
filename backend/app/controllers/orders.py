@@ -159,6 +159,7 @@ class OrderController(Controller):
                 guest_email=guest_email_val,
                 shipping_address=data.shipping_address,
                 shipping_method=data.shipping_method,
+                payment_method=data.payment_method,
             )
             return self._with_response_headers(result, session_id)
         except CartEmptyError as exc:
@@ -167,7 +168,7 @@ class OrderController(Controller):
             raise HTTPException(
                 status_code=HTTP_409_CONFLICT, detail=str(exc)
             ) from exc
-        except StripeError as exc:
+        except (StripeError, ValueError) as exc:
             raise HTTPException(
                 status_code=502, detail=str(exc)
             ) from exc
@@ -214,7 +215,8 @@ class OrderController(Controller):
                 id=order.id,
                 status=order.status.value,
                 payment_status=order.payment_status.value,
-                stripe_session_id=order.stripe_session_id,
+                payment_provider=order.payment_provider,
+                payment_reference=order.payment_reference,
                 total=order.total,
                 shipping_address=order.shipping_address,
                 items=items,

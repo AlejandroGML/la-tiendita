@@ -69,8 +69,9 @@ class OrderService:
         guest_email: str | None,
         shipping_address: dict,
         shipping_method: str | None = None,
+        payment_method: str = "card",
     ) -> CheckoutResponse:
-        """Convert the cart into an order and create a Stripe session.
+        """Convert the cart into an order and create a payment.
 
         Dual-scope: supports authenticated users (``user_id``) and guest
         sessions (``session_id``). Exactly one scope must be provided.
@@ -79,20 +80,20 @@ class OrderService:
         1. Load cart items by scope (user_id or session_id)
         2. Validate cart is not empty
         3. Begin nested transaction (savepoint)
-        4. Build order items data (stock is NOT deducted — deferred to webhook)
+        4. Build order items data (stock is NOT deducted — deferred to payment)
         5. Create Order + OrderItems with product snapshots
            (sets ``user_id`` for users, ``guest_email`` for guests)
         6. Clear cart by scope
-        7. Create Stripe Checkout session (guest-aware success_url)
+        7. Create payment via the provider registry (card/klarna/swish)
         8. Commit savepoint
 
         Stock deduction happens later in ``finalize_payment()``, called by
-        the Stripe webhook handler upon ``checkout.session.completed``.
+        the provider callback (Stripe webhook / Swish callback).
 
         Raises:
             ValueError: if neither or both scope identifiers are provided
             CartEmptyError: cart has no items → 400
-            StripeError: Stripe API call fails → 502 (rolls back entire order)
+            StripeError / PaymentError: provider call fails → 502
         """
         # Validate scope XOR
         has_user = user_id is not None
@@ -132,6 +133,7 @@ class OrderService:
                 shipping_address=shipping_address,
                 shipping_method=shipping_method,
                 shipping_cost=Decimal(str(shipping_cost)) if shipping_cost else None,
+                payment_provider=payment_method,
             )
             session.add(order)
             await session.flush()
@@ -153,11 +155,11 @@ class OrderService:
                 session, user_id=user_id, session_id=session_id
             )
 
-            # 7. Create Stripe checkout session (guest-aware)
-            from app.services.stripe_service import StripeService
+            # 7. Create payment via provider registry (card/klarna/swish)
+            from app.payments import get_provider
 
-            stripe_svc = StripeService()
-            checkout_url = await stripe_svc.create_checkout_session(
+            provider = get_provider(payment_method)
+            payment = await provider.create_payment(
                 session,
                 order,
                 cart_items,
@@ -170,15 +172,20 @@ class OrderService:
             await savepoint.commit()
 
             logger.info(
-                "Checkout complete — order %s for %s",
+                "Checkout complete — order %s for %s (payment=%s)",
                 order.id,
                 f"user {user_id}" if not is_guest else f"guest session {session_id}",
+                payment_method,
             )
             return CheckoutResponse(
-                checkout_url=checkout_url, order_id=order.id
+                order_id=order.id,
+                payment_method=payment_method,
+                redirect_url=payment.redirect_url,
+                qr_code=payment.qr_code,
+                payment_reference=payment.payment_reference,
             )
 
-        except (StripeError, Exception):
+        except (StripeError, ValueError, Exception):
             await savepoint.rollback()
             raise
 
@@ -557,7 +564,8 @@ class OrderService:
             id=order.id,
             status=order.status.value,
             payment_status=order.payment_status.value,
-            stripe_session_id=order.stripe_session_id,
+            payment_provider=order.payment_provider,
+            payment_reference=order.payment_reference,
             total=order.total,
             shipping_address=order.shipping_address,
             items=items,

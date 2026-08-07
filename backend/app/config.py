@@ -39,6 +39,9 @@ class Settings(BaseSettings):
     # Stripe
     STRIPE_SECRET_KEY: str = Field(default="")
     STRIPE_WEBHOOK_SECRET: str = Field(default="")
+    # Swish — mock por defecto (sin certificados ni cuenta de comerciante)
+    SWISH_MODE: str = Field(default="mock")  # "mock" | "live"
+    SWISH_PAYEE_ALIAS: str = Field(default="1234567890")
     FRONTEND_URL: str = Field(default="http://localhost:4200")
 
     # Email

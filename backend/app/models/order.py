@@ -36,7 +36,7 @@ class OrderStatus(StrEnum):
 
 
 class PaymentStatus(StrEnum):
-    """Stripe payment lifecycle for an order."""
+    """Payment lifecycle for an order (provider-agnostic)."""
 
     PENDING = "pending"
     PAID = "paid"
@@ -63,8 +63,14 @@ class Order(Base):
         default=PaymentStatus.PENDING,
         nullable=False,
     )
-    stripe_session_id: Mapped[str | None] = mapped_column(
+    payment_provider: Mapped[str] = mapped_column(
+        String(20), nullable=False, default="stripe", server_default="stripe"
+    )
+    payment_reference: Mapped[str | None] = mapped_column(
         String(255), nullable=True, unique=True
+    )
+    payment_details: Mapped[dict | None] = mapped_column(
+        JSONB, nullable=True
     )
     total: Mapped[Decimal] = mapped_column(
         Numeric(10, 2), nullable=False

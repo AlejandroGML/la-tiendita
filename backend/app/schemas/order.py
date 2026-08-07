@@ -4,7 +4,7 @@ from datetime import datetime
 from decimal import Decimal
 from uuid import UUID
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # ---------------------------------------------------------------------------
@@ -18,6 +18,10 @@ class CheckoutRequest(BaseModel):
     shipping_address: dict
     shipping_method: str | None = None
     guest_email: str | None = None
+    payment_method: str = Field(
+        default="card",
+        description='Método de pago: "card", "klarna" o "swish"',
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -43,7 +47,8 @@ class OrderResponse(BaseModel):
     id: UUID
     status: str
     payment_status: str
-    stripe_session_id: str | None
+    payment_provider: str = "stripe"
+    payment_reference: str | None = None
     total: Decimal
     shipping_address: dict
     shipping_method: str | None = None
@@ -56,10 +61,17 @@ class OrderResponse(BaseModel):
 
 
 class CheckoutResponse(BaseModel):
-    """Response for POST /api/checkout — redirect the client to Stripe."""
+    """Response for POST /api/checkout.
 
-    checkout_url: str
+    Provider-agnostic: the frontend continues via ``redirect_url``
+    (Stripe card/Klarna) or displays the ``qr_code`` (Swish).
+    """
+
     order_id: UUID
+    payment_method: str = "card"
+    redirect_url: str | None = None
+    qr_code: str | None = None
+    payment_reference: str | None = None
 
 
 class OrderAdminListItem(BaseModel):
@@ -69,7 +81,8 @@ class OrderAdminListItem(BaseModel):
     id: UUID
     status: str
     payment_status: str
-    stripe_session_id: str | None
+    payment_provider: str = "stripe"
+    payment_reference: str | None = None
     total: Decimal
     shipping_method: str | None = None
     shipping_cost: Decimal | None = None
