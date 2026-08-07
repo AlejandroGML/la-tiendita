@@ -12,7 +12,7 @@ Backend (workdir `backend/`):
 
 Frontend (workdir `frontend/`):
 - Install: `pnpm install` (pnpm 11 — never npm)
-- Run: `pnpm dev` (`ng serve`; proxies `/api`, `/auth`, `/uploads` → `localhost:8000` via `proxy.conf.json`)
+- Run: `pnpm start` (`ng serve`; proxies `/api`, `/auth`, `/uploads` → `localhost:8000` via `proxy.conf.json`)
 - Unit: `pnpm test` — vitest-based `@angular/build:unit-test` runner (no browser); CI form: `pnpm test -- --watch=false`
 - Build: `pnpm run build` (prod build works; no typecheck/lint step in CI)
 - E2E: `pnpm test:e2e` — Playwright (`frontend/tests/`, desktop/tablet/mobile projects, baseURL `localhost:4200`). Does NOT auto-start servers: backend + frontend dev must already be up.
@@ -27,6 +27,7 @@ Backend — layered flow: guards → controllers → services → repositories �
 - `app/schemas/` Pydantic v2 DTOs, `app/serializers/`
 - `app/queries/` — raw SQL for complex reads (CQRS-style, e.g. catalog filter + PostgreSQL FTS search)
 - `app/core/` — pydantic-settings config, Redis cache-aside layer, event bus + handlers (audit log, cache invalidation), email
+- `app/payments/` — multi-provider payments: `base.py` (PaymentProvider interface), `stripe_provider.py` (card + Klarna via hosted Checkout), `swish_provider.py` (Swish mock by default), `__init__.py` (method registry: card/klarna→Stripe, swish→Swish). Callbacks at `/api/v1/payments/{provider}/...` (JWT-exempt)
 - `app/worker/jobs.py` — ARQ background jobs; `app/core/arq.py` sets up the queue
 - `migrations/` — Alembic; **migrations auto-run on startup** (`main.py` runs `alembic upgrade head` in a thread) — never run them manually as a deploy step
 
@@ -35,7 +36,7 @@ Frontend: `src/app/features/<feature>/` per feature (admin, auth, cart, checkout
 ## Gotchas
 
 - `.env` — pydantic-settings loads `backend/.env` (relative to backend CWD). Root `.env.example` documents everything. `docker-compose.yml` interpolates root .env vars. `FRONTEND_URL` and `CORS_ORIGINS` point at `localhost:4200`.
-- `STRIPE_SECRET_KEY` is test-mode; payment flows need Stripe webhooks and will fail without real keys — don't chase payment failures locally.
+- Payments: **Swish runs in mock mode by default** (`SWISH_MODE=mock`) — checkout returns a fake QR and `POST /api/v1/payments/swish/mock-confirm` confirms the order locally, no Stripe account needed. Card/Klarna go through Stripe (`STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`) and will fail without real test keys — use Swish mock to exercise the payment flow end-to-end locally.
 - Root scratch files (`frontend-*.md`, `filters*.md`, `uniqlo-*.txt`, `*-snapshot.yml`, `PLAN.md`, etc.) are stale QA/prompt artifacts — ignore them; README.md and code are the source of truth.
 - Repo has `backend/graphify-out/` and `graphify-out/` — generated visualization output, don't edit.
 - Python requires 3.12+ (`requires-python >=3.12`); CI pins 3.12 while README badge says 3.14 — tests run fine on 3.12.
