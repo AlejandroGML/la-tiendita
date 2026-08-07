@@ -55,6 +55,7 @@ export interface CheckoutRequest {
   shipping_address: ShippingAddress;
   shipping_method?: string;
   guest_email?: string;
+  payment_method: PaymentMethod;
 }
 
 export type PaymentMethod = 'card' | 'klarna' | 'swish';

@@ -55,12 +55,12 @@
              {{ i === 0 ? 'TOP VENTAS' : i === 1 ? 'NUEVO' : 'OFERTA' }}
            </span>
            <div class="w-full h-28 rounded-xl mb-2 overflow-hidden flex items-center justify-center bg-white/20">
-             <img *ngIf="card.thumbnail_url || card.image_url"
-                  [src]="card.thumbnail_url || card.image_url"
+             <img *ngIf="card.image_urls && card.image_urls[0]"
+                  [src]="card.image_urls[0]"
                   [alt]="card.name"
                   class="w-full h-full object-cover"
                   loading="lazy" />
-             <i *ngIf="!card.thumbnail_url && !card.image_url"
+             <i *ngIf="!card.image_urls || !card.image_urls[0]"
                 class="pi pi-image text-3xl text-white/40"></i>
            </div>
            <p class="text-white font-semibold text-sm truncate">{{ getDisplayName(card) }}</p>
