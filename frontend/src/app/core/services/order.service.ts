@@ -5,6 +5,7 @@ import type {
   Order,
   CheckoutRequest,
   CheckoutResponse,
+  PaymentMethod,
   ShippingAddress,
 } from '../../shared/models/order.model';
 import { AuthStateService } from './auth-state.service';
@@ -28,11 +29,12 @@ export class OrderService {
     return { headers };
   }
 
-  /** Submit a checkout request — returns Stripe redirect URL */
-  checkout(shippingAddress: ShippingAddress, shippingMethod?: string, guestEmail?: string): Observable<CheckoutResponse> {
+  /** Submit a checkout request — returns provider-specific payment info */
+  checkout(shippingAddress: ShippingAddress, shippingMethod?: string, guestEmail?: string, paymentMethod: PaymentMethod = 'card'): Observable<CheckoutResponse> {
     const body: CheckoutRequest = {
       shipping_address: shippingAddress,
       shipping_method: shippingMethod,
+      payment_method: paymentMethod,
     };
     if (guestEmail) {
       body.guest_email = guestEmail;

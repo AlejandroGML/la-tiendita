@@ -57,7 +57,12 @@ export interface CheckoutRequest {
   guest_email?: string;
 }
 
+export type PaymentMethod = 'card' | 'klarna' | 'swish';
+
 export interface CheckoutResponse {
-  checkout_url: string;
   order_id: string;
+  payment_method: PaymentMethod;
+  redirect_url?: string | null;
+  qr_code?: string | null;
+  payment_reference?: string | null;
 }

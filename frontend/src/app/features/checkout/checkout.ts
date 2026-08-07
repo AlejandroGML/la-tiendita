@@ -5,7 +5,7 @@ import { MessageService } from 'primeng/api';
 import { Subject, takeUntil } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import type { CartResponse, CartItem } from '../../shared/models/cart.model';
-import type { CheckoutResponse, ShippingAddress, ShippingMethod } from '../../shared/models/order.model';
+import type { CheckoutResponse, PaymentMethod, ShippingAddress, ShippingMethod } from '../../shared/models/order.model';
 import { CartService } from '../../core/services/cart.service';
 import { OrderService } from '../../core/services/order.service';
 import { AuthStateService } from '../../core/services/auth-state.service';
@@ -27,6 +27,14 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   readonly isGuest = signal(false);
   readonly shippingMethods = signal<ShippingMethod[]>([]);
   readonly selectedShipping = signal<ShippingMethod | null>(null);
+  readonly paymentMethod = signal<PaymentMethod>('card');
+  readonly paymentMethods: { id: PaymentMethod; label: string; icon: string }[] = [
+    { id: 'card', label: 'Tarjeta', icon: 'pi pi-credit-card' },
+    { id: 'klarna', label: 'Klarna', icon: 'pi pi-wallet' },
+    { id: 'swish', label: 'Swish', icon: 'pi pi-mobile' },
+  ];
+  readonly qrCode = signal<string | null>(null);
+  readonly redirectUrl = signal<string | null>(null);
 
   readonly shippingForm: FormGroup;
 
@@ -104,7 +112,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     const shippingMethod: string | undefined = formValue.shippingMethod || undefined;
 
     this.orderService
-      .checkout(address, shippingMethod, guestEmail)
+      .checkout(address, shippingMethod, guestEmail, this.paymentMethod())
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (response: CheckoutResponse) => {
@@ -113,7 +121,15 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           // Cart is cleared server-side AFTER successful payment in
           // finalize_payment.  Clearing it here would destroy the user's
           // cart if they return from Stripe without completing payment.
-          window.location.href = response.checkout_url;
+          if (response.qr_code) {
+            // Swish: mostrar el QR para escanear con el móvil
+            this.qrCode.set(response.qr_code);
+            this.redirecting.set(false);
+          } else if (response.redirect_url) {
+            // Card/Klarna: redirigir al hosted checkout
+            this.redirectUrl.set(response.redirect_url);
+            window.location.href = response.redirect_url;
+          }
         },
         error: (err) => {
           this.submitting.set(false);
@@ -149,5 +165,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   selectShipping(method: ShippingMethod): void {
     this.selectedShipping.set(method);
     this.shippingForm.patchValue({ shippingMethod: method.id });
+  }
+
+  selectPaymentMethod(method: PaymentMethod): void {
+    this.paymentMethod.set(method);
+    this.qrCode.set(null);
   }
 }

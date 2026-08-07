@@ -270,7 +270,10 @@
     "successOrderId": "Order #:",
     "successGuestPrompt": "Skapa ett konto för att spåra din beställning och se din köphistorik",
     "successCreateAccount": "Skapa konto",
-    "successContinueShopping": "Fortsätt handla"
+    "successContinueShopping": "Fortsätt handla",
+    "paymentMethod": "Betalningsmetod",
+    "swishPay": "Betala med din Swish-app genom att skanna:",
+    "swishMockHint": "(Demoläge — betalningen bekräftas automatiskt inom några sekunder)"
   },
   "reviews": {
     "title": "Recensioner",

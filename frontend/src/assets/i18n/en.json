@@ -270,7 +270,10 @@
     "successOrderId": "Order #:",
     "successGuestPrompt": "Create an account to track your order and access your purchase history",
     "successCreateAccount": "Create account",
-    "successContinueShopping": "Continue shopping"
+    "successContinueShopping": "Continue shopping",
+    "paymentMethod": "Payment method",
+    "swishPay": "Pay with your Swish app by scanning:",
+    "swishMockHint": "(Demo mode — payment is confirmed automatically in seconds)"
   },
   "reviews": {
     "title": "Reviews",
