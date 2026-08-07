@@ -73,3 +73,9 @@ frontend/test-results/
 
 # Graph knowledge base artifacts
 graphify-out/
+
+# Additional debug/audit screenshots
+/audit2-*.png
+/v*.png
+/qa-*.png
+/homepage.png

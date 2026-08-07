@@ -16,29 +16,29 @@
 
 <table>
   <tr>
-    <td><img src="audit2-home-desktop.png" alt="Homepage desktop" width="400"/></td>
-    <td><img src="audit2-home-mobile.png" alt="Homepage mobile" width="200"/></td>
+    <td><img src="docs/screenshots/readme/audit2-home-desktop.png" alt="Homepage desktop" width="400"/></td>
+    <td><img src="docs/screenshots/readme/audit2-home-mobile.png" alt="Homepage mobile" width="200"/></td>
   </tr>
   <tr>
     <td colspan="2" align="center"><em>Homepage — light mode desktop & mobile responsive</em></td>
   </tr>
   <tr>
-    <td><img src="audit2-productos-desktop.png" alt="Product catalog" width="400"/></td>
-    <td><img src="audit2-detalle-mobile.png" alt="Product detail mobile" width="200"/></td>
+    <td><img src="docs/screenshots/readme/audit2-productos-desktop.png" alt="Product catalog" width="400"/></td>
+    <td><img src="docs/screenshots/readme/audit2-detalle-mobile.png" alt="Product detail mobile" width="200"/></td>
   </tr>
   <tr>
     <td colspan="2" align="center"><em>Product catalog with filters + product detail (dark mode, mobile)</em></td>
   </tr>
   <tr>
-    <td><img src="audit2-cart-desktop.png" alt="Shopping cart" width="400"/></td>
-    <td><img src="audit2-login-desktop.png" alt="Login" width="400"/></td>
+    <td><img src="docs/screenshots/readme/audit2-cart-desktop.png" alt="Shopping cart" width="400"/></td>
+    <td><img src="docs/screenshots/readme/audit2-login-desktop.png" alt="Login" width="400"/></td>
   </tr>
   <tr>
     <td colspan="2" align="center"><em>Cart with guest warning + authentication</em></td>
   </tr>
   <tr>
-    <td><img src="audit-admin-dashboard.png" alt="Admin dashboard" width="400"/></td>
-    <td><img src="mobile-productos-375.png" alt="Mobile products" width="200"/></td>
+    <td><img src="docs/screenshots/readme/audit-admin-dashboard.png" alt="Admin dashboard" width="400"/></td>
+    <td><img src="docs/screenshots/readme/mobile-productos-375.png" alt="Mobile products" width="200"/></td>
   </tr>
   <tr>
     <td colspan="2" align="center"><em>Admin panel + mobile product listing</em></td>
