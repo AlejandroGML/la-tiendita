@@ -1,0 +1,119 @@
+/* immersive-doc — animations.css
+   Keyframes and animation states. GSAP-driven animations are applied via JS,
+   these are CSS fallbacks and base states.
+*/
+
+/* Scroll-triggered reveal (used as CSS fallback if GSAP missing) */
+.reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Diagram-star path drawing (CSS fallback if GSAP missing) */
+.diagram-star svg path[data-section] {
+  stroke-dasharray: 1000;
+  stroke-dashoffset: 1000;
+  animation: drawPath 2s ease forwards;
+}
+
+.diagram-star svg path[data-section].drawn {
+  animation: none;
+  stroke-dashoffset: 0;
+}
+
+@keyframes drawPath {
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .diagram-star svg path[data-section] {
+    stroke-dasharray: none;
+    stroke-dashoffset: 0;
+    animation: none;
+  }
+}
+
+/* Chart bar animation */
+.chart .bar {
+  transform-origin: bottom;
+  animation: barRise 0.8s ease forwards;
+}
+
+@keyframes barRise {
+  from { transform: scaleY(0); }
+  to { transform: scaleY(1); }
+}
+
+/* Headings subtle entrance */
+.section h2,
+.section h3 {
+  animation: headingIn 0.4s ease-out;
+}
+
+@keyframes headingIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section h2, .section h3 { animation: none; }
+}
+
+/* Callouts subtle pulse on first view */
+.callout {
+  animation: calloutPulse 0.5s ease-out;
+}
+
+@keyframes calloutPulse {
+  0% { opacity: 0; transform: scale(0.98); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Hero entrance */
+.hero__title {
+  animation: heroIn 0.6s ease-out;
+}
+
+@keyframes heroIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Quiz feedback */
+.quiz__feedback.show {
+  animation: feedbackIn 0.3s ease-out;
+}
+
+@keyframes feedbackIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* View Transitions API support */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 0.25s;
+}
+
+/* Loading state for async diagrams (Mermaid) */
+.mermaid:not(:has(svg))::after {
+  content: "Loading diagram...";
+  display: block;
+  padding: 1rem;
+  color: var(--text-muted);
+  font-style: italic;
+}

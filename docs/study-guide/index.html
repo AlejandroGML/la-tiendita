@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark_code">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Guía de estudio de la arquitectura fullstack de La Tiendita: e-commerce de ropa second-hand con backend hexagonal Litestar/Python + frontend Angular/PrimeNG + PostgreSQL + Redis.">
+<title>La Tiendita — Arquitectura y Guía de Estudio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/base.css">
+<link rel="stylesheet" href="assets/css/components.css">
+<link rel="stylesheet" href="assets/css/animations.css">
+<link rel="stylesheet" href="assets/css/themes/dark_code.css">
+<link rel="stylesheet" href="assets/css/print.css" media="print">
+<link rel="stylesheet" href="assets/vendor/highlight/styles/atom-one-dark.min.css">
+<link rel="stylesheet" href="assets/vendor/katex/katex.min.css">
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to content</a>
+
+<div class="progress-bar" id="progress-bar" aria-hidden="true"></div>
+
+<header class="hero" id="hero">
+  <div class="hero__inner">
+    <h1 class="hero__title">La Tiendita — Arquitectura y Guía de Estudio</h1>
+    <p class="hero__meta">Alejandro Martínez • 2026-07-25 • v1.0</p>
+    <p class="hero__desc">Guía de estudio de la arquitectura fullstack de La Tiendita: e-commerce de ropa second-hand con backend hexagonal Litestar/Python + frontend Angular/PrimeNG + PostgreSQL + Redis.</p>
+    <div class="hero__badges"><span class="badge">audience: seniors</span></div>
+    <div class="hero__actions">
+      <button class="btn btn--primary" data-action="search" aria-label="Search (Ctrl+K)">
+        <span>Search</span><kbd>Ctrl K</kbd>
+      </button>
+      <button class="btn btn--ghost" data-action="theme-toggle" aria-label="Toggle theme">
+        <span class="theme-toggle__icon"></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="sidebar" id="sidebar" aria-label="Table of contents">
+    <nav class="toc" id="toc">
+      <ul class="toc__list"></ul>
+    </nav>
+  </aside>
+
+  <main class="main" id="main-content">
+    <nav class="breadcrumbs" id="breadcrumbs" aria-label="Breadcrumb"></nav>
+    <section class="section" id="section-la-tiendita-arquitectura-y-guía-de-estudio" data-section-id="la-tiendita-arquitectura-y-guía-de-estudio">
+<h1 id="la-tiendita-arquitectura-y-guía-de-estudio">La Tiendita — Arquitectura y Guía de Estudio</h1>
+<p>Plataforma e-commerce fullstack para ropa de segunda mano: backend async Python con arquitectura hexagonal (Litestar 2.x), frontend Angular 22 SPA con PrimeNG, PostgreSQL 16, Redis 7, Stripe payments, GDPR compliance, y worker de background jobs con ARQ. 4,618 nodos en el grafo de código, 71 tests E2E pasando, 28 specs de OpenSpec documentando cada decisión de arquitectura.</p>
+</section>
+<section class="section" id="section-contexto" data-section-id="contexto">
+<h2 id="contexto">Contexto</h2>
+<p>La Tiendita nace como proyecto de portafolio profesional con ambición de producción. El objetivo: demostrar <strong>end-to-end ownership</strong> sobre un sistema completo — desde la arquitectura hexagonal en el backend hasta la UX multi-idioma en el frontend, pasando por decisiones de infraestructura, testing y compliance regulatorio.</p>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Elegí construir esto como proyecto fullstack en vez de contribuir a open source. Un proyecto propio permite mostrar decisiones de arquitectura con <em>fundamento real</em>: por qué Litestar y no FastAPI, cómo escala CQRS en queries complejas, qué pasa cuando un carrito de invitado se mergea con uno de usuario autenticado.</div></div>
+<p>Métricas del sistema (del grafo de código — graphify, 25 julio 2026):</p>
+<table class="data-table"><thead><tr><th>Métrica</th><th>Valor</th></tr></thead><tbody><tr><td>Símbolos totales</td><td>4,618 nodos</td></tr><tr><td>Relaciones</td><td>10,477 edges</td></tr><tr><td>Comunidades detectadas</td><td>356</td></tr><tr><td>Lenguajes</td><td>TypeScript (192 archivos), Python (168), HTML (72), CSS (27)</td></tr><tr><td>E2E tests</td><td>71 passing, 0 failures</td></tr><tr><td>Backend tests</td><td>235 passing (30 archivos)</td></tr></tbody></table>
+</section>
+<section class="section" id="section-arquitectura-general" data-section-id="arquitectura-general">
+<h2 id="arquitectura-general">Arquitectura General</h2>
+<div class="diagram-star diagram-star--sticky" id="diagram-arch-global" data-diagram-id="arch-global"><svg viewBox="0 0 1000 520" xmlns="http://www.w3.org/2000/svg">
+  <g data-section="cliente">
+    <rect x="30" y="200" width="140" height="80" rx="10" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+    <text x="100" y="235" text-anchor="middle" font-size="13" font-weight="600">Cliente</text>
+    <text x="100" y="255" text-anchor="middle" font-size="11" opacity="0.7">Angular 22 + PrimeNG</text>
+    <text x="100" y="270" text-anchor="middle" font-size="10" opacity="0.5">3 idiomas · Signals</text>
+  </g>
+  <path d="M170,240 L240,240" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/>
+  <g data-section="nginx">
+    <rect x="240" y="215" width="100" height="50" rx="8" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5"/>
+    <text x="290" y="240" text-anchor="middle" font-size="12" font-weight="600">Nginx</text>
+    <text x="290" y="256" text-anchor="middle" font-size="10" opacity="0.6">reverse proxy</text>
+  </g>
+  <path d="M340,225 L430,225" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/>
+  <g data-section="api-gateway">
+    <rect x="430" y="195" width="160" height="60" rx="10" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+    <text x="510" y="220" text-anchor="middle" font-size="12" font-weight="600">Controllers</text>
+    <text x="510" y="238" text-anchor="middle" font-size="10" opacity="0.7">14 endpoints · validación · guards</text>
+  </g>
+  <path d="M510,255 L510,290" stroke="currentColor" stroke-width="2" fill="none"/>
+  <g data-section="servicios">
+    <rect x="430" y="290" width="160" height="60" rx="10" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+    <text x="510" y="315" text-anchor="middle" font-size="12" font-weight="600">Services</text>
+    <text x="510" y="333" text-anchor="middle" font-size="10" opacity="0.7">18 servicios · lógica de negocio</text>
+  </g>
+  <path d="M510,350 L510,385" stroke="currentColor" stroke-width="2" fill="none"/>
+  <g data-section="repositorios">
+    <rect x="430" y="385" width="160" height="50" rx="10" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+    <text x="510" y="410" text-anchor="middle" font-size="12" font-weight="600">Repositories</text>
+    <text x="510" y="426" text-anchor="middle" font-size="10" opacity="0.7">acceso a datos</text>
+  </g>
+  <path d="M590,340 L670,340" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/>
+  <g data-section="persistencia">
+    <rect x="670" y="310" width="130" height="60" rx="10" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+    <text x="735" y="335" text-anchor="middle" font-size="12" font-weight="600">PostgreSQL 16</text>
+    <text x="735" y="352" text-anchor="middle" font-size="10" opacity="0.7">Alembic · ORM async</text>
+  </g>
+  <path d="M590,400 L670,400" stroke="currentColor" stroke-width="2" fill="none" opacity="0.6"/>
+  <g data-section="persistencia">
+    <rect x="670" y="375" width="130" height="50" rx="10" fill="currentColor" opacity="0.15" stroke="currentColor" stroke-width="1.5"/>
+    <text x="735" y="398" text-anchor="middle" font-size="11" font-weight="600">Redis 7</text>
+    <text x="735" y="414" text-anchor="middle" font-size="10" opacity="0.7">cache + ARQ queue</text>
+  </g>
+  <path d="M800,400 L800,250 L860,250" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4,3" fill="none" opacity="0.4"/>
+  <g data-section="background-jobs">
+    <rect x="860" y="220" width="110" height="60" rx="10" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5"/>
+    <text x="915" y="245" text-anchor="middle" font-size="11" font-weight="600">ARQ Worker</text>
+    <text x="915" y="262" text-anchor="middle" font-size="10" opacity="0.7">email · imágenes</text>
+  </g>
+  <g data-section="stripe">
+    <rect x="860" y="310" width="110" height="50" rx="10" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2"/>
+    <text x="915" y="335" text-anchor="middle" font-size="11" font-weight="600">Stripe</text>
+    <text x="915" y="351" text-anchor="middle" font-size="10" opacity="0.7">pagos + webhooks</text>
+  </g>
+  <g data-section="event-bus">
+    <rect x="510" y="135" width="120" height="50" rx="8" fill="currentColor" opacity="0.12" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3,2"/>
+    <text x="570" y="158" text-anchor="middle" font-size="11" font-weight="600">Event Bus</text>
+    <text x="570" y="173" text-anchor="middle" font-size="10" opacity="0.7">audit · cache · emails</text>
+  </g>
+  <path d="M430,240 L430,160 L510,160" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4,3" fill="none" opacity="0.4"/>
+</svg></div>
+<h3 id="cliente">Cliente</h3>
+<p>El frontend es una <strong>Angular 22 SPA</strong> con standalone components, signals para estado reactivo, y RxJS para flujos asíncronos. Soporta 3 idiomas (español, inglés, sueco) vía <code>ngx-translate</code>.</p>
+<p>11 módulos de features con lazy loading:</p>
+<table class="data-table"><thead><tr><th>Feature</th><th>Ruta</th><th>Descripción</th></tr></thead><tbody><tr><td>Home</td><td><code>/</code></td><td>Hero, categorías, nuevos arrivals, sale, newsletter</td></tr><tr><td>Auth</td><td><code>/login</code>, <code>/register</code></td><td>JWT, 2FA TOTP, registro con consentimiento marketing</td></tr><tr><td>Products</td><td><code>/productos</code></td><td>Catálogo con FTS + 8 filtros multi-criterio</td></tr><tr><td>Product Detail</td><td><code>/productos/:slug</code></td><td>Galería, variantes, reviews, wishlist, tallas</td></tr><tr><td>Cart</td><td><code>/carrito</code></td><td>Guest merge, stock check, shipping</td></tr><tr><td>Checkout</td><td><code>/checkout</code></td><td>Stripe Elements, resumen, stock reservation</td></tr><tr><td>Profile</td><td><code>/perfil</code></td><td>Órdenes, wishlist, datos, 2FA, GDPR export</td></tr><tr><td>Admin</td><td><code>/admin/*</code></td><td>Dashboard, CRUD productos/usuarios/categorías/órdenes/promos</td></tr><tr><td>Legal</td><td><code>/privacidad</code>, <code>/terminos</code></td><td>GDPR, cookies, términos</td></tr><tr><td>Sale</td><td><code>/sale</code></td><td>Productos en oferta</td></tr><tr><td>New Arrivals</td><td><code>/nuevo</code></td><td>Últimos productos</td></tr></tbody></table>
+<h3 id="nginx">Nginx</h3>
+<p>Reverse proxy en producción: sirve la SPA compilada desde <code>/</code> y redirige <code>/api/*</code> al backend Litestar. Puerto 80, sin exposición directa de servicios internos.</p>
+<h3 id="api-gateway">API Gateway</h3>
+<p>14 controllers Litestar mapean rutas REST a servicios. Cada controller:</p>
+<ul class="list"><li>Recibe request con schemas Pydantic v2 validados automáticamente</li><li>Aplica guards (JWT, admin, optional auth) <strong>antes</strong> de entrar al handler</li><li>Delega lógica al service correspondiente</li><li>Retorna Response tipada con serialización automática</li></ul>
+<div class="code-block" data-lang="python"><div class="code-block__header">backend/app/controllers/products.py</div><pre><code class="language-python">from litestar import Controller, get
+from app.guards.jwt_guard import jwt_guard
+from app.services.product_service import ProductService
+
+class ProductController(Controller):
+    path = &quot;/api/v1/products&quot;
+
+    @get(&quot;/&quot;)
+    async def list_products(
+        self,
+        filters: ProductFilter,           # validacion automatica Pydantic
+        product_service: ProductService,  # DI automatica Litestar
+    ) -&gt; list[ProductResponse]:
+        return await product_service.get_products(filters)</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<h3 id="servicios">Servicios</h3>
+<p>18 servicios de negocio — cada uno con una responsabilidad única. El grafo de código identifica a <code>ProductService</code> como <strong>campeón cross-cutting</strong> (mayor betweenness centrality: 0.074, 105 edges), conectando catálogo, variantes, caché, eventos y admin.</p>
+<p>Servicios clave:</p>
+<table class="data-table"><thead><tr><th>Servicio</th><th>Responsabilidad</th><th>Conexiones</th></tr></thead><tbody><tr><td><code>product_service.py</code></td><td>Catálogo, CRUD, filtros, caché</td><td>105 edges</td></tr><tr><td><code>auth_service.py</code></td><td>Registro, login, refresh, 2FA, delete cascade</td><td>60+ edges</td></tr><tr><td><code>cart_service.py</code></td><td>CRUD carrito, guest merge, stock check</td><td>50+ edges</td></tr><tr><td><code>order_service.py</code></td><td>Crear orden, stock reservation, estados</td><td>45+ edges</td></tr><tr><td><code>stripe_service.py</code></td><td>PaymentIntent, webhooks, refund</td><td>30+ edges</td></tr><tr><td><code>email_service.py</code></td><td>Transaccionales (confirmación, orden, reset)</td><td>25+ edges</td></tr><tr><td><code>audit_service.py</code></td><td>Log de acciones con actor/acción/entidad</td><td>—</td></tr><tr><td><code>dashboard_service.py</code></td><td>Métricas admin (revenue, órdenes, usuarios)</td><td>—</td></tr></tbody></table>
+<div class="callout callout--tip"><p class="callout__title"><span class="callout__icon" data-icon="lightbulb"></span>Tip</p><div class="callout__body">Litestar resuelve automáticamente los parámetros de función como dependencias inyectadas. <code>async def list_products(self, product_service: ProductService)</code> — Litestar instancia o reusa <code>ProductService</code> según su scope configurado (singleton por defecto). Cero boilerplate de DI.</div></div>
+<h3 id="repositorios">Repositorios</h3>
+<p>Capa de acceso a datos con <strong>repository pattern</strong> + SQLAlchemy 2.x async. Cada repositorio hereda de <code>BaseRepository</code> que expone CRUD genérico con <code>AsyncSession</code>.</p>
+<p>Para queries complejas (dashboard, catálogo con filtros), se usa <strong>CQRS ligero</strong>:</p>
+<div class="code-block" data-lang="python"><div class="code-block__header">backend/app/repositories/product_repository.py</div><pre><code class="language-python">async def get_products_with_filters(
+    self,
+    session: AsyncSession,
+    filters: ProductFilter,
+) -&gt; tuple[list[Product], int]:
+    stmt = select(Product).options(selectinload(Product.variants))
+    if filters.search:
+        stmt = stmt.where(Product.search_vector.match(filters.search))
+    if filters.category_slug:
+        stmt = stmt.join(Product.category).where(
+            Category.slug == filters.category_slug
+        )
+    # ... genero, talla, material, condicion, precio, stock, orden
+    total = await self._count(session, stmt)
+    stmt = stmt.offset(filters.offset).limit(filters.limit)
+    result = await session.execute(stmt)
+    return result.scalars().all(), total</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<h3 id="persistencia">Persistencia</h3>
+<ul class="list"><li><strong>PostgreSQL 16</strong>: datos relacionales + full-text search (<code>tsvector</code> con triggers automáticos). Alembic maneja migraciones que se aplican al iniciar la app.</li><li><strong>Redis 7</strong>: cache-aside con TTL configurable por recurso (productos: 5 min, categorías: 30 min) + LRU eviction 512 MB. También funciona como broker de ARQ para background jobs.</li></ul>
+<div class="callout callout--info"><p class="callout__title"><span class="callout__icon" data-icon="info"></span>Info</p><div class="callout__body">La invalidación de caché se dispara por event bus: cuando un producto se actualiza, <code>product_service</code> emite <code>ProductUpdated</code>, el handler de caché escucha e invalida las keys relevantes. Sin dependencias circulares.</div></div>
+<h3 id="event-bus">Event Bus</h3>
+<p>Infraestructura de publicador/suscriptor en memoria para cross-cutting concerns:</p>
+<div class="mermaid">graph LR
+    A[ProductService.update] --&gt;|emite ProductUpdated| B[EventBus]
+    B --&gt;|notifica| C[CacheInvalidationHandler]
+    B --&gt;|notifica| D[AuditLogHandler]
+    B --&gt;|notifica| E[NewsletterHandler]</div>
+<p>El bus es <strong>síncrono y en memoria</strong> (no Redis pub/sub). Decisión deliberada: para el volumen actual, añadir un message broker introduce complejidad sin beneficio. Si escala, migrar a Redis Streams o NATS es trivial porque los handlers ya están desacoplados.</p>
+<h3 id="background-jobs">Background Jobs</h3>
+<p><strong>ARQ</strong> (Async Redis Queue) ejecuta tareas asíncronas fuera del ciclo request-response:</p>
+<ul class="list"><li>Procesamiento de imágenes (redimensionar, convertir a WebP)</li><li>Envío de emails transaccionales (reset password, confirmación orden, welcome)</li><li>Cleanup de tokens expirados</li></ul>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">ARQ sobre Celery: este proyecto es async-first (Litestar + SQLAlchemy async). Celery requiere un thread pool separado para bridge sync/async. ARQ corre nativamente en el event loop de asyncio, solo necesita Redis (sin RabbitMQ), y el código de worker usa los mismos patrones async que la API. Para este tamaño de deploy, simplicidad gana.</div></div>
+<h3 id="stripe">Stripe</h3>
+<p>Integración con Stripe para pagos con tarjeta. Flujo:</p>
+<ol class="list"><li>Frontend crea <code>PaymentIntent</code> vía endpoint <code>/api/v1/stripe/create-payment-intent</code></li><li>Stripe Elements renderiza el formulario de pago en el frontend</li><li>Al confirmar, Stripe redirige a webhook <code>/api/v1/stripe/webhook</code></li><li>Webhook verifica firma, crea la orden, vacía carrito, envía email</li></ol>
+<div class="code-block" data-lang="python"><div class="code-block__header">backend/app/services/stripe_service.py (simplificado)</div><pre><code class="language-python">async def create_payment_intent(
+    self, amount_cents: int, cart_id: UUID
+) -&gt; dict:
+    intent = stripe.PaymentIntent.create(
+        amount=amount_cents,
+        currency=&quot;eur&quot;,
+        metadata={&quot;cart_id&quot;: str(cart_id)},
+    )
+    return {&quot;client_secret&quot;: intent.client_secret}</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<div class="callout callout--danger"><p class="callout__title"><span class="callout__icon" data-icon="error"></span>Danger</p><div class="callout__body">El webhook de Stripe DEBE verificar la firma con <code>stripe.Webhook.construct_event()</code>. Sin verificación, cualquier persona puede enviar un POST falso marcando órdenes como pagadas. Este proyecto lo implementa correctamente.</div></div>
+</section>
+<section class="section" id="section-flujos-clave-end-to-end" data-section-id="flujos-clave-end-to-end">
+<h2 id="flujos-clave-end-to-end">Flujos Clave End-to-End</h2>
+<h3 id="auth-jwt-con-2fa">Auth JWT con 2FA</h3>
+<div class="mermaid">sequenceDiagram
+    participant U as Usuario
+    participant F as Angular SPA
+    participant A as AuthController
+    participant S as AuthService
+    participant D as PostgreSQL
+
+    U-&gt;&gt;F: POST /login {email, password}
+    F-&gt;&gt;A: Request
+    A-&gt;&gt;S: authenticate(email, password)
+    S-&gt;&gt;D: SELECT user + bcrypt verify
+    alt TOTP enabled
+        S--&gt;&gt;A: requires_2fa: true
+        A--&gt;&gt;F: 401 + 2FA required
+        F-&gt;&gt;U: Mostrar input TOTP
+        U-&gt;&gt;F: Ingresar código 6 dígitos
+        F-&gt;&gt;A: POST /login/2fa {code}
+        A-&gt;&gt;S: verify_totp(code)
+    end
+    S-&gt;&gt;S: generate access_token + refresh_token
+    S--&gt;&gt;A: tokens
+    A--&gt;&gt;F: 200 {access_token, refresh_token}
+    F-&gt;&gt;F: localStorage.setItem + currentUser signal</div>
+<p>El sistema usa <strong>rotación de tokens</strong>: el access token expira en 15 minutos, el refresh token en 7 días. El interceptor HTTP de Angular detecta 401, renueva con el refresh token, y re-intenta la petición original — transparente para el usuario.</p>
+<div class="callout callout--info"><p class="callout__title"><span class="callout__icon" data-icon="info"></span>Info</p><div class="callout__body">2FA solo se requiere para usuarios con rol <code>admin</code>. El guard <code>admin_guard</code> verifica JWT + TOTP antes de permitir acceso a <code>/admin/*</code>. Los usuarios normales solo necesitan email + password.</div></div>
+<h3 id="checkout-con-stock-reservation">Checkout con Stock Reservation</h3>
+<div class="mermaid">sequenceDiagram
+    participant U as Usuario
+    participant F as Angular
+    participant C as CheckoutController
+    participant O as OrderService
+    participant S as StockService
+    participant P as Stripe
+    participant R as Redis
+
+    U-&gt;&gt;F: Click &quot;Pagar&quot;
+    F-&gt;&gt;C: POST /api/v1/checkout {cart_id, shipping}
+    C-&gt;&gt;O: create_order()
+    O-&gt;&gt;S: reserve_stock(items)
+    S-&gt;&gt;R: SETNX stock-lock:{variant_id} (TTL 30s)
+    S-&gt;&gt;S: Verificar stock &gt;= cantidad
+    S-&gt;&gt;S: Disminuir stock_available
+    S--&gt;&gt;O: stock reservado
+    O-&gt;&gt;O: Calcular total + shipping
+    O-&gt;&gt;P: create_payment_intent()
+    P--&gt;&gt;O: client_secret
+    O--&gt;&gt;C: {order_id, client_secret}
+    C--&gt;&gt;F: 200
+    F-&gt;&gt;P: stripe.confirmPayment()
+    P--&gt;&gt;F: payment confirmed
+    P-&gt;&gt;C: POST /api/v1/stripe/webhook
+    C-&gt;&gt;O: confirm_order(order_id)
+    O-&gt;&gt;O: status → paid, cart → emptied</div>
+<div class="callout callout--warning"><p class="callout__title"><span class="callout__icon" data-icon="warning"></span>Warning</p><div class="callout__body">La reserva de stock usa locks distribuidos en Redis (<code>SETNX</code> con TTL 30s). Si el pago no se completa en 5 minutos, un job de ARQ libera el stock reservado. Esto evita el problema clásico de &quot;carritos abandonados agotando inventario&quot;.</div></div>
+<h3 id="guest-cart-merge">Guest Cart Merge</h3>
+<p>Cuando un usuario no autenticado agrega productos al carrito y luego inicia sesión:</p>
+<div class="mermaid">sequenceDiagram
+    participant G as Guest (localStorage)
+    participant F as Angular
+    participant A as AuthService
+    participant C as CartService
+    participant D as PostgreSQL
+
+    G-&gt;&gt;G: localStorage cart_id = &quot;abc-123&quot;
+    G-&gt;&gt;F: Iniciar sesión
+    F-&gt;&gt;A: POST /login
+    A--&gt;&gt;F: JWT + user_id
+    F-&gt;&gt;C: POST /cart/merge {guest_cart_id: &quot;abc-123&quot;}
+    C-&gt;&gt;D: Buscar guest cart
+    C-&gt;&gt;D: Buscar user cart (o crear)
+    loop Cada item del guest cart
+        C-&gt;&gt;C: Si mismo variant_id → sumar cantidades
+        C-&gt;&gt;C: Si no existe → mover al user cart
+    end
+    C-&gt;&gt;D: Eliminar guest cart
+    C--&gt;&gt;F: user_cart actualizado
+    F-&gt;&gt;F: actualizar cart signal</div>
+</section>
+<section class="section" id="section-arquitectura-del-frontend" data-section-id="arquitectura-del-frontend">
+<h2 id="arquitectura-del-frontend">Arquitectura del Frontend</h2>
+<h3 id="estructura-de-features">Estructura de Features</h3>
+<div class="code-block" data-lang="plaintext"><div class="code-block__header">plaintext</div><pre><code class="language-plaintext">frontend/src/app/
+├── core/               # Servicios globales, guards, interceptors, modelos
+├── features/           # Módulos lazy-loading (11 features)
+│   ├── home/           # Landing page
+│   ├── auth/           # Login + registro + 2FA
+│   ├── products/       # Catálogo con filtros
+│   ├── product-detail/ # Ficha de producto
+│   ├── cart/           # Carrito de compras
+│   ├── checkout/       # Flujo de pago
+│   ├── profile/        # Perfil, órdenes, wishlist
+│   ├── admin/          # Panel de administración (8 sub-módulos)
+│   ├── legal/          # Privacidad y términos
+│   ├── sale/           # Productos en oferta
+│   └── new-arrivals/   # Últimos productos
+├── shared/             # Componentes reutilizables
+│   ├── components/     # product-card, search-bar, pagination, star-rating,
+│   │                   # cookie-consent, newsletter-popup, recently-viewed,
+│   │                   # scroll-top, share-button, sizing-guide
+│   ├── models/         # Interfaces compartidas
+│   ├── pipes/          # Pipes personalizados
+│   └── directives/     # Directivas reutilizables
+└── layout/             # Header, footer, admin-layout, mobile-nav</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<h3 id="state-management">State Management</h3>
+<p>La app usa dos estrategias según el caso:</p>
+<table class="data-table"><thead><tr><th>Estrategia</th><th>Uso</th><th>Ejemplo</th></tr></thead><tbody><tr><td><strong>Angular Signals</strong></td><td>Estado local + compartido simple</td><td><code>currentUser()</code>, <code>cartCount()</code>, <code>theme()</code></td></tr><tr><td><strong>RxJS BehaviorSubject</strong></td><td>Flujos asíncronos multi-consumidor</td><td><code>CategoryService.categories$</code>, <code>CartService.cart$</code></td></tr></tbody></table>
+<p>Los servicios de auth y carrito exponen signals computadas que se actualizan automáticamente:</p>
+<div class="code-block" data-lang="typescript"><div class="code-block__header">typescript</div><pre><code class="language-typescript">// AuthService — signal computada
+readonly currentUser = computed(() =&gt; this._user());
+readonly isAdmin = computed(() =&gt; this.currentUser()?.role === &#x27;admin&#x27;);
+
+// CartService — signal sincronizada con API
+readonly cartItems = signal&lt;CartItem[]&gt;([]);
+readonly cartCount = computed(() =&gt;
+  this.cartItems().reduce((sum, item) =&gt; sum + item.quantity, 0)
+);</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<h3 id="guards-e-interceptors">Guards e Interceptors</h3>
+<div class="code-block" data-lang="typescript"><div class="code-block__header">typescript</div><pre><code class="language-typescript">// Interceptor HTTP: renueva access token automáticamente
+intercept(req, next) {
+  if (this.authService.isTokenExpired()) {
+    return this.authService.refreshToken().pipe(
+      switchMap(() =&gt; next.handle(this.addAuthHeader(req)))
+    );
+  }
+  return next.handle(this.addAuthHeader(req));
+}
+
+// Guard de admin: verifica rol antes de lazy-load
+canActivate(): boolean {
+  if (!this.authService.isAdmin()) {
+    this.router.navigate([&#x27;/&#x27;]);
+    return false;
+  }
+  return true;
+}</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<h3 id="multi-idioma-i18n">Multi-idioma (i18n)</h3>
+<p>Tres archivos JSON con claves estructuradas:</p>
+<div class="code-block" data-lang="plaintext"><div class="code-block__header">plaintext</div><pre><code class="language-plaintext">frontend/src/assets/i18n/
+├── es.json    # Español — idioma por defecto
+├── en.json    # Inglés
+└── sv.json    # Sueco</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<p><code>ngx-translate</code> carga el archivo correspondiente según <code>navigator.language</code> o preferencia guardada. El language switcher en el header persiste la selección en <code>localStorage</code>.</p>
+</section>
+<section class="section" id="section-decisiones-técnicas-y-tradeoffs" data-section-id="decisiones-técnicas-y-tradeoffs">
+<h2 id="decisiones-técnicas-y-tradeoffs">Decisiones Técnicas y Tradeoffs</h2>
+<p>Cada decisión de arquitectura, framework y librería tiene una razón concreta. Acá están todas — ordenadas por categoría, con el qué, el por qué, y qué se rechazó.</p>
+<h3 id="arquitectura">Arquitectura</h3>
+<h4 id="por-qué-arquitectura-hexagonal-ports-adapters">¿Por qué arquitectura hexagonal (ports &amp; adapters)?</h4>
+<div class="code-block" data-lang="plaintext"><div class="code-block__header">plaintext</div><pre><code class="language-plaintext">┌─────────────────────────────────────────────────┐
+│                  Controllers                    │  ← Adapters (in)
+│            (HTTP, validación, guards)           │
+└──────────────────────┬──────────────────────────┘
+                       ▼
+┌─────────────────────────────────────────────────┐
+│                   Services                      │  ← Application core
+│            (reglas de negocio, casos de uso)    │
+└──────┬──────────────────────────────────┬───────┘
+       ▼                                  ▼
+┌──────────────┐               ┌─────────────────┐
+│ Repositories │               │   Event Bus     │  ← Ports
+│  (data acc)  │               │  (pub/sub)      │
+└──────┬───────┘               └─────────────────┘
+       ▼
+┌──────────────┐
+│   Models     │  ← Adapters (out)
+│  (SQLAlchemy)│
+└──────────────┘</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Separar el dominio (services) de la infraestructura (controllers, repositories, BD) permite tres cosas críticas para este proyecto: (1) los servicios se testean sin BD ni HTTP — solo mocks de repositorios, (2) cambiar PostgreSQL por otra cosa toca solo los repositories y models, no el dominio, y (3) las reglas de negocio viven en UN lugar — no duplicadas entre controllers y frontend. El repository pattern además centraliza las queries para que el CQRS sea limpio.</div></div>
+<p>Rechazado: <strong>MVC plano</strong> (models-views-controllers sin separación de servicios). En MVC, la lógica de negocio tiende a acumularse en controllers o models, creando acoplamiento. Para un e-commerce con 18 servicios de negocio distintos, ese acoplamiento haría el código inmantenible.</p>
+<h4 id="por-qué-repository-pattern-y-no-orm-directo-en-services">¿Por qué repository pattern y no ORM directo en services?</h4>
+<div class="code-block" data-lang="python"><div class="code-block__header">MAL: ORM acoplado al service</div><pre><code class="language-python">class ProductService:
+    async def get_products(self, session: AsyncSession):
+        return await session.execute(select(Product))</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<div class="code-block" data-lang="python"><div class="code-block__header">BIEN: repository abstrae el acceso a datos</div><pre><code class="language-python">class ProductService:
+    async def get_products(self, repo: ProductRepository):
+        return await repo.find_with_filters(...)</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">El repository pattern crea una frontera clara: los services no saben SQL ni SQLAlchemy — solo hablan con interfaces de repositorio. Esto permite: (1) mockear repositorios en tests unitarios sin BD, (2) centralizar queries complejas (CQRS) en un solo lugar, y (3) si mañana migro a MongoDB, solo cambio los repositorios, no los 18 servicios.</div></div>
+<h4 id="por-qué-event-bus-en-memoria-y-no-message-broker">¿Por qué event bus en memoria y no message broker?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">El event bus resuelve cross-cutting concerns (audit log, cache invalidation, emails) sin acoplar servicios entre sí. Usar un broker (Redis pub/sub, RabbitMQ) añadiría complejidad operacional (latencia de red, manejo de reconexión, ordering guarantees) sin beneficio en este volumen. El bus síncrono en memoria ejecuta los handlers en el mismo request, lo que es correcto para acciones que DEBEN pasar antes del commit (audit log). Si escala, migrar a Redis Streams es trivial porque los handlers ya están desacoplados por interfaz.</div></div>
+<h4 id="por-qué-cache-aside-y-no-write-through-o-write-back">¿Por qué cache-aside y no write-through o write-back?</h4>
+<div class="code-block" data-lang="plaintext"><div class="code-block__header">plaintext</div><pre><code class="language-plaintext">Cache-Aside (lazy loading):
+  App -&gt; ¿está en cache? -&gt; SÍ -&gt; retornar
+                         -&gt; NO -&gt; leer BD -&gt; guardar cache -&gt; retornar
+
+Write-Through:
+  App -&gt; escribir cache + BD simultáneamente (sincrónico)
+
+Write-Back:
+  App -&gt; escribir solo cache -&gt; flush a BD en background</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Cache-aside es el patrón más simple y resiliente: si Redis cae, la app sigue funcionando (lee directo de BD, solo más lento). Write-through acopla escritura a la disponibilidad de Redis. Write-back puede perder datos si Redis muere antes del flush. Para un e-commerce donde la consistencia de inventario y órdenes es crítica, cache-aside + invalidación por event bus da el balance correcto: lecturas rápidas, escrituras seguras.</div></div>
+<h4 id="por-qué-jwt-y-no-server-sessions">¿Por qué JWT y no server sessions?</h4>
+<table class="data-table"><thead><tr><th>Factor</th><th>JWT</th><th>Server Sessions</th></tr></thead><tbody><tr><td>Escalado horizontal</td><td>Stateless — cualquier instancia valida</td><td>Requiere sesión compartida (Redis/DB)</td></tr><tr><td>Mobile/OAuth</td><td>Nativo — token en header</td><td>Cookies con CORS son complejas en mobile</td></tr><tr><td>Invalidación</td><td>Refresh token rotation + blacklist</td><td>Borrar sesión en store</td></tr><tr><td>Tamaño</td><td>~500 bytes self-contained</td><td>Session ID + lookup en cada request</td></tr></tbody></table>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">JWT permite escalar horizontalmente sin estado compartido: cualquier instancia de la API puede validar un token con solo la firma (secret compartido). Las sessions requieren un store compartido (Redis o DB) que se consulta en CADA request autenticada. Para un deploy que puede crecer a múltiples instancias, JWT elimina un punto de falla. El tradeoff (invalidación) se maneja con refresh token rotation de 7 días — si un token se compromete, expira rápido.</div></div>
+<h3 id="stack-de-backend">Stack de Backend</h3>
+<h4 id="por-qué-litestar-y-no-fastapi">¿Por qué Litestar y no FastAPI?</h4>
+<table class="data-table"><thead><tr><th>Factor</th><th>Litestar</th><th>FastAPI (rechazado)</th></tr></thead><tbody><tr><td>Dependency Injection</td><td>Nativo con scopes (singleton, request, connection)</td><td>Requiere <code>python-dependency-injector</code> externo</td></tr><tr><td>Guards de auth</td><td>Declarativos tipados como decoradores</td><td>Dependencias como callables manuales</td></tr><tr><td>Event system</td><td>Señales incorporadas (para event bus)</td><td>No nativo — requiere librería</td></tr><tr><td>OpenAPI</td><td>Generación desde tipos Python, muy configurable</td><td>Automática pero menos flexible</td></tr><tr><td>Maturidad</td><td>Más nuevo, menos comunidad</td><td>Estándar de facto, enorme comunidad</td></tr></tbody></table>
+<div class="callout callout--tip"><p class="callout__title"><span class="callout__icon" data-icon="lightbulb"></span>Tip</p><div class="callout__body">La pregunta real en entrevista no es &quot;¿Litestar o FastAPI?&quot; sino <strong>&quot;¿por qué elegiste una alternativa menos popular?&quot;</strong>. Respuesta: Litestar resuelve mejor los problemas CONCRETOS de este proyecto — DI scoped para servicios que comparten sesión de BD, guards declarativos para rutas admin/públicas, y señales integradas para el event bus. FastAPI es excelente, pero Litestar eliminó 3 dependencias externas y ~200 líneas de boilerplate. El tradeoff aceptado: menos talent pool y documentación comunitaria.</div></div>
+<h4 id="por-qué-sqlalchemy-2x-async-y-no-sqlmodel-o-tortoise">¿Por qué SQLAlchemy 2.x async y no SQLModel o Tortoise?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">SQLAlchemy 2.x es el ORM más maduro del ecosistema Python (15+ años), con soporte async nativo desde 2.0, ecosistema enorme (Alembic para migraciones, tipos GIS, FTS), y permite mezclar ORM y SQL crudo según convenga (esencial para CQRS). SQLModel (de FastAPI) es un wrapper sobre SQLAlchemy que acopla modelo de BD a schema de API — viola la separación de capas. Tortoise es async-native pero tiene un ecosistema más pequeño y menos herramientas. SQLAlchemy gana por madurez, flexibilidad y ecosystem.</div></div>
+<h4 id="por-qué-pydantic-v2-para-dtos">¿Por qué Pydantic v2 para DTOs?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Pydantic v2 (escrito en Rust) valida y serializa 5-10x más rápido que v1. Permite definir DTOs (Data Transfer Objects) con tipos Python puros que Litestar usa para validación automática de requests y generación de OpenAPI. Alternativa: <code>dataclasses</code> no valida tipos en runtime ni genera schema. <code>marshmallow</code> es más lento y menos integrado con type checkers. Pydantic v2 es el estándar de facto en Python moderno para validación de datos en boundaries.</div></div>
+<h4 id="por-qué-postgresql-16-y-no-mysql-o-sqlite">¿Por qué PostgreSQL 16 y no MySQL o SQLite?</h4>
+<table class="data-table"><thead><tr><th>Factor</th><th>PostgreSQL 16</th><th>MySQL 8</th><th>SQLite</th></tr></thead><tbody><tr><td>Full-Text Search</td><td><code>tsvector</code> nativo con ranking</td><td>LIMITADO (sin ranking decente)</td><td>LIMITADO (FTS5 básico)</td></tr><tr><td>JSON columns</td><td>JSONB con indexación y operadores</td><td>JSON sin indexación eficiente</td><td>JSON1 como extensión</td></tr><tr><td>Tipos avanzados</td><td>UUID, ARRAY, Range, tsvector</td><td>Más limitado</td><td>Limitado</td></tr><tr><td>Concurrency</td><td>MVCC (lectores no bloquean escritores)</td><td>MVCC pero con gotchas</td><td>Single-writer lock</td></tr></tbody></table>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">PostgreSQL se eligió por dos features críticas para e-commerce: <strong>Full-Text Search nativo</strong> (<code>tsvector</code> con triggers automáticos) permite buscar productos sin añadir Elasticsearch, y <strong>JSONB</strong> permite almacenar metadatos flexibles (variantes, atributos) con indexación. MySQL tendría FTS limitado y SQLite no soporta concurrencia para un sistema con background workers escribiendo.</div></div>
+<h4 id="por-qué-redis-7-cache-queue-y-no-memcached-rabbitmq">¿Por qué Redis 7 (cache + queue) y no Memcached + RabbitMQ?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Redis hace dos trabajos aquí: cache-aside con TTL configurable y broker de ARQ para background jobs. Usar Memcached (solo cache) + RabbitMQ (solo queue) añadiría un servicio más que operar. Redis 7 tiene data structures ricas (strings, sets, sorted sets, streams), persistencia opcional, y LRU eviction nativo. Para este tamaño, un servicio que hace dos cosas &gt; dos servicios especializados.</div></div>
+<h4 id="por-qué-python-jose-para-jwt-y-no-pyjwt">¿Por qué python-jose para JWT y no PyJWT?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">python-jose soporta más algoritmos (incluyendo EdDSA que PyJWT añadió tarde) y tiene mejor manejo de claims. Ambos son válidos. La diferencia clave: python-jose está más alineado con flujos OAuth2/OIDC, que será necesario cuando se implemente Google OAuth real. PyJWT es más simple si solo necesitas firmar/verificar tokens. Como el roadmap incluye OAuth, python-jose fue la elección forward-compatible.</div></div>
+<h4 id="por-qué-pyotp-para-2fa">¿Por qué PyOTP para 2FA?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">PyOTP implementa TOTP (RFC 6238) y HOTP (RFC 4226) — los estándares que usan Google Authenticator, Authy y 1Password. Generar un secret base32 y validar códigos de 6 dígitos en 3 líneas. Alternativas: <code>speakeasy</code> (Node.js, no aplica), o implementar TOTP manual (innecesario y propenso a errores). PyOTP es la opción canónica en Python.</div></div>
+<h4 id="por-qué-bcrypt-para-passwords-y-no-argon2">¿Por qué bcrypt para passwords y no argon2?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">bcrypt tiene 25 años de batalla probada y es el estándar de la industria. argon2 (ganador de la Password Hashing Competition 2015) es teóricamente superior (resistente a GPU/ASIC) pero requiere librerías nativas (<code>argon2-cffi</code>) que pueden fallar al compilar en algunos entornos. Para un portafolio que prioriza &quot;funciona en cualquier Linux sin drama&quot;, bcrypt via <code>passlib</code> es la elección pragmática. Si escalara a producción con amenazas reales, migrar a argon2 es cambiar una línea en <code>passlib.CryptContext</code>.</div></div>
+<h4 id="por-qué-stripe-y-no-mercadopago-paypal">¿Por qué Stripe y no MercadoPago / PayPal?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Stripe tiene la mejor documentación técnica, SDK maduro para Python, webhooks con firma criptográfica, y Stripe Elements para formularios PCI-compliant sin tocar datos de tarjeta. MercadoPago es fuerte en LATAM pero con documentación fragmentada. PayPal tiene fees altos y UX invasiva. Para un proyecto de portafolio dirigido al mercado sueco/europeo, Stripe es la opción que más reclutadores reconocen. El webhook verifica firma con <code>stripe.Webhook.construct_event()</code> — crítico de seguridad.</div></div>
+<h3 id="stack-de-frontend">Stack de Frontend</h3>
+<h4 id="por-qué-angular-22-y-no-react-o-vue">¿Por qué Angular 22 y no React o Vue?</h4>
+<table class="data-table"><thead><tr><th>Factor</th><th>Angular 22</th><th>React 19</th><th>Vue 3</th></tr></thead><tbody><tr><td>Opinión de estructura</td><td>Opinable — modular por diseño</td><td>Libre — requiere decisiones</td><td>Semi-opinable</td></tr><tr><td>TypeScript</td><td>Nativo, first-class</td><td>Opcional (JSX mezcla)</td><td>Soporte pero opcional</td></tr><tr><td>Forms complejos</td><td>Reactive Forms + validación</td><td>Librerías externas (react-hook-form)</td><td>VueUse pero menos maduro</td></tr><tr><td>Enterprise-scale</td><td>DI, módulos lazy, guards nativos</td><td>Requiere arquitectura manual</td><td>Similar a React</td></tr><tr><td>Signals</td><td>Nativas desde v17</td><td>useEffect/useMemo (diferente)</td><td>ref/reactive</td></tr></tbody></table>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Angular se eligió porque su estructura opinable (DI, módulos, guards, interceptores) fuerza una arquitectura consistente sin debates de &quot;¿cómo organizamos esto?&quot;. Para un e-commerce con 11 features, auth con guards, interceptores HTTP y formularios complejos (checkout, admin product form), Angular da las herramientas nativas. React las requiere ensamblar de múltiples librerías. El tradeoff: curva de aprendizaje más alta, pero el resultado es más predecible y mantenible en escala.</div></div>
+<h4 id="por-qué-primeng-y-no-angular-material">¿Por qué PrimeNG y no Angular Material?</h4>
+<p>Angular Material (CDK + Components) es el estándar, pero:</p>
+<table class="data-table"><thead><tr><th>Necesidad del proyecto</th><th>PrimeNG</th><th>Angular Material</th></tr></thead><tbody><tr><td>Tablas con sort, filter, pagination</td><td><code>p-table</code> nativo, 1 componente</td><td>Requiere <code>MatTableDataSource</code> + config manual</td></tr><tr><td>Multi-select con chips</td><td><code>p-multiSelect</code> listo</td><td>No existe — hay que construir</td></tr><tr><td>File upload con preview</td><td><code>p-fileUpload</code> con templates</td><td>No existe</td></tr><tr><td>Iconos completos (2,500+)</td><td>PrimeIcons incluido</td><td>Material Icons (limitado, sin e-commerce)</td></tr><tr><td>Dark mode</td><td>Toggle nativo con variables CSS</td><td>Requiere tema custom</td></tr><tr><td>Form validation visual</td><td>Integrado con <code>p-input</code></td><td>Manual con <code>mat-error</code></td></tr></tbody></table>
+<div class="callout callout--mistake"><p class="callout__title">Common mistake</p><div class="callout__body">No confundir &quot;más popular&quot; con &quot;mejor para tu caso de uso&quot;. Angular Material es sobresaliente para dashboards empresariales. Pero una tienda necesita multi-select para filtros, file upload para imágenes de producto, y 2,500 iconos (moda, pagos, redes sociales). PrimeNG cubre esto sin componentes custom. La decisión fue técnica, no estética.</div></div>
+<h4 id="por-qué-signals-rxjs-y-no-ngrx">¿Por qué Signals + RxJS y no NgRx?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">NgRx (Redux para Angular) añade 4 conceptos (actions, reducers, selectors, effects) y boilerplate significativo. Es excelente para apps con estado global complejo y time-travel debugging. Pero La Tiendita tiene estado mayoritariamente local por feature: el carrito vive en CartService, auth en AuthService, catálogo en ProductService. Angular Signals (estado reactivo simple) + RxJS BehaviorSubject (flujos asíncronos multi-consumidor) cubren el 100% de los casos sin el overhead. YAGNI — si el estado global se complica, migrar a NgRx es incremental.</div></div>
+<h4 id="por-qué-ngx-translate-y-no-i18n-nativo-de-angular">¿Por qué ngx-translate y no i18n nativo de Angular?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">El i18n nativo de Angular (<code>@angular/localize</code>) compila un build POR idioma — 3 builds para es/en/sv. ngx-translate carga archivos JSON en runtime, permitiendo cambiar idioma sin recargar la app. Para un e-commerce con un language switcher en el header (UX crítica para mercado multilingüe sueco), el cambio en caliente de ngx-translate es no-negociable. El tradeoff: ngx-translate añade una dependencia y los pipes pueden impactar performance en listas grandes (mitigado con <code>pure: false</code> controlado).</div></div>
+<h4 id="por-qué-tailwind-css-v3-primeui-y-no-scss-puro">¿Por qué Tailwind CSS v3 + PrimeUI y no SCSS puro?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Tailwind da utility classes para layouts y spacing rápido sin escribir CSS custom. PrimeUI provee el design system de PrimeNG (colores, sombras, tipografía) como variables CSS. Juntos: Tailwind estructura, PrimeUI tematiza. Alternativa: SCSS custom desde cero = semanas de trabajo en un design system. Para un portafolio donde el foco es arquitectura y UX, no pixel-pushing CSS, esta combinación es la más productiva. El riesgo (Tailwind purista genera HTML verbose) se mitiga extrando componentes Angular.</div></div>
+<h3 id="infraestructura">Infraestructura</h3>
+<h4 id="por-qué-docker-multi-stage-y-no-imágenes-planas">¿Por qué Docker multi-stage y no imágenes planas?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Multi-stage build separa el contexto de build (compiladores, node_modules, devDependencies) del runtime final. Resultado: imagen de producción de ~150 MB en vez de ~800 MB. Menos superficie de ataque, deploys más rápidos, menos costo de bandwidth. Para Python: <code>python:3.14-slim</code> como base runtime. Para Angular: build con node, sirve con <code>nginx:alpine</code> (~30 MB).</div></div>
+<h4 id="por-qué-nginx-como-reverse-proxy-y-no-exponer-la-api-directo">¿Por qué Nginx como reverse proxy y no exponer la API directo?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Nginx como reverse proxy da cuatro beneficios: (1) termination de TLS/SSL centralizado, (2) servir archivos estáticos de la SPA sin pasar por Python, (3) rate limiting y protección DDoS a nivel de edge, y (4) poder rotar instancias de backend sin que el cliente lo note. Exponer uvicorn directo al internet es un anti-patrón — no maneja TLS, no sirve estáticos eficientemente, y no protege contra tráfico malicioso.</div></div>
+<h4 id="por-qué-github-actions-y-no-jenkins-o-gitlab-ci">¿Por qué GitHub Actions y no Jenkins o GitLab CI?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">GitHub Actions es nativo del repositorio (cero setup de infra), tiene marketplace de actions reutilizables, y minutos gratuitos para proyectos open source. Jenkins requiere mantener un servidor. GitLab CI requiere migrar de GitHub. Para un proyecto que ya está en GitHub, Actions es la opción de menor fricción. El tradeoff: menos control que Jenkins self-hosted, pero suficiente para CI/CD de este tamaño.</div></div>
+<h3 id="anti-patrones-evitados">Anti-patrones evitados</h3>
+<h4 id="por-qué-no-microservicios">¿Por qué NO microservicios?</h4>
+<div class="callout callout--danger"><p class="callout__title"><span class="callout__icon" data-icon="error"></span>Danger</p><div class="callout__body">Para un proyecto de este tamaño (un desarrollador, e-commerce de portafolio), microservicios serían over-engineering. Añadirían: complejidad de deployment (8+ servicios), latencia de red entre servicios, consistencia distribuida (sagas, outbox pattern), y observabilidad compleja (distributed tracing). La arquitectura hexagonal modular permite extraer un microservicio cuando un módulo lo justifique por carga — pero partir ahí es prematuro. Monolith first, extraer después.</div></div>
+<h4 id="por-qué-no-graphql-y-rest-sí">¿Por qué NO GraphQL y REST sí?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">GraphQL brilla cuando hay múltiples clientes con necesidades de datos distintas (mobile quiere menos campos que desktop). Para este proyecto con un solo cliente (Angular SPA) y endpoints bien definidos, REST es más simple: caché HTTP nativo, semántica de status codes, y tooling más maduro. GraphQL añade complejidad (resolvers, N+1 prevention con DataLoader, schema federation) sin beneficio acá. Si el día de mañana hay un mobile nativo con necesidades distintas, GraphQL sería el camino.</div></div>
+<h4 id="por-qué-no-event-sourcing">¿Por qué NO event sourcing?</h4>
+<div class="callout callout--why"><p class="callout__title">Why?</p><div class="callout__body">Event sourcing (guardar cada cambio como evento inmutable) da auditoría perfecta y time-travel, pero añade complejidad masiva: event store, proyecciones, snapshots, y eventual consistency. El audit log tradicional (tabla con actor/acción/entidad/timestamp) cubre el requisito de compliance a una fracción del costo. Event sourcing se justifica en sistemas financieros o de inventario hiper-regulado. Para un e-commerce de portafolio, es innecesario.</div></div>
+</section>
+<section class="section" id="section-infraestructura" data-section-id="infraestructura">
+<h2 id="infraestructura">Infraestructura</h2>
+<h3 id="docker-compose-dev">Docker Compose (Dev)</h3>
+<div class="code-block" data-lang="yaml"><div class="code-block__header">docker-compose.yml (servicios principales)</div><pre><code class="language-yaml">services:
+  postgres:
+    image: postgres:16-alpine
+    ports: [&quot;5432:5432&quot;]
+    volumes: [pgdata:/var/lib/postgresql/data]
+
+  redis:
+    image: redis:7-alpine
+    ports: [&quot;6379:6379&quot;]
+
+  api:
+    build: ./backend
+    ports: [&quot;8000:8000&quot;]
+    depends_on: [postgres, redis]
+    environment: {DATABASE_URL, REDIS_URL, STRIPE_KEY, JWT_SECRET}
+
+  frontend:
+    build: ./frontend
+    ports: [&quot;4200:4200&quot;]
+    depends_on: [api]
+
+  worker:
+    build: ./backend
+    command: arq app.tasks.WorkerSettings
+    depends_on: [redis, postgres]</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<h3 id="producción">Producción</h3>
+<p>En producción se agrega <code>docker-compose.prod.yml</code> que:</p>
+<ul class="list"><li>Reemplaza el frontend dev por <strong>nginx:alpine</strong> sirviendo la SPA compilada</li><li>La API corre con <strong>uvicorn</strong> (no --reload)</li><li>ARQ worker se ejecuta como servicio separado</li><li>Volúmenes persistentes para uploads y BD</li></ul>
+<div class="code-block" data-lang="yaml"><div class="code-block__header">docker-compose.prod.yml</div><pre><code class="language-yaml">services:
+  nginx:
+    image: nginx:alpine
+    ports: [&quot;80:80&quot;]
+    volumes:
+      - ./nginx.prod.conf:/etc/nginx/conf.d/default.conf
+      - ./frontend/dist:/usr/share/nginx/html</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+</section>
+<section class="section" id="section-testing" data-section-id="testing">
+<h2 id="testing">Testing</h2>
+<h3 id="estrategia-por-capa">Estrategia por capa</h3>
+<table class="data-table"><thead><tr><th>Capa</th><th>Framework</th><th>Archivos</th><th>Resultado</th></tr></thead><tbody><tr><td>Backend unit</td><td>pytest + pytest-asyncio</td><td>30</td><td>235 passed, 28 skipped (env)</td></tr><tr><td>Backend integration</td><td>pytest + httpx</td><td>Incluido en unit</td><td>—</td></tr><tr><td>Frontend unit</td><td>Karma + Jasmine</td><td>55 specs</td><td>Configurado</td></tr><tr><td>E2E</td><td>Playwright</td><td>55 specs</td><td>71 passed, 0 failures</td></tr></tbody></table>
+<h3 id="patrones-de-testing-usados">Patrones de testing usados</h3>
+<div class="code-block" data-lang="python"><div class="code-block__header">backend/tests/test_auth.py (patron AAA)</div><pre><code class="language-python">async def test_login_returns_tokens_for_valid_credentials(
+    async_client, test_user
+):
+    # Arrange
+    payload = {&quot;email&quot;: test_user.email, &quot;password&quot;: &quot;test123&quot;}
+
+    # Act
+    response = await async_client.post(&quot;/api/v1/auth/login&quot;, json=payload)
+
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert &quot;access_token&quot; in data
+    assert &quot;refresh_token&quot; in data
+    assert data[&quot;token_type&quot;] == &quot;bearer&quot;</code></pre><button class="copy-btn" data-action="copy">Copy</button></div>
+<div class="callout callout--tip"><p class="callout__title"><span class="callout__icon" data-icon="lightbulb"></span>Tip</p><div class="callout__body">Los tests E2E usan <strong>fixtures con seed determinista</strong>: cada spec siembra exactamente los datos que necesita y limpia al terminar. Esto permite correr tests en paralelo sin interferencia.</div></div>
+<h3 id="lecciones-aprendidas-del-testing-e2e">Lecciones aprendidas del testing E2E</h3>
+<ul class="list"><li>Los 3 JSON i18n tenían una coma faltante en la línea 192 — toda la app mostraba keys crudas. Hoy está validado en pre-commit.</li><li>Las fixtures E2E llamaban API sin prefijo <code>/api/v1</code> → 404 silenciosos en register/login. Se corrigió el <code>API_URL</code> en todas las fixtures.</li><li>El auth guard de Angular mantiene <code>currentUser</code> en memoria incluso tras borrar <code>localStorage</code> → los tests de redirect ahora usan <code>browser.newContext()</code> para sesión fresca.</li></ul>
+</section>
+<section class="section" id="section-quiz-de-autoevaluación" data-section-id="quiz-de-autoevaluación">
+<h2 id="quiz-de-autoevaluación">Quiz de Autoevaluación</h2>
+<h3 id="sección-1-arquitectura">Sección 1: Arquitectura</h3>
+<div class="quiz-placeholder" data-quiz-id="q1"></div>
+<h3 id="sección-2-flujos-de-negocio">Sección 2: Flujos de negocio</h3>
+<div class="quiz-placeholder" data-quiz-id="q2"></div>
+<h3 id="sección-3-frontend">Sección 3: Frontend</h3>
+<div class="quiz-placeholder" data-quiz-id="q3"></div>
+<h3 id="sección-4-testing">Sección 4: Testing</h3>
+<div class="quiz-placeholder" data-quiz-id="q4"></div>
+<h3 id="sección-5-infraestructura">Sección 5: Infraestructura</h3>
+<div class="quiz-placeholder" data-quiz-id="q5"></div>
+</section>
+  </main>
+</div>
+
+<div class="search-modal" id="search-modal" hidden>
+  <div class="search-modal__backdrop" data-action="close-search"></div>
+  <div class="search-modal__panel">
+    <input type="search" class="search-modal__input" id="search-input"
+           placeholder="Search sections..." autocomplete="off">
+    <ul class="search-modal__results" id="search-results"></ul>
+  </div>
+</div>
+
+<dialog class="lightbox" id="lightbox">
+  <img class="lightbox__img" id="lightbox-img" alt="">
+  <button class="lightbox__close" data-action="close-lightbox" aria-label="Close">×</button>
+</dialog>
+
+<footer class="footer">
+  <p>Generated with <strong>immersive-doc</strong> • 1.0 • 2026-07-25</p>
+</footer>
+
+<script>window.__DOC_META__ = {"title": "La Tiendita — Arquitectura y Guía de Estudio", "template": "architecture", "theme": "dark_code", "typography": "inter-jetbrains", "language": "es", "audience": "seniors", "version": "1.0", "author": "Alejandro Martínez", "date": "2026-07-25", "description": "Guía de estudio de la arquitectura fullstack de La Tiendita: e-commerce de ropa second-hand con backend hexagonal Litestar/Python + frontend Angular/PrimeNG + PostgreSQL + Redis.", "diagram_star": true};</script>
+<script>window.__DIAGRAM_STARS__ = [{"id": "arch-global", "sticky": true, "svg": "<svg viewBox=\"0 0 1000 520\" xmlns=\"http://www.w3.org/2000/svg\">\n  <g data-section=\"cliente\">\n    <rect x=\"30\" y=\"200\" width=\"140\" height=\"80\" rx=\"10\" fill=\"currentColor\" opacity=\"0.15\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n    <text x=\"100\" y=\"235\" text-anchor=\"middle\" font-size=\"13\" font-weight=\"600\">Cliente</text>\n    <text x=\"100\" y=\"255\" text-anchor=\"middle\" font-size=\"11\" opacity=\"0.7\">Angular 22 + PrimeNG</text>\n    <text x=\"100\" y=\"270\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.5\">3 idiomas · Signals</text>\n  </g>\n  <path d=\"M170,240 L240,240\" stroke=\"currentColor\" stroke-width=\"2\" fill=\"none\" opacity=\"0.6\"/>\n  <g data-section=\"nginx\">\n    <rect x=\"240\" y=\"215\" width=\"100\" height=\"50\" rx=\"8\" fill=\"currentColor\" opacity=\"0.12\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n    <text x=\"290\" y=\"240\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\">Nginx</text>\n    <text x=\"290\" y=\"256\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.6\">reverse proxy</text>\n  </g>\n  <path d=\"M340,225 L430,225\" stroke=\"currentColor\" stroke-width=\"2\" fill=\"none\" opacity=\"0.6\"/>\n  <g data-section=\"api-gateway\">\n    <rect x=\"430\" y=\"195\" width=\"160\" height=\"60\" rx=\"10\" fill=\"currentColor\" opacity=\"0.15\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n    <text x=\"510\" y=\"220\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\">Controllers</text>\n    <text x=\"510\" y=\"238\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.7\">14 endpoints · validación · guards</text>\n  </g>\n  <path d=\"M510,255 L510,290\" stroke=\"currentColor\" stroke-width=\"2\" fill=\"none\"/>\n  <g data-section=\"servicios\">\n    <rect x=\"430\" y=\"290\" width=\"160\" height=\"60\" rx=\"10\" fill=\"currentColor\" opacity=\"0.15\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n    <text x=\"510\" y=\"315\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\">Services</text>\n    <text x=\"510\" y=\"333\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.7\">18 servicios · lógica de negocio</text>\n  </g>\n  <path d=\"M510,350 L510,385\" stroke=\"currentColor\" stroke-width=\"2\" fill=\"none\"/>\n  <g data-section=\"repositorios\">\n    <rect x=\"430\" y=\"385\" width=\"160\" height=\"50\" rx=\"10\" fill=\"currentColor\" opacity=\"0.15\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n    <text x=\"510\" y=\"410\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\">Repositories</text>\n    <text x=\"510\" y=\"426\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.7\">acceso a datos</text>\n  </g>\n  <path d=\"M590,340 L670,340\" stroke=\"currentColor\" stroke-width=\"2\" fill=\"none\" opacity=\"0.6\"/>\n  <g data-section=\"persistencia\">\n    <rect x=\"670\" y=\"310\" width=\"130\" height=\"60\" rx=\"10\" fill=\"currentColor\" opacity=\"0.15\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n    <text x=\"735\" y=\"335\" text-anchor=\"middle\" font-size=\"12\" font-weight=\"600\">PostgreSQL 16</text>\n    <text x=\"735\" y=\"352\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.7\">Alembic · ORM async</text>\n  </g>\n  <path d=\"M590,400 L670,400\" stroke=\"currentColor\" stroke-width=\"2\" fill=\"none\" opacity=\"0.6\"/>\n  <g data-section=\"persistencia\">\n    <rect x=\"670\" y=\"375\" width=\"130\" height=\"50\" rx=\"10\" fill=\"currentColor\" opacity=\"0.15\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n    <text x=\"735\" y=\"398\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"600\">Redis 7</text>\n    <text x=\"735\" y=\"414\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.7\">cache + ARQ queue</text>\n  </g>\n  <path d=\"M800,400 L800,250 L860,250\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-dasharray=\"4,3\" fill=\"none\" opacity=\"0.4\"/>\n  <g data-section=\"background-jobs\">\n    <rect x=\"860\" y=\"220\" width=\"110\" height=\"60\" rx=\"10\" fill=\"currentColor\" opacity=\"0.12\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n    <text x=\"915\" y=\"245\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"600\">ARQ Worker</text>\n    <text x=\"915\" y=\"262\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.7\">email · imágenes</text>\n  </g>\n  <g data-section=\"stripe\">\n    <rect x=\"860\" y=\"310\" width=\"110\" height=\"50\" rx=\"10\" fill=\"currentColor\" opacity=\"0.12\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-dasharray=\"3,2\"/>\n    <text x=\"915\" y=\"335\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"600\">Stripe</text>\n    <text x=\"915\" y=\"351\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.7\">pagos + webhooks</text>\n  </g>\n  <g data-section=\"event-bus\">\n    <rect x=\"510\" y=\"135\" width=\"120\" height=\"50\" rx=\"8\" fill=\"currentColor\" opacity=\"0.12\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-dasharray=\"3,2\"/>\n    <text x=\"570\" y=\"158\" text-anchor=\"middle\" font-size=\"11\" font-weight=\"600\">Event Bus</text>\n    <text x=\"570\" y=\"173\" text-anchor=\"middle\" font-size=\"10\" opacity=\"0.7\">audit · cache · emails</text>\n  </g>\n  <path d=\"M430,240 L430,160 L510,160\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-dasharray=\"4,3\" fill=\"none\" opacity=\"0.4\"/>\n</svg>"}];</script>
+<script>window.__QUIZZES__ = [{"id": "q1", "type": "multiple-choice", "question": "¿Cuál es la principal razón para elegir Litestar sobre FastAPI en este proyecto?", "options": [{"text": "Litestar es más rápido que FastAPI en benchmarks", "correct": false}, {"text": "Su sistema de DI nativo elimina boilerplate y sus guards son más declarativos", "correct": true}, {"text": "FastAPI no soporta async/await", "correct": false}, {"text": "Litestar es más popular en la comunidad Python", "correct": false}], "explanation": "Litestar se eligió por su sistema de Dependency Injection nativo con scopes (singleton/request/connection) y guards declarativos tipados. FastAPI requiere dependencias externas para DI y el patrón de guards es menos expresivo."}, {"id": "q2", "type": "true-false", "question": "El sistema de stock reservation usa locks distribuidos en PostgreSQL para evitar sobreventa.", "options": [{"text": "Verdadero", "correct": false}, {"text": "Falso", "correct": true}], "explanation": "Falso. Usa locks distribuidos en Redis (`SETNX` con TTL 30s), no en PostgreSQL. Esto evita deadlocks en la BD y es más rápido para operaciones de corta duración."}, {"id": "q3", "type": "select-all", "question": "¿Qué estrategias de state management usa el frontend? (Selecciona todas las correctas)", "options": [{"text": "Angular Signals para estado local y compartido simple", "correct": true}, {"text": "NgRx Store con reducers para estado global", "correct": false}, {"text": "RxJS BehaviorSubject para flujos asíncronos multi-consumidor", "correct": true}, {"text": "Zustand para estado cross-component", "correct": false}], "explanation": "El frontend usa Signals (estado simple como currentUser, cartCount, theme) y RxJS BehaviorSubject (flujos multi-consumidor como categories$, cart$). No se usa NgRx — sería sobre-ingeniería para este tamaño de app."}, {"id": "q4", "type": "multiple-choice", "question": "¿Por qué los tests E2E de redirect usan browser.newContext()?", "options": [{"text": "Para simular diferentes tamaños de viewport", "correct": false}, {"text": "Para evitar que el usuario autenticado en memoria interfiera con el test de redirect", "correct": true}, {"text": "Para ejecutar tests en paralelo", "correct": false}, {"text": "Porque Playwright lo requiere para cada spec", "correct": false}], "explanation": "El auth guard de Angular mantiene currentUser en memoria incluso tras clearTokens() del localStorage. browser.newContext() crea una sesión de navegador completamente aislada sin el estado en memoria del test anterior."}, {"id": "q5", "type": "true-false", "question": "En producción, la API de Litestar se expone directamente en el puerto 8000.", "options": [{"text": "Verdadero", "correct": false}, {"text": "Falso", "correct": true}], "explanation": "Falso. En producción, nginx actúa como reverse proxy en el puerto 80. La API corre en un contenedor separado (puerto 8000 interno) pero no se expone directamente — todas las peticiones pasan por nginx."}];</script>
+
+<script src="assets/vendor/gsap/gsap.min.js"></script>
+<script src="assets/vendor/gsap/ScrollTrigger.min.js"></script>
+<script src="assets/vendor/lenis/lenis.min.js"></script>
+<script src="assets/vendor/mermaid/mermaid.min.js"></script>
+<script src="assets/vendor/highlight/highlight.min.js"></script>
+<script src="assets/vendor/katex/katex.min.js"></script>
+<script src="assets/vendor/katex/contrib/auto-render.min.js"></script>
+<script src="assets/vendor/flexsearch/flexsearch.min.js"></script>
+
+<script src="assets/js/main.js"></script>
+<script src="assets/js/diagram-star.js"></script>
+<script src="assets/js/quiz.js"></script>
+<script src="assets/js/components.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+/* immersive-doc — print.css
+   Applied when generating PDF via Puppeteer or when user prints.
+   Removes interactive elements, optimizes for paper.
+*/
+
+@media print {
+  /* Hide interactive UI */
+  .skip-link,
+  .progress-bar,
+  .hero__actions,
+  .search-modal,
+  .lightbox,
+  .copy-btn,
+  .sidebar,
+  .breadcrumbs,
+  .theme-toggle,
+  .footer { display: none !important; }
+
+  /* Reset layout for print */
+  .layout {
+    display: block;
+    max-width: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .main {
+    max-width: none;
+  }
+
+  /* Hero becomes a print header */
+  .hero {
+    background: none !important;
+    color: black !important;
+    padding: 1rem 0;
+    text-align: left;
+    border-bottom: 2px solid #333;
+    margin-bottom: 2rem;
+  }
+
+  .hero__title {
+    font-size: 1.75rem;
+    color: black !important;
+  }
+
+  /* Force light theme tokens */
+  :root {
+    --bg-primary: white;
+    --bg-secondary: #f6f6f6;
+    --bg-tertiary: #ededed;
+    --bg-code: #f5f5f5;
+    --text-primary: black;
+    --text-secondary: #333;
+    --text-muted: #666;
+    --border: #ccc;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 11pt;
+    line-height: 1.5;
+  }
+
+  /* Avoid page breaks inside critical elements */
+  .section,
+  .code-block,
+  .callout,
+  .chart,
+  .mermaid,
+  .data-table,
+  .decision-table,
+  .diagram-star,
+  .quiz,
+  .stepper,
+  figure { page-break-inside: avoid; }
+
+  .section h2,
+  .section h3 {
+    page-break-after: avoid;
+  }
+
+  /* Force diagram-star to fully drawn state */
+  .diagram-star svg path[data-section] {
+    stroke-dasharray: none !important;
+    stroke-dashoffset: 0 !important;
+    animation: none !important;
+  }
+
+  /* Force diagram-star to show all components */
+  .diagram-star svg [data-section] {
+    opacity: 1 !important;
+  }
+
+  /* Code blocks: smaller font, no copy button */
+  .code-block pre {
+    font-size: 9pt;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+  }
+
+  .code-block {
+    border: 1px solid #ccc;
+    page-break-inside: avoid;
+  }
+
+  /* Links: show URL after link text */
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #666;
+  }
+
+  /* Colors: ensure contrast on print */
+  .callout--tip { background: #f0f8f0 !important; }
+  .callout--warning { background: #fff8e0 !important; }
+  .callout--danger { background: #fff0f0 !important; }
+  .callout--info { background: #f0f4ff !important; }
+
+  /* Tables: ensure borders */
+  table { border-collapse: collapse; }
+
+  th, td {
+    border: 1px solid #999 !important;
+    padding: 0.4rem !important;
+    font-size: 10pt;
+  }
+
+  /* Page numbers (if Puppeteer passes them) */
+  @page {
+    margin: 2cm;
+    @bottom-right {
+      content: counter(page) " / " counter(pages);
+    }
+  }
+}

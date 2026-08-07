@@ -1,0 +1,99 @@
+/* Tiendavirtual Premium — Design Tokens
+   Hybrid: Linear dark canvas + Stripe atmospheric shadows
+   DO NOT edit individual values — derive from these tokens.
+*/
+
+:root {
+  /* === Background Surfaces (Linear) === */
+  --bg-canvas: #08090a;
+  --bg-panel: #0f1011;
+  --bg-surface: #191a1b;
+  --bg-hover: #28282c;
+  --bg-brand-dark: #1c1e54;
+
+  /* === Text (Linear) === */
+  --text-primary: #f7f8f8;
+  --text-secondary: #d0d6e0;
+  --text-muted: #8a8f98;
+  --text-subtle: #62666d;
+
+  /* === Brand & Accent (Linear + Stripe) === */
+  --accent-indigo: #5e6ad2;
+  --accent-violet: #7170ff;
+  --accent-violet-hover: #828fff;
+  --accent-purple: #533afd;
+  --accent-purple-hover: #4434d4;
+  --accent-ruby: #ea2261;
+  --accent-magenta: #f96bee;
+  --accent-emerald: #10b981;
+  --accent-emerald-text: #108c3d;
+
+  /* === Gradients (Stripe decorative) === */
+  --gradient-hero: linear-gradient(135deg, #ea2261 0%, #f96bee 40%, #533afd 100%);
+  --gradient-brand-section: linear-gradient(180deg, #1c1e54 0%, #08090a 100%);
+  --gradient-accent-glow: radial-gradient(circle, rgba(94,106,210,0.15) 0%, transparent 70%);
+
+  /* === Borders (Linear semi-transparent white) === */
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-standard: rgba(255, 255, 255, 0.08);
+  --border-elevated: rgba(255, 255, 255, 0.12);
+  --border-accent: rgba(113, 112, 255, 0.3);
+
+  /* === Shadows (Stripe blue-tinted, adapted for dark) === */
+  --shadow-card: rgba(94, 106, 210, 0.15) 0px 30px 45px -30px, rgba(0, 0, 0, 0.3) 0px 18px 36px -18px;
+  --shadow-elevated: rgba(83, 58, 253, 0.12) 0px 14px 21px -14px, rgba(0, 0, 0, 0.4) 0px 8px 17px -8px;
+  --shadow-glow: 0 0 40px rgba(94, 106, 210, 0.2);
+  --shadow-glow-purple: 0 0 30px rgba(83, 58, 253, 0.25);
+  --shadow-inset: rgba(0, 0, 0, 0.2) 0px 0px 12px 0px inset;
+
+  /* === Typography === */
+  --font-sans: 'Inter Variable', 'SF Pro Display', -apple-system, system-ui, sans-serif;
+  --font-mono: 'SourceCodePro', 'SFMono-Regular', ui-monospace, monospace;
+  --font-features: "cv01", "ss03";
+  --font-features-tnum: "cv01", "ss03", "tnum";
+
+  /* === Font Weights === */
+  --weight-display: 300;    /* Stripe whisper-weight for hero */
+  --weight-body: 400;       /* Reading */
+  --weight-ui: 510;         /* Linear signature */
+  --weight-emphasis: 590;   /* Linear strong emphasis */
+
+  /* === Letter Spacing (scales with size) === */
+  --tracking-display-xl: -1.584px;  /* 72px */
+  --tracking-display-l: -1.408px;   /* 64px */
+  --tracking-display: -1.056px;     /* 48px */
+  --tracking-heading: -0.704px;     /* 32px */
+  --tracking-subheading: -0.288px;  /* 24px */
+  --tracking-body: -0.165px;        /* 15-18px */
+  --tracking-normal: normal;        /* <=14px */
+
+  /* === Border Radius === */
+  --radius-micro: 2px;
+  --radius-small: 4px;
+  --radius-button: 6px;
+  --radius-card: 8px;
+  --radius-panel: 12px;
+  --radius-pill: 9999px;
+
+  /* === Spacing (8px base) === */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* === Transitions === */
+  --transition-fast: 150ms ease;
+  --transition-base: 250ms ease;
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* === Max widths === */
+  --max-content: 1080px;
+  --max-wide: 1280px;
+}
