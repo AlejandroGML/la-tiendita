@@ -19,6 +19,11 @@ Frontend (workdir `frontend/`):
 
 CI parity (`.github/workflows/ci.yml`): backend pytest against `postgres:16-alpine` (env `DATABASE_URL`, `SECRET_KEY`); frontend production build + unit tests. Keep local verification to the same shape.
 
+Graphify (knowledge graph, workdir repo root):
+- Regenerate full graph (AST + LLM semantic): `graphify extract . --backend glm-coding` (uses GLM Coding Plan via `ZAI_API_KEY`; ~75K tokens in / 24K out for this corpus)
+- Fast AST-only refresh (no API cost, less precise): `graphify update .`
+- Rebuild report + community labels + viz: `graphify cluster-only .` (set `GRAPHIFY_VIZ_NODE_LIMIT=5000` if >5000 nodes to force `graph.html`)
+
 ## Architecture
 
 Backend — layered flow: guards → controllers → services → repositories → models:
@@ -39,4 +44,5 @@ Frontend: `src/app/features/<feature>/` per feature (admin, auth, cart, checkout
 - Payments: **Swish runs in mock mode by default** (`SWISH_MODE=mock`) — checkout returns a fake QR and `POST /api/v1/payments/swish/mock-confirm` confirms the order locally, no Stripe account needed. Card/Klarna go through Stripe (`STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET`) and will fail without real test keys — use Swish mock to exercise the payment flow end-to-end locally.
 - Root scratch files (`frontend-*.md`, `filters*.md`, `uniqlo-*.txt`, `*-snapshot.yml`, `PLAN.md`, etc.) are stale QA/prompt artifacts — ignore them; README.md and code are the source of truth.
 - Repo has `backend/graphify-out/` and `graphify-out/` — generated visualization output, don't edit.
+- **Graphify corpus = `backend/` + `frontend/` ONLY.** Root `.graphifyignore` whitelists these two dirs and ignores everything else (`docs/`, `openspec/`, root scratch files, `uploads/`, screenshots, `.min.js` vendors). Do NOT remove the whitelist or graphify will re-ingest docs/screenshots and flood the graph with thousands of minified garbage nodes. To regenerate: `graphify extract . --backend glm-coding` (AST + LLM semantic via GLM Coding Plan, `ZAI_API_KEY`); `graphify update .` is AST-only (no LLM, faster, less precise). If you must extend the corpus, edit `.graphifyignore` — note that graphify's parser strips a leading `!` before checking for a leading `/`, so negations must be **unanchored** (`!backend`, not `!/backend/`) or fnmatch will only re-include the exact dir and never its contents.
 - Python requires 3.12+ (`requires-python >=3.12`); CI pins 3.12 while README badge says 3.14 — tests run fine on 3.12.

@@ -1,0 +1,29 @@
+# Graphify ignore — ONLY backend/ and frontend/ are product code.
+# Everything else (docs/, study-guide, openspec, root artifacts, uploads) is out.
+# NOTE: negations must NOT start with "/" — graphify strips the "!" and a
+# leading "/" then re-anchors the pattern, which would only re-include the
+# exact dir and never its contents (fnmatch crosses "/", so "/*" swallows
+# everything at any depth). Unanchored "!backend" matches by path parts.
+/*
+!backend
+!frontend
+
+# --- noise inherited from .gitignore that applies INSIDE backend/frontend ---
+**/.env
+**/*.py[cod]
+**/__pycache__/
+*.egg-info/
+node_modules/
+.pnpm-store/
+.angular/
+dist/
+backend/uploads/
+frontend/test-results/
+frontend/playwright-report/
+**/coverage/
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
