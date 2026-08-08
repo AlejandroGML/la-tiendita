@@ -157,3 +157,61 @@ class PromotionRepository(BaseRepository[Promotion]):
         from sqlalchemy.orm import selectinload
         stmt = select(Promotion).options(selectinload(Promotion.translations)).order_by(Promotion.created_at.desc())
         return await self.get_paginated(session, stmt=stmt, page=page, per_page=per_page)
+
+    # ------------------------------------------------------------------
+    # Mutation methods
+    # ------------------------------------------------------------------
+
+    async def update_fields(
+        self,
+        session: AsyncSession,
+        promotion_id: UUID,
+        values: dict,
+    ) -> None:
+        """Apply a partial field update to a promotion.
+
+        Args:
+            session: Active async DB session.
+            promotion_id: The promotion UUID.
+            values: Dict of column -> value pairs to update.
+        """
+        from sqlalchemy import update
+
+        await session.execute(
+            update(Promotion)
+            .where(Promotion.id == promotion_id)
+            .values(**values)
+        )
+        await session.flush()
+
+    async def increment_usage(
+        self,
+        session: AsyncSession,
+        code: str,
+    ) -> bool:
+        """Atomically increment a promotion's usage counter if under its cap.
+
+        Uses a conditional ``UPDATE ... RETURNING`` so concurrent checkouts
+        cannot overshoot ``max_uses`` (TOCTOU-safe).
+
+        Args:
+            session: Active async DB session.
+            code: The promotion code.
+
+        Returns:
+            ``True`` if the counter was incremented (cap not reached),
+            ``False`` if the cap is exhausted.
+        """
+        from sqlalchemy import update
+
+        result = await session.execute(
+            update(Promotion)
+            .where(Promotion.code == code)
+            .where(
+                Promotion.max_uses.is_(None)
+                | (Promotion.current_uses < Promotion.max_uses)
+            )
+            .values(current_uses=Promotion.current_uses + 1)
+            .returning(Promotion.id)
+        )
+        return result.scalar_one_or_none() is not None

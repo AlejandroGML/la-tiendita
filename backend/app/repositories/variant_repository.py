@@ -98,25 +98,38 @@ class VariantRepository(BaseRepository[ProductVariant]):
     # Mutation methods
     # ------------------------------------------------------------------
 
-    async def decrement_stock(
+    async def deduct_stock(
         self,
         session: AsyncSession,
         variant_id: UUID,
         qty: int,
-    ) -> None:
-        """Atomically reduce variant stock by ``qty`` using a row-level lock.
+    ) -> bool:
+        """Atomically deduct stock + reserved stock if sufficient (TOCTOU-safe).
 
-        Uses ``FOR UPDATE`` to prevent concurrent decrements from generating
-        negative stock.  Caller must ensure sufficient stock before invoking.
+        Uses a conditional ``UPDATE ... RETURNING`` — stock and reserved_stock
+        are only decremented when ``stock >= qty`` and the variant is not
+        deleted.  Concurrent checkouts cannot oversell.
 
         Args:
             session: Active async DB session.
             variant_id: The variant UUID.
-            qty: Quantity to subtract (must be >= 1).
+            qty: Quantity to deduct (must be >= 1).
+
+        Returns:
+            ``True`` if the deduction succeeded, ``False`` if stock was
+            insufficient or the variant was deleted.
         """
-        await session.execute(
+        result = await session.execute(
             update(ProductVariant)
-            .where(ProductVariant.id == variant_id)
-            .values(stock=ProductVariant.stock - qty)
+            .where(
+                ProductVariant.id == variant_id,
+                ProductVariant.stock >= qty,
+                ProductVariant.deleted_at.is_(None),
+            )
+            .values(
+                stock=ProductVariant.stock - qty,
+                reserved_stock=ProductVariant.reserved_stock - qty,
+            )
+            .returning(ProductVariant.id)
         )
-        await session.flush()
+        return result.scalar_one_or_none() is not None

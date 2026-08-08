@@ -6,7 +6,6 @@ Extracted from AdminService. Owns the order state machine
 
 import uuid
 
-from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -149,14 +148,10 @@ class AdminOrderService:
                 )
 
         # Atomic UPDATE — include current status to prevent TOCTOU races
-        stmt = (
-            update(Order)
-            .where(Order.id == order_id)
-            .where(Order.status == current)
-            .values(status=target)
+        transitioned = await self._order_repo.transition_status(
+            session, order_id, current, target
         )
-        result = await session.execute(stmt)
-        if result.rowcount == 0:
+        if not transitioned:
             raise InvalidTransitionError(
                 f"order {order_id} has already been transitioned by another admin"
             )

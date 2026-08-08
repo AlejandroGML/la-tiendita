@@ -9,7 +9,7 @@ import logging
 from datetime import datetime, timezone
 from uuid import UUID
 
-from sqlalchemy import delete, func, select, update
+from sqlalchemy import delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -255,12 +255,7 @@ class PromotionService:
             values["end_date"] = data.end_date
 
         if values:
-            stmt = (
-                update(Promotion)
-                .where(Promotion.id == promotion_id)
-                .values(**values)
-            )
-            await session.execute(stmt)
+            await self._promotion_repo.update_fields(session, promotion_id, values)
 
         # Replace translations if provided
         if data.translations is not None:

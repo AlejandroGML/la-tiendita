@@ -11,7 +11,6 @@ import logging
 from decimal import Decimal
 from uuid import UUID
 
-from sqlalchemy import delete, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -21,6 +20,7 @@ from app.models.product import Product, ProductTranslation
 from app.models.product_variant import ProductVariant
 from app.repositories.cart_repository import CartRepository
 from app.repositories.order_repository import OrderRepository
+from app.repositories.promotion_repository import PromotionRepository
 from app.repositories.variant_repository import VariantRepository
 from app.core.event_bus import event_bus
 from app.core.events import OrderConfirmationEvent
@@ -51,10 +51,12 @@ class OrderService:
         order_repo: OrderRepository | None = None,
         cart_repo: CartRepository | None = None,
         variant_repo: VariantRepository | None = None,
+        promotion_repo: PromotionRepository | None = None,
     ) -> None:
         self._repo = order_repo or OrderRepository()
         self._cart_repo = cart_repo or CartRepository()
         self._variant_repo = variant_repo or VariantRepository()
+        self._promotion_repo = promotion_repo or PromotionRepository()
 
     # ------------------------------------------------------------------
     # Public API
@@ -270,17 +272,10 @@ class OrderService:
             for item in order.items:
                 promo_code = item.product_snapshot.get("promotion_code")
                 if promo_code:
-                    result = await session.execute(
-                        update(_Promotion)
-                        .where(_Promotion.code == promo_code)
-                        .where(
-                            _Promotion.max_uses.is_(None)
-                            | (_Promotion.current_uses < _Promotion.max_uses)
-                        )
-                        .values(current_uses=_Promotion.current_uses + 1)
-                        .returning(_Promotion.id)
+                    incremented = await self._promotion_repo.increment_usage(
+                        session, promo_code
                     )
-                    if not result.scalar_one_or_none():
+                    if not incremented:
                         raise StockInsufficientError(
                             f"Promotion {promo_code} usage cap reached"
                         )
@@ -463,21 +458,10 @@ class OrderService:
             )
             return
 
-        result = await session.execute(
-            update(ProductVariant)
-            .where(
-                ProductVariant.id == variant_id,
-                ProductVariant.stock >= item.quantity,
-                ProductVariant.deleted_at.is_(None),
-            )
-            .values(
-                stock=ProductVariant.stock - item.quantity,
-                reserved_stock=ProductVariant.reserved_stock - item.quantity,
-            )
-            .returning(ProductVariant.id)
+        deducted = await self._variant_repo.deduct_stock(
+            session, variant_id, item.quantity
         )
-
-        if result.scalar_one_or_none() is None:
+        if not deducted:
             raise StockInsufficientError(
                 f"Insufficient stock for variant {variant_id} "
                 f"(order_item {item.id}, requested {item.quantity})"

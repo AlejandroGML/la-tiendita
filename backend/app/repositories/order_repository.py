@@ -193,3 +193,35 @@ class OrderRepository(BaseRepository[Order]):
         )
         await session.flush()
         return result.rowcount or 0
+
+    async def transition_status(
+        self,
+        session: AsyncSession,
+        order_id: UUID,
+        current_status: OrderStatus,
+        target_status: OrderStatus,
+    ) -> bool:
+        """Atomically transition an order's status (TOCTOU-safe).
+
+        The ``WHERE status = current_status`` guard prevents two concurrent
+        admins from transitioning the same order based on stale state.
+
+        Args:
+            session: Active async DB session.
+            order_id: The order UUID.
+            current_status: The expected current status.
+            target_status: The new status.
+
+        Returns:
+            ``True`` if the transition was applied, ``False`` if the order
+            had already been transitioned by someone else.
+        """
+        from sqlalchemy import update
+
+        result = await session.execute(
+            update(Order)
+            .where(Order.id == order_id)
+            .where(Order.status == current_status)
+            .values(status=target_status)
+        )
+        return result.rowcount > 0
