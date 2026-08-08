@@ -103,3 +103,25 @@ class PasswordResetTokenRepository(BaseRepository[PasswordResetToken]):
         """
         token.used = True
         await session.flush()
+
+    async def delete_by_user(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+    ) -> int:
+        """Delete every reset token for a user (account teardown).
+
+        Args:
+            session: Active async DB session.
+            user_id: The user UUID.
+
+        Returns:
+            The number of deleted rows.
+        """
+        from sqlalchemy import delete
+
+        result = await session.execute(
+            delete(PasswordResetToken).where(PasswordResetToken.user_id == user_id)
+        )
+        await session.flush()
+        return result.rowcount or 0

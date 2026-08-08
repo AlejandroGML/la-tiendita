@@ -127,3 +127,23 @@ class WishlistRepository:
         result = await session.execute(stmt)
         await session.flush()
         return result.rowcount > 0
+
+    async def delete_by_user(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+    ) -> int:
+        """Delete every wishlist entry for a user (account teardown).
+
+        Args:
+            session: Active async DB session.
+            user_id: The user UUID.
+
+        Returns:
+            The number of deleted rows.
+        """
+        result = await session.execute(
+            delete(Wishlist).where(Wishlist.user_id == user_id)
+        )
+        await session.flush()
+        return result.rowcount or 0

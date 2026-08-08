@@ -1,20 +1,26 @@
 """AdminUserService — user listing and role management for the admin panel.
 
-Extracted from AdminService. Depends only on SQLAlchemy models and the async
-session — no coupling to other services.
+Extracted from AdminService. Depends on repositories for data access — no
+raw SQLAlchemy queries in the service layer.
 """
 
 import uuid
 
-from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.event_bus import event_bus
 from app.core.events import AuditAction, AuditEvent
-from app.models.order import Order
-from app.models.user import User, UserRole
+from app.models.user import UserRole
+from app.repositories.audit_repository import AuditRepository
+from app.repositories.cart_repository import CartRepository
 from app.repositories.order_repository import OrderRepository
+from app.repositories.password_reset_token_repository import (
+    PasswordResetTokenRepository,
+)
+from app.repositories.refresh_token_repository import RefreshTokenRepository
+from app.repositories.review_repository import ReviewRepository
 from app.repositories.user_repository import UserRepository
+from app.repositories.wishlist_repository import WishlistRepository
 from app.schemas.admin import UserAdminItem
 
 
@@ -29,9 +35,21 @@ class AdminUserService:
         self,
         user_repo: UserRepository | None = None,
         order_repo: OrderRepository | None = None,
+        cart_repo: CartRepository | None = None,
+        review_repo: ReviewRepository | None = None,
+        wishlist_repo: WishlistRepository | None = None,
+        refresh_token_repo: RefreshTokenRepository | None = None,
+        password_reset_repo: PasswordResetTokenRepository | None = None,
+        audit_repo: AuditRepository | None = None,
     ) -> None:
         self._user_repo = user_repo or UserRepository()
         self._order_repo = order_repo or OrderRepository()
+        self._cart_repo = cart_repo or CartRepository()
+        self._review_repo = review_repo or ReviewRepository()
+        self._wishlist_repo = wishlist_repo or WishlistRepository()
+        self._refresh_token_repo = refresh_token_repo or RefreshTokenRepository()
+        self._password_reset_repo = password_reset_repo or PasswordResetTokenRepository()
+        self._audit_repo = audit_repo or AuditRepository()
 
     async def list_users(
         self,
@@ -100,23 +118,12 @@ class AdminUserService:
             ) from None
 
         # Load current role for audit trail
-        old_result = await session.execute(
-            select(User.role).where(User.id == user_id)
-        )
-        old_role_row = old_result.scalar_one_or_none()
-        if old_role_row is None:
+        old_role = await self._user_repo.get_role(session, user_id)
+        if old_role is None:
             raise ValueError(f"user {user_id} not found")
-        old_role = old_role_row.value
 
         # Atomic UPDATE … RETURNING
-        stmt = (
-            update(User)
-            .where(User.id == user_id)
-            .values(role=validated_role)
-            .returning(User)
-        )
-        result = await session.execute(stmt)
-        user = result.scalar_one_or_none()
+        user = await self._user_repo.update_role(session, user_id, validated_role)
 
         if user is None:
             raise ValueError(f"user {user_id} not found")
@@ -130,7 +137,7 @@ class AdminUserService:
                 action=AuditAction.USER_ROLE_CHANGE,
                 entity_type="user",
                 entity_id=str(user_id),
-                details={"from": old_role, "to": new_role},
+                details={"from": old_role.value, "to": new_role},
                 ip_address=ip_address,
             )
         )
@@ -234,39 +241,17 @@ class AdminUserService:
             raise ValueError(f"usuario {user_id} no encontrado")
 
         # Delete related records to avoid FK violations
-        from app.models.cart import CartItem
-        from app.models.review import Review
-        from app.models.wishlist import Wishlist
-        from app.models.refresh_token import RefreshToken
-        from app.models.password_reset import PasswordResetToken
-
-        for model, fk_field in [
-            (CartItem, "user_id"),
-            (Review, "user_id"),
-            (Wishlist, "user_id"),
-            (RefreshToken, "user_id"),
-            (PasswordResetToken, "user_id"),
-        ]:
-            stmt = select(model).where(getattr(model, fk_field) == user_id)
-            result = await session.execute(stmt)
-            for row in result.scalars():
-                await session.delete(row)
+        await self._cart_repo.clear_scope(session, user_id=user_id)
+        await self._review_repo.delete_by_user(session, user_id)
+        await self._wishlist_repo.delete_by_user(session, user_id)
+        await self._refresh_token_repo.delete_user_tokens(session, user_id)
+        await self._password_reset_repo.delete_by_user(session, user_id)
 
         # Set orders.user_id to NULL (keep order history)
-        from app.models.order import Order
-        from sqlalchemy import update as sa_update
-
-        await session.execute(
-            sa_update(Order).where(Order.user_id == user_id).values(user_id=None)
-        )
+        await self._order_repo.unassign_user(session, user_id)
 
         # Delete audit logs for this actor
-        from app.models.audit_log import AuditLog
-
-        audit_stmt = select(AuditLog).where(AuditLog.actor_id == user_id)
-        audit_result = await session.execute(audit_stmt)
-        for row in audit_result.scalars():
-            await session.delete(row)
+        await self._audit_repo.delete_by_actor(session, user_id)
 
         await session.delete(user)
         await session.flush()

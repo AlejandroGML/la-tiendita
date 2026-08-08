@@ -62,6 +62,27 @@ class UserRepository(BaseRepository[User]):
         """
         return await self.find_all(session, User.role == role)
 
+    async def get_role(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+    ) -> UserRole | None:
+        """Return the role of a user, or ``None`` if the user does not exist.
+
+        Args:
+            session: Active async DB session.
+            user_id: The user UUID.
+
+        Returns:
+            The user's ``UserRole`` or ``None``.
+        """
+        from sqlalchemy import select
+
+        result = await session.execute(
+            select(User.role).where(User.id == user_id)
+        )
+        return result.scalar_one_or_none()
+
     async def get_all_with_order_counts(
         self,
         session: AsyncSession,
@@ -96,6 +117,33 @@ class UserRepository(BaseRepository[User]):
         )
         result = await session.execute(stmt)
         return list(result.all()), total
+
+    async def update_role(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+        role: UserRole,
+    ) -> User | None:
+        """Atomically update a user's role (UPDATE … RETURNING).
+
+        Args:
+            session: Active async DB session.
+            user_id: The user UUID.
+            role: The new ``UserRole``.
+
+        Returns:
+            The updated user or ``None`` if the user does not exist.
+        """
+        from sqlalchemy import update
+
+        result = await session.execute(
+            update(User)
+            .where(User.id == user_id)
+            .values(role=role)
+            .returning(User)
+        )
+        await session.flush()
+        return result.scalar_one_or_none()
 
     # ------------------------------------------------------------------
     # Mutation methods

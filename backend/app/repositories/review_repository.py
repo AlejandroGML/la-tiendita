@@ -142,9 +142,36 @@ class ReviewRepository(BaseRepository[Review]):
     async def get_by_user_and_product(
         self, session: AsyncSession, user_id: UUID, product_id: UUID
     ) -> Review | None:
-        """Find an existing review by user + product."""
+        """Find a review by user + product (duplicate checking)."""
         return await self.find_one(
             session,
             Review.user_id == user_id,
             Review.product_id == product_id,
         )
+
+    # ------------------------------------------------------------------
+    # Mutation methods
+    # ------------------------------------------------------------------
+
+    async def delete_by_user(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+    ) -> int:
+        """Delete all reviews written by a user (account teardown).
+
+        Args:
+            session: Active async DB session.
+            user_id: The user UUID.
+
+        Returns:
+            The number of deleted rows.
+        """
+        from sqlalchemy import delete
+
+        result = await session.execute(
+            delete(Review).where(Review.user_id == user_id)
+        )
+        await session.flush()
+        return result.rowcount or 0
+

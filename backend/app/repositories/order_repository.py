@@ -169,3 +169,27 @@ class OrderRepository(BaseRepository[Order]):
             Total order count for the user.
         """
         return await self.count(session, Order.user_id == user_id)
+
+    async def unassign_user(
+        self,
+        session: AsyncSession,
+        user_id: UUID,
+    ) -> int:
+        """Detach a user's orders by nulling their ``user_id`` (account teardown).
+
+        Order history is preserved (FK ``user_id`` is nullable).
+
+        Args:
+            session: Active async DB session.
+            user_id: The user UUID.
+
+        Returns:
+            The number of updated rows.
+        """
+        from sqlalchemy import update
+
+        result = await session.execute(
+            update(Order).where(Order.user_id == user_id).values(user_id=None)
+        )
+        await session.flush()
+        return result.rowcount or 0

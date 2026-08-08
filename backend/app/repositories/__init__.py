@@ -6,6 +6,7 @@ from app.repositories.wishlist_repository import WishlistRepository
 from app.repositories.refresh_token_repository import RefreshTokenRepository
 from app.repositories.password_reset_token_repository import PasswordResetTokenRepository
 from app.repositories.dashboard_repository import DashboardRepository
+from app.repositories.newsletter_subscriber_repository import NewsletterSubscriberRepository
 
 __all__ = [
     "VariantRepository",
@@ -16,4 +17,5 @@ __all__ = [
     "RefreshTokenRepository",
     "PasswordResetTokenRepository",
     "DashboardRepository",
+    "NewsletterSubscriberRepository",
 ]
