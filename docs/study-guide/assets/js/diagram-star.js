@@ -88,12 +88,11 @@
       });
 
       // Node highlight: when target section is in viewport center
-      // Offsets account for the sticky diagram occupying top ~450px of viewport.
       const nodes = container.querySelectorAll('svg [data-section="' + sectionId + '"]:not(path):not(line)');
       ScrollTrigger.create({
         trigger: target,
-        start: "top 55%",
-        end: "bottom 45%",
+        start: "top 60%",
+        end: "bottom 40%",
         onToggle: function (self) {
           if (self.isActive) {
             // Highlight this section's nodes

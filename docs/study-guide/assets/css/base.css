@@ -64,6 +64,8 @@ a {
 
 a:hover { color: var(--accent-hover, #0550ae); }
 
+:focus-visible { outline: 2px solid var(--accent, #0969da); outline-offset: 3px; }
+
 code, pre, kbd, samp {
   font-family: var(--font-mono, "JetBrains Mono", "Fira Code", Consolas, monospace);
   font-size: 0.9em;
@@ -110,10 +112,21 @@ code.inline {
 }
 
 .hero__title {
+  font-family: var(--font-heading, var(--font-body));
   font-size: clamp(2rem, 5vw, 3.5rem);
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-weight: 400;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
   margin-bottom: 0.75rem;
+}
+
+/* Gradient text en hero — solo si el theme lo define (premium) */
+.hero__title--gradient {
+  background: var(--gradient-hero, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 .hero__meta {

@@ -29,11 +29,19 @@
   }
 
   // ----- Lenis smooth scroll -----
-  // DISABLED: Lenis uses transform on <html> which breaks position:sticky
-  // elements (diagram-star, table headers, sidebar). Native scroll is smooth
-  // enough in modern browsers and doesn't conflict with sticky positioning.
   function initLenis() {
-    return null;
+    if (prefersReducedMotion || typeof window.Lenis === "undefined") return null;
+    const lenis = new window.Lenis({
+      duration: 1.2,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+    });
+    function raf(time) {
+      lenis.raf(time);
+      requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+    return lenis;
   }
 
   // ----- GSAP + ScrollTrigger -----

@@ -1,0 +1,56 @@
+:root {
+  /* light mode */
+  --bg-primary: #f6f7f9;
+  --bg-secondary: #eef0f4;
+  --bg-tertiary: #e4e7ec;
+  --bg-code: #eef0f4;
+  --bg-sidebar: #f6f7f9;
+  --text-primary: #16171b;
+  --text-secondary: #3d4149;
+  --text-muted: #5d626d;
+  --accent: #5a55e8;
+  --accent-hover: #4a45d6;
+  --accent-light: #e9ecff;
+  --success: #10b981;
+  --warning: #ea2261;
+  --danger: #ea2261;
+  --border: rgba(0,0,0,0.1);
+  --border-light: rgba(0,0,0,0.06);
+  --shadow-card: rgba(94,106,210,0.10) 0px 22px 36px -26px, rgba(0,0,0,0.08) 0px 12px 24px -14px;
+  --shadow-elevated: rgba(83,58,253,0.10) 0px 12px 20px -12px, rgba(0,0,0,0.10) 0px 6px 14px -6px;
+  --shadow-glow: 0 0 32px rgba(94,106,210,0.16);
+  --gradient-hero: linear-gradient(135deg, #ea2261 0%, #f96bee 40%, #533afd 100%);
+  --font-body: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'SourceCodePro', 'Source Code Pro', ui-monospace, monospace;
+  --font-heading: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-features: "cv01", "ss03";
+}
+
+[data-theme="premium"][data-color-scheme="dark"],
+:root[data-color-scheme="dark"][data-theme="premium"] {
+  /* dark mode */
+  --bg-primary: #08090a;
+  --bg-secondary: #0f1011;
+  --bg-tertiary: #191a1b;
+  --bg-code: #0f1011;
+  --bg-sidebar: #08090a;
+  --text-primary: #f7f8f8;
+  --text-secondary: #d0d6e0;
+  --text-muted: #8a8f98;
+  --accent: #5e6ad2;
+  --accent-hover: #7170ff;
+  --accent-light: #28282c;
+  --success: #10b981;
+  --warning: #ea2261;
+  --danger: #ea2261;
+  --border: rgba(255,255,255,0.08);
+  --border-light: rgba(255,255,255,0.05);
+  --shadow-card: rgba(94,106,210,0.15) 0px 30px 45px -30px, rgba(0,0,0,0.3) 0px 18px 36px -18px;
+  --shadow-elevated: rgba(83,58,253,0.12) 0px 14px 21px -14px, rgba(0,0,0,0.4) 0px 8px 17px -8px;
+  --shadow-glow: 0 0 40px rgba(94,106,210,0.2);
+  --gradient-hero: linear-gradient(135deg, #ea2261 0%, #f96bee 40%, #533afd 100%);
+  --font-body: 'Inter Variable', 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'SourceCodePro', 'Source Code Pro', ui-monospace, monospace;
+  --font-heading: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-features: "cv01", "ss03";
+}

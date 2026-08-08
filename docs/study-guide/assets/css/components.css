@@ -325,26 +325,6 @@ abbr[title] {
   display: inline-block;
 }
 
-/* Ensure boxes have visible background and border (overrides inline currentColor) */
-.diagram-star svg rect {
-  fill: var(--bg-tertiary);
-  stroke: var(--text-secondary);
-  stroke-width: 1.5;
-}
-
-/* Ensure text has strong contrast against box background */
-.diagram-star svg text {
-  fill: var(--text-primary);
-  font-weight: 600;
-}
-
-/* Description text (smaller, secondary) */
-.diagram-star svg text[font-size="10"],
-.diagram-star svg text[font-size="11"] {
-  fill: var(--text-secondary);
-  font-weight: 400;
-}
-
 .diagram-star svg path,
 .diagram-star svg line {
   stroke: var(--text-muted);
@@ -378,59 +358,14 @@ abbr[title] {
 .mermaid {
   margin: 1.5rem 0;
   text-align: center;
-  background: var(--bg-primary);
-  padding: 1.5rem;
+  background: var(--bg-secondary);
+  padding: 1rem;
   border-radius: 8px;
-  border: 1px solid var(--border);
 }
 
 .mermaid svg {
   max-width: 100%;
   height: auto;
-}
-
-/* Force high-contrast colors on Mermaid elements */
-.mermaid text {
-  fill: var(--text-primary) !important;
-  color: var(--text-primary) !important;
-}
-
-.mermaid .actor,
-.mermaid .actor-man,
-.mermaid .entity {
-  fill: var(--bg-tertiary) !important;
-  stroke: var(--text-secondary) !important;
-}
-
-.mermaid .messageLine,
-.mermaid .loopLine,
-.mermaid .activation0 {
-  stroke: var(--text-secondary) !important;
-}
-
-.mermaid .messageText {
-  fill: var(--text-primary) !important;
-  stroke: none !important;
-}
-
-.mermaid .note {
-  fill: var(--accent-light, var(--bg-tertiary)) !important;
-  stroke: var(--accent) !important;
-}
-
-.mermaid .label,
-.mermaid .edgeLabel {
-  color: var(--text-primary) !important;
-  fill: var(--text-primary) !important;
-}
-
-.mermaid .cluster rect {
-  fill: var(--bg-secondary) !important;
-  stroke: var(--border) !important;
-}
-
-.mermaid .edgePath .path {
-  stroke: var(--text-secondary) !important;
 }
 
 .mermaid-fallback {
