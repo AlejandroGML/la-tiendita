@@ -1,0 +1,20 @@
+<div class="flex justify-center items-center min-h-[60vh]">
+  <div class="w-full max-w-sm p-6 text-center">
+    <ng-container *ngIf="!errorMessage">
+      <p-progressSpinner styleClass="w-12 h-12 mx-auto"></p-progressSpinner>
+      <p class="mt-4 text-gray-600 dark:text-gray-300">{{ 'auth.oauthProcessing' | translate }}</p>
+    </ng-container>
+
+    <ng-container *ngIf="errorMessage">
+      <p class="text-red-600 text-sm border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded-lg mb-4">
+        {{ errorMessage }}
+      </p>
+      <p-button
+        [label]="'auth.backToLogin' | translate"
+        [outlined]="true"
+        styleClass="w-full"
+        (onClick)="backToLogin()"
+      ></p-button>
+    </ng-container>
+  </div>
+</div>

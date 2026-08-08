@@ -6,9 +6,10 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { SharedModule } from '../../shared/shared-module';
 import { Login } from './login/login';
 import { Register } from './register/register';
+import { GoogleCallback } from './google-callback/google-callback';
 
 @NgModule({
-  declarations: [Login, Register],
+  declarations: [Login, Register, GoogleCallback],
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -16,6 +17,7 @@ import { Register } from './register/register';
     RouterModule.forChild([
       { path: 'login', component: Login },
       { path: 'register', component: Register },
+      { path: 'google/callback', component: GoogleCallback },
     ]),
   ],
 })

@@ -181,6 +181,41 @@ export class AuthService {
       .pipe(tap((user) => this.authState.setUser(user)));
   }
 
+  // -- Google OAuth --------------------------------------------------------
+
+  /**
+   * Initiate Google OAuth login.
+   *
+   * Redirects the browser to the backend's `/api/v1/auth/oauth/google`
+   * endpoint, which in turn redirects to Google's consent screen.
+   * After consent, Google redirects back to `/auth/google/callback`
+   * where the `GoogleCallbackComponent` extracts the code and calls
+   * `exchangeGoogleCode()`.
+   */
+  initiateGoogleLogin(): void {
+    window.location.href = '/api/v1/auth/oauth/google';
+  }
+
+  /**
+   * Exchange a Google OAuth authorization code for our JWT tokens.
+   *
+   * Called by the `GoogleCallbackComponent` after Google redirects back
+   * with `?code=...`.
+   */
+  exchangeGoogleCode(code: string): Observable<TokenResponse> {
+    return this.http
+      .get<TokenResponse>(
+        `/api/v1/auth/oauth/google/callback`,
+        { params: { code } },
+      )
+      .pipe(
+        tap((res) => {
+          this.tokenStorage.setTokens(res.access_token, res.refresh_token);
+          this.authState.setUser(res.user);
+        }),
+      );
+  }
+
   /**
    * Return the stored access token, or `null`.
    *

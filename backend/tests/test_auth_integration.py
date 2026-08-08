@@ -80,3 +80,103 @@ async def test_refresh_token_rotation(session: AsyncSession):
     refreshed = await token_svc.refresh(session, req)
     assert refreshed is not None
     assert refreshed.user.id == login.user.id
+
+
+@pytest.mark.asyncio
+async def test_oauth_callback_creates_user(session: AsyncSession, monkeypatch):
+    """OAuth callback creates a new user when none exists."""
+    from app.services.auth_service import AuthService
+    from unittest.mock import AsyncMock
+
+    from app.config import Settings
+    svc = AuthService(app_settings=Settings(
+        DATABASE_URL="postgresql+asyncpg:///test",
+        SECRET_KEY="test-secret-key",
+        GOOGLE_CLIENT_ID="test-client-id",
+        GOOGLE_CLIENT_SECRET="test-client-secret",
+    ))
+
+    # Mock the Google exchange + profile fetch
+    async def fake_get_access_token(self, code, redirect_uri, client):
+        return {"access_token": "fake-google-token"}
+
+    async def fake_get_id_email(self, token, client):
+        return ("oauth-12345", "oauth-new@example.com")
+
+    monkeypatch.setattr(
+        "httpx_oauth.clients.google.GoogleOAuth2.get_access_token",
+        fake_get_access_token,
+    )
+    monkeypatch.setattr(
+        "httpx_oauth.clients.google.GoogleOAuth2.get_id_email",
+        fake_get_id_email,
+    )
+    monkeypatch.setattr(
+        "app.services.auth_service.AuthService._fetch_google_profile",
+        AsyncMock(return_value={"name": "OAuth User", "picture": "http://pic"}),
+    )
+
+    result = await svc.oauth_callback(session, "code123")
+    assert result is not None
+    assert result.user.email == "oauth-new@example.com"
+    assert result.user.is_verified is True
+    assert result.user.name == "OAuth User"
+    assert result.access_token
+    assert result.refresh_token
+
+
+@pytest.mark.asyncio
+async def test_oauth_callback_links_existing_user_by_email(
+    session: AsyncSession, monkeypatch
+):
+    """OAuth callback links an existing email/password account via oauth_id."""
+    from app.services.auth_service import AuthService
+    from unittest.mock import AsyncMock
+    from app.models.user import User, UserRole
+
+    from app.config import Settings
+    svc = AuthService(app_settings=Settings(
+        DATABASE_URL="postgresql+asyncpg:///test",
+        SECRET_KEY="test-secret-key",
+        GOOGLE_CLIENT_ID="test-client-id",
+        GOOGLE_CLIENT_SECRET="test-client-secret",
+    ))
+
+    # Pre-create a password user with the same email
+    email = f"link-{uuid4().hex[:8]}@example.com"
+    user = User(
+        email=email,
+        password_hash="$2b$12$fakehashfakehashfakehashfakehashfakehashfakeha",
+        name="Existing",
+        role=UserRole.CUSTOMER,
+    )
+    session.add(user)
+    await session.flush()
+
+    async def fake_get_access_token(self, code, redirect_uri, client):
+        return {"access_token": "fake-google-token"}
+
+    async def fake_get_id_email(self, token, client):
+        return ("oauth-67890", email)
+
+    monkeypatch.setattr(
+        "httpx_oauth.clients.google.GoogleOAuth2.get_access_token",
+        fake_get_access_token,
+    )
+    monkeypatch.setattr(
+        "httpx_oauth.clients.google.GoogleOAuth2.get_id_email",
+        fake_get_id_email,
+    )
+    monkeypatch.setattr(
+        "app.services.auth_service.AuthService._fetch_google_profile",
+        AsyncMock(return_value={"name": "Existing", "picture": None}),
+    )
+
+    result = await svc.oauth_callback(session, "code456")
+    assert result is not None
+    assert result.user.email == email
+    assert result.user.id == user.id  # same user, linked
+
+    await session.refresh(user)
+    assert user.oauth_provider == "google"
+    assert user.oauth_id == "oauth-67890"

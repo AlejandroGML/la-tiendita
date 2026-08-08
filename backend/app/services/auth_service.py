@@ -213,12 +213,107 @@ class AuthService:
     async def oauth_callback(
         self, session: AsyncSession, code: str
     ) -> TokenResponse:
-        """Exchange OAuth2 code for tokens. Raises NotImplementedError if
-        Google OAuth is not configured (checked by controller)."""
+        """Exchange OAuth2 authorization code for a Google profile, then
+        find-or-create the local user and issue our JWT token pair.
+
+        Flow:
+        1. Exchange ``code`` for a Google access token via httpx-oauth.
+        2. Fetch the user's Google profile (id, email, name, avatar).
+        3. Find an existing user by ``oauth_provider=google`` + ``oauth_id``,
+           or by email (link the account), or create a new one.
+        4. Issue access + refresh tokens.
+        """
         if not self._settings.GOOGLE_CLIENT_ID:
             raise NotImplementedError("Google OAuth is not configured")
-        # Full OAuth implementation via httpx-oauth would go here.
-        raise NotImplementedError("OAuth callback not implemented for MVP")
+
+        import httpx
+        from httpx_oauth.clients.google import GoogleOAuth2
+
+        client = GoogleOAuth2(
+            self._settings.GOOGLE_CLIENT_ID,
+            self._settings.GOOGLE_CLIENT_SECRET,
+        )
+        redirect_uri = self._settings.GOOGLE_OAUTH_REDIRECT_URI
+
+        async with httpx.AsyncClient() as httpx_client:
+            access_token = await client.get_access_token(
+                code, redirect_uri, httpx_client
+            )
+            user_info = await client.get_id_email(
+                access_token["access_token"], httpx_client
+            )
+
+        # get_id_email returns (user_id, email); fetch profile via userinfo endpoint
+        google_user_id = user_info[0]
+        google_email = user_info[1].lower()
+
+        # Fetch full profile (name, avatar) from Google's userinfo endpoint
+        profile = await self._fetch_google_profile(access_token["access_token"])
+
+        # Find existing user by oauth_id, or by email
+        user = await self._user_repo.find_one(
+            session,
+            User.oauth_provider == "google",
+            User.oauth_id == google_user_id,
+        )
+        if user is None:
+            # Try linking by email
+            user = await self._user_repo.get_by_email(session, google_email)
+            if user is not None:
+                user.oauth_provider = "google"
+                user.oauth_id = google_user_id
+                if not user.avatar_url and profile.get("picture"):
+                    user.avatar_url = profile["picture"]
+            else:
+                # Create new account
+                user = User(
+                    email=google_email,
+                    password_hash=None,
+                    name=profile.get("name", google_email.split("@")[0]),
+                    role=UserRole.CUSTOMER,
+                    preferred_lang="es",
+                    is_verified=True,  # Google emails are verified
+                    oauth_provider="google",
+                    oauth_id=google_user_id,
+                    avatar_url=profile.get("picture"),
+                )
+                session.add(user)
+            await session.flush()
+
+            if not user.oauth_id:
+                user.oauth_provider = "google"
+                user.oauth_id = google_user_id
+
+        # Issue tokens
+        access_tok = self._token_service.create_access_token(
+            str(user.id), user.role.value
+        )
+        refresh_tok = await self._token_service.create_refresh_token(
+            session, str(user.id)
+        )
+
+        return TokenResponse(
+            access_token=access_tok,
+            refresh_token=refresh_tok,
+            user=UserResponse.model_validate(user),
+        )
+
+    @staticmethod
+    async def _fetch_google_profile(access_token: str) -> dict:
+        """Fetch the Google userinfo profile (name, picture, etc.)."""
+        import httpx
+
+        try:
+            response = await httpx.AsyncClient().get(
+                "https://www.googleapis.com/oauth2/v2/userinfo",
+                headers={"Authorization": f"Bearer {access_token}"},
+                timeout=10,
+            )
+            response.raise_for_status()
+            return response.json()
+        except (httpx.HTTPError, OSError) as exc:
+            logger.warning("Failed to fetch Google profile: %s", exc)
+            return {}
 
     # ------------------------------------------------------------------
     # Internal helpers (retained for password hashing)

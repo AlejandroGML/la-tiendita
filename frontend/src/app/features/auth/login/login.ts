@@ -34,6 +34,10 @@ export class Login {
   submitting = false;
   errorMessage: string | null = null;
 
+  googleLogin(): void {
+    this.auth.initiateGoogleLogin();
+  }
+
   submit(): void {
     if (this.form.invalid) return;
 

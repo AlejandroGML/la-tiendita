@@ -8,6 +8,7 @@ from litestar import Controller, Response, get, post
 from litestar.connection import ASGIConnection
 from litestar.di import Provide
 from litestar.exceptions import HTTPException, NotAuthorizedException
+from litestar.response import Redirect
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -206,16 +207,27 @@ class AuthController(Controller):
         return MessageResponse(message="password reset successful")
 
     @get("/oauth/google")
-    async def oauth_google(self) -> None:
-        """Redirect to Google OAuth consent screen.
-        Returns 501 if not configured."""
+    async def oauth_google(self) -> Redirect:
+        """Redirect to Google OAuth consent screen."""
         if not settings.GOOGLE_CLIENT_ID:
-            raise NotAuthorizedException(
+            raise HTTPException(
                 detail="Google OAuth is not configured", status_code=501
             )
-        raise NotAuthorizedException(
-            detail="OAuth redirect not implemented for MVP", status_code=501
+        from httpx_oauth.clients.google import GoogleOAuth2
+
+        client = GoogleOAuth2(
+            settings.GOOGLE_CLIENT_ID,
+            settings.GOOGLE_CLIENT_SECRET,
         )
+        # State token for CSRF protection (simple timestamp-based)
+        import secrets
+        state = secrets.token_urlsafe(16)
+        authorization_url = await client.get_authorization_url(
+            redirect_uri=settings.GOOGLE_OAUTH_REDIRECT_URI,
+            state=state,
+            scope=["email", "profile"],
+        )
+        return Redirect(path=authorization_url)
 
     @get("/oauth/google/callback")
     async def oauth_google_callback(
@@ -227,15 +239,10 @@ class AuthController(Controller):
         """Exchange OAuth2 authorization code for tokens.
         ``code`` is extracted from the ``?code=`` query parameter."""
         if not settings.GOOGLE_CLIENT_ID:
-            raise NotAuthorizedException(
+            raise HTTPException(
                 detail="Google OAuth is not configured", status_code=501
             )
-        try:
-            return await auth_service.oauth_callback(session, code)
-        except NotImplementedError as exc:
-            raise NotAuthorizedException(
-                detail=str(exc), status_code=501
-            ) from exc
+        return await auth_service.oauth_callback(session, code)
 
     @get("/me")
     async def get_me(

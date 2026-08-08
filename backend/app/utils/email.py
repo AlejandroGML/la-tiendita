@@ -77,16 +77,22 @@ def send_email(to: str, subject: str, html_body: str) -> None:
     - ``"log"`` (default): writes the email content to the application log
       at INFO level — suitable for development and MVP.
     - ``"smtp"``: delivers via an SMTP relay using the configured
-      credentials. SMTP errors are logged but NOT re-raised — email
-      delivery is non-critical and should never block the caller.
+      credentials.
+    - ``"resend"``: delivers via the Resend API (https://resend.com).
+
+    Delivery errors are logged but NOT re-raised — transactional email
+    is fire-and-forget and should never block the caller.
 
     Args:
         to: Recipient email address.
         subject: Email subject line.
         html_body: Rendered HTML body.
     """
-    if settings.EMAIL_MODE == "smtp":
+    mode = settings.EMAIL_MODE
+    if mode == "smtp":
         _send_smtp(to, subject, html_body)
+    elif mode == "resend":
+        _send_resend(to, subject, html_body)
     else:
         logger.info(
             "EMAIL → %s | Subject: %s\n%s",
@@ -94,6 +100,42 @@ def send_email(to: str, subject: str, html_body: str) -> None:
             subject,
             html_body,
         )
+
+
+def _send_resend(to: str, subject: str, html_body: str) -> None:
+    """Deliver an email via the Resend API.
+
+    Uses httpx synchronously (called via ``asyncio.to_thread`` by the
+    EmailService) to POST to ``https://api.resend.com/emails``.
+    """
+    import httpx
+
+    try:
+        response = httpx.post(
+            "https://api.resend.com/emails",
+            headers={
+                "Authorization": f"Bearer {settings.RESEND_API_KEY}",
+                "Content-Type": "application/json",
+            },
+            json={
+                "from": settings.EMAIL_FROM,
+                "to": [to],
+                "subject": subject,
+                "html": html_body,
+            },
+            timeout=15,
+        )
+        response.raise_for_status()
+        logger.info("Resend email sent to %s (id=%s)", to, response.json().get("id"))
+    except httpx.HTTPStatusError as exc:
+        logger.error(
+            "Resend API error for %s: %s %s",
+            to,
+            exc.response.status_code,
+            exc.response.text[:200],
+        )
+    except (httpx.HTTPError, OSError) as exc:
+        logger.error("Resend delivery failed for %s: %s", to, exc)
 
 
 def _send_smtp(to: str, subject: str, html_body: str) -> None:

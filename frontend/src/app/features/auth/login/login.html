@@ -36,8 +36,8 @@
       <p-button
         [label]="'auth.signInGoogle' | translate"
         [outlined]="true"
-        [disabled]="true"
         styleClass="w-full"
+        (onClick)="googleLogin()"
       ></p-button>
       <a pButton [text]="true" routerLink="/register" class="text-sm">{{ 'auth.noAccount' | translate }} {{ 'auth.register' | translate }}</a>
     </div>

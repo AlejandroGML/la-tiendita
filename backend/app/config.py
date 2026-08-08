@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     # OAuth (Google)
     GOOGLE_CLIENT_ID: str = Field(default="")
     GOOGLE_CLIENT_SECRET: str = Field(default="")
+    GOOGLE_OAUTH_REDIRECT_URI: str = Field(default="http://localhost:4200/auth/google/callback")
 
     # Rate Limiting
     RATE_LIMIT_REQUESTS: int = Field(default=20)
@@ -45,11 +46,12 @@ class Settings(BaseSettings):
     FRONTEND_URL: str = Field(default="http://localhost:4200")
 
     # Email
-    EMAIL_MODE: str = Field(default="log")  # "log" | "smtp"
+    EMAIL_MODE: str = Field(default="log")  # "log" | "smtp" | "resend"
     SMTP_HOST: str = Field(default="")
     SMTP_PORT: int = Field(default=587)
     SMTP_USER: str = Field(default="")
     SMTP_PASSWORD: str = Field(default="")
+    RESEND_API_KEY: str = Field(default="")
     EMAIL_FROM: str = Field(default="noreply@latiendita.local")
 
     # Redis cache
