@@ -214,10 +214,27 @@ async def spa_fallback(path: str = "") -> File | Response:
     # Serve a real asset if it exists, otherwise fall back to index.html
     candidate = (dist / path).resolve()
     if candidate.is_file() and dist.resolve() in candidate.parents:
-        return File(candidate)
+        suffix = candidate.suffix.lower()
+        media = {
+            ".html": "text/html",
+            ".js": "text/javascript",
+            ".css": "text/css",
+            ".json": "application/json",
+            ".svg": "image/svg+xml",
+            ".png": "image/png",
+            ".jpg": "image/jpeg",
+            ".jpeg": "image/jpeg",
+            ".webp": "image/webp",
+            ".ico": "image/x-icon",
+            ".woff": "font/woff",
+            ".woff2": "font/woff2",
+            ".ttf": "font/ttf",
+            ".map": "application/json",
+        }.get(suffix)
+        return File(candidate, media_type=media or "application/octet-stream", content_disposition_type="inline")
     index = dist / "index.html"
     if index.is_file():
-        return File(index)
+        return File(index, media_type="text/html", content_disposition_type="inline")
     raise HTTPException(detail="Frontend not built", status_code=404)
 
 
