@@ -16,7 +16,6 @@ primary_region = "arn"  # Stockholm — closest to the Swedish target market
 
 [[services]]
   internal_port = 8000
-  processes = ["web"]
   force_https = true
   auto_stop_machines = false  # never sleep — portfolio demo must respond instantly
   auto_start_machines = true
