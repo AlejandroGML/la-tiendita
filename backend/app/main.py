@@ -125,6 +125,15 @@ async def readiness() -> dict:
     # Database — can we reach PostgreSQL?
     # ------------------------------------------------------------------
     try:
+        import socket
+
+        db_host = settings.DATABASE_URL.split("@")[-1].split(":")[0]
+        try:
+            socket.getaddrinfo(db_host, 5432)
+            checks["db_dns"] = "ok"
+        except Exception as dns_err:
+            checks["db_dns"] = f"error: {dns_err}"
+
         async with async_session() as session:
             await session.execute(text("SELECT 1"))
         checks["database"] = "ok"
