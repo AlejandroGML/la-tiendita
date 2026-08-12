@@ -98,7 +98,7 @@ def desc_for(cat, lang):
     m = {"en": DESCS_EN, "es": DESCS_ES, "sv": DESCS_SV}[lang]
     return m.get(cat, f"Second-hand {cat.lower()} in excellent condition.")
 
-async def seed(limit=300):
+async def seed(limit: int = 25):
     from PIL import Image as PILImage
 
     # ── Load dataset rows without loading everything into RAM ─────────────
@@ -297,4 +297,12 @@ async def seed(limit=300):
         with_img = sum(1 for p in all_p if p.image_urls and len(p.image_urls) > 0 and p.image_urls[0])
         logger.info(f"Images: {with_img}/{len(all_p)} products have images")
 
-asyncio.run(seed(limit=300))
+if __name__ == "__main__":
+    import sys
+
+    limit = 25
+    if len(sys.argv) > 1 and sys.argv[1] == "--limit":
+        limit = int(sys.argv[2])
+    elif len(sys.argv) > 1:
+        limit = int(sys.argv[1])
+    asyncio.run(seed(limit=limit))
