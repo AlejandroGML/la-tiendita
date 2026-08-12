@@ -1,0 +1,23 @@
+allowBuilds:
+  '@parcel/watcher': true
+  esbuild: true
+  lmdb: true
+  msgpackr-extract: true
+
+ignoreScripts: false
+
+onlyBuiltDependencies:
+  - "@parcel/watcher"
+  - esbuild
+  - lmdb
+  - msgpackr-extract
+
+peerDependencyRules:
+  allowedVersions:
+    "@angular/core": "22"
+    "@angular/common": "22"
+    "@angular/cdk": "22"
+    "@angular/forms": "22"
+    "@angular/router": "22"
+    "@angular/platform-browser": "22"
+    "@angular/animations": "22"
