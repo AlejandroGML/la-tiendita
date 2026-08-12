@@ -2,6 +2,7 @@
 
 import json
 import logging
+from pathlib import Path
 
 # ---------------------------------------------------------------------------
 # JSON log formatter — production log aggregation compatible
@@ -62,7 +63,7 @@ from litestar import Litestar, get, Response
 from litestar.config.cors import CORSConfig
 from litestar.exceptions import HTTPException
 from litestar.openapi import OpenAPIConfig
-from litestar.response import Redirect
+from litestar.response import File, Redirect
 from litestar.static_files import create_static_files_router
 
 from app.config import settings
@@ -167,6 +168,45 @@ uploads_router = create_static_files_router(
     directories=[settings.UPLOAD_DIR],
     name="uploads",
 )
+
+
+# ---------------------------------------------------------------------------
+# SPA fallback — serve the compiled Angular frontend (single-container deploy)
+# ---------------------------------------------------------------------------
+# When FRONTEND_DIST_DIR is set (single-container deployment), the backend
+# serves the Angular SPA: index.html on "/" and on any non-API route, plus
+# the compiled static assets. API/health/uploads/schema paths are untouched.
+# When the dir is empty (backend-only dev), these routes 404 gracefully.
+
+
+def _frontend_dist() -> Path | None:
+    dist = settings.FRONTEND_DIST_DIR
+    if not dist:
+        return None
+    p = Path(dist)
+    return p if p.is_dir() else None
+
+
+@get(["/", "/{path:path}"], sync_to_thread=False, exclude_from_auth=True)
+async def spa_fallback(path: str = "") -> File | Response:
+    """Serve the Angular SPA with history-mode routing fallback."""
+    dist = _frontend_dist()
+    if dist is None:
+        raise HTTPException(detail="Frontend not configured", status_code=404)
+
+    # Never shadow API, uploads, health or schema routes
+    first = path.split("/", 1)[0]
+    if first in {"api", "uploads", "health", "schema", "docs", "protected"}:
+        raise HTTPException(detail="Not found", status_code=404)
+
+    # Serve a real asset if it exists, otherwise fall back to index.html
+    candidate = (dist / path).resolve()
+    if candidate.is_file() and dist.resolve() in candidate.parents:
+        return File(candidate)
+    index = dist / "index.html"
+    if index.is_file():
+        return File(index)
+    raise HTTPException(detail="Frontend not built", status_code=404)
 
 
 # ---------------------------------------------------------------------------
@@ -354,6 +394,7 @@ app = Litestar(
         UploadController,
         WishlistController,
         uploads_router,
+        spa_fallback,
     ],
     on_app_init=[jwt_auth.on_app_init],
     middleware=[RateLimitMiddleware, OptionalUserMiddleware, I18nMiddleware],

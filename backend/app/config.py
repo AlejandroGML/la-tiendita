@@ -54,6 +54,9 @@ class Settings(BaseSettings):
     RESEND_API_KEY: str = Field(default="")
     EMAIL_FROM: str = Field(default="noreply@latiendita.local")
 
+    # Frontend SPA — served by the backend in single-container deployments
+    FRONTEND_DIST_DIR: str = Field(default="")
+
     # Redis cache
     REDIS_URL: str = Field(default="redis://localhost:6379/0")
     CACHE_ENABLED: bool = Field(default=True)
