@@ -212,8 +212,11 @@ async def spa_fallback(path: str = "") -> File | Response:
         raise HTTPException(detail="Not found", status_code=404)
 
     # Serve a real asset if it exists, otherwise fall back to index.html
-    candidate = (dist / path).resolve()
-    logger.warning("spa_fallback path=%r candidate=%s is_file=%s", path, candidate, candidate.is_file())
+    # NOTE: Litestar may pass the path with a leading "/" — strip it so
+    # ``dist / path`` resolves INSIDE the dist dir (absolute path would
+    # escape it and is_file() would be False -> wrong index.html fallback).
+    rel = path.lstrip("/")
+    candidate = (dist / rel).resolve()
     if candidate.is_file() and dist.resolve() in candidate.parents:
         suffix = candidate.suffix.lower()
         media = {
