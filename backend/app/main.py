@@ -213,6 +213,7 @@ async def spa_fallback(path: str = "") -> File | Response:
 
     # Serve a real asset if it exists, otherwise fall back to index.html
     candidate = (dist / path).resolve()
+    logger.info("spa_fallback path=%r candidate=%s is_file=%s", path, candidate, candidate.is_file())
     if candidate.is_file() and dist.resolve() in candidate.parents:
         suffix = candidate.suffix.lower()
         media = {
