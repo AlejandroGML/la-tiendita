@@ -129,6 +129,8 @@ async def readiness() -> dict:
             await session.execute(text("SELECT 1"))
         checks["database"] = "ok"
     except Exception as e:
+        import traceback
+        logger.error("Readiness DB check failed:\n%s", traceback.format_exc())
         checks["database"] = f"error: {str(e)[:100]}"
 
     # ------------------------------------------------------------------
