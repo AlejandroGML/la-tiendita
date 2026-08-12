@@ -22,7 +22,16 @@ def _async_database_url(url: str) -> str:
     if not url:
         return url
     if url.startswith("postgres://") or url.startswith("postgresql://"):
-        return "postgresql+asyncpg://" + url.split("://", 1)[1]
+        url = "postgresql+asyncpg://" + url.split("://", 1)[1]
+    # Drop psycopg-only query params that asyncpg rejects (e.g. sslmode)
+    query_start = url.find("?")
+    if query_start != -1:
+        params = [
+            p
+            for p in url[query_start + 1 :].split("&")
+            if p and not p.split("=", 1)[0] in {"sslmode", "connect_timeout"}
+        ]
+        url = url[:query_start] + (("?" + "&".join(params)) if params else "")
     return url
 
 

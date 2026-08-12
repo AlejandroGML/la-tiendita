@@ -24,6 +24,10 @@ RUN pip install --no-cache-dir .
 FROM python:3.14-slim
 WORKDIR /app
 
+# Redis server — sidecar daemon inside this same container
+RUN apt-get update && apt-get install -y --no-install-recommends redis-server \
+    && rm -rf /var/lib/apt/lists/*
+
 # Copy Python env + backend code
 COPY --from=backend-build /usr/local/lib/python3.14/site-packages /usr/local/lib/python3.14/site-packages
 COPY --from=backend-build /usr/local/bin /usr/local/bin
@@ -33,9 +37,9 @@ COPY backend/ ./
 COPY --from=frontend-build /build/dist/frontend/browser /app/frontend-dist
 
 # Writable uploads dir for product images
-RUN mkdir -p /app/uploads
+RUN mkdir -p /app/uploads && chmod +x /app/entrypoint.sh
 
 ENV FRONTEND_DIST_DIR=/app/frontend-dist
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+ENTRYPOINT ["/app/entrypoint.sh"]
