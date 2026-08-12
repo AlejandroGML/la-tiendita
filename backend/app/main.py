@@ -129,8 +129,9 @@ async def readiness() -> dict:
 
         db_host = settings.DATABASE_URL.split("@")[-1].split(":")[0]
         try:
-            socket.getaddrinfo(db_host, 5432)
+            addrs = socket.getaddrinfo(db_host, 5432)
             checks["db_dns"] = "ok"
+            checks["db_dns_ips"] = ",".join(a[4][0] for a in addrs[:3])
         except Exception as dns_err:
             checks["db_dns"] = f"error: {dns_err}"
 
@@ -140,7 +141,7 @@ async def readiness() -> dict:
     except Exception as e:
         import traceback
         logger.error("Readiness DB check failed:\n%s", traceback.format_exc())
-        checks["database"] = f"error: {str(e)[:100]}"
+        checks["database"] = f"error: {type(e).__name__}: {str(e)[:120]}"
 
     # ------------------------------------------------------------------
     # Redis — can we reach the cache server?
