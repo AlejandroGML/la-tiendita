@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from sqlalchemy import delete, select
 from sqlalchemy.orm import selectinload
 from app.db.engine import async_session
+from app.config import settings
 from app.models.product import Product, ProductCondition, ProductTranslation
 from app.models.category import Category, CategoryTranslation
 from app.services.slug_service import SlugService
@@ -141,7 +142,7 @@ async def seed(limit=300):
         logger.info(f"🏷️  Created {len(cat_map)} categories")
 
         # ── Upload directory ───────────────────────────────────────────────
-        upload_dir = Path("/home/alejandro/Proyectos/TiendaVirtual/uploads/products")
+        upload_dir = Path(settings.UPLOAD_DIR) / "products"
         upload_dir.mkdir(parents=True, exist_ok=True)
 
         # ── Insert products ────────────────────────────────────────────────
