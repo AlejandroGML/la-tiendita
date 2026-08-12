@@ -99,33 +99,65 @@ def desc_for(cat, lang):
     return m.get(cat, f"Second-hand {cat.lower()} in excellent condition.")
 
 async def seed(limit=300):
-    from datasets import load_dataset
-    from tqdm import tqdm
     from PIL import Image as PILImage
 
-    ds = load_dataset("fnauman/fashion-second-hand-front-only-rgb", split="train", streaming=True)
-    uploaded = 0
+    # ── Load dataset rows without loading everything into RAM ─────────────
+    # ``datasets``/HuggingFace streaming buffers whole parquet files and can
+    # OOM on small VPS (seen: 4.4GB virtual RSS killed on 1GB RAM). Instead we
+    # download the first parquet shard to disk once and read it row-by-row
+    # with pyarrow — constant memory regardless of shard size.
+    import io
+    import tempfile
 
-    async with async_session() as session:
-        # ── Clean DB ───────────────────────────────────────────────────────
-        await session.execute(delete(ProductTranslation))
-        await session.execute(delete(Product))
-        await session.execute(delete(CategoryTranslation))
-        await session.execute(delete(Category))
-        await session.commit()
-        logger.info("🧹 DB cleaned")
+    import pyarrow.parquet as pq
+    import httpx
 
-        # ── Collect types from dataset ─────────────────────────────────────
-        all_types = set()
-        rows = []
-        for row in ds:
-            t = str(row.get("type") or "Unknown").strip()
+    ds_url = (
+        "https://huggingface.co/datasets/fnauman/fashion-second-hand-front-only-rgb/"
+        "resolve/main/data/train-00000-of-00013.parquet"
+    )
+    cache_dir = Path(tempfile.gettempdir()) / "tiendita-ds"
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    shard_path = cache_dir / "train-00000-of-00013.parquet"
+
+    if not shard_path.exists():
+        logger.info("⬇️  Downloading dataset shard (first run only)")
+        with httpx.stream("GET", ds_url, follow_redirects=True, timeout=600) as resp:
+            resp.raise_for_status()
+            with open(shard_path, "wb") as f:
+                for chunk in resp.iter_bytes():
+                    f.write(chunk)
+        logger.info("✅ Dataset shard downloaded (%d MB)", shard_path.stat().st_size // 1024 // 1024)
+
+    # Iterate the parquet file in batches — memory stays flat.
+    all_types: set[str] = set()
+    rows: list[dict] = []
+    pf = pq.ParquetFile(shard_path)
+    for batch in pf.iter_batches(batch_size=64):
+        for d in batch.to_pylist():
+            t = str(d.get("type") or "Unknown").strip()
             if t:
                 all_types.add(t)
-            rows.append(row)
+            rows.append(d)
             if len(rows) >= limit:
                 break
-        logger.info(f"📦 Loaded {len(rows)} rows, {len(all_types)} categories")
+        if len(rows) >= limit:
+            break
+    logger.info(f"📦 Loaded {len(rows)} rows, {len(all_types)} categories")
+
+    async with async_session() as session:
+        # ── Clean DB (TRUNCATE CASCADE — handles all FK references) ───────
+        from sqlalchemy import text
+
+        await session.execute(
+            text(
+                "TRUNCATE TABLE cart_items, order_items, wishlist, reviews, "
+                "product_variants, product_translations, products, "
+                "category_translations, categories RESTART IDENTITY CASCADE"
+            )
+        )
+        await session.commit()
+        logger.info("🧹 DB cleaned")
 
         # ── Create categories ──────────────────────────────────────────────
         cat_map = {}
@@ -147,7 +179,6 @@ async def seed(limit=300):
 
         # ── Insert products ────────────────────────────────────────────────
         inserted = 0
-        pbar = tqdm(total=len(rows), desc="📦 Products", unit="prod")
 
         for i, row in enumerate(rows):
             try:
@@ -215,11 +246,12 @@ async def seed(limit=300):
                 await session.flush()
 
                 # ── Save image from dataset ────────────────────────────────
-                img_data = row.get("image")
-                if img_data is not None and hasattr(img_data, "convert"):
+                img_data = row.get("bytes") or row.get("image")
+                if img_data is not None and len(img_data) > 0:
                     img_path = upload_dir / f"{product.id.hex}.webp"
                     try:
-                        img_data.convert("RGB").save(str(img_path), "WEBP", quality=85)
+                        img = PILImage.open(io.BytesIO(img_data))
+                        img.convert("RGB").save(str(img_path), "WEBP", quality=85)
                         product.image_urls = [f"/uploads/products/{product.id.hex}.webp"]
                     except Exception:
                         logger.warning(f"  ⚠️ Image save failed for {slug}")
@@ -256,10 +288,7 @@ async def seed(limit=300):
                 await session.rollback()
                 continue
 
-            pbar.update(1)
-
         await session.commit()
-        pbar.close()
         logger.info(f"\n✅ DONE! {inserted} products with real data + images + 3 languages.")
 
         # ── Verify ──────────────────────────────────────────────────────────
