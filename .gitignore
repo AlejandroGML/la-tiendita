@@ -68,11 +68,23 @@ Thumbs.db
 
 # Playwright test artifacts
 .playwright-mcp/
-frontend/playwright-report/data/
+frontend/playwright-report/
 frontend/test-results/
 
 # Graph knowledge base artifacts
 graphify-out/
+backend/graphify-out/
+
+# Stale QA/prompt scratch files (root level)
+/PLAN.md
+/RE_AUDIT_REPORT.md
+/AUDIT_VISUAL_REPORT.md
+/AUTH_REFACTOR.md
+/*-snapshot.yml
+/uniqlo-*.txt
+
+# Docs screenshots (UI audit images — not product code)
+docs/screenshots/
 
 # Additional debug/audit screenshots
 /audit2-*.png

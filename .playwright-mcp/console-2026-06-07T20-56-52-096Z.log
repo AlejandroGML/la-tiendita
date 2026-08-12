@@ -1,3 +1,0 @@
-[      57ms] [WARNING] The `useDefaultLang` and `defaultLanguage` options are deprecated. Please use `fallbackLang` instead. @ http://localhost:4200/@fs/app/.angular/cache/22.0.0/frontend/vite/deps/chunk-6YYXMWPP.js?v=982abe28:1172
-[      58ms] [WARNING] The `useDefaultLang` and `defaultLanguage` options are deprecated. Please use `fallbackLang` instead. @ http://localhost:4200/@fs/app/.angular/cache/22.0.0/frontend/vite/deps/chunk-6YYXMWPP.js?v=982abe28:1172
-[      83ms] [LOG] Angular is running in development mode. @ http://localhost:4200/@fs/app/.angular/cache/22.0.0/frontend/vite/deps/chunk-5I57JTBW.js?v=982abe28:14866
