@@ -125,6 +125,10 @@ export class CheckoutComponent implements OnInit, OnDestroy {
             // Swish: mostrar el QR para escanear con el móvil
             this.qrCode.set(response.qr_code);
             this.redirecting.set(false);
+            // Modo demo: el pago se confirma solo tras "escaneo" simulado
+            if (response.swish_mock && response.order_id) {
+              this.autoConfirmSwish(response.order_id);
+            }
           } else if (response.redirect_url) {
             // Card/Klarna: redirigir al hosted checkout
             this.redirectUrl.set(response.redirect_url);
@@ -142,6 +146,41 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           }
         },
       });
+  }
+
+  /**
+   * Demo helper: simula el escaneo del QR de Swish (modo mock) esperando
+   * unos segundos y luego confirma la orden vía mock-confirm. En Swish
+   * live esto lo hace el móvil del usuario — el frontend solo observa.
+   */
+  private autoConfirmSwish(orderId: string): void {
+    setTimeout(() => {
+      this.http
+        .post('/api/v1/payments/swish/mock-confirm', {
+          order_id: orderId,
+          status: 'paid',
+        })
+        .pipe(takeUntil(this.destroy$))
+        .subscribe({
+          next: () => {
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Pago confirmado',
+              detail: 'Tu pedido ha sido confirmado.',
+            });
+            this.router.navigate(['/checkout/success'], {
+              queryParams: { order_id: orderId },
+            });
+          },
+          error: () => {
+            // El mock-confirm puede fallar si la orden ya fue confirmada
+            // (doble submit) — en ese caso navegamos igualmente a éxito.
+            this.router.navigate(['/checkout/success'], {
+              queryParams: { order_id: orderId },
+            });
+          },
+        });
+    }, 2500); // tiempo simulado de escaneo
   }
 
   get items(): CartItem[] {

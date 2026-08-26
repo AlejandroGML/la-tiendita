@@ -22,6 +22,7 @@ from app.repositories.cart_repository import CartRepository
 from app.repositories.order_repository import OrderRepository
 from app.repositories.promotion_repository import PromotionRepository
 from app.repositories.variant_repository import VariantRepository
+from app.config import settings
 from app.core.event_bus import event_bus
 from app.core.events import OrderConfirmationEvent
 from app.schemas.order import (
@@ -185,6 +186,10 @@ class OrderService:
                 redirect_url=payment.redirect_url,
                 qr_code=payment.qr_code,
                 payment_reference=payment.payment_reference,
+                swish_mock=(
+                    payment_method == "swish"
+                    and getattr(settings, "SWISH_MODE", "mock") == "mock"
+                ),
             )
 
         except (StripeError, ValueError, Exception):

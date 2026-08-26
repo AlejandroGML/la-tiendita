@@ -39,8 +39,10 @@ const mockEmptyCart: CartResponse = {
 };
 
 const mockCheckoutResponse: CheckoutResponse = {
-  checkout_url: 'https://checkout.stripe.com/c/pay/cs_test_abc123',
+  redirect_url: 'https://checkout.stripe.com/c/pay/cs_test_abc123',
   order_id: 'order-uuid-1',
+  payment_method: 'card',
+  swish_mock: false,
 };
 
 function createCartServiceMock() {
@@ -170,7 +172,7 @@ describe('CheckoutComponent', () => {
     expect(cartService.resetState).toHaveBeenCalled();
   });
 
-  it('should redirect to Stripe checkout_url on success', () => {
+  it('should redirect to Stripe redirect_url on success', () => {
     component.shippingForm.setValue({
       name: 'Test',
       address: 'Test address 123',

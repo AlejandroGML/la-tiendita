@@ -48,8 +48,8 @@ const mockProducts: Product[] = [
     image_urls: ['/uploads/img1.jpg'],
     variants: [],
     translations: [
-      { lang: 'es', name: 'Jeans Levis', description: 'Jeans clásicos' },
-      { lang: 'en', name: 'Levis Jeans', description: 'Classic jeans' },
+      { language_code: 'es', name: 'Jeans Levis', description: 'Jeans clásicos' },
+      { language_code: 'en', name: 'Levis Jeans', description: 'Classic jeans' },
     ],
     created_at: '2026-01-01T00:00:00Z',
   },
@@ -74,8 +74,8 @@ const mockProducts: Product[] = [
     image_urls: ['/uploads/img2.jpg'],
     variants: [],
     translations: [
-      { lang: 'es', name: 'Chaqueta North Face', description: 'Abrigadora' },
-      { lang: 'en', name: 'North Face Jacket', description: 'Warm' },
+      { language_code: 'es', name: 'Chaqueta North Face', description: 'Abrigadora' },
+      { language_code: 'en', name: 'North Face Jacket', description: 'Warm' },
     ],
     created_at: '2026-02-01T00:00:00Z',
   },
@@ -93,8 +93,8 @@ const mockCategories = [
     slug: 'pantalones',
     image_url: null,
     translations: [
-      { lang: 'es', name: 'Pantalones' },
-      { lang: 'en', name: 'Pants' },
+      { language_code: 'es', name: 'Pantalones' },
+      { language_code: 'en', name: 'Pants' },
     ],
   },
   {
@@ -102,8 +102,8 @@ const mockCategories = [
     slug: 'chaquetas',
     image_url: null,
     translations: [
-      { lang: 'es', name: 'Chaquetas' },
-      { lang: 'en', name: 'Jackets' },
+      { language_code: 'es', name: 'Chaquetas' },
+      { language_code: 'en', name: 'Jackets' },
     ],
   },
 ] satisfies Category[];

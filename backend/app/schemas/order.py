@@ -72,6 +72,7 @@ class CheckoutResponse(BaseModel):
     redirect_url: str | None = None
     qr_code: str | None = None
     payment_reference: str | None = None
+    swish_mock: bool = False
 
 
 class OrderAdminListItem(BaseModel):

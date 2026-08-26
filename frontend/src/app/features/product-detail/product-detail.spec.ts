@@ -62,9 +62,9 @@ const mockProduct: Product = {
     },
   ],
   translations: [
-    { lang: 'es', name: 'Jeans Levis 501', description: 'Jeans clásicos de algodón' },
-    { lang: 'en', name: 'Levis 501 Jeans', description: 'Classic cotton jeans' },
-    { lang: 'sv', name: 'Levis 501 Jeans', description: 'Klassiska bomullsjeans' },
+    { language_code: 'es', name: 'Jeans Levis 501', description: 'Jeans clásicos de algodón' },
+    { language_code: 'en', name: 'Levis 501 Jeans', description: 'Classic cotton jeans' },
+    { language_code: 'sv', name: 'Levis 501 Jeans', description: 'Klassiska bomullsjeans' },
   ],
   created_at: '2026-01-01T00:00:00Z',
 };

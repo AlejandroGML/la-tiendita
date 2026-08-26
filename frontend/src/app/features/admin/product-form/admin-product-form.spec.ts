@@ -20,8 +20,8 @@ const mockCategories: Category[] = [
     slug: 'pantalones',
     image_url: null,
     translations: [
-      { lang: 'es', name: 'Pantalones' },
-      { lang: 'en', name: 'Pants' },
+      { language_code: 'es', name: 'Pantalones' },
+      { language_code: 'en', name: 'Pants' },
     ],
   },
   {
@@ -29,8 +29,8 @@ const mockCategories: Category[] = [
     slug: 'chaquetas',
     image_url: null,
     translations: [
-      { lang: 'es', name: 'Chaquetas' },
-      { lang: 'en', name: 'Jackets' },
+      { language_code: 'es', name: 'Chaquetas' },
+      { language_code: 'en', name: 'Jackets' },
     ],
   },
 ];
@@ -108,7 +108,7 @@ describe('AdminProductForm', () => {
       price: 100,
       category_id: 1,
       condition: 'new',
-      translations: [{ lang: 'es', name: 'Test', description: '' }],
+      translations: [{ language_code: 'es', name: 'Test', description: '' }],
       image_urls: ['https://example.com/img1.jpg'],
     } as any;
 

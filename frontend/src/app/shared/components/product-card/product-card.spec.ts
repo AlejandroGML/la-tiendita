@@ -29,8 +29,8 @@ const mockProduct: Product = {
   image_urls: ['/uploads/img1.jpg', '/uploads/img2.jpg'],
   variants: [],
   translations: [
-    { lang: 'es', name: 'Jeans Levis 501', description: 'Jeans clásicos' },
-    { lang: 'en', name: 'Levis 501 Jeans', description: 'Classic jeans' },
+    { language_code: 'es', name: 'Jeans Levis 501', description: 'Jeans clásicos' },
+    { language_code: 'en', name: 'Levis 501 Jeans', description: 'Classic jeans' },
   ],
   created_at: '2026-01-01T00:00:00Z',
 };
@@ -87,7 +87,7 @@ describe('ProductCardComponent', () => {
   it('should fallback to English name when current language translation is missing', () => {
     const productNoEs: Product = {
       ...mockProduct,
-      translations: [{ lang: 'en', name: 'English Name', description: 'Desc' }],
+      translations: [{ language_code: 'en', name: 'English Name', description: 'Desc' }],
     };
     createComponent(productNoEs);
     const nameEl = fixture.nativeElement.querySelector('h3');

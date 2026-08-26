@@ -66,4 +66,6 @@ export interface CheckoutResponse {
   redirect_url?: string | null;
   qr_code?: string | null;
   payment_reference?: string | null;
+  /** True when Swish runs in mock mode — the frontend can auto-confirm. */
+  swish_mock?: boolean;
 }
