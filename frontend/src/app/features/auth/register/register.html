@@ -4,7 +4,7 @@
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
-          <input pInputText type="text" id="register-name" formControlName="name" placeholder="Your name" class="w-full" />
+          <input pInputText type="text" id="register-name" formControlName="name" [placeholder]="'auth.namePlaceholder' | translate" class="w-full" />
           <label for="register-name">{{ 'auth.name' | translate }}</label>
         </p-floatLabel>
         <small *ngIf="form.get('name')?.hasError('required')" class="p-error block mt-1">{{ 'auth.nameRequired' | translate }}</small>
@@ -12,7 +12,7 @@
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
-          <input pInputText type="email" id="register-email" formControlName="email" placeholder="you@example.com" class="w-full" />
+          <input pInputText type="email" id="register-email" formControlName="email" [placeholder]="'auth.emailPlaceholder' | translate" class="w-full" />
           <label for="register-email">{{ 'auth.email' | translate }}</label>
         </p-floatLabel>
         <small *ngIf="form.get('email')?.hasError('required')" class="p-error block mt-1">{{ 'auth.emailRequired' | translate }}</small>
@@ -21,7 +21,7 @@
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
-          <input pInputText type="password" id="register-password" formControlName="password" placeholder="••••••••" class="w-full" />
+          <input pInputText type="password" id="register-password" formControlName="password" [placeholder]="'auth.passwordPlaceholder' | translate" class="w-full" />
           <label for="register-password">{{ 'auth.password' | translate }}</label>
         </p-floatLabel>
         <small *ngIf="form.get('password')?.hasError('required')" class="p-error block mt-1">{{ 'auth.passwordRequired' | translate }}</small>
@@ -30,7 +30,7 @@
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
-          <input pInputText type="password" formControlName="confirmPassword" placeholder="••••••••" class="w-full" />
+          <input pInputText type="password" formControlName="confirmPassword" [placeholder]="'auth.passwordPlaceholder' | translate" class="w-full" />
           <label>{{ 'auth.confirmPassword' | translate }}</label>
         </p-floatLabel>
         <small *ngIf="form.get('confirmPassword')?.hasError('required')" class="p-error block mt-1">{{ 'auth.confirmRequired' | translate }}</small>

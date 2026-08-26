@@ -6,6 +6,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import type { Product, ProductVariant } from '../../shared/models/product.model';
 import { ProductService } from '../../core/services/product.service';
+import { CategoryService, type CategoryItem } from '../../core/services/category.service';
 import { CartService } from '../../core/services/cart.service';
 import { SeoService } from '../../core/services/seo.service';
 import { WishlistService } from '../../core/services/wishlist.service';
@@ -167,14 +168,13 @@ export class ProductDetail implements OnDestroy {
     return Math.round((1 - parseFloat(p.sale_price) / parseFloat(p.price)) * 100);
   });
 
+  private readonly categories = signal<CategoryItem[] | null>(null);
+
   readonly categoryName = computed(() => {
     const p = this.product();
     if (!p) return 'Catálogo';
-    const CATEGORY_NAMES: Record<number, string> = {
-      1: 'Accesorios', 2: 'Bolsos', 3: 'Chaquetas', 4: 'Vestidos',
-      5: 'Pantalones', 6: 'Camisas', 7: 'Calzado', 8: 'Faldas',
-    };
-    return CATEGORY_NAMES[p.category_id] || 'Catálogo';
+    const cat = this.categories()?.find((c) => c.id === p.category_id);
+    return cat?.name || 'Catálogo';
   });
 
   private sub: Subscription;
@@ -187,7 +187,13 @@ export class ProductDetail implements OnDestroy {
     private wishlistService: WishlistService,
     private seoService: SeoService,
     private messageService: MessageService,
+    private categoryService: CategoryService,
   ) {
+    this.categoryService.load();
+    this.categoryService.categories$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((cats) => this.categories.set(cats));
+
     this.sub = this.route.params
       .pipe(
         switchMap((params) => {

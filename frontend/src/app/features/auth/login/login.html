@@ -4,7 +4,7 @@
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
-          <input pInputText type="email" id="login-email" formControlName="email" placeholder="you@example.com" class="w-full" />
+          <input pInputText type="email" id="login-email" formControlName="email" [placeholder]="'auth.emailPlaceholder' | translate" class="w-full" />
           <label for="login-email">{{ 'auth.email' | translate }}</label>
         </p-floatLabel>
         <small *ngIf="form.get('email')?.hasError('required')" class="p-error block mt-1">{{ 'auth.emailRequired' | translate }}</small>
@@ -13,7 +13,7 @@
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
-          <input pInputText type="password" id="login-password" formControlName="password" placeholder="••••••••" class="w-full" />
+          <input pInputText type="password" id="login-password" formControlName="password" [placeholder]="'auth.passwordPlaceholder' | translate" class="w-full" />
           <label for="login-password">{{ 'auth.password' | translate }}</label>
         </p-floatLabel>
         <small *ngIf="form.get('password')?.hasError('required')" class="p-error block mt-1">{{ 'auth.passwordRequired' | translate }}</small>
