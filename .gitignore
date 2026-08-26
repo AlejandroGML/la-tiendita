@@ -92,3 +92,5 @@ docs/screenshots/
 /v*.png
 /qa-*.png
 /homepage.png
+# Visual audit screenshots
+tiendita-produccion-home.png
