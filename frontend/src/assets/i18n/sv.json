@@ -2,7 +2,8 @@
   "common": {
     "notApplicable": "Ej specificerat",
     "noImage": "Ingen bild",
-    "cancel": "Avbryt"
+    "cancel": "Avbryt",
+    "backToHome": "Tillbaka till startsidan"
   },
   "nav": {
     "products": "Produkter",

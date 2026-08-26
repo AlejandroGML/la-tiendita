@@ -2,7 +2,8 @@
   "common": {
     "notApplicable": "Not specified",
     "noImage": "No image",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "backToHome": "Back to home"
   },
   "nav": {
     "products": "Products",

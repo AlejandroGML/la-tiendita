@@ -2,7 +2,8 @@
   "common": {
     "notApplicable": "No especificado",
     "noImage": "Sin imagen",
-    "cancel": "Cancelar"
+    "cancel": "Cancelar",
+    "backToHome": "Volver al inicio"
   },
   "nav": {
     "products": "Productos",
