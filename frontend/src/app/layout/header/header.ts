@@ -8,6 +8,7 @@ import { CategoryService, type CategoryItem } from '../../core/services/category
   selector: 'app-header',
   templateUrl: './header.html',
   standalone: false,
+  styleUrl: './header.scss',
 })
 export class Header implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
