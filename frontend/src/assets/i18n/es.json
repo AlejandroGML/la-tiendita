@@ -477,7 +477,10 @@
     "terms": "Términos y Condiciones",
     "privacy": "Política de Privacidad",
     "and": "y la",
-    "marketingConsent": "Quiero recibir ofertas y novedades por correo electrónico"
+    "marketingConsent": "Quiero recibir ofertas y novedades por correo electrónico",
+    "welcomeBack": "Bienvenido de nuevo",
+    "orContinueWith": "O continúa con",
+    "joinSub": "Únete a una comunidad que le da segunda vida a la ropa"
   },
   "session": {
     "expiringTitle": "Sesión por expirar",

@@ -718,6 +718,172 @@ h3.display { font-size: clamp(1.15rem, 1.8vw, 1.35rem); }
   min-width: 0;
 }
 
+/* ── Auth (login/register) ── */
+.td-auth-wrap {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 70vh;
+  padding-block: clamp(2rem, 6vw, 4rem);
+}
+.td-auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-md);
+  padding: 2rem 2.25rem;
+}
+.td-auth-head {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+.td-auth-head .td-auth-mark {
+  width: 44px;
+  height: 44px;
+  margin: 0 auto 0.9rem;
+  border-radius: var(--r-sm);
+  background: var(--primary);
+  color: oklch(0.97 0.01 160);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.15rem;
+  box-shadow: var(--shadow-sm);
+}
+.td-auth-head h1 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.6rem, 3vw, 2rem);
+}
+.td-auth-sub {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.td-auth-error {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.875rem;
+  color: var(--error);
+  background: oklch(0.95 0.03 20);
+  border: 1px solid oklch(0.88 0.05 20);
+  border-radius: var(--r-md);
+  padding: 0.7rem 0.9rem;
+  margin-bottom: 1.1rem;
+}
+.td-auth-error i {
+  font-size: 1rem;
+}
+.td-auth-links {
+  margin-top: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+.td-auth-links a,
+.td-auth-links .td-auth-link {
+  color: var(--ink-2);
+  font-size: 0.9rem;
+  transition: color var(--ease);
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0.3rem;
+  font-family: var(--font-body);
+}
+.td-auth-links a:hover,
+.td-auth-links .td-auth-link:hover {
+  color: var(--primary);
+}
+.td-auth-sep {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 1.25rem 0;
+  color: var(--muted);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.td-auth-sep::before,
+.td-auth-sep::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+.td-auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.td-auth-back {
+  display: block;
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--muted);
+  transition: color var(--ease);
+}
+.td-auth-back:hover {
+  color: var(--primary);
+}
+.td-auth-terms {
+  font-size: 0.85rem;
+  color: var(--ink-2);
+  cursor: pointer;
+  line-height: 1.5;
+}
+.td-auth-terms-muted {
+  color: var(--muted);
+}
+.td-auth-term-link {
+  color: var(--primary);
+  text-decoration: underline;
+  transition: color var(--ease);
+}
+.td-auth-term-link:hover {
+  color: var(--primary-hover);
+}
+.td-auth-google {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--border) !important;
+  border-radius: var(--r-md) !important;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+  transition: border-color var(--ease), color var(--ease) !important;
+}
+.td-auth-google:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+.td-auth-submit {
+  width: 100%;
+  min-height: 48px;
+  border: none !important;
+  border-radius: var(--r-md) !important;
+  background: var(--primary) !important;
+  color: oklch(0.97 0.01 160) !important;
+  font-weight: 600 !important;
+  font-size: 0.95rem !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: background-color var(--ease), box-shadow var(--ease), transform var(--ease) !important;
+}
+.td-auth-submit:hover:not(:disabled) {
+  background: var(--primary-hover) !important;
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-1px);
+}
+.td-auth-submit:disabled {
+  opacity: 0.5;
+}
+
 /* ── PrimeNG con tokens del sistema ── */
 .p-select,
 .p-multiselect {

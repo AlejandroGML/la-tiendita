@@ -1,6 +1,17 @@
-<div class="flex justify-center items-center min-h-[60vh]">
-  <p-card [header]="'auth.signIn' | translate" styleClass="w-full max-w-sm p-4">
-    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-4">
+<div class="td-auth-wrap">
+  <div class="td-auth-card">
+    <div class="td-auth-head">
+      <div class="td-auth-mark">LT</div>
+      <h1 class="display">{{ 'auth.signIn' | translate }}</h1>
+      <p class="td-auth-sub">{{ 'auth.welcomeBack' | translate }}</p>
+    </div>
+
+    <div *ngIf="errorMessage()" class="td-auth-error" role="alert">
+      <i class="pi pi-exclamation-circle"></i>
+      <span>{{ errorMessage() }}</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="td-auth-form">
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
@@ -20,30 +31,29 @@
         <small *ngIf="form.get('password')?.hasError('minlength')" class="p-error block mt-1">{{ 'auth.passwordMinLength' | translate }}</small>
       </div>
 
-      <div *ngIf="errorMessage()" class="text-red-600 text-sm border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded-lg">{{ errorMessage() }}</div>
-
       <p-button
         [label]="'auth.signInButton' | translate"
         severity="primary"
-        styleClass="w-full"
+        styleClass="td-auth-submit"
         type="submit"
         [loading]="submitting()"
         [disabled]="form.invalid || submitting()"
       ></p-button>
     </form>
 
-    <div class="mt-4 flex flex-col gap-2">
-      <p-button
-        [label]="'auth.signInGoogle' | translate"
-        [outlined]="true"
-        styleClass="w-full !h-12"
-        (onClick)="googleLogin()"
-      ></p-button>
-      <a pButton [text]="true" routerLink="/register" class="text-sm">{{ 'auth.noAccount' | translate }} {{ 'auth.register' | translate }}</a>
+    <div class="td-auth-sep">{{ 'auth.orContinueWith' | translate }}</div>
+
+    <p-button
+      [label]="'auth.signInGoogle' | translate"
+      [outlined]="true"
+      styleClass="td-auth-google"
+      (onClick)="googleLogin()"
+    ></p-button>
+
+    <div class="td-auth-links">
+      <a routerLink="/register">{{ 'auth.noAccount' | translate }} {{ 'auth.register' | translate }}</a>
     </div>
 
-    <a routerLink="/" class="block text-center text-sm text-gray-500 mt-4 hover:text-gray-700">
-      &larr; {{ 'common.backToHome' | translate }}
-    </a>
-  </p-card>
+    <a routerLink="/" class="td-auth-back">&larr; {{ 'common.backToHome' | translate }}</a>
+  </div>
 </div>

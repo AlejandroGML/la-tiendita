@@ -477,7 +477,10 @@
     "terms": "Allmänna villkor",
     "privacy": "Integritetspolicy",
     "and": "och",
-    "marketingConsent": "Jag vill få erbjudanden och nyheter via e-post"
+    "marketingConsent": "Jag vill få erbjudanden och nyheter via e-post",
+    "welcomeBack": "Välkommen tillbaka",
+    "orContinueWith": "Eller fortsätt med",
+    "joinSub": "Gå med i en community som ger kläder ett andra liv"
   },
   "session": {
     "expiringTitle": "Sessionen går ut",

@@ -477,7 +477,10 @@
     "terms": "Terms and Conditions",
     "privacy": "Privacy Policy",
     "and": "and the",
-    "marketingConsent": "I want to receive offers and news by email"
+    "marketingConsent": "I want to receive offers and news by email",
+    "welcomeBack": "Welcome back",
+    "orContinueWith": "Or continue with",
+    "joinSub": "Join a community that gives clothes a second life"
   },
   "session": {
     "expiringTitle": "Session expiring",

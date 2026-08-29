@@ -1,6 +1,17 @@
-<div class="flex justify-center items-center min-h-[60vh]">
-  <p-card [header]="'auth.createAccount' | translate" styleClass="w-full max-w-sm p-4">
-    <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4 mt-4">
+<div class="td-auth-wrap">
+  <div class="td-auth-card">
+    <div class="td-auth-head">
+      <div class="td-auth-mark">LT</div>
+      <h1 class="display">{{ 'auth.createAccount' | translate }}</h1>
+      <p class="td-auth-sub">{{ 'auth.joinSub' | translate }}</p>
+    </div>
+
+    <div *ngIf="errorMessage()" class="td-auth-error" role="alert">
+      <i class="pi pi-exclamation-circle"></i>
+      <span>{{ errorMessage() }}</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="td-auth-form">
 
       <div>
         <p-floatLabel variant="on" styleClass="w-full">
@@ -41,23 +52,21 @@
         </small>
       </div>
 
-      <div *ngIf="errorMessage()" class="text-red-600 text-sm border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded-lg">{{ errorMessage() }}</div>
-
       <!-- Terms acceptance -->
-      <div class="flex items-start gap-3 py-2 -my-2">
+      <div class="flex items-start gap-3">
         <p-checkbox formControlName="acceptTerms" [binary]="true" inputId="acceptTerms"></p-checkbox>
-        <label for="acceptTerms" class="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+        <label for="acceptTerms" class="td-auth-terms">
           {{ 'auth.acceptTerms' | translate }}
-          <a routerLink="/terminos" class="text-emerald-600 dark:text-emerald-400 underline">{{ 'auth.terms' | translate }}</a>
+          <a routerLink="/terminos" class="td-auth-term-link">{{ 'auth.terms' | translate }}</a>
           {{ 'auth.and' | translate }}
-          <a routerLink="/privacidad" class="text-emerald-600 dark:text-emerald-400 underline">{{ 'auth.privacy' | translate }}</a>
+          <a routerLink="/privacidad" class="td-auth-term-link">{{ 'auth.privacy' | translate }}</a>
         </label>
       </div>
 
       <!-- Marketing consent -->
-      <div class="flex items-start gap-3 py-2 -my-2">
+      <div class="flex items-start gap-3">
         <p-checkbox formControlName="marketingConsent" [binary]="true" inputId="marketingConsent"></p-checkbox>
-        <label for="marketingConsent" class="text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
+        <label for="marketingConsent" class="td-auth-terms td-auth-terms-muted">
           {{ 'auth.marketingConsent' | translate }}
         </label>
       </div>
@@ -65,19 +74,17 @@
       <p-button
         [label]="'auth.createAccountButton' | translate"
         severity="primary"
-        styleClass="w-full"
+        styleClass="td-auth-submit"
         type="submit"
         [loading]="submitting()"
         [disabled]="form.invalid || submitting()"
       ></p-button>
     </form>
 
-    <div class="mt-4">
-      <a pButton [text]="true" routerLink="/login" class="text-sm">{{ 'auth.hasAccount' | translate }} {{ 'auth.signIn' | translate }}</a>
+    <div class="td-auth-links">
+      <a routerLink="/login">{{ 'auth.hasAccount' | translate }} {{ 'auth.signIn' | translate }}</a>
     </div>
 
-    <a routerLink="/" class="block text-center text-sm text-gray-500 mt-4 hover:text-gray-700">
-      &larr; {{ 'common.backToHome' | translate }}
-    </a>
-  </p-card>
+    <a routerLink="/" class="td-auth-back">&larr; {{ 'common.backToHome' | translate }}</a>
+  </div>
 </div>
