@@ -124,3 +124,4 @@ async def session() -> AsyncSession:
         yield s
         await s.rollback()
     await _engine.dispose()
+

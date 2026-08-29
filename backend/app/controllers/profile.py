@@ -141,12 +141,10 @@ class ProfileController(Controller):
     ) -> dict:
         """Export all user data for GDPR portability (Art. 20)."""
         from app.db.engine import async_session as session_fn
-        from sqlalchemy import select
-        from app.models.cart import CartItem
-        from app.models.review import Review
-        from app.models.wishlist import Wishlist
-        from app.models.order import Order
-        from app.models.order import OrderItem
+        from app.repositories.cart_repository import CartRepository
+        from app.repositories.order_repository import OrderRepository
+        from app.repositories.review_repository import ReviewRepository
+        from app.repositories.wishlist_repository import WishlistRepository
 
         async with session_fn() as session:
             user_id = request.user.id
@@ -155,18 +153,13 @@ class ProfileController(Controller):
             user_data = UserResponse.model_validate(request.user).model_dump()
 
             # Cart items
-            cart_result = await session.execute(
-                select(CartItem).where(CartItem.user_id == user_id)
-            )
             cart_items = [
                 {"product_id": str(c.product_id), "quantity": c.quantity}
-                for c in cart_result.scalars()
+                for c in await CartRepository().get_items(session, user_id=user_id)
             ]
 
             # Reviews
-            review_result = await session.execute(
-                select(Review).where(Review.user_id == user_id)
-            )
+            from app.models.review import Review
             reviews = [
                 {
                     "product_id": str(r.product_id),
@@ -174,21 +167,20 @@ class ProfileController(Controller):
                     "comment": r.comment,
                     "created_at": r.created_at.isoformat(),
                 }
-                for r in review_result.scalars()
+                for r in await ReviewRepository().find_all(
+                    session, Review.user_id == user_id
+                )
             ]
 
             # Wishlist
-            wish_result = await session.execute(
-                select(Wishlist).where(Wishlist.user_id == user_id)
-            )
-            wishlist = [str(w.product_id) for w in wish_result.scalars()]
+            wishlist = [
+                str(w.product_id)
+                for w in await WishlistRepository().get_by_user(session, user_id)
+            ]
 
             # Orders
-            order_result = await session.execute(
-                select(Order).where(Order.user_id == user_id)
-            )
             orders = []
-            for o in order_result.scalars():
+            for o in await OrderRepository().get_by_user(session, user_id):
                 order_data = {
                     "id": str(o.id),
                     "status": o.status.value if hasattr(o.status, 'value') else str(o.status),
