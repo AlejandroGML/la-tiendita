@@ -26,7 +26,6 @@ from app.core.events import AuditAction, AuditEvent, CategoryChangedEvent
 from app.db.engine import async_session as _async_session_fn
 from app.guards.admin_guard import admin_guard
 from app.models.category import Category, CategoryTranslation
-from app.models.product import Product
 from app.repositories.category_repository import CategoryRepository
 from app.schemas.category import CreateCategoryRequest
 from app.serializers.category import (

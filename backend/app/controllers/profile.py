@@ -100,47 +100,35 @@ class ProfileController(Controller):
     ) -> None:
         """Delete the authenticated user's own account and all associated data."""
         from app.db.engine import async_session as session_fn
-        from sqlalchemy import select, update as sa_update
-        from app.models.cart import CartItem
-        from app.models.review import Review
-        from app.models.wishlist import Wishlist
-        from app.models.refresh_token import RefreshToken
-        from app.models.password_reset import PasswordResetToken
-        from app.models.order import Order
-        from app.models.audit_log import AuditLog
+        from app.repositories.audit_repository import AuditRepository
+        from app.repositories.cart_repository import CartRepository
+        from app.repositories.order_repository import OrderRepository
+        from app.repositories.password_reset_token_repository import (
+            PasswordResetTokenRepository,
+        )
+        from app.repositories.refresh_token_repository import RefreshTokenRepository
+        from app.repositories.review_repository import ReviewRepository
         from app.repositories.user_repository import UserRepository
+        from app.repositories.wishlist_repository import WishlistRepository
 
         async with session_fn() as session:
             user_id = request.user.id
 
-            # Delete related records
-            for model, fk in [
-                (CartItem, "user_id"),
-                (Review, "user_id"),
-                (Wishlist, "user_id"),
-                (RefreshToken, "user_id"),
-                (PasswordResetToken, "user_id"),
-            ]:
-                stmt = select(model).where(getattr(model, fk) == user_id)
-                result = await session.execute(stmt)
-                for row in result.scalars():
-                    await session.delete(row)
+            # Delete related records via repositories (no inline SQL)
+            await CartRepository().clear_scope(session, user_id=user_id)
+            await ReviewRepository().delete_by_user(session, user_id)
+            await WishlistRepository().delete_by_user(session, user_id)
+            await RefreshTokenRepository().delete_user_tokens(session, user_id)
+            await PasswordResetTokenRepository().delete_by_user(session, user_id)
 
             # Nullify orders.user_id (keep order history for accounting)
-            await session.execute(
-                sa_update(Order).where(Order.user_id == user_id).values(user_id=None)
-            )
+            await OrderRepository().unassign_user(session, user_id)
 
             # Delete audit logs
-            audit_result = await session.execute(
-                select(AuditLog).where(AuditLog.actor_id == user_id)
-            )
-            for row in audit_result.scalars():
-                await session.delete(row)
+            await AuditRepository().delete_by_actor(session, user_id)
 
             # Delete user
-            repo = UserRepository()
-            db_user = await repo.get_by_id(session, user_id)
+            db_user = await UserRepository().get_by_id(session, user_id)
             if db_user:
                 await session.delete(db_user)
 
