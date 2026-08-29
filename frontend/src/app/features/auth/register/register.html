@@ -44,7 +44,7 @@
       <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage | translate }}</div>
 
       <!-- Terms acceptance -->
-      <div class="flex items-start gap-2">
+      <div class="flex items-start gap-3 py-2 -my-2">
         <p-checkbox formControlName="acceptTerms" [binary]="true" inputId="acceptTerms"></p-checkbox>
         <label for="acceptTerms" class="text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
           {{ 'auth.acceptTerms' | translate }}
@@ -55,7 +55,7 @@
       </div>
 
       <!-- Marketing consent -->
-      <div class="flex items-start gap-2">
+      <div class="flex items-start gap-3 py-2 -my-2">
         <p-checkbox formControlName="marketingConsent" [binary]="true" inputId="marketingConsent"></p-checkbox>
         <label for="marketingConsent" class="text-sm text-gray-500 dark:text-gray-400 cursor-pointer">
           {{ 'auth.marketingConsent' | translate }}

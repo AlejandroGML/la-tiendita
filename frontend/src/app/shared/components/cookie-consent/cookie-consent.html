@@ -6,10 +6,12 @@
         <a routerLink="/privacidad" class="text-emerald-600 dark:text-emerald-400 underline ml-1">{{ 'cookie.moreInfo' | translate }}</a>.
       </p>
     </div>
-    <div class="flex flex-wrap gap-2 shrink-0">
+    <div class="flex flex-wrap gap-3 shrink-0 w-full sm:w-auto">
+      <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
       <p-button [label]="'cookie.essential' | translate" severity="secondary" [outlined]="true" (click)="acceptEssential()"></p-button>
       <p-button [label]="'cookie.customize' | translate" severity="secondary" (click)="openPreferences()"></p-button>
       <p-button [label]="'cookie.acceptAll' | translate" severity="primary" (click)="acceptAll()"></p-button>
+      </div>
     </div>
   </div>
 </div>

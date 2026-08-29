@@ -1,7 +1,7 @@
 <div class="relative">
   <button type="button"
           (click)="currencyOpen = !currencyOpen"
-          class="relative px-2 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800"
+          class="relative px-2.5 min-h-11 min-w-11 flex items-center justify-center text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800"
           [attr.aria-label]="'header.cambiarMoneda' | translate">
     <span>{{ currencyService.symbol }}</span>
   </button>

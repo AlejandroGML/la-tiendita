@@ -8,8 +8,8 @@
   [containerStyle]="{'max-width': '100%'}"
 >
   <ng-template pTemplate="item" let-item>
-    <div class="overflow-hidden rounded-lg">
-      <img appImageZoom [src]="item" [alt]="alt" class="w-full h-64 md:h-96 object-cover bg-gray-50" />
+    <div class="w-full">
+      <img appImageZoom [src]="item" [alt]="alt" class="w-full h-80 md:h-[28rem] object-cover bg-gray-50 rounded-xl" />
     </div>
   </ng-template>
   <ng-template pTemplate="thumbnail" let-item>

@@ -246,4 +246,34 @@
     <!-- Sizing Guide Dialog -->
     <app-sizing-guide></app-sizing-guide>
   </ng-container>
+
+  <!-- Sticky mobile buy bar: always-visible Add-to-Cart on small screens -->
+  <ng-container *ngIf="product()">
+    <div class="fixed bottom-0 inset-x-0 z-[60] lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
+      <div class="flex items-center gap-3">
+        <div class="min-w-0">
+          <p class="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+            {{ displayName }}
+          </p>
+          <p class="text-emerald-600 dark:text-emerald-400 font-bold">
+            <ng-container *ngIf="product()?.sale_price != null; else noDisc">
+              {{ product()?.sale_price | currency }}
+            </ng-container>
+            <ng-template #noDisc>{{ product()?.price | currency }}</ng-template>
+          </p>
+        </div>
+        <button
+          pButton
+          class="flex-1 min-h-12"
+          [disabled]="!canAddToCart()"
+          (click)="addToCart()"
+        >
+          {{ 'product.addToCart' | translate }}
+        </button>
+      </div>
+    </div>
+  </ng-container>
 </div>
+
+<!-- Spacer so the sticky bar doesn't cover page content on mobile -->
+<div class="lg:hidden h-20" aria-hidden="true"></div>
