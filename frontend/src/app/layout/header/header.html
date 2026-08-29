@@ -1,64 +1,42 @@
-<header class="bg-white dark:bg-gray-950 shadow-sm dark:shadow-gray-900/50 border-b border-gray-100 dark:border-gray-800 transition-colors duration-200">
-  <!-- ════════════════════════════════════════════ -->
-  <!-- ROW 1 — Main Bar (Logo + Search + Icons)    -->
-  <!-- ════════════════════════════════════════════ -->
-  <div class="border-b border-gray-100 dark:border-gray-800">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-14 gap-3 lg:gap-6">
+<header class="td-header">
+  <div class="container">
+    <div class="td-header-bar">
 
-        <!-- Logo -->
-        <a routerLink="/" class="flex items-center gap-2 flex-shrink-0 group">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500 to-emerald-700 flex items-center justify-center text-white font-extrabold text-sm shadow-sm group-hover:shadow-md group-hover:scale-105 transition-all duration-200">
-            LT
-          </div>
-          <span class="hidden sm:block text-lg font-bold text-gray-900 dark:text-gray-100">{{ 'header.title' | translate }}</span>
-        </a>
+      <!-- Logo -->
+      <a routerLink="/" class="td-logo">
+        <span class="td-logo-mark">LT</span>
+        <span class="td-logo-name">{{ 'header.title' | translate }}</span>
+      </a>
 
-        <!-- Search — Desktop -->
-        <div class="hidden md:flex flex-1 max-w-lg lg:max-w-xl">
-          <app-search-bar (search)="onSearch($event)"></app-search-bar>
-        </div>
-
-        <!-- Right Icons -->
-        <nav aria-label="Navegación principal" class="flex items-center gap-0.5 sm:gap-1">
-
-          <!-- Help — Desktop -->
-           <a routerLink="/ayuda"
-              class="hidden lg:inline-flex items-center gap-1.5 px-3 py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800 min-h-[44px]">
-            <span [innerHTML]="'headphones' | svgIcon:'w-4 h-4'"></span>
-            <span class="text-xs font-medium">{{ 'nav.ayuda' | translate }}</span>
-          </a>
-
-          <span class="hidden sm:inline-flex">
-          <app-wishlist-badge></app-wishlist-badge>
-          </span>
-          <app-cart-badge class="hidden sm:inline-flex"></app-cart-badge>
-          <app-user-menu class="hidden sm:inline-flex"></app-user-menu>
-          <app-language-switcher class="inline-flex"></app-language-switcher>
-          <app-currency-switcher class="inline-flex"></app-currency-switcher>
-          <app-theme-toggle class="inline-flex"></app-theme-toggle>
-
-          <!-- Hamburger — Mobile -->
-          <button type="button"
-                  (click)="mobileOpen = !mobileOpen"
-                  class="lg:hidden p-2 text-gray-500 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors rounded-lg hover:bg-emerald-50 dark:hover:bg-gray-800 active:bg-emerald-100 dark:active:bg-gray-700"
-                  [attr.aria-label]="'header.menu' | translate">
-            <span [innerHTML]="(mobileOpen ? 'x' : 'menu') | svgIcon"></span>
-          </button>
-        </nav>
+      <!-- Search — Desktop -->
+      <div class="td-search">
+        <app-search-bar (search)="onSearch($event)"></app-search-bar>
       </div>
+
+      <!-- Actions -->
+      <nav class="td-header-actions" aria-label="Navegación principal">
+        <app-wishlist-badge class="hide-m"></app-wishlist-badge>
+        <app-cart-badge></app-cart-badge>
+        <app-user-menu class="hide-m"></app-user-menu>
+        <app-language-switcher class="hide-m"></app-language-switcher>
+        <app-currency-switcher class="hide-m"></app-currency-switcher>
+        <app-theme-toggle></app-theme-toggle>
+
+        <!-- Hamburger — Mobile -->
+        <button type="button"
+                class="td-icon-btn td-hamburger"
+                (click)="mobileOpen = !mobileOpen"
+                [attr.aria-label]="'header.menu' | translate">
+          <span [innerHTML]="(mobileOpen ? 'x' : 'menu') | svgIcon"></span>
+        </button>
+      </nav>
     </div>
+
+    <!-- Category nav + mega menu -->
+    <app-navigation></app-navigation>
   </div>
 
-  <!-- ════════════════════════════════════════════ -->
-  <!-- ROW 2 — Category Nav with Mega Menu         -->
-  <!-- ROW 3 — Gender Tabs                        -->
-  <!-- ════════════════════════════════════════════ -->
-  <app-navigation></app-navigation>
-
-  <!-- ════════════════════════════════════════════ -->
-  <!-- Mobile Menu (slide-down)                   -->
-  <!-- ════════════════════════════════════════════ -->
+  <!-- Mobile Menu (slide-down) -->
   <app-mobile-menu [isOpen]="mobileOpen"
                    [categories]="categories"
                    (closed)="onMobileClosed()"></app-mobile-menu>

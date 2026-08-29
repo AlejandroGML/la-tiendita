@@ -5,8 +5,7 @@
   <!-- Categories trigger button -->
   <button type="button"
           (click)="toggleMega()"
-          class="flex items-center gap-2 px-4 py-2 text-sm font-bold text-white shadow-sm rounded-full transition-all duration-200"
-          style="background: linear-gradient(135deg, #059669, #047857);">
+          class="td-mega-trigger">
     <i class="pi pi-th-large text-base"></i>
     <span>{{ 'header.categorias' | translate }}</span>
     <i class="text-xs transition-transform duration-200" [ngClass]="megaOpen ? 'pi pi-chevron-up' : 'pi pi-chevron-down'"></i>
@@ -16,42 +15,36 @@
   <div *ngIf="megaOpen"
        (mouseenter)="onMegaEnter()"
        (mouseleave)="closeMegaPanel()"
-       class="absolute top-full left-0 mt-2 w-[720px] max-w-[calc(100vw-2rem)] bg-white dark:bg-gray-900 rounded-2xl shadow-xl dark:shadow-gray-900/80 border border-gray-100 dark:border-gray-700 z-[60] overflow-hidden mega-panel">
+       class="td-mega-panel mega-panel-enter">
 
-    <div class="grid grid-cols-4 gap-0">
+    <div class="td-mega-grid">
       <!-- Category columns (3 columns) -->
-      <div class="col-span-3 grid grid-cols-3 gap-px bg-gray-100 dark:bg-gray-800">
-        <div *ngFor="let group of categoryGroups" class="bg-white dark:bg-gray-900 p-5">
-          <h3 class="text-[11px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3">{{ group.label }}</h3>
+      <div class="td-mega-cols">
+        <div *ngFor="let group of categoryGroups" class="td-mega-col">
+          <h3>{{ group.label }}</h3>
           <div class="space-y-0.5">
             <a *ngFor="let cat of group.items"
                [routerLink]="['/productos']"
                [queryParams]="{category_id: cat.id}"
-               class="flex items-center gap-2 px-2 py-1.5 text-sm text-gray-600 dark:text-gray-400 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-gray-800 rounded-lg transition-colors mega-link">
+               class="td-mega-link">
               <i [ngClass]="'pi ' + getCategoryIcon(cat.slug)" class="text-base flex-shrink-0"></i>
-               <span class="truncate">{{ cat.name || cat.slug }}</span>
+              <span class="truncate">{{ cat.name || cat.slug }}</span>
             </a>
           </div>
         </div>
       </div>
 
       <!-- Promo panel -->
-      <div class="col-span-1 bg-gradient-to-b from-amber-50 via-amber-50/70 to-white dark:from-gray-800 dark:via-gray-800/70 dark:to-gray-900 p-5 flex flex-col justify-between border-l border-gray-100 dark:border-gray-700">
+      <div class="td-mega-promo">
         <div>
-          <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 text-[10px] font-semibold rounded-full uppercase tracking-wide">
+          <span class="td-chip">
             <span [innerHTML]="'sparkles' | svgIcon:'w-3 h-3'"></span>
             {{ 'nav.nuevo' | translate }}
           </span>
-          <h4 class="mt-3 text-sm font-bold text-gray-800 dark:text-gray-100" [innerHTML]="'header.coleccionPrimavera' | translate"></h4>
-          <p class="mt-1 text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-            {{ 'header.renuevaEstilo' | translate }}
-          </p>
-          <div class="mt-3 inline-flex items-center gap-1 px-2 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 text-[10px] font-bold rounded-full">
-            {{ 'header.hasta40' | translate }}
-          </div>
+          <h4 [innerHTML]="'header.coleccionPrimavera' | translate"></h4>
+          <p>{{ 'header.renuevaEstilo' | translate }}</p>
         </div>
-        <a routerLink="/productos"
-           class="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300 mt-4 transition-colors">
+        <a routerLink="/productos" class="td-link-more">
           {{ 'header.verTodo' | translate }}
           <span [innerHTML]="'arrowRight' | svgIcon:'w-4 h-4'"></span>
         </a>

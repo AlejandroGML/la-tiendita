@@ -1,24 +1,19 @@
-<div class="search-bar flex items-center gap-2 w-full max-w-md">
-  <p-iconField class="w-full">
-    <p-inputIcon styleClass="pi pi-search text-gray-400" />
-    <input
-      pInputText
-      type="text"
-      [placeholder]="'catalog.search' | translate"
-      [attr.aria-label]="'catalog.search' | translate"
-      (input)="onInput($any($event.target).value)"
-      autocomplete="off"
-      list="suggestions"
-    />
-    <datalist id="suggestions">
-      <option value="Vestido">Vestido</option>
-      <option value="Chaqueta">Chaqueta</option>
-      <option value="Camiseta">Camiseta</option>
-      <option value="Jeans">Jeans</option>
-      <option value="Sweater">Sweater</option>
-      <option value="Zapatos">Zapatos</option>
-      <option value="Blusa">Blusa</option>
-      <option value="Falda">Falda</option>
-    </datalist>
-  </p-iconField>
+<div class="td-search">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+  <input type="search"
+         [placeholder]="'catalog.search' | translate"
+         [attr.aria-label]="'catalog.search' | translate"
+         (input)="onInput($any($event.target).value)"
+         autocomplete="off"
+         list="suggestions" />
+  <datalist id="suggestions">
+    <option value="Vestido">Vestido</option>
+    <option value="Chaqueta">Chaqueta</option>
+    <option value="Camiseta">Camiseta</option>
+    <option value="Jeans">Jeans</option>
+    <option value="Sweater">Sweater</option>
+    <option value="Zapatos">Zapatos</option>
+    <option value="Blusa">Blusa</option>
+    <option value="Falda">Falda</option>
+  </datalist>
 </div>

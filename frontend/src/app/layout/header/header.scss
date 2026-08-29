@@ -1,14 +1,505 @@
 /* ═══════════════════════════════════════════════
-   Header — TiendaVirtual
-   Mega menu marketplace con paleta primaveral
+   Header — "Thrift Editorial"
+   Estructura del contrato visual (tiendita.css):
+   logo serif + search pill + icon buttons 44px + nav row
    ═══════════════════════════════════════════════ */
 
-/* ── Mega menu entrance animation ── */
+.td-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.td-header-bar {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  height: 64px;
+}
+
+/* ── Logo ── */
+.td-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+.td-logo-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-sm);
+  background: var(--primary);
+  color: oklch(0.97 0.01 160);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  box-shadow: var(--shadow-sm);
+  transition: transform var(--ease);
+}
+.td-logo:hover .td-logo-mark {
+  transform: scale(1.05);
+}
+.td-logo-name {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.25rem;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+/* ── Search (desktop) ── */
+.td-search {
+  flex: 1;
+  max-width: 560px;
+  position: relative;
+}
+.td-search input {
+  width: 100%;
+  height: 44px;
+  padding: 0 1rem 0 2.75rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--bg);
+  outline: none;
+  color: var(--ink);
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+.td-search input::placeholder {
+  color: var(--muted);
+}
+.td-search input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.td-search > svg,
+:host ::ng-deep .td-search > svg {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  pointer-events: none;
+}
+
+/* ── Action icon buttons ── */
+.td-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+}
+:host ::ng-deep .td-icon-btn {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  display: inline-grid;
+  place-items: center;
+  border: none;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--ink-2);
+  transition: background-color var(--ease), color var(--ease);
+}
+:host ::ng-deep .td-icon-btn:hover {
+  background: var(--surface-2);
+  color: var(--primary);
+}
+:host ::ng-deep .td-icon-btn svg {
+  width: 21px;
+  height: 21px;
+}
+:host ::ng-deep .td-icon-btn .pi {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+:host ::ng-deep .td-icon-btn .count {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  min-width: 17px;
+  height: 17px;
+  padding-inline: 4px;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+  color: #fff;
+  font-size: 0.66rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+:host ::ng-deep .td-icon-btn .lang-badge {
+  position: absolute;
+  bottom: 3px;
+  right: 4px;
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--primary);
+  background: var(--primary-soft);
+  border-radius: 4px;
+  padding: 0 3px;
+  line-height: 1.3;
+}
+
+.td-hamburger {
+  display: none;
+}
+
+/* ── Nav row ── */
+.td-nav {
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+}
+.td-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.td-nav-row::-webkit-scrollbar {
+  display: none;
+}
+:host ::ng-deep .td-nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.7rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  border-radius: var(--r-sm);
+  white-space: nowrap;
+  transition: color var(--ease), background-color var(--ease);
+}
+:host ::ng-deep .td-nav-link:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+:host ::ng-deep .td-nav-link.active,
+:host ::ng-deep .td-nav-link.is-active {
+  color: var(--primary);
+}
+:host ::ng-deep .td-nav-link svg {
+  width: 14px;
+  height: 14px;
+  color: var(--muted);
+}
+
+/* ── Mega menu trigger + panel ── */
+:host ::ng-deep .td-mega-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  min-height: 44px;
+  padding: 0 1.1rem;
+  margin-right: 0.5rem;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--primary);
+  color: oklch(0.97 0.01 160);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.875rem;
+  box-shadow: var(--shadow-sm);
+  transition: background-color var(--ease), box-shadow var(--ease);
+}
+:host ::ng-deep .td-mega-trigger:hover {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-md);
+}
+:host ::ng-deep .td-mega-panel {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  width: 720px;
+  max-width: calc(100vw - 2rem);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  z-index: 60;
+  overflow: hidden;
+}
+:host ::ng-deep .td-mega-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+:host ::ng-deep .td-mega-cols {
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+:host ::ng-deep .td-mega-col {
+  background: var(--surface);
+  padding: 1.25rem;
+}
+:host ::ng-deep .td-mega-col h3 {
+  margin: 0 0 0.75rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+:host ::ng-deep .td-mega-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: var(--r-sm);
+  font-size: 0.9rem;
+  color: var(--ink-2);
+  transition: background-color var(--ease), color var(--ease);
+}
+:host ::ng-deep .td-mega-link:hover {
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+:host ::ng-deep .td-mega-link .pi {
+  font-size: 1rem;
+}
+:host ::ng-deep .td-mega-promo {
+  background: var(--primary-soft);
+  border-left: 1px solid var(--border);
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+:host ::ng-deep .td-mega-promo h4 {
+  margin: 0.6rem 0 0.25rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+:host ::ng-deep .td-mega-promo p {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  line-height: 1.5;
+}
+:host ::ng-deep .td-mega-promo .td-link-more {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-top: 1rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--primary);
+}
+
+/* ── Dropdowns (idioma / moneda / usuario) ── */
+:host ::ng-deep .td-dropdown {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  min-width: 176px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 0.35rem;
+  z-index: 60;
+  overflow: hidden;
+}
+:host ::ng-deep .td-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: none;
+  border-radius: var(--r-md);
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  text-align: left;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: background-color var(--ease), color var(--ease);
+}
+:host ::ng-deep .td-dropdown-item:hover {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+:host ::ng-deep .td-dropdown-item.is-on {
+  color: var(--primary);
+  font-weight: 600;
+}
+:host ::ng-deep .td-dropdown-item.is-danger:hover {
+  background: oklch(0.94 0.03 20);
+  color: var(--error);
+}
+:host ::ng-deep .td-dropdown-item .lang-flag {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 0.65rem;
+  font-weight: 800;
+  background: var(--surface-2);
+  color: var(--ink-2);
+}
+:host ::ng-deep .td-dropdown-item.is-on .lang-flag {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+:host ::ng-deep .td-dropdown-sep {
+  height: 1px;
+  background: var(--border);
+  margin: 0.3rem 0.4rem;
+}
+:host ::ng-deep .td-dropdown-head {
+  padding: 0.5rem 0.7rem 0.45rem;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.3rem;
+}
+:host ::ng-deep .td-dropdown-head p {
+  margin: 0;
+}
+:host ::ng-deep .td-dropdown-head .name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:host ::ng-deep .td-dropdown-head .email {
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Chip genérico del sistema ── */
+:host ::ng-deep .td-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.18rem 0.6rem;
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* ── Gender tabs ── */
+.td-gender-tabs {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-left: auto;
+  padding-left: 1rem;
+}
+.td-gender-tab {
+  position: relative;
+  padding: 0.6rem 0.85rem;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: color var(--ease), background-color var(--ease);
+}
+.td-gender-tab:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+.td-gender-tab.is-on {
+  color: var(--primary);
+}
+.td-gender-tab.is-on::after {
+  content: '';
+  position: absolute;
+  left: 0.85rem;
+  right: 0.85rem;
+  bottom: 0.15rem;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--primary);
+}
+
+/* ── Mobile menu ── */
+:host ::ng-deep .td-mobile-menu {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  padding: 0.75rem var(--gutter) 1.25rem;
+}
+:host ::ng-deep .td-mobile-search {
+  display: block;
+  margin-bottom: 0.75rem;
+  max-width: none;
+}
+:host ::ng-deep .td-mobile-menu .td-mobile-section-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.75rem 0.35rem 0.4rem;
+}
+:host ::ng-deep .td-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.7rem 0.35rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  border-bottom: 1px solid var(--border);
+  transition: color var(--ease);
+}
+:host ::ng-deep .td-mobile-link:hover {
+  color: var(--primary);
+}
+:host ::ng-deep .td-mobile-link svg {
+  width: 18px;
+  height: 18px;
+  color: var(--primary);
+}
+:host ::ng-deep .td-mobile-link:last-child {
+  border-bottom: none;
+}
+:host ::ng-deep .td-mobile-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-height: 36px;
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-pill);
+  background: var(--surface);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  transition: border-color var(--ease), color var(--ease);
+}
+:host ::ng-deep .td-mobile-chip:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+/* ── Animaciones existentes ── */
 :host ::ng-deep .mega-panel-enter {
   animation: megaFadeIn 0.2s ease-out;
   transform-origin: top center;
 }
-
 @keyframes megaFadeIn {
   from {
     opacity: 0;
@@ -19,12 +510,9 @@
     transform: translateY(0) scale(1);
   }
 }
-
-/* ── Mobile menu slide ── */
 :host ::ng-deep .mobile-slide {
   animation: mobileSlideDown 0.25s ease-out;
 }
-
 @keyframes mobileSlideDown {
   from {
     opacity: 0;
@@ -35,68 +523,43 @@
     max-height: 80vh;
   }
 }
-
-/* ── Hide scrollbar on category row (desktop) ── */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-  &::-webkit-scrollbar {
-    display: none;
-  }
-}
-
-/* ── Smooth badge bounce ── */
 :host ::ng-deep .badge-bounce {
   animation: badgePop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-
 @keyframes badgePop {
-  0% { transform: scale(0); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
-}
-
-/* ── Icon button hover glow ── */
-.icon-btn {
-  @apply relative transition-all duration-200;
-
-  &::after {
-    content: '';
-    @apply absolute inset-0 rounded-lg opacity-0 transition-opacity duration-200;
+  0% {
+    transform: scale(0);
   }
-
-  &:hover::after {
-    @apply opacity-100;
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
   }
 }
 
-/* ── Search input focus ring (p-inputtext override) ── */
-:host ::ng-deep input[pinputtext]:focus {
-  box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.15) !important;
-  border-color: #059669 !important;
-}
+/* ── Responsive ── */
 
-/* ── Mega menu column link hover ── */
-.mega-link {
-  @apply relative overflow-hidden;
-
-  &::before {
-    content: '';
-    @apply absolute inset-0 bg-emerald-50 opacity-0 transition-opacity duration-150 rounded-lg;
-  }
-
-  &:hover::before {
-    @apply opacity-100;
-  }
-}
-
-/* ── Responsive tweaks ── */
-
-/* Tablet: reduce mega menu width */
+/* Tablet: hamburger visible, mega panel más angosto */
 @media (max-width: 1024px) {
-  :host ::ng-deep .mega-panel {
+  .td-hamburger {
+    display: inline-grid;
+  }
+  :host ::ng-deep .td-mega-panel {
     width: 600px !important;
   }
 }
 
-/* Dark mode adjustments handled by Tailwind dark: */
+/* Mobile: ocultar search del header (el mobile menu tiene el suyo) */
+@media (max-width: 767px) {
+  .td-search {
+    display: none;
+  }
+}
+
+/* Móvil compacto: ocultar acciones secundarias */
+@media (max-width: 720px) {
+  .hide-m {
+    display: none !important;
+  }
+}
