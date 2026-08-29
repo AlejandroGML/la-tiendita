@@ -245,7 +245,10 @@
     "dismiss": "Cerrar",
     "guestWarning": "Tu carrito es temporal — regístrate para guardarlo y acceder desde cualquier dispositivo",
     "createAccount": "Crear cuenta",
-    "signIn": "Iniciar sesión"
+    "signIn": "Iniciar sesión",
+    "summary": "Resumen",
+    "total": "Total",
+    "summaryNote": "Impuestos incluidos · Envío calculado en el checkout"
   },
   "checkout": {
     "title": "Finalizar Compra",

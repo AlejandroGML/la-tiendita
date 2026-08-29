@@ -245,7 +245,10 @@
     "dismiss": "Dismiss",
     "guestWarning": "Your cart is temporary — create an account to save it and access from any device",
     "createAccount": "Create account",
-    "signIn": "Sign in"
+    "signIn": "Sign in",
+    "summary": "Summary",
+    "total": "Total",
+    "summaryNote": "Taxes included · Shipping calculated at checkout"
   },
   "checkout": {
     "title": "Checkout",

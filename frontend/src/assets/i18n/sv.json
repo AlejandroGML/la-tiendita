@@ -245,7 +245,10 @@
     "dismiss": "Stäng",
     "guestWarning": "Din varukorg är tillfällig — skapa ett konto för att spara den och komma åt från vilken enhet som helst",
     "createAccount": "Skapa konto",
-    "signIn": "Logga in"
+    "signIn": "Logga in",
+    "summary": "Sammanfattning",
+    "total": "Totalt",
+    "summaryNote": "Moms ingår · Frakt beräknas i kassan"
   },
   "checkout": {
     "title": "Kassa",

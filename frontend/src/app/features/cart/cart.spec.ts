@@ -98,12 +98,10 @@ describe('CartComponent', () => {
     expect(h1.textContent).toContain('cart.title');
   });
 
-  it('should render table with cart items', () => {
-    const rows = fixture.nativeElement.querySelectorAll(
-      '[data-testid="cart-table"] tr',
-    );
-    // p-table: 1 header row + 2 data rows (no footer)
-    expect(rows.length).toBe(3);
+  it('should render cart lines', () => {
+    const rows = fixture.nativeElement.querySelectorAll('.td-cart-line');
+    // 2 data rows (mock cart has 2 items)
+    expect(rows.length).toBe(2);
   });
 
   it('should display product names', () => {
@@ -138,7 +136,7 @@ describe('CartComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const errorEl = fixture.nativeElement.querySelector('.text-red-600');
+    const errorEl = fixture.nativeElement.querySelector('.td-empty');
     expect(errorEl).toBeTruthy();
   });
 

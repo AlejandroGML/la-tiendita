@@ -1,297 +1,202 @@
-<div class="cart-page min-h-screen" data-testid="cart-page">
-  <div class="mb-6">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ 'cart.title' | translate }}</h1>
-  </div>
+<div class="cart-page" data-testid="cart-page">
+  <div class="container section" style="padding-top: 2rem">
 
-  <!-- Guest ephemeral cart warning -->
-  <div
-    *ngIf="isGuest()"
-    class="mb-6 bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700 rounded-lg p-4 flex items-center justify-between flex-wrap gap-3"
-    data-testid="cart-guest-banner"
-  >
-    <div class="flex items-center gap-3">
-      <i class="pi pi-info-circle text-amber-600 dark:text-amber-400 text-xl"></i>
-      <p class="text-amber-800 dark:text-amber-200 font-medium">{{ 'cart.guestWarning' | translate }}</p>
-    </div>
-    <div class="flex gap-2">
-      <a pButton severity="secondary" [routerLink]="['/login']" styleClass="!bg-white dark:!bg-gray-700 !text-gray-700 dark:!text-gray-200 !border-gray-300 dark:!border-gray-600">{{ 'cart.signIn' | translate }}</a>
-      <a pButton severity="warn" [routerLink]="['/register']">{{ 'cart.createAccount' | translate }}</a>
-    </div>
-  </div>
+    <!-- Breadcrumb -->
+    <nav class="td-breadcrumb" aria-label="Miga de pan">
+      <a routerLink="/">{{ 'nav.home' | translate }}</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      <span class="here">{{ 'cart.title' | translate }}</span>
+    </nav>
 
-  <!-- Cancelled payment banner -->
-  <div
-    *ngIf="showCancelledBanner()"
-    class="mb-6 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center justify-between"
-    data-testid="cart-cancelled-banner"
-  >
-    <div class="flex items-center gap-3">
-      <i class="pi pi-info-circle text-amber-600 text-xl"></i>
-      <p class="text-amber-800 font-medium">{{ 'cart.paymentCancelled' | translate }}</p>
-    </div>
-    <p-button
-      icon="pi pi-times"
-      [rounded]="true"
-      [text]="true"
-      severity="secondary"
-      (onClick)="dismissBanner()"
-      [attr.aria-label]="'cart.dismiss' | translate"
-    ></p-button>
-  </div>
-
-  <!-- Loading state -->
-  <div *ngIf="loading()" class="flex justify-center py-16">
-    <p-progressSpinner
-      [style]="{ width: '48px', height: '48px' }"
-      strokeWidth="4"
-    ></p-progressSpinner>
-  </div>
-
-  <!-- Error state -->
-  <div *ngIf="error() && !loading()" class="text-center py-16">
-    <p class="text-red-600 text-lg">{{ error() | translate }}</p>
-    <p-button
-      [label]="'cart.retry' | translate"
-      severity="primary"
-      styleClass="mt-4"
-      (onClick)="loadCart()"
-    ></p-button>
-  </div>
-
-  <!-- Empty state -->
-  <div
-    *ngIf="!loading() && !error() && items().length === 0"
-    class="text-center py-16"
-    data-testid="cart-empty"
-  >
-    <i class="pi pi-shopping-cart text-6xl text-gray-300 dark:text-gray-600 mb-4 block"></i>
-    <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'cart.empty' | translate }}</p>
-    <a
-      pButton
-      severity="primary"
-      class="mt-4"
-      [routerLink]="['/productos']"
+    <!-- Guest ephemeral cart warning -->
+    <div
+      *ngIf="isGuest()"
+      class="td-banner td-banner-warn"
+      data-testid="cart-guest-banner"
     >
-      {{ 'cart.continueShopping' | translate }}
-    </a>
-  </div>
-
-  <!-- Cart table — Desktop -->
-  <div *ngIf="!loading() && !error() && items().length > 0" data-testid="cart-table" class="hidden lg:block">
-    <div class="overflow-x-auto bg-white dark:bg-gray-800 rounded-lg shadow">
-      <p-table [value]="items()" styleClass="w-full">
-        <ng-template pTemplate="header">
-          <tr>
-            <th>{{ 'cart.product' | translate }}</th>
-            <th class="text-center">{{ 'cart.quantity' | translate }}</th>
-            <th>{{ 'cart.price' | translate }}</th>
-            <th>{{ 'cart.subtotal' | translate }}</th>
-            <th></th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-item>
-          <tr>
-            <td class="py-3">
-              <div class="flex items-center gap-3">
-                <a [routerLink]="['/productos', item.product_slug || item.product_id]" class="shrink-0">
-                  <img
-                    *ngIf="item.image_url"
-                    [src]="item.image_url"
-                    [alt]="item.product_name"
-                    class="w-16 h-16 object-cover rounded-lg bg-gray-100 dark:bg-gray-700 hover:opacity-80 transition-opacity"
-                    loading="lazy"
-                  />
-                </a>
-                <div>
-                  <a [routerLink]="['/productos', item.product_slug || item.product_id]" class="font-medium hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                    {{ item.product_name }}
-                  </a>
-                  <span
-                    *ngIf="item.size || item.color"
-                    class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5"
-                  >
-                    <ng-container *ngIf="item.size">{{ item.size }}</ng-container>
-                    <ng-container *ngIf="item.size && item.color"> / </ng-container>
-                    <ng-container *ngIf="item.color">{{ item.color }}</ng-container>
-                  </span>
-                </div>
-              </div>
-            </td>
-            <td class="text-center">
-              <div class="flex items-center justify-center gap-1">
-                <p-button
-                  icon="pi pi-minus"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="primary"
-                  [disabled]="loading()"
-                  (onClick)="decreaseQuantity(item)"
-                  [attr.aria-label]="'cart.decrease' | translate"
-                ></p-button>
-                <span class="w-10 text-center font-medium">{{ item.quantity }}</span>
-                <p-button
-                  icon="pi pi-plus"
-                  [rounded]="true"
-                  [text]="true"
-                  severity="primary"
-                  [disabled]="loading()"
-                  (onClick)="increaseQuantity(item)"
-                  [attr.aria-label]="'cart.increase' | translate"
-                ></p-button>
-              </div>
-            </td>
-            <td>
-              <ng-container *ngIf="item.savings; else noItemDiscount">
-                <span class="line-through text-gray-400 dark:text-gray-500 text-sm block">{{ item.original_unit_price | currency }}</span>
-                <span class="text-red-600 font-medium">{{ item.unit_price | currency }}</span>
-              </ng-container>
-              <ng-template #noItemDiscount>
-                {{ item.unit_price | currency }}
-              </ng-template>
-            </td>
-            <td class="font-medium">{{ item.subtotal | currency }}</td>
-            <td>
-              <p-button
-                icon="pi pi-trash"
-                [rounded]="true"
-                [text]="true"
-                severity="danger"
-                [disabled]="loading()"
-                (onClick)="confirmRemove(item)"
-                [attr.aria-label]="'cart.remove' | translate"
-              ></p-button>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
-    </div>
-  </div>
-
-  <!-- Cart items — Mobile (stacked cards) -->
-  <div *ngIf="!loading() && !error() && items().length > 0" class="lg:hidden flex flex-col gap-4" data-testid="cart-mobile">
-    <div *ngFor="let item of items()" class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 flex gap-3">
-      <a [routerLink]="['/productos', item.product_slug || item.product_id]" class="shrink-0">
-        <img
-          *ngIf="item.image_url"
-          [src]="item.image_url"
-          [alt]="item.product_name"
-          class="w-20 h-20 object-cover rounded-lg bg-gray-100 dark:bg-gray-700"
-          loading="lazy"
-        />
-      </a>
-      <div class="flex-1 min-w-0">
-        <div class="flex items-start justify-between gap-2">
-          <a [routerLink]="['/productos', item.product_slug || item.product_id]" class="font-medium text-sm leading-snug hover:text-blue-600 dark:hover:text-blue-400 transition-colors line-clamp-2">
-            {{ item.product_name }}
-          </a>
-          <p-button
-            icon="pi pi-trash"
-            [rounded]="true"
-            [text]="true"
-            severity="danger"
-            [disabled]="loading()"
-            (onClick)="confirmRemove(item)"
-            [attr.aria-label]="'cart.remove' | translate"
-          ></p-button>
-        </div>
-        <span *ngIf="item.size || item.color" class="block text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-          <ng-container *ngIf="item.size">{{ item.size }}</ng-container><ng-container *ngIf="item.size && item.color"> / </ng-container><ng-container *ngIf="item.color">{{ item.color }}</ng-container>
-        </span>
-        <div class="flex items-center justify-between mt-3">
-          <div class="flex items-center gap-2">
-            <p-button
-              icon="pi pi-minus"
-              [rounded]="true"
-              [text]="true"
-              severity="primary"
-              [disabled]="loading()"
-              (onClick)="decreaseQuantity(item)"
-              [attr.aria-label]="'cart.decrease' | translate"
-            ></p-button>
-            <span class="w-8 text-center font-medium">{{ item.quantity }}</span>
-            <p-button
-              icon="pi pi-plus"
-              [rounded]="true"
-              [text]="true"
-              severity="primary"
-              [disabled]="loading()"
-              (onClick)="increaseQuantity(item)"
-              [attr.aria-label]="'cart.increase' | translate"
-            ></p-button>
-          </div>
-          <div class="text-right">
-            <ng-container *ngIf="item.savings; else noItemDiscount">
-              <span class="line-through text-gray-400 dark:text-gray-500 text-xs block">{{ item.original_unit_price | currency }}</span>
-              <span class="text-red-600 font-medium text-sm">{{ item.unit_price | currency }}</span>
-            </ng-container>
-            <ng-template #noItemDiscount>
-              <span class="font-medium text-sm">{{ item.unit_price | currency }}</span>
-            </ng-template>
-          </div>
-        </div>
+      <div class="flex items-center gap-3">
+        <i class="pi pi-info-circle td-banner-icon"></i>
+        <p>{{ 'cart.guestWarning' | translate }}</p>
+      </div>
+      <div class="flex gap-2">
+        <a pButton severity="secondary" [routerLink]="['/login']" styleClass="!bg-white dark:!bg-gray-700 !text-gray-700 dark:!text-gray-200 !border-gray-300 dark:!border-gray-600">{{ 'cart.signIn' | translate }}</a>
+        <a pButton severity="warn" [routerLink]="['/register']">{{ 'cart.createAccount' | translate }}</a>
       </div>
     </div>
+
+    <!-- Cancelled payment banner -->
+    <div
+      *ngIf="showCancelledBanner()"
+      class="td-banner td-banner-warn"
+      data-testid="cart-cancelled-banner"
+    >
+      <div class="flex items-center gap-3">
+        <i class="pi pi-info-circle td-banner-icon"></i>
+        <p>{{ 'cart.paymentCancelled' | translate }}</p>
+      </div>
+      <p-button
+        icon="pi pi-times"
+        [rounded]="true"
+        [text]="true"
+        severity="secondary"
+        (onClick)="dismissBanner()"
+        [attr.aria-label]="'cart.dismiss' | translate"
+      ></p-button>
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="loading()" class="flex justify-center py-16">
+      <p-progressSpinner
+        [style]="{ width: '48px', height: '48px' }"
+        strokeWidth="4"
+      ></p-progressSpinner>
+    </div>
+
+    <!-- Error state -->
+    <div *ngIf="error() && !loading()" class="td-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <p>{{ error() | translate }}</p>
+      <p-button
+        [label]="'cart.retry' | translate"
+        severity="primary"
+        styleClass="mt-4"
+        (onClick)="loadCart()"
+      ></p-button>
+    </div>
+
+    <!-- Empty state -->
+    <div
+      *ngIf="!loading() && !error() && items().length === 0"
+      class="td-empty"
+      data-testid="cart-empty"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+      <p>{{ 'cart.empty' | translate }}</p>
+      <a
+        pButton
+        severity="primary"
+        class="mt-4"
+        [routerLink]="['/productos']"
+      >
+        {{ 'cart.continueShopping' | translate }}
+      </a>
+    </div>
+
+    <!-- Cart -->
+    <ng-container *ngIf="!loading() && !error() && items().length > 0">
+      <div class="td-toolbar">
+        <div>
+          <h1 class="display">{{ 'cart.title' | translate }}</h1>
+          <p class="count">{{ 'cart.totalItems' | translate }}: {{ totalItems() }}</p>
+        </div>
+      </div>
+
+      <div class="td-cart">
+        <!-- Lines -->
+        <div class="td-cart-lines" data-testid="cart-table">
+          <div class="td-cart-line" *ngFor="let item of items()" data-testid="cart-mobile">
+            <a class="td-cart-thumb" [routerLink]="['/productos', item.product_slug || item.product_id]">
+              <img
+                *ngIf="item.image_url"
+                [src]="item.image_url"
+                [alt]="item.product_name"
+                loading="lazy"
+              />
+              <i *ngIf="!item.image_url" class="pi pi-image td-cart-thumb-empty"></i>
+            </a>
+            <div>
+              <p class="td-cart-name">
+                <a [routerLink]="['/productos', item.product_slug || item.product_id]" class="td-cart-link">
+                  {{ item.product_name }}
+                </a>
+              </p>
+              <p class="td-cart-meta">
+                <ng-container *ngIf="item.size">{{ item.size }}</ng-container>
+                <ng-container *ngIf="item.size && item.color"> / </ng-container>
+                <ng-container *ngIf="item.color">{{ item.color }}</ng-container>
+              </p>
+              <div class="td-cart-controls">
+                <div class="td-qty">
+                  <button type="button"
+                          (click)="decreaseQuantity(item)"
+                          [disabled]="loading()"
+                          [attr.aria-label]="'cart.decrease' | translate">−</button>
+                  <span>{{ item.quantity }}</span>
+                  <button type="button"
+                          (click)="increaseQuantity(item)"
+                          [disabled]="loading()"
+                          [attr.aria-label]="'cart.increase' | translate">+</button>
+                </div>
+                <button type="button" class="td-link-remove" (click)="confirmRemove(item)">
+                  {{ 'cart.remove' | translate }}
+                </button>
+              </div>
+            </div>
+            <div class="td-line-price">
+              <small *ngIf="item.savings">{{ item.original_unit_price | currency }}</small>
+              {{ item.unit_price | currency }}
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <aside class="td-summary">
+          <h2 class="display" style="font-size: 1.25rem">{{ 'cart.summary' | translate }}</h2>
+
+          <div class="td-sum-row">
+            <span>{{ 'cart.subtotal' | translate }}</span>
+            <span>{{ cart()?.subtotal ?? 0 | currency }}</span>
+          </div>
+          <ng-container *ngIf="cart()?.total_savings">
+            <div class="td-sum-row">
+              <span>{{ 'cart.originalSubtotal' | translate }}</span>
+              <span class="line-through">{{ cart()?.original_subtotal | currency }}</span>
+            </div>
+            <div class="td-sum-row td-sum-save">
+              <span>{{ 'cart.savings' | translate }}</span>
+              <span>-{{ cart()?.total_savings | currency }}</span>
+            </div>
+          </ng-container>
+
+          <div class="td-sum-total">
+            <span>{{ 'cart.total' | translate }}</span>
+            <span>{{ cart()?.subtotal ?? 0 | currency }}</span>
+          </div>
+
+          <div class="td-sum-cta">
+            <p-button
+              [label]="'cart.checkout' | translate"
+              severity="primary"
+              styleClass="td-sum-checkout"
+              [disabled]="loading() || items().length === 0"
+              (onClick)="checkout()"
+              data-testid="checkout-button"
+            ></p-button>
+          </div>
+          <p class="td-note">{{ 'cart.summaryNote' | translate }}</p>
+        </aside>
+      </div>
+    </ng-container>
   </div>
 
   <!-- Sticky mobile checkout bar -->
-  <div *ngIf="!loading() && !error() && items().length > 0"
-       class="fixed bottom-0 inset-x-0 z-[60] lg:hidden bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-4 py-3 shadow-[0_-4px_12px_rgba(0,0,0,0.08)]">
-    <div class="flex items-center justify-between gap-3">
+  <div *ngIf="!loading() && !error() && items().length > 0" class="td-sticky-cta">
+    <div class="row">
       <div>
-        <p class="text-xs text-gray-500 dark:text-gray-400">{{ 'cart.totalItems' | translate }}: {{ totalItems() }}</p>
-        <p class="text-lg font-bold text-gray-900 dark:text-gray-100">
-          {{ cart()?.subtotal ?? 0 | currency }}
-        </p>
+        <span class="td-price">{{ cart()?.subtotal ?? 0 | currency }}</span>
+        <small>{{ 'cart.totalItems' | translate }}: {{ totalItems() }}</small>
       </div>
       <p-button
         [label]="'cart.checkout' | translate"
         severity="primary"
-        styleClass="flex-1 min-h-12"
+        styleClass="td-sum-checkout"
         [disabled]="loading() || items().length === 0"
         (onClick)="checkout()"
         data-testid="checkout-button-mobile"
       ></p-button>
     </div>
   </div>
+</div>
 
-  <!-- Spacer so the sticky checkout bar doesn't cover content on mobile -->
-  <div class="lg:hidden h-20" aria-hidden="true"></div>
-
-    <!-- Footer: subtotal + checkout -->
-    <div class="mt-6 flex flex-col items-end gap-4">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-4 text-right min-w-[250px]">
-        <p class="text-sm text-gray-500 dark:text-gray-400 mb-2">
-          {{ 'cart.totalItems' | translate }}: <span class="font-medium text-gray-900 dark:text-gray-100">{{ totalItems() }}</span>
-        </p>
-        <ng-container *ngIf="cart()?.total_savings; else noCartDiscount">
-          <p class="text-sm text-gray-500 dark:text-gray-400">
-            <span>{{ 'cart.originalSubtotal' | translate }}: </span>
-            <span class="line-through">{{ cart()?.original_subtotal | currency }}</span>
-          </p>
-          <p class="text-sm text-green-600 font-medium">
-            <span>{{ 'cart.savings' | translate }}: </span>
-            <span>-{{ cart()?.total_savings | currency }}</span>
-          </p>
-          <p class="text-lg font-bold text-gray-900 dark:text-gray-100 mt-1 pt-1 border-t border-gray-200 dark:border-gray-700">
-            <span>{{ 'cart.subtotal' | translate }}: </span>
-            <span>{{ cart()?.subtotal ?? 0 | currency }}</span>
-          </p>
-        </ng-container>
-        <ng-template #noCartDiscount>
-          <p class="text-lg">
-            <span class="font-medium text-gray-700 dark:text-gray-300">{{ 'cart.subtotal' | translate }}: </span>
-            <span class="font-bold text-gray-900 dark:text-gray-100">{{ cart()?.subtotal ?? 0 | currency }}</span>
-          </p>
-        </ng-template>
-      </div>
-
-      <p-button
-        [label]="'cart.checkout' | translate"
-        severity="primary"
-        styleClass="px-8 py-3 text-lg"
-        [disabled]="loading() || items().length === 0"
-        (onClick)="checkout()"
-        data-testid="checkout-button"
-      ></p-button>
-    </div>
-  </div>
+<!-- Spacer so the sticky bar doesn't cover page content on mobile -->
+<div class="td-sticky-spacer" aria-hidden="true"></div>
