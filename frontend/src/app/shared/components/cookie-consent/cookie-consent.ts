@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
@@ -29,6 +29,14 @@ export class CookieConsentComponent {
 
   functional = true;
   analytics = false;
+
+  constructor() {
+    // Reserve space at the bottom of the page while the banner is visible
+    // so it never covers the hero/trust content.
+    effect(() => {
+      document.body.classList.toggle('td-cookie-open', this.visible());
+    });
+  }
 
   /** Accept all cookies */
   acceptAll(): void {

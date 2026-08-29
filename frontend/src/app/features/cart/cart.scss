@@ -196,7 +196,7 @@
 .td-sum-cta {
   margin-top: 1.2rem;
 }
-.td-sum-checkout {
+:host ::ng-deep .td-sum-checkout {
   width: 100%;
   min-height: 52px;
   border: none !important;
@@ -208,12 +208,12 @@
   box-shadow: var(--shadow-sm) !important;
   transition: background-color var(--ease), box-shadow var(--ease), transform var(--ease) !important;
 }
-.td-sum-checkout:hover:not(:disabled) {
+:host ::ng-deep .td-sum-checkout:hover:not(:disabled) {
   background: var(--primary-hover) !important;
   box-shadow: var(--shadow-md) !important;
   transform: translateY(-1px);
 }
-.td-sum-checkout:disabled {
+:host ::ng-deep .td-sum-checkout:disabled {
   opacity: 0.5;
 }
 .td-note {
@@ -252,7 +252,7 @@
   color: var(--muted);
   font-size: 0.8rem;
 }
-.td-sticky-cta .td-sum-checkout {
+.td-sticky-cta :host ::ng-deep .td-sum-checkout {
   flex: 1;
   max-width: 280px;
   min-height: 44px;

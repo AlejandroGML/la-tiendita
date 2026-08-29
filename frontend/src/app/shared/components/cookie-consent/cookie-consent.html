@@ -1,17 +1,15 @@
-<div *ngIf="visible()" class="fixed bottom-0 left-0 right-0 z-50 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 shadow-2xl">
-  <div class="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-    <div class="flex-1 text-sm text-gray-700 dark:text-gray-300">
+<div *ngIf="visible()" class="td-cookie">
+  <div class="td-cookie-inner">
+    <div class="td-cookie-text">
       <p>
-        <i class="pi pi-shield mr-1 text-amber-500"></i> {{ 'cookie.text' | translate }}
-        <a routerLink="/privacidad" class="text-emerald-600 dark:text-emerald-400 underline ml-1">{{ 'cookie.moreInfo' | translate }}</a>.
+        <i class="pi pi-shield td-cookie-icon"></i> {{ 'cookie.text' | translate }}
+        <a routerLink="/privacidad" class="td-cookie-link">{{ 'cookie.moreInfo' | translate }}</a>.
       </p>
     </div>
-    <div class="flex flex-wrap gap-3 shrink-0 w-full sm:w-auto">
-      <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-      <p-button [label]="'cookie.essential' | translate" severity="secondary" [outlined]="true" (click)="acceptEssential()"></p-button>
-      <p-button [label]="'cookie.customize' | translate" severity="secondary" (click)="openPreferences()"></p-button>
-      <p-button [label]="'cookie.acceptAll' | translate" severity="primary" (click)="acceptAll()"></p-button>
-      </div>
+    <div class="td-cookie-actions">
+      <p-button [label]="'cookie.essential' | translate" severity="secondary" [outlined]="true" styleClass="td-cookie-btn" (click)="acceptEssential()"></p-button>
+      <p-button [label]="'cookie.customize' | translate" severity="secondary" styleClass="td-cookie-btn" (click)="openPreferences()"></p-button>
+      <p-button [label]="'cookie.acceptAll' | translate" severity="primary" styleClass="td-cookie-accept" (click)="acceptAll()"></p-button>
     </div>
   </div>
 </div>
@@ -27,39 +25,39 @@
 >
   <div class="space-y-4">
     <!-- Essential (always on) -->
-    <div class="flex items-start gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
+    <div class="td-cookie-opt">
       <p-checkbox [ngModel]="true" [disabled]="true" binary="true" inputId="essential" />
       <div class="flex-1">
-        <label class="font-medium text-sm text-gray-900 dark:text-gray-100 cursor-not-allowed">{{ 'cookie.essential' | translate }}</label>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ 'cookie.essentialDesc' | translate }}</p>
+        <label class="td-cookie-opt-label cursor-not-allowed">{{ 'cookie.essential' | translate }}</label>
+        <p class="td-cookie-opt-desc">{{ 'cookie.essentialDesc' | translate }}</p>
       </div>
     </div>
 
     <!-- Functional -->
-    <div class="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+    <div class="td-cookie-opt">
       <p-checkbox [(ngModel)]="functional" binary="true" inputId="functional" />
       <div class="flex-1">
-        <label for="functional" class="font-medium text-sm text-gray-900 dark:text-gray-100 cursor-pointer">{{ 'cookie.functional' | translate }}</label>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ 'cookie.functionalDesc' | translate }}</p>
+        <label for="functional" class="td-cookie-opt-label cursor-pointer">{{ 'cookie.functional' | translate }}</label>
+        <p class="td-cookie-opt-desc">{{ 'cookie.functionalDesc' | translate }}</p>
       </div>
     </div>
 
     <!-- Analytics / Marketing -->
-    <div class="flex items-start gap-3 p-3 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-colors">
+    <div class="td-cookie-opt">
       <p-checkbox [(ngModel)]="analytics" binary="true" inputId="analytics" />
       <div class="flex-1">
-        <label for="analytics" class="font-medium text-sm text-gray-900 dark:text-gray-100 cursor-pointer">{{ 'cookie.analytics' | translate }}</label>
-        <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">{{ 'cookie.analyticsDesc' | translate }}</p>
+        <label for="analytics" class="td-cookie-opt-label cursor-pointer">{{ 'cookie.analytics' | translate }}</label>
+        <p class="td-cookie-opt-desc">{{ 'cookie.analyticsDesc' | translate }}</p>
       </div>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
     <div class="flex justify-between gap-2">
-      <p-button [label]="'cookie.essentialOnly' | translate" severity="secondary" [outlined]="true" (click)="acceptEssential()"></p-button>
+      <p-button [label]="'cookie.essentialOnly' | translate" severity="secondary" [outlined]="true" styleClass="td-cookie-btn" (click)="acceptEssential()"></p-button>
       <div class="flex gap-2">
-        <p-button [label]="'common.cancel' | translate" severity="secondary" (click)="cancelPreferences()"></p-button>
-        <p-button [label]="'cookie.save' | translate" severity="primary" (click)="savePreferences()"></p-button>
+        <p-button [label]="'common.cancel' | translate" severity="secondary" styleClass="td-cookie-btn" (click)="cancelPreferences()"></p-button>
+        <p-button [label]="'cookie.save' | translate" severity="primary" styleClass="td-cookie-accept" (click)="savePreferences()"></p-button>
       </div>
     </div>
   </ng-template>

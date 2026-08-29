@@ -16,7 +16,7 @@
   --surface-2: oklch(0.945 0.010 88);
   --ink: oklch(0.29 0.008 60);
   --ink-2: oklch(0.45 0.014 70);
-  --muted: oklch(0.62 0.014 75);
+  --muted: oklch(0.55 0.014 75);
   --border: oklch(0.90 0.012 85);
   --primary: oklch(0.40 0.055 162);
   --primary-hover: oklch(0.34 0.05 162);
@@ -372,7 +372,7 @@ h3.display { font-size: clamp(1.15rem, 1.8vw, 1.35rem); }
   flex-wrap: wrap;
   gap: 1.4rem;
   margin-top: 2.25rem;
-  color: var(--muted);
+  color: var(--ink-2);
   font-size: 0.90625rem;
 }
 .td-hero-trust span { display: inline-flex; align-items: center; gap: 0.45rem; }
@@ -978,6 +978,16 @@ h3.display { font-size: clamp(1.15rem, 1.8vw, 1.35rem); }
   padding: 0.7rem 0.9rem;
 }
 
+/* ── Cookie banner reserva espacio abajo ── */
+body.td-cookie-open {
+  padding-bottom: 84px;
+}
+@media (max-width: 640px) {
+  body.td-cookie-open {
+    padding-bottom: 170px;
+  }
+}
+
 /* ── PrimeNG con tokens del sistema ── */
 .p-select,
 .p-multiselect {
@@ -1001,6 +1011,9 @@ h3.display { font-size: clamp(1.15rem, 1.8vw, 1.35rem); }
   font-size: 0.9rem;
   padding-top: 0 !important;
   padding-bottom: 0 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .p-select-overlay,
 .p-multiselect-overlay {

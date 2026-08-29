@@ -1,3 +1,131 @@
 :host {
   display: block;
 }
+
+/* ═══════════════════════════════════════════════
+   Cookie consent — "Thrift Editorial"
+   ═══════════════════════════════════════════════ */
+
+.td-cookie {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  box-shadow: 0 -8px 32px oklch(0.29 0.008 60 / 0.12);
+}
+.td-cookie-inner {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding: 1rem var(--gutter) calc(1rem + env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.9rem;
+}
+@media (min-width: 640px) {
+  .td-cookie-inner {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.25rem;
+  }
+}
+.td-cookie-text {
+  flex: 1;
+  font-size: 0.9rem;
+  color: var(--ink-2);
+}
+.td-cookie-text p {
+  margin: 0;
+  line-height: 1.55;
+}
+.td-cookie-icon {
+  color: var(--accent);
+  margin-right: 0.25rem;
+}
+.td-cookie-link {
+  color: var(--primary);
+  text-decoration: underline;
+  margin-left: 0.25rem;
+  transition: color var(--ease);
+}
+.td-cookie-link:hover {
+  color: var(--primary-hover);
+}
+.td-cookie-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  flex-shrink: 0;
+}
+@media (max-width: 640px) {
+  .td-cookie-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    width: 100%;
+  }
+  .td-cookie-actions p-button:last-child {
+    grid-column: 1 / -1;
+  }
+  .td-cookie-actions :deep(.td-cookie-btn),
+  .td-cookie-actions :deep(.td-cookie-accept) {
+    width: 100%;
+  }
+}
+:host ::ng-deep .td-cookie-btn {
+  border: 1px solid var(--muted) !important;
+  border-radius: var(--r-md) !important;
+  background: var(--surface) !important;
+  color: var(--ink) !important;
+  font-weight: 600 !important;
+  min-height: 44px;
+  transition: border-color var(--ease), color var(--ease) !important;
+}
+html.dark-theme :host ::ng-deep .td-cookie-btn {
+  border-color: oklch(0.45 0.008 70) !important;
+}
+:host ::ng-deep .td-cookie-btn:hover {
+  border-color: var(--primary) !important;
+  color: var(--primary) !important;
+}
+:host ::ng-deep .td-cookie-accept {
+  border: none !important;
+  border-radius: var(--r-md) !important;
+  background: var(--primary) !important;
+  color: oklch(0.97 0.01 160) !important;
+  font-weight: 600 !important;
+  min-height: 44px;
+  box-shadow: var(--shadow-sm) !important;
+  transition: background-color var(--ease), box-shadow var(--ease) !important;
+}
+:host ::ng-deep .td-cookie-accept:hover {
+  background: var(--primary-hover) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+/* Opciones del modal */
+.td-cookie-opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  transition: border-color var(--ease);
+}
+.td-cookie-opt:hover {
+  border-color: var(--primary);
+}
+.td-cookie-opt-label {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--ink);
+}
+.td-cookie-opt-desc {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0.15rem 0 0;
+}
