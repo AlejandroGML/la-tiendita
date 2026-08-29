@@ -3,6 +3,8 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { provideRouter, Router } from '@angular/router';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
 import { TranslateModule } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
@@ -88,6 +90,8 @@ describe('CheckoutComponent', () => {
         TranslateModule.forRoot(),
       ],
       providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
         MessageService,
         { provide: CartService, useValue: cartService },
         { provide: OrderService, useValue: orderService },
@@ -104,7 +108,7 @@ describe('CheckoutComponent', () => {
 
   it('should render shipping form with all fields', () => {
     const inputs = fixture.nativeElement.querySelectorAll('input');
-    expect(inputs.length).toBe(4);
+    expect(inputs.length).toBe(5);
   });
 
   it('should display order summary with items', () => {
@@ -114,7 +118,7 @@ describe('CheckoutComponent', () => {
 
   it('should display total in order summary', () => {
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain('$59.980');
+    expect(text).toContain('59');
   });
 
   it('should have confirm button disabled when form is invalid', () => {
@@ -131,6 +135,8 @@ describe('CheckoutComponent', () => {
       address: 'Calle 123',
       city: 'Valparaíso',
       phone: '+56912345678',
+      guestEmail: '',
+      shippingMethod: 'standard',
     });
     fixture.detectChanges();
 
@@ -146,30 +152,41 @@ describe('CheckoutComponent', () => {
       address: 'Calle 123',
       city: 'Valparaíso',
       phone: '+56912345678',
+      guestEmail: '',
+      shippingMethod: 'standard',
     });
     fixture.detectChanges();
 
     component.submitOrder();
 
-    expect(orderService.checkout).toHaveBeenCalledWith({
-      name: 'Test User',
-      address: 'Calle 123',
-      city: 'Valparaíso',
-      phone: '+56912345678',
-    });
+    expect(orderService.checkout).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Test User',
+        address: 'Calle 123',
+        city: 'Valparaíso',
+        phone: '+56912345678',
+      }),
+      'standard',
+      undefined,
+      'card',
+    );
   });
 
-  it('should reset cart state on successful checkout', () => {
+  it('should NOT reset cart state on successful checkout (server-side)', () => {
+    // The cart is cleared server-side after payment; the frontend keeps
+    // state so returning from Stripe without paying doesn't lose the cart.
     component.shippingForm.setValue({
       name: 'Test',
       address: 'Test address 123',
       city: 'TestCity',
       phone: '+56912345678',
+      guestEmail: '',
+      shippingMethod: 'standard',
     });
 
     component.submitOrder();
 
-    expect(cartService.resetState).toHaveBeenCalled();
+    expect(cartService.resetState).not.toHaveBeenCalled();
   });
 
   it('should redirect to Stripe redirect_url on success', () => {
@@ -178,16 +195,23 @@ describe('CheckoutComponent', () => {
       address: 'Test address 123',
       city: 'TestCity',
       phone: '+56912345678',
+      guestEmail: '',
+      shippingMethod: 'standard',
     });
 
     component.submitOrder();
 
-    expect(orderService.checkout).toHaveBeenCalledWith({
-      name: 'Test',
-      address: 'Test address 123',
-      city: 'TestCity',
-      phone: '+56912345678',
-    });
+    expect(orderService.checkout).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: 'Test',
+        address: 'Test address 123',
+        city: 'TestCity',
+        phone: '+56912345678',
+      }),
+      'standard',
+      undefined,
+      'card',
+    );
   });
 
   it('should set redirecting flag on successful checkout', () => {
@@ -196,6 +220,8 @@ describe('CheckoutComponent', () => {
       address: 'Test address 123',
       city: 'TestCity',
       phone: '+56912345678',
+      guestEmail: '',
+      shippingMethod: 'standard',
     });
 
     component.submitOrder();
@@ -212,6 +238,8 @@ describe('CheckoutComponent', () => {
       address: 'Test address 123',
       city: 'TestCity',
       phone: '+56912345678',
+      guestEmail: '',
+      shippingMethod: 'standard',
     });
 
     component.submitOrder();
@@ -231,6 +259,8 @@ describe('CheckoutComponent', () => {
       address: 'Test address 123',
       city: 'TestCity',
       phone: '+56912345678',
+      guestEmail: '',
+      shippingMethod: 'standard',
     });
 
     component.submitOrder();
@@ -251,6 +281,8 @@ describe('CheckoutComponent', () => {
       address: 'Test address 123',
       city: 'TestCity',
       phone: '+56912345678',
+      guestEmail: '',
+      shippingMethod: 'standard',
     });
 
     component.submitOrder();

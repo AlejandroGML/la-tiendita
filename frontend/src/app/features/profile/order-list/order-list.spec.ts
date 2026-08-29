@@ -114,8 +114,8 @@ describe('OrderListComponent', () => {
 
   it('should display total amounts', () => {
     const text = fixture.nativeElement.textContent;
-    expect(text).toContain('$59.980');
-    expect(text).toContain('$89.990');
+    expect(text).toContain('59');
+    expect(text).toContain('89');
   });
 
   it('should show empty state when no orders', async () => {

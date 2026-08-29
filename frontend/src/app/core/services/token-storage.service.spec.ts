@@ -283,7 +283,7 @@ describe('LocalStorageTokenStorage', () => {
       store.set('access_token', 'only-access');
       const storage = new LocalStorageTokenStorage();
       expect(storage.getAccessToken()).toBe('only-access');
-      expect(storage.getRefreshToken()).toBe('');
+      expect(storage.getRefreshToken()).toBeNull();
       expect(store.has('access_token')).toBe(false);
       expect(store.has('refresh_token')).toBe(false);
     });

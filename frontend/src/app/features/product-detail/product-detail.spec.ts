@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -29,6 +30,8 @@ import { CartService } from '../../core/services/cart.service';
 import { ReviewService } from '../../core/services/review.service';
 import { AuthStateService } from '../../core/services/auth-state.service';
 import { SeoService } from '../../core/services/seo.service';
+import { CategoryService } from '../../core/services/category.service';
+import { ProductPurchaseService } from '../../core/services/product-purchase.service';
 import type { Product } from '../../shared/models/product.model';
 
 const mockProduct: Product = {
@@ -120,7 +123,50 @@ describe('ProductDetail', () => {
   let seoService: ReturnType<typeof createSeoServiceMock>;
   let translate: TranslateService;
 
+  // Estado mutable del mock de ProductPurchaseService — cada test lo ajusta
+  let purchaseState: {
+    selectedSize: string | null;
+    selectedColor: string | null;
+    adding: boolean;
+    stock: number;
+  };
+
+  function makePurchaseMock() {
+    return {
+      product: vi.fn(),
+      selectedSize: vi.fn().mockImplementation(() => purchaseState.selectedSize),
+      selectedColor: vi.fn().mockImplementation(() => purchaseState.selectedColor),
+      addingToCart: Object.assign(vi.fn().mockImplementation(() => purchaseState.adding), {
+        set: (v: boolean) => { purchaseState.adding = v; },
+      }) as never,
+      availableSizes: vi.fn().mockImplementation(() =>
+        purchaseState.selectedSize === null ? ['M'] : ['M']
+      ),
+      variantsBySize: vi.fn().mockReturnValue(new Map([['M', mockProduct.variants!]])) as never,
+      availableColors: vi.fn().mockImplementation(() => [
+        { color: 'Blue', hex: '#2563EB', inStock: true },
+      ]),
+      selectedVariant: vi.fn().mockImplementation(() =>
+        purchaseState.selectedSize && purchaseState.selectedColor
+          ? mockProduct.variants![0]
+          : null
+      ),
+      currentStock: vi.fn().mockImplementation(() => purchaseState.stock),
+      canAddToCart: vi.fn().mockImplementation(() =>
+        purchaseState.selectedSize !== null && purchaseState.stock > 0
+      ),
+      setProduct: vi.fn(),
+      selectSize: vi.fn().mockImplementation((s: string) => { purchaseState.selectedSize = s; }),
+      selectColor: vi.fn().mockImplementation((c: string) => { purchaseState.selectedColor = c; }),
+      hasStockForSize: vi.fn().mockReturnValue(true),
+      getHexColor: vi.fn().mockReturnValue('#2563EB'),
+      stockClasses: vi.fn().mockReturnValue('text-green-700'),
+      inStockText: vi.fn().mockReturnValue('product.inStock'),
+    };
+  }
+
   beforeEach(async () => {
+    purchaseState = { selectedSize: null, selectedColor: null, adding: false, stock: 5 };
     productService = createProductServiceMock();
     cartService = createCartServiceMock();
     reviewService = createReviewServiceMock();
@@ -137,6 +183,7 @@ describe('ProductDetail', () => {
         ProductDetailAttributesComponent,
         ProductDetailReviewsComponent,
       ],
+      schemas: [CUSTOM_ELEMENTS_SCHEMA],
       imports: [
         ButtonModule,
         ProgressSpinnerModule,
@@ -162,6 +209,18 @@ describe('ProductDetail', () => {
         { provide: AuthStateService, useValue: authState },
         { provide: SeoService, useValue: seoService },
         { provide: MessageService, useValue: { add: vi.fn() } },
+        {
+          provide: CategoryService,
+          useValue: {
+            load: vi.fn(),
+            categories$: of([{ id: 1, slug: 'jeans', name: 'Jeans' }]),
+            cachedValue: [{ id: 1, slug: 'jeans', name: 'Jeans' }],
+          },
+        },
+        {
+          provide: ProductPurchaseService,
+          useValue: makePurchaseMock(),
+        },
         {
           provide: ActivatedRoute,
           useValue: {
@@ -290,7 +349,7 @@ describe('ProductDetail', () => {
   });
 
   it('should disable button while addingToCart', () => {
-    component.addingToCart.set(true);
+    purchaseState.adding = true;
     fixture.detectChanges();
 
     const button = fixture.nativeElement.querySelector(

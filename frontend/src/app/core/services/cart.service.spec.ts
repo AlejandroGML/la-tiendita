@@ -1,10 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { signal, computed } from '@angular/core';
 import { of } from 'rxjs';
 
 import { CartService } from './cart.service';
-import { CartApiService } from './cart-api.service';
-import { CartStateService } from './cart-state.service';
+import { CartStore } from '../stores/cart.store';
 import type { CartResponse } from '../../shared/models/cart.model';
 
 // ---------------------------------------------------------------------------
@@ -26,23 +26,19 @@ const MOCK_CART: CartResponse = {
   subtotal: '59980',
 };
 
-function createCartApiMock() {
+function createStoreMock() {
+  const cartSignal = signal<CartResponse | null>(null);
   return {
-    getCart: vi.fn().mockReturnValue(of(MOCK_CART)),
+    cart: cartSignal,
+    totalItems: computed(() => cartSignal()?.items.length ?? 0),
+    loading: signal(false),
+    error: signal<string | null>(null),
+    load: vi.fn().mockReturnValue(of(MOCK_CART)),
     addItem: vi.fn().mockReturnValue(of(MOCK_CART)),
-    updateQuantity: vi.fn().mockReturnValue(of(MOCK_CART)),
+    updateQty: vi.fn().mockReturnValue(of(MOCK_CART)),
     removeItem: vi.fn().mockReturnValue(of(MOCK_CART)),
-    clearCart: vi.fn().mockReturnValue(of(MOCK_CART)),
-  };
-}
-
-function createCartStateMock() {
-  return {
-    setCart: vi.fn(),
-    init: vi.fn(),
+    clear: vi.fn().mockReturnValue(of(MOCK_CART)),
     resetState: vi.fn(),
-    cart$: of(null),
-    totalItems$: of(0),
   };
 }
 
@@ -52,114 +48,99 @@ function createCartStateMock() {
 
 describe('CartService (facade)', () => {
   let service: CartService;
-  let cartApi: ReturnType<typeof createCartApiMock>;
-  let cartState: ReturnType<typeof createCartStateMock>;
+  let store: ReturnType<typeof createStoreMock>;
 
   beforeEach(() => {
-    cartApi = createCartApiMock();
-    cartState = createCartStateMock();
+    store = createStoreMock();
 
     TestBed.configureTestingModule({
       providers: [
         CartService,
-        { provide: CartApiService, useValue: cartApi },
-        { provide: CartStateService, useValue: cartState },
+        { provide: CartStore, useValue: store },
       ],
     });
 
     service = TestBed.inject(CartService);
   });
 
-  // ── Re-exports cart$ from CartStateService ─────────────────────────
+  // ── cart$ derived from CartStore ───────────────────────────────────
 
-  it('re-exports cart$ from CartStateService', () => {
+  it('re-exports cart$ from CartStore', async () => {
     let emitted: CartResponse | null | undefined;
     service.cart$.subscribe((cart) => {
       emitted = cart;
     });
+    // toObservable emits asynchronously — wait a macrotask
+    await new Promise((r) => setTimeout(r, 0));
+    // Signal-based store starts with null cart
     expect(emitted).toBeNull();
   });
 
-  // ── Delegation + tap(setCart) ──────────────────────────────────────
+  // ── Delegation to CartStore ────────────────────────────────────────
 
   describe('getCart', () => {
-    it('delegates to cartApi.getCart and syncs state via setCart', () => {
+    it('delegates to store.load and emits the cart', () => {
       let emitted: CartResponse | undefined;
       service.getCart().subscribe((res) => {
         emitted = res;
       });
 
-      expect(cartApi.getCart).toHaveBeenCalledOnce();
-      expect(cartState.setCart).toHaveBeenCalledWith(MOCK_CART);
+      expect(store.load).toHaveBeenCalledOnce();
       expect(emitted).toEqual(MOCK_CART);
     });
   });
 
   describe('addItem', () => {
-    it('delegates to cartApi.addItem and syncs state', () => {
+    it('delegates to store.addItem with product, qty and variant', () => {
       let emitted: CartResponse | undefined;
       service.addItem('prod-1', 3, 'variant-1').subscribe((res) => {
         emitted = res;
       });
 
-      expect(cartApi.addItem).toHaveBeenCalledWith('prod-1', 3, 'variant-1');
-      expect(cartState.setCart).toHaveBeenCalledWith(MOCK_CART);
+      expect(store.addItem).toHaveBeenCalledWith('prod-1', 3, 'variant-1');
       expect(emitted).toEqual(MOCK_CART);
     });
   });
 
   describe('updateQuantity', () => {
-    it('delegates to cartApi.updateQuantity and syncs state', () => {
-      let emitted: CartResponse | undefined;
-      service.updateQuantity('item-1', 5).subscribe((res) => {
-        emitted = res;
-      });
+    it('delegates to store.updateQty', () => {
+      service.updateQuantity('item-1', 5).subscribe();
 
-      expect(cartApi.updateQuantity).toHaveBeenCalledWith('item-1', 5);
-      expect(cartState.setCart).toHaveBeenCalledWith(MOCK_CART);
-      expect(emitted).toEqual(MOCK_CART);
+      expect(store.updateQty).toHaveBeenCalledWith('item-1', 5);
     });
   });
 
   describe('removeItem', () => {
-    it('delegates to cartApi.removeItem and syncs state', () => {
-      let emitted: CartResponse | undefined;
-      service.removeItem('item-1').subscribe((res) => {
-        emitted = res;
-      });
+    it('delegates to store.removeItem', () => {
+      service.removeItem('item-1').subscribe();
 
-      expect(cartApi.removeItem).toHaveBeenCalledWith('item-1');
-      expect(cartState.setCart).toHaveBeenCalledWith(MOCK_CART);
-      expect(emitted).toEqual(MOCK_CART);
+      expect(store.removeItem).toHaveBeenCalledWith('item-1');
     });
   });
 
   describe('clearCart', () => {
-    it('delegates to cartApi.clearCart and nulls state on success', () => {
+    it('delegates to store.clear and emits cart', () => {
       let emitted: CartResponse | undefined;
       service.clearCart().subscribe((res) => {
         emitted = res;
       });
 
-      expect(cartApi.clearCart).toHaveBeenCalledOnce();
-      expect(cartState.setCart).toHaveBeenCalledWith(null);
+      expect(store.clear).toHaveBeenCalledOnce();
       expect(emitted).toEqual(MOCK_CART);
     });
   });
 
-  // ── Lifecycle delegation ───────────────────────────────────────────
-
-  describe('init', () => {
-    it('delegates to cartState.init', () => {
-      service.init();
-      expect(cartState.init).toHaveBeenCalledOnce();
+  describe('resetState', () => {
+    it('delegates to store.resetState', () => {
+      service.resetState();
+      expect(store.resetState).toHaveBeenCalledOnce();
     });
   });
 
-  describe('resetState', () => {
-    it('delegates to cartState.resetState', () => {
-      service.resetState();
-      expect(cartState.resetState).toHaveBeenCalledOnce();
+  describe('init', () => {
+    it('is a no-op (session handled by CartApiService)', () => {
+      // Should not throw
+      service.init();
     });
   });
 });

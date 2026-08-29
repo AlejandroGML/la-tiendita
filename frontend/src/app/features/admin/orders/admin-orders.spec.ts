@@ -103,8 +103,8 @@ describe('AdminOrders', () => {
 
   it('should display order totals', () => {
     const totals = component.orders().map(o => o.total);
-    expect(totals).toContain('29990');
-    expect(totals).toContain('45990');
+    expect(totals).toContain(29990);
+    expect(totals).toContain(45990);
   });
 
   it('should call AdminService.getOrders on init', () => {

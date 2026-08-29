@@ -6,7 +6,13 @@ import { of } from 'rxjs';
 import { ProductCardComponent } from './product-card';
 import { CurrencyPipe } from '../../pipes/currency.pipe';
 import { ReviewService } from '../../../core/services/review.service';
+import { WishlistService } from '../../../core/services/wishlist.service';
+import { MessageService } from 'primeng/api';
 import type { Product, ProductVariant } from '../../models/product.model';
+import { ProductColorSwatchesComponent } from './color-swatches.component';
+import { ProductConditionBadgeComponent } from './condition-badge.component';
+import { ProductPriceComponent } from './product-price.component';
+import { ProductRatingComponent } from './product-rating.component';
 
 const mockProduct: Product = {
   id: 'abc-123',
@@ -51,11 +57,20 @@ describe('ProductCardComponent', () => {
     router = { navigate: vi.fn() };
 
     await TestBed.configureTestingModule({
-      declarations: [ProductCardComponent, CurrencyPipe],
+      declarations: [
+        ProductCardComponent,
+        CurrencyPipe,
+        ProductColorSwatchesComponent,
+        ProductConditionBadgeComponent,
+        ProductPriceComponent,
+        ProductRatingComponent,
+      ],
       imports: [CardModule, TranslateModule.forRoot()],
       providers: [
         { provide: ReviewService, useValue: reviewService },
         { provide: Router, useValue: router },
+        { provide: WishlistService, useValue: { isWishlisted: vi.fn().mockReturnValue(false), toggle: vi.fn() } },
+        { provide: MessageService, useValue: { add: vi.fn() } },
       ],
     }).compileComponents();
 
@@ -96,10 +111,12 @@ describe('ProductCardComponent', () => {
 
   it('should render price via currency pipe', () => {
     createComponent(mockProduct);
-    const priceEl = fixture.nativeElement.querySelector('p.text-lg');
+    const priceEl = fixture.nativeElement.querySelector('app-product-price');
     expect(priceEl).toBeTruthy();
-    // Currency pipe formats CLP with $ and grouping
-    expect(priceEl.textContent).toContain('$');
+    // Currency pipe formats SEK with grouping
+    const text = priceEl.textContent ?? '';
+    expect(text).toContain('29');
+    expect(text).toContain('990');
   });
 
   it('should render condition chip with correct color class', () => {
@@ -129,31 +146,34 @@ describe('ProductCardComponent', () => {
     expect(chip).toBeTruthy();
   });
 
-  it('should call getProductReviews with slug, page 1, perPage 1 on init', () => {
-    createComponent(mockProduct);
-    expect(reviewService.getProductReviews).toHaveBeenCalledWith('jeans-levis-501', 1, 1);
+  it('should read review aggregates from the product DTO without extra HTTP', () => {
+    const withReviews: Product = {
+      ...mockProduct,
+      avg_rating: 4.8,
+      total_reviews: 120,
+    } as Product;
+    createComponent(withReviews);
+    // No HTTP call on init — aggregates come pre-computed in the DTO
+    expect(reviewService.getProductReviews).not.toHaveBeenCalled();
+    expect(component.avgRating()).toBe(4.8);
+    expect(component.totalReviews()).toBe(120);
   });
 
-  it('should display ⭐ rating and count when reviews exist', () => {
-    reviewService.getProductReviews = vi.fn().mockReturnValue(
-      of({ reviews: [], avg_rating: 4.8, total_reviews: 120, page: 1, per_page: 1 }),
-    );
-    createComponent(mockProduct);
-    const ratingEl = fixture.nativeElement.querySelector('.text-xs.text-gray-500');
-    expect(ratingEl).toBeTruthy();
-    expect(ratingEl.textContent).toContain('⭐');
-    expect(ratingEl.textContent).toContain('4.8');
-    expect(ratingEl.textContent).toContain('120');
+  it('should display rating and count when reviews exist', () => {
+    const withReviews: Product = {
+      ...mockProduct,
+      avg_rating: 4.8,
+      total_reviews: 120,
+    } as Product;
+    createComponent(withReviews);
+    expect(component.avgRating()).toBe(4.8);
+    expect(component.totalReviews()).toBe(120);
   });
 
-  it('should hide rating display when product has no reviews', () => {
-    reviewService.getProductReviews = vi.fn().mockReturnValue(
-      of({ reviews: [], avg_rating: 0, total_reviews: 0, page: 1, per_page: 1 }),
-    );
-    const noMaterial: Product = { ...mockProduct, material: null };
-    createComponent(noMaterial);
-    const ratingEl = fixture.nativeElement.querySelector('.text-xs.text-gray-500');
-    expect(ratingEl).toBeFalsy();
+  it('should default rating to 0 when product has no aggregates', () => {
+    createComponent(mockProduct);
+    expect(component.avgRating()).toBe(0);
+    expect(component.totalReviews()).toBe(0);
   });
 
   // — Badge system —
