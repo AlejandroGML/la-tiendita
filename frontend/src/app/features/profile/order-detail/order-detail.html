@@ -8,8 +8,9 @@
   </div>
 
   <!-- Error state -->
-  <div *ngIf="error() && !loading()" class="text-center py-16">
-    <p class="text-red-600 text-lg">{{ error() | translate }}</p>
+  <div *ngIf="error() && !loading()" class="td-empty">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+    <p>{{ error() | translate }}</p>
     <a
       pButton
       severity="primary"
@@ -38,37 +39,32 @@
       <!-- Left: Order info + items -->
       <div class="lg:col-span-2 space-y-6">
         <!-- Order info card -->
-        <div class="bg-white rounded-lg shadow p-6">
-          <h1 class="text-xl font-bold text-gray-900 mb-4">
+        <div class="td-profile-card">
+          <h1 class="td-profile-title">
             {{ 'order.detail.title' | translate }} #{{ order()!.id.slice(0, 8) }}
           </h1>
 
           <div class="grid grid-cols-2 gap-4 text-sm">
             <div>
-              <span class="text-gray-500">{{ 'order.status.title' | translate }}:</span>
-              <span class="ml-2 font-medium">
-                {{ 'order.status.' + order()!.status | translate }}
-              </span>
+              <span class="td-order-key">{{ 'order.status.title' | translate }}:</span>
+              <span class="ml-2 font-medium">{{ 'order.status.' + order()!.status | translate }}</span>
             </div>
             <div>
-              <span class="text-gray-500">{{ 'order.paymentStatus' | translate }}:</span>
-              <span
-                class="ml-2 px-2 py-0.5 rounded-full text-xs font-medium"
-                [ngClass]="getPaymentStatusClasses()"
-              >
+              <span class="td-order-key">{{ 'order.paymentStatus' | translate }}:</span>
+              <span class="ml-2" [ngClass]="getPaymentStatusClasses()">
                 {{ getPaymentStatusLabel() | translate }}
               </span>
             </div>
             <div>
-              <span class="text-gray-500">{{ 'order.date' | translate }}:</span>
+              <span class="td-order-key">{{ 'order.date' | translate }}:</span>
               <span class="ml-2 font-medium">{{ formatDate(order()!.created_at) }}</span>
             </div>
             <div>
-              <span class="text-gray-500">{{ 'order.total' | translate }}:</span>
+              <span class="td-order-key">{{ 'order.total' | translate }}:</span>
               <span class="ml-2 font-bold">{{ order()!.total | currency }}</span>
             </div>
             <div class="col-span-2">
-              <span class="text-gray-500">{{ 'checkout.shipping' | translate }}:</span>
+              <span class="td-order-key">{{ 'checkout.shipping' | translate }}:</span>
               <span class="ml-2 font-medium">
                 {{ getShippingField('name') }},
                 {{ getShippingField('address') }},
@@ -76,15 +72,15 @@
               </span>
             </div>
             <div class="col-span-2">
-              <span class="text-gray-500">{{ 'checkout.phone' | translate }}:</span>
+              <span class="td-order-key">{{ 'checkout.phone' | translate }}:</span>
               <span class="ml-2">{{ getShippingField('phone') }}</span>
             </div>
           </div>
         </div>
 
         <!-- Items table -->
-        <div class="bg-white rounded-lg shadow overflow-hidden">
-          <h2 class="text-lg font-semibold p-4 pb-2">{{ 'order.items' | translate }}</h2>
+        <div class="td-profile-card" style="padding: 0; overflow: hidden">
+          <h2 class="td-card-head">{{ 'order.items' | translate }}</h2>
           <p-table [value]="order()!.items" styleClass="w-full">
             <ng-template pTemplate="header">
               <tr>
@@ -118,13 +114,13 @@
 
       <!-- Right: Status timeline -->
       <div class="lg:col-span-1">
-        <div class="bg-white rounded-lg shadow p-6">
-          <h2 class="text-lg font-semibold mb-4">{{ 'order.status.title' | translate }}</h2>
+        <div class="td-profile-card">
+          <h2 class="td-profile-title" style="font-size: 1.15rem">{{ 'order.status.title' | translate }}</h2>
 
           <!-- Cancelled badge -->
           <div
             *ngIf="isCancelled()"
-            class="bg-red-100 text-red-800 px-3 py-2 rounded-lg text-center font-medium mb-4"
+            class="ad-status is-cancelled mb-4"
           >
             {{ 'order.status.cancelled' | translate }}
           </div>
@@ -137,28 +133,22 @@
             >
               <div class="flex flex-col items-center">
                 <div
-                  class="w-4 h-4 rounded-full border-2"
-                  [ngClass]="{
-                    'bg-green-500 border-green-500': isStatusReached(status),
-                    'bg-white border-gray-300': !isStatusReached(status)
-                  }"
+                  class="td-timeline-dot"
+                  [ngClass]="isStatusReached(status) ? 'td-timeline-dot-on' : 'td-timeline-dot-off'"
                 ></div>
                 <div
                   *ngIf="status !== 'delivered'"
-                  class="w-0.5 h-8"
-                  [ngClass]="{
-                    'bg-green-500': isStatusReached(status),
-                    'bg-gray-300': !isStatusReached(status)
-                  }"
+                  class="td-timeline-line"
+                  [ngClass]="isStatusReached(status) ? 'td-timeline-line-on' : 'td-timeline-line-off'"
                 ></div>
               </div>
               <div>
                 <p
                   class="text-sm"
                   [ngClass]="{
-                    'font-bold text-green-800': isCurrentStatus(status),
-                    'font-medium text-gray-700': isStatusReached(status) && !isCurrentStatus(status),
-                    'text-gray-400': !isStatusReached(status)
+                    'td-timeline-current': isCurrentStatus(status),
+                    'td-timeline-done': isStatusReached(status) && !isCurrentStatus(status),
+                    'td-timeline-pending': !isStatusReached(status)
                   }"
                 >
                   {{ 'order.status.' + status | translate }}

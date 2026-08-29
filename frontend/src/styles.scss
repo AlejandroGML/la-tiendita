@@ -884,6 +884,100 @@ h3.display { font-size: clamp(1.15rem, 1.8vw, 1.35rem); }
   opacity: 0.5;
 }
 
+/* ── Status chips (semánticos del sistema, global) ── */
+.ad-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: var(--r-pill);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ad-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ad-status.is-pending {
+  background: oklch(0.95 0.05 80);
+  color: var(--warning);
+}
+.ad-status.is-confirmed {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.ad-status.is-shipped {
+  background: oklch(0.94 0.04 220);
+  color: oklch(0.55 0.1 230);
+}
+.ad-status.is-delivered {
+  background: oklch(0.93 0.04 155);
+  color: var(--success);
+}
+.ad-status.is-cancelled {
+  background: oklch(0.94 0.03 20);
+  color: var(--error);
+}
+
+/* ── Profile cards ── */
+.td-profile-wrap {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+.td-profile-avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+.td-profile-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 1.6rem;
+}
+.td-profile-title {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.35rem;
+  color: var(--ink);
+}
+.td-banner-success {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--success);
+  background: oklch(0.93 0.04 155);
+  border: 1px solid oklch(0.86 0.06 155);
+  border-radius: var(--r-md);
+  padding: 0.7rem 0.9rem;
+}
+.td-banner-error {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--error);
+  background: oklch(0.95 0.03 20);
+  border: 1px solid oklch(0.88 0.05 20);
+  border-radius: var(--r-md);
+  padding: 0.7rem 0.9rem;
+}
+
 /* ── PrimeNG con tokens del sistema ── */
 .p-select,
 .p-multiselect {

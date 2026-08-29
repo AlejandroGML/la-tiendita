@@ -63,7 +63,7 @@ describe('OrderListComponent', () => {
     orderService = createOrderServiceMock();
 
     await TestBed.configureTestingModule({
-      declarations: [OrderListComponent, CurrencyPipe],
+      declarations: [OrderListComponent],
       imports: [
         ButtonModule,
         ProgressSpinnerModule,
@@ -102,14 +102,14 @@ describe('OrderListComponent', () => {
   });
 
   it('should display status badges with correct class', () => {
-    const chips = fixture.nativeElement.querySelectorAll('.rounded-full');
+    const chips = fixture.nativeElement.querySelectorAll('.ad-status');
     // 2 status chips + 2 payment status chips = 4
     expect(chips.length).toBe(4);
-    expect(chips[0].classList.contains('bg-blue-100')).toBe(true);
-    expect(chips[2].classList.contains('bg-purple-100')).toBe(true);
-    // Payment status: first order is paid (emerald), second is pending (amber)
-    expect(chips[1].classList.contains('bg-emerald-100')).toBe(true);
-    expect(chips[3].classList.contains('bg-amber-100')).toBe(true);
+    expect(chips[0].classList.contains('is-confirmed')).toBe(true);
+    expect(chips[2].classList.contains('is-shipped')).toBe(true);
+    // Payment status: first order is paid (success), second is pending (warning)
+    expect(chips[1].classList.contains('is-delivered')).toBe(true);
+    expect(chips[3].classList.contains('is-pending')).toBe(true);
   });
 
   it('should display total amounts', () => {
@@ -138,7 +138,7 @@ describe('OrderListComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const errorEl = fixture.nativeElement.querySelector('.text-red-600');
+    const errorEl = fixture.nativeElement.querySelector('.td-empty');
     expect(errorEl).toBeTruthy();
   });
 

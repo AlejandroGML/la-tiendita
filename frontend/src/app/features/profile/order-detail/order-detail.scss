@@ -1,1 +1,70 @@
-/* Order detail styles — uses Tailwind utility classes; scoped overrides here */
+/* ═══════════════════════════════════════════════
+   Order detail — "Thrift Editorial"
+   ═══════════════════════════════════════════════ */
+
+.td-order-key {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+
+/* Tabla de items */
+:host ::ng-deep .p-datatable {
+  border-color: var(--border);
+}
+:host ::ng-deep .p-datatable-thead > tr > th {
+  background: var(--surface);
+  color: var(--muted);
+  border-color: var(--border);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.7rem 1.2rem;
+}
+:host ::ng-deep .p-datatable-tbody > tr > td {
+  background: var(--surface);
+  color: var(--ink-2);
+  border-color: var(--border);
+  padding: 0.75rem 1.2rem;
+  vertical-align: middle;
+}
+:host ::ng-deep .p-datatable-tbody > tr:hover > td {
+  background: var(--surface-2);
+}
+
+/* Timeline de estados */
+.td-timeline-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid;
+  flex-shrink: 0;
+}
+.td-timeline-dot-on {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.td-timeline-dot-off {
+  background: var(--surface);
+  border-color: var(--border);
+}
+.td-timeline-line {
+  width: 2px;
+  height: 2rem;
+}
+.td-timeline-line-on {
+  background: var(--primary);
+}
+.td-timeline-line-off {
+  background: var(--border);
+}
+.td-timeline-current {
+  font-weight: 700;
+  color: var(--primary);
+}
+.td-timeline-done {
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.td-timeline-pending {
+  color: var(--muted);
+}
