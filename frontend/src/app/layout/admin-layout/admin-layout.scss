@@ -1,66 +1,212 @@
 /* ═══════════════════════════════════════════════
-   Admin Layout — La Tiendita
-   Sidebar + Toolbar con paleta primaveral
+   Admin Layout — "Thrift Editorial"
+   Mismo sistema, misma identidad. Sin gradientes,
+   sin hex hardcodeados.
    ═══════════════════════════════════════════════ */
 
-/* ── Navigation link ── */
-.nav-link {
-  color: #4b5563; /* gray-600 */
-
-  &:hover {
-    background-color: #f0fdf4; /* emerald-50 */
-    color: #059669; /* emerald-600 */
-  }
-
-  :host-context(.dark-theme) & {
-    color: #9ca3af; /* gray-400 */
-
-    &:hover {
-      background-color: #1f2937; /* gray-800 */
-      color: #34d399; /* emerald-400 */
-    }
-  }
+.ad-shell {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--bg);
 }
 
-/* ── Active navigation item ── */
-.active-nav-item {
-  background-color: #f0fdf4; /* emerald-50 */
-  color: #059669 !important; /* emerald-600 */
+/* ── Sidebar ── */
+.ad-sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+.ad-brand {
+  background: var(--primary);
+  color: oklch(0.97 0.01 160);
+  padding: 1.3rem 1.25rem 1.05rem;
+}
+:host-context(.dark-theme) .ad-brand {
+  background: oklch(0.33 0.045 162);
+}
+.ad-brand-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-sm);
+  background: oklch(1 0 0 / 0.18);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+.ad-brand-name {
+  font-family: var(--font-display);
   font-weight: 600;
-  border-left: 3px solid #059669; /* emerald-600 */
-  border-radius: 0.75rem;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-
-  i {
-    color: #059669;
-  }
-
-  :host-context(.dark-theme) & {
-    background-color: rgba(5, 150, 105, 0.1); /* emerald-600/10 */
-    color: #34d399 !important; /* emerald-400 */
-    border-left-color: #34d399;
-
-    i {
-      color: #34d399;
-    }
-  }
+  font-size: 1.1rem;
+  line-height: 1.15;
+}
+.ad-brand-sub {
+  display: block;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0.8;
+  margin-top: 0.1rem;
 }
 
-/* ── Scrollbar styling ── */
-.flex-1.overflow-y-auto {
-  &::-webkit-scrollbar {
-    width: 6px;
-  }
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  &::-webkit-scrollbar-thumb {
-    background-color: #d1d5db; /* gray-300 */
-    border-radius: 3px;
-  }
+/* ── Nav ── */
+.ad-nav {
+  flex: 1;
+  padding: 1rem 0.75rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.ad-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: var(--r-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  position: relative;
+  transition: background-color var(--ease), color var(--ease);
+}
+.ad-nav-link:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.ad-nav-link.active-nav-item {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.ad-nav-link.active-nav-item::before {
+  content: '';
+  position: absolute;
+  left: -0.75rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 58%;
+  border-radius: 0 3px 3px 0;
+  background: var(--primary);
+}
+.ad-nav-link i {
+  font-size: 1.05rem;
+  width: 20px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.ad-nav-link.active-nav-item i {
+  color: var(--primary);
+}
 
-  :host-context(.dark-theme) &::-webkit-scrollbar-thumb {
-    background-color: #4b5563; /* gray-600 */
+/* ── Sidebar footer ── */
+.ad-side-foot {
+  border-top: 1px solid var(--border);
+  padding: 0.85rem 1rem;
+}
+.ad-back-link {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  transition: color var(--ease);
+}
+.ad-back-link:hover {
+  color: var(--primary);
+}
+.ad-back-link i {
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+/* ── Main ── */
+.ad-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.ad-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 0.75rem var(--gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 64px;
+}
+.ad-toolbar .crumb {
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.ad-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--primary-soft);
+  color: var(--primary);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  box-shadow: var(--shadow-sm);
+}
+.ad-user-name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.ad-user-email {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.ad-logout:hover {
+  color: var(--error) !important;
+  background: oklch(0.95 0.03 20) !important;
+}
+.ad-content {
+  padding: clamp(1.25rem, 3vw, 2.25rem) var(--gutter);
+}
+
+/* ── Scrollbar ── */
+.ad-nav::-webkit-scrollbar {
+  width: 6px;
+}
+.ad-nav::-webkit-scrollbar-track {
+  background: transparent;
+}
+.ad-nav::-webkit-scrollbar-thumb {
+  background-color: var(--border);
+  border-radius: 3px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .ad-shell {
+    grid-template-columns: 1fr;
+  }
+  .ad-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 264px;
+    transform: translateX(-100%);
+    transition: transform var(--ease);
+    z-index: 60;
+  }
+  .ad-sidebar.open {
+    transform: none;
+    box-shadow: var(--shadow-lg);
   }
 }

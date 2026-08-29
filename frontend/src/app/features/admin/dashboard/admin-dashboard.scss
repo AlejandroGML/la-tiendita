@@ -66,3 +66,128 @@
   white-space: nowrap;
   line-height: 1.25;
 }
+
+/* ═══════════════════════════════════════════════
+   Sistema de tokens — stat cards + status chips
+   ═══════════════════════════════════════════════ */
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.25rem;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow var(--ease), transform var(--ease);
+  cursor: default;
+}
+.stat-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.ad-stat-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+}
+.ad-stat-icon i {
+  font-size: 1.15rem;
+}
+.ad-tint-primary {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.ad-tint-success {
+  background: oklch(0.93 0.04 155);
+  color: var(--success);
+}
+.ad-tint-warning {
+  background: oklch(0.95 0.05 80);
+  color: var(--warning);
+}
+.ad-tint-accent {
+  background: oklch(0.94 0.04 75);
+  color: var(--accent);
+}
+
+/* ── Status chips (semánticos del sistema) ── */
+.ad-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.22rem 0.65rem;
+  border-radius: var(--r-pill);
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.ad-status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.ad-status.is-pending {
+  background: oklch(0.95 0.05 80);
+  color: var(--warning);
+}
+.ad-status.is-confirmed {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+.ad-status.is-shipped {
+  background: oklch(0.94 0.04 220);
+  color: oklch(0.55 0.1 230);
+}
+.ad-status.is-delivered {
+  background: oklch(0.93 0.04 155);
+  color: var(--success);
+}
+.ad-status.is-cancelled {
+  background: oklch(0.94 0.03 20);
+  color: var(--error);
+}
+
+/* ── Mini tables ── */
+.td-card-head {
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+}
+.td-card-head h2 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--ink);
+}
+.mini-table-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-sm);
+}
+.mini-table-card .p-datatable {
+  border-color: var(--border);
+}
+.mini-table-card .p-datatable-thead > tr > th {
+  background: var(--surface);
+  color: var(--muted);
+  border-color: var(--border);
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.7rem 1.2rem;
+}
+.mini-table-card .p-datatable-tbody > tr > td {
+  background: var(--surface);
+  color: var(--ink-2);
+  border-color: var(--border);
+  padding: 0.75rem 1.2rem;
+  vertical-align: middle;
+}
+.mini-table-card .p-datatable-tbody > tr:hover > td {
+  background: var(--surface-2);
+}

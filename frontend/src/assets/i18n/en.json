@@ -210,7 +210,8 @@
     "statusUpdateError": "Error updating status",
     "categories": "Categories",
     "promotions": "Promotions",
-    "logout": "Log out"
+    "logout": "Log out",
+    "backToStore": "Back to store"
   },
   "condition": {
     "new": "New",

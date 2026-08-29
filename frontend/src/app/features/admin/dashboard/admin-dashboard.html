@@ -33,46 +33,11 @@
     data-testid="dashboard-stats"
   >
     <div *ngFor="let card of statCards()"
-         class="stat-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 p-5 hover:shadow-md hover:border-emerald-200 dark:hover:border-emerald-800 transition-all duration-200"
+         class="stat-card"
          [attr.data-testid]="card.testId">
       <div class="flex items-center gap-4">
-        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg"
-             [class.bg-emerald-50]="card.color === 'emerald'"
-             [class.text-emerald-600]="card.color === 'emerald'"
-             [class.dark:bg-emerald-900/30]="card.color === 'emerald'"
-             [class.dark:text-emerald-400]="card.color === 'emerald'"
-             [class.bg-pink-50]="card.color === 'pink'"
-             [class.text-pink-600]="card.color === 'pink'"
-             [class.dark:bg-pink-900/30]="card.color === 'pink'"
-             [class.dark:text-pink-400]="card.color === 'pink'"
-             [class.bg-amber-50]="card.color === 'amber'"
-             [class.text-amber-600]="card.color === 'amber'"
-             [class.dark:bg-amber-900/30]="card.color === 'amber'"
-             [class.dark:text-amber-400]="card.color === 'amber'"
-             [class.bg-sky-50]="card.color === 'sky'"
-             [class.text-sky-600]="card.color === 'sky'"
-             [class.dark:bg-sky-900/30]="card.color === 'sky'"
-             [class.dark:text-sky-400]="card.color === 'sky'"
-             [class.bg-violet-50]="card.color === 'violet'"
-             [class.text-violet-600]="card.color === 'violet'"
-             [class.dark:bg-violet-900/30]="card.color === 'violet'"
-             [class.dark:text-violet-400]="card.color === 'violet'"
-             [class.bg-orange-50]="card.color === 'orange'"
-             [class.text-orange-600]="card.color === 'orange'"
-             [class.dark:bg-orange-900/30]="card.color === 'orange'"
-             [class.dark:text-orange-400]="card.color === 'orange'"
-             [class.bg-cyan-50]="card.color === 'cyan'"
-             [class.text-cyan-600]="card.color === 'cyan'"
-             [class.dark:bg-cyan-900/30]="card.color === 'cyan'"
-             [class.dark:text-cyan-400]="card.color === 'cyan'"
-             [class.bg-rose-50]="card.color === 'rose'"
-             [class.text-rose-600]="card.color === 'rose'"
-             [class.dark:bg-rose-900/30]="card.color === 'rose'"
-             [class.dark:text-rose-400]="card.color === 'rose'"
-             [class.bg-teal-50]="card.color === 'teal'"
-             [class.text-teal-600]="card.color === 'teal'"
-             [class.dark:bg-teal-900/30]="card.color === 'teal'"
-             [class.dark:text-teal-400]="card.color === 'teal'">
+        <div class="w-12 h-12 rounded-xl flex items-center justify-center text-lg ad-stat-icon"
+             [ngClass]="tintClass(card.color)">
           <i [class]="card.icon"></i>
         </div>
         <div class="min-w-0">
@@ -97,10 +62,10 @@
   >
     <!-- Recent Orders table -->
     <div
-      class="mini-table-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden min-w-0"
+      class="mini-table-card"
       data-testid="recent-orders-table"
     >
-      <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+      <div class="td-card-head">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {{ 'admin.recentOrders' | translate }}
         </h2>
@@ -146,17 +111,12 @@
             <td>{{ order.total | currency }}</td>
             <td>
               <span
-                class="status-badge inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
-                [class.bg-amber-100]="order.status === 'pending'"
-                [class.text-amber-700]="order.status === 'pending'"
-                [class.bg-sky-100]="order.status === 'confirmed'"
-                [class.text-sky-700]="order.status === 'confirmed'"
-                [class.bg-blue-100]="order.status === 'shipped'"
-                [class.text-blue-700]="order.status === 'shipped'"
-                [class.bg-emerald-100]="order.status === 'delivered'"
-                [class.text-emerald-700]="order.status === 'delivered'"
-                [class.bg-red-100]="order.status === 'cancelled'"
-                [class.text-red-700]="order.status === 'cancelled'"
+                class="ad-status"
+                [class.is-pending]="order.status === 'pending'"
+                [class.is-confirmed]="order.status === 'confirmed'"
+                [class.is-shipped]="order.status === 'shipped'"
+                [class.is-delivered]="order.status === 'delivered'"
+                [class.is-cancelled]="order.status === 'cancelled'"
               >
                 {{ 'order.status.' + order.status | translate }}
               </span>
@@ -178,10 +138,10 @@
 
     <!-- Recent Users table -->
     <div
-      class="mini-table-card bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800 shadow-sm overflow-hidden min-w-0"
+      class="mini-table-card"
       data-testid="recent-users-table"
     >
-      <div class="px-5 py-4 border-b border-gray-100 dark:border-gray-800">
+      <div class="td-card-head">
         <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">
           {{ 'admin.recentUsers' | translate }}
         </h2>
@@ -227,11 +187,9 @@
             <td class="text-sm text-gray-500 dark:text-gray-400">{{ user.email }}</td>
             <td>
               <span
-                class="status-badge inline-flex px-2 py-0.5 rounded-full text-xs font-medium"
-                [class.bg-emerald-100]="user.role === 'admin'"
-                [class.text-emerald-700]="user.role === 'admin'"
-                [class.bg-sky-100]="user.role === 'customer'"
-                [class.text-sky-700]="user.role === 'customer'"
+                class="ad-status"
+                [class.is-confirmed]="user.role === 'admin'"
+                [class.is-pending]="user.role === 'customer'"
               >
                 {{ 'admin.role' + (user.role === 'admin' ? 'Admin' : 'Customer') | translate }}
               </span>

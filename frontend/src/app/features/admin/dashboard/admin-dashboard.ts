@@ -130,4 +130,20 @@ export class AdminDashboard implements OnInit, OnDestroy {
       { labelKey: 'admin.ordersMonth', icon: 'pi pi-receipt', value: s.orders_month, color: 'cyan', format: 'number', testId: 'stat-orders-month' },
     ];
   });
+
+  /** Map legacy color names to system tints (primary/success/warning/accent) */
+  tintClass(color: string): string {
+    const map: Record<string, string> = {
+      emerald: 'ad-tint-primary',
+      teal: 'ad-tint-primary',
+      sky: 'ad-tint-success',
+      cyan: 'ad-tint-success',
+      amber: 'ad-tint-warning',
+      orange: 'ad-tint-warning',
+      pink: 'ad-tint-accent',
+      violet: 'ad-tint-accent',
+      rose: 'ad-tint-accent',
+    };
+    return map[color] ?? 'ad-tint-primary';
+  }
 }

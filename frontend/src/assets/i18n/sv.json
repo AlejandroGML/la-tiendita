@@ -210,7 +210,8 @@
     "statusUpdateError": "Fel vid uppdatering av status",
     "categories": "Kategorier",
     "promotions": "Kampanjer",
-    "logout": "Logga ut"
+    "logout": "Logga ut",
+    "backToStore": "Tillbaka till butiken"
   },
   "condition": {
     "new": "Ny",

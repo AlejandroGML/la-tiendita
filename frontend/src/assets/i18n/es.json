@@ -210,7 +210,8 @@
     "statusUpdateError": "Error al actualizar estado",
     "categories": "Categorías",
     "promotions": "Promociones",
-    "logout": "Cerrar sesión"
+    "logout": "Cerrar sesión",
+    "backToStore": "Volver a la tienda"
   },
   "condition": {
     "new": "Nuevo",
