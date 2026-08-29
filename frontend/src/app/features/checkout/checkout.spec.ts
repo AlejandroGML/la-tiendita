@@ -246,7 +246,7 @@ describe('CheckoutComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const errorEl = fixture.nativeElement.querySelector('.text-red-600');
+    const errorEl = fixture.nativeElement.querySelector('.td-error');
     expect(errorEl).toBeTruthy();
   });
 
@@ -267,7 +267,7 @@ describe('CheckoutComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const errorEl = fixture.nativeElement.querySelector('.text-red-600');
+    const errorEl = fixture.nativeElement.querySelector('.td-error');
     expect(errorEl).toBeTruthy();
     expect(errorEl.textContent).toContain('checkout.stockError');
   });
@@ -289,7 +289,7 @@ describe('CheckoutComponent', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const errorEl = fixture.nativeElement.querySelector('.text-red-600');
+    const errorEl = fixture.nativeElement.querySelector('.td-error');
     expect(errorEl).toBeTruthy();
     expect(errorEl.textContent).toContain('checkout.paymentUnavailable');
   });

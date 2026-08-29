@@ -1,232 +1,232 @@
-<div class="checkout-page min-h-screen" data-testid="checkout-page">
-  <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-6">{{ 'checkout.title' | translate }}</h1>
+<div class="checkout-page" data-testid="checkout-page">
+  <div class="container section" style="padding-top: 2rem">
 
-  <!-- Loading state -->
-  <div *ngIf="loading()" class="flex justify-center py-16">
-    <p-progressSpinner
-      [style]="{ width: '48px', height: '48px' }"
-      strokeWidth="4"
-    ></p-progressSpinner>
-  </div>
+    <!-- Breadcrumb -->
+    <nav class="td-breadcrumb" aria-label="Miga de pan">
+      <a routerLink="/carrito">{{ 'cart.title' | translate }}</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      <span class="here">{{ 'checkout.title' | translate }}</span>
+    </nav>
 
-  <!-- Redirecting overlay -->
-  <div
-    *ngIf="redirecting()"
-    class="fixed inset-0 bg-black/50 z-50 flex flex-col items-center justify-center gap-4"
-    data-testid="checkout-redirecting"
-  >
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-10 flex flex-col items-center gap-4">
+    <div class="td-toolbar">
+      <div>
+        <h1 class="display">{{ 'checkout.title' | translate }}</h1>
+      </div>
+    </div>
+
+    <!-- Loading state -->
+    <div *ngIf="loading()" class="flex justify-center py-16">
       <p-progressSpinner
-        [style]="{ width: '56px', height: '56px' }"
+        [style]="{ width: '48px', height: '48px' }"
         strokeWidth="4"
       ></p-progressSpinner>
-      <p class="text-lg font-medium text-gray-700 dark:text-gray-300">
-        {{ 'checkout.redirecting' | translate }}
-      </p>
     </div>
-  </div>
 
-  <!-- Error state -->
-  <div *ngIf="error() && !loading()" class="text-center py-8">
-    <p class="text-red-600 dark:text-red-400 text-lg mb-3">{{ error() | translate }}</p>
-    <p-button
-      *ngIf="error()"
-      [label]="'order.retry' | translate"
-      severity="primary"
-      styleClass="mt-2"
-      (onClick)="submitOrder()"
-      data-testid="checkout-retry-button"
-    ></p-button>
-  </div>
+    <!-- Redirecting overlay -->
+    <div
+      *ngIf="redirecting()"
+      class="fixed inset-0 bg-black/50 z-50 flex flex-col items-center justify-center gap-4"
+      data-testid="checkout-redirecting"
+    >
+      <div class="td-redirect-card">
+        <p-progressSpinner
+          [style]="{ width: '56px', height: '56px' }"
+          strokeWidth="4"
+        ></p-progressSpinner>
+        <p>{{ 'checkout.redirecting' | translate }}</p>
+      </div>
+    </div>
 
-  <ng-container *ngIf="!loading() && !redirecting()">
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
-      <!-- Shipping form -->
-      <div class="lg:col-span-3">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ 'checkout.shipping' | translate }}</h2>
+    <!-- Error state -->
+    <div *ngIf="error() && !loading()" class="td-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+      <p>{{ error() | translate }}</p>
+      <p-button
+        *ngIf="error()"
+        [label]="'order.retry' | translate"
+        severity="primary"
+        styleClass="mt-2"
+        (onClick)="submitOrder()"
+        data-testid="checkout-retry-button"
+      ></p-button>
+    </div>
 
-          <form [formGroup]="shippingForm" (ngSubmit)="submitOrder()" data-testid="shipping-form">
-            <!-- Guest email — only visible when not authenticated -->
-            <div class="mb-4" *ngIf="isGuest()">
-              <p-floatLabel variant="on" styleClass="w-full">
-                <input pInputText formControlName="guestEmail" data-testid="input-guest-email" type="email" class="w-full" />
-                <label>{{ 'checkout.email' | translate }}</label>
-              </p-floatLabel>
-              <small
-                *ngIf="shippingForm.get('guestEmail')?.invalid && shippingForm.get('guestEmail')?.touched"
-                class="p-error block mt-1"
-              >
-                {{ 'checkout.emailInvalid' | translate }}
-              </small>
-            </div>
+    <ng-container *ngIf="!loading() && !redirecting()">
+      <div class="td-checkout-grid">
+        <!-- Shipping form -->
+        <div>
+          <div class="td-card-form">
+            <h2 class="td-form-title">{{ 'checkout.shipping' | translate }}</h2>
 
-            <div class="mb-4">
-              <p-floatLabel variant="on" styleClass="w-full">
-                <input pInputText formControlName="name" data-testid="input-name" class="w-full" />
-                <label>{{ 'checkout.name' | translate }}</label>
-              </p-floatLabel>
-              <small
-                *ngIf="shippingForm.get('name')?.invalid && shippingForm.get('name')?.touched"
-                class="p-error block mt-1"
-              >
-                {{ 'checkout.nameRequired' | translate }}
-              </small>
-            </div>
-
-            <div class="mb-4">
-              <p-floatLabel variant="on" styleClass="w-full">
-                <input pInputText formControlName="address" data-testid="input-address" class="w-full" />
-                <label>{{ 'checkout.address' | translate }}</label>
-              </p-floatLabel>
-              <small
-                *ngIf="shippingForm.get('address')?.invalid && shippingForm.get('address')?.touched"
-                class="p-error block mt-1"
-              >
-                {{ 'checkout.addressRequired' | translate }}
-              </small>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-              <div>
+            <form [formGroup]="shippingForm" (ngSubmit)="submitOrder()" data-testid="shipping-form">
+              <!-- Guest email — only visible when not authenticated -->
+              <div class="mb-4" *ngIf="isGuest()">
                 <p-floatLabel variant="on" styleClass="w-full">
-                  <input pInputText formControlName="city" data-testid="input-city" class="w-full" />
-                  <label>{{ 'checkout.city' | translate }}</label>
+                  <input pInputText formControlName="guestEmail" data-testid="input-guest-email" type="email" class="w-full" />
+                  <label>{{ 'checkout.email' | translate }}</label>
                 </p-floatLabel>
                 <small
-                  *ngIf="shippingForm.get('city')?.invalid && shippingForm.get('city')?.touched"
+                  *ngIf="shippingForm.get('guestEmail')?.invalid && shippingForm.get('guestEmail')?.touched"
                   class="p-error block mt-1"
                 >
-                  {{ 'checkout.cityRequired' | translate }}
+                  {{ 'checkout.emailInvalid' | translate }}
                 </small>
               </div>
 
-              <div>
+              <div class="mb-4">
                 <p-floatLabel variant="on" styleClass="w-full">
-                  <input pInputText formControlName="phone" data-testid="input-phone" class="w-full" />
-                  <label>{{ 'checkout.phone' | translate }}</label>
+                  <input pInputText formControlName="name" data-testid="input-name" class="w-full" />
+                  <label>{{ 'checkout.name' | translate }}</label>
                 </p-floatLabel>
                 <small
-                  *ngIf="shippingForm.get('phone')?.invalid && shippingForm.get('phone')?.touched"
+                  *ngIf="shippingForm.get('name')?.invalid && shippingForm.get('name')?.touched"
                   class="p-error block mt-1"
                 >
-                  {{ 'checkout.phoneRequired' | translate }}
+                  {{ 'checkout.nameRequired' | translate }}
                 </small>
               </div>
-            </div>
-          </form>
 
-          <!-- Shipping Method Selector -->
-          <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-4">
-            <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ 'checkout.shippingMethod' | translate }}</h3>
-            <div *ngFor="let method of shippingMethods()"
-                 (click)="selectShipping(method)"
-                 class="flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors mb-2"
-                 [class.border-emerald-500]="selectedShipping()?.id === method.id"
-                 [class.bg-emerald-50]="selectedShipping()?.id === method.id"
-                 [class.dark:bg-emerald-900/20]="selectedShipping()?.id === method.id"
-                 [class.border-gray-200]="selectedShipping()?.id !== method.id"
-                 [class.dark:border-gray-600]="selectedShipping()?.id !== method.id"
-                 [class.dark:hover:border-gray-500]="selectedShipping()?.id !== method.id"
-                 data-testid="shipping-option">
-              <input type="radio"
-                     [value]="method.id"
-                     [checked]="selectedShipping()?.id === method.id"
-                     class="accent-emerald-600"
-                     name="shippingMethod" />
-              <div class="flex-1">
-                <p class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ method.name }}</p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">{{ method.estimated_days }}</p>
+              <div class="mb-4">
+                <p-floatLabel variant="on" styleClass="w-full">
+                  <input pInputText formControlName="address" data-testid="input-address" class="w-full" />
+                  <label>{{ 'checkout.address' | translate }}</label>
+                </p-floatLabel>
+                <small
+                  *ngIf="shippingForm.get('address')?.invalid && shippingForm.get('address')?.touched"
+                  class="p-error block mt-1"
+                >
+                  {{ 'checkout.addressRequired' | translate }}
+                </small>
               </div>
-              <span class="text-sm font-semibold text-gray-900 dark:text-gray-100"
-                    [class.text-emerald-600]="method.price === 0">
-                {{ method.price === 0 ? ('checkout.free' | translate) : (method.price | currency) }}
-              </span>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <p-floatLabel variant="on" styleClass="w-full">
+                    <input pInputText formControlName="city" data-testid="input-city" class="w-full" />
+                    <label>{{ 'checkout.city' | translate }}</label>
+                  </p-floatLabel>
+                  <small
+                    *ngIf="shippingForm.get('city')?.invalid && shippingForm.get('city')?.touched"
+                    class="p-error block mt-1"
+                  >
+                    {{ 'checkout.cityRequired' | translate }}
+                  </small>
+                </div>
+
+                <div>
+                  <p-floatLabel variant="on" styleClass="w-full">
+                    <input pInputText formControlName="phone" data-testid="input-phone" class="w-full" />
+                    <label>{{ 'checkout.phone' | translate }}</label>
+                  </p-floatLabel>
+                  <small
+                    *ngIf="shippingForm.get('phone')?.invalid && shippingForm.get('phone')?.touched"
+                    class="p-error block mt-1"
+                  >
+                    {{ 'checkout.phoneRequired' | translate }}
+                  </small>
+                </div>
+              </div>
+            </form>
+
+            <!-- Shipping Method Selector -->
+            <div class="td-ship-methods">
+              <h3>{{ 'checkout.shippingMethod' | translate }}</h3>
+              <div *ngFor="let method of shippingMethods()"
+                   (click)="selectShipping(method)"
+                   class="td-ship-opt"
+                   [class.is-on]="selectedShipping()?.id === method.id"
+                   data-testid="shipping-option">
+                <input type="radio"
+                       [value]="method.id"
+                       [checked]="selectedShipping()?.id === method.id"
+                       name="shippingMethod" />
+                <div class="flex-1">
+                  <p class="td-ship-opt-name">{{ method.name }}</p>
+                  <p class="td-ship-opt-sub">{{ method.estimated_days }}</p>
+                </div>
+                <span class="td-ship-opt-price" [class.is-free]="method.price === 0">
+                  {{ method.price === 0 ? ('checkout.free' | translate) : (method.price | currency) }}
+                </span>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- Payment Method -->
-        <div class="mt-8">
-          <h3 class="text-base font-semibold text-gray-900 dark:text-gray-100 mb-3">{{ 'checkout.paymentMethod' | translate }}</h3>
-          <div class="grid grid-cols-3 gap-3">
-            <button
-              *ngFor="let method of paymentMethods"
-              type="button"
-              class="flex flex-col items-center gap-2 p-4 rounded-lg border-2 transition-colors"
-              [class.border-primary]="paymentMethod() === method.id"
-              [class.border-gray-200]="paymentMethod() !== method.id"
-              [class.dark:border-gray-700]="paymentMethod() !== method.id"
-              (click)="selectPaymentMethod(method.id)"
-            >
-              <i [class]="method.icon" class="text-xl"></i>
-              <span class="text-sm font-medium">{{ method.label }}</span>
-            </button>
+          <!-- Payment Method -->
+          <div class="td-pay-block">
+            <h3>{{ 'checkout.paymentMethod' | translate }}</h3>
+            <div class="td-pay-grid">
+              <button
+                *ngFor="let method of paymentMethods"
+                type="button"
+                class="td-pay-opt"
+                [class.is-on]="paymentMethod() === method.id"
+                (click)="selectPaymentMethod(method.id)"
+              >
+                <i [class]="method.icon" class="text-xl"></i>
+                <span>{{ method.label }}</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Swish QR (mock) -->
+          <div *ngIf="qrCode()" class="td-qr-box">
+            <h4>{{ 'checkout.swishPay' | translate }}</h4>
+            <p class="td-qr-code">{{ qrCode() }}</p>
+            <p class="td-qr-hint">{{ 'checkout.swishMockHint' | translate }}</p>
           </div>
         </div>
 
-        <!-- Swish QR (mock) -->
-        <div *ngIf="qrCode()" class="mt-6 p-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
-          <h4 class="text-sm font-semibold text-gray-900 dark:text-gray-100 mb-2">{{ 'checkout.swishPay' | translate }}</h4>
-          <p class="text-xs text-gray-500 dark:text-gray-400 break-all font-mono">{{ qrCode() }}</p>
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">{{ 'checkout.swishMockHint' | translate }}</p>
+        <!-- Order Summary -->
+        <div>
+          <div class="td-summary">
+            <h2 class="td-form-title">{{ 'checkout.summary' | translate }}</h2>
+
+            <div class="td-sum-items">
+              <div
+                *ngFor="let item of items"
+                class="td-sum-item"
+              >
+                <div class="flex-1 min-w-0">
+                  <p class="td-sum-item-name">{{ item.product_name }}</p>
+                  <p class="td-sum-item-sub">{{ 'checkout.qty' | translate }}: {{ item.quantity }}</p>
+                </div>
+                <span class="td-sum-item-price">{{ item.subtotal | currency }}</span>
+              </div>
+            </div>
+
+            <div class="td-sum-totals">
+              <div class="td-sum-row">
+                <span>{{ 'checkout.subtotal' | translate }}</span>
+                <span>{{ total | currency }}</span>
+              </div>
+              <div *ngIf="selectedShipping()" class="td-sum-row">
+                <span>{{ 'checkout.shipping' | translate }}</span>
+                <span [class.td-sum-free]="selectedShipping()!.price === 0">
+                  {{ selectedShipping()!.price === 0 ? ('checkout.free' | translate) : (selectedShipping()!.price | currency) }}
+                </span>
+              </div>
+              <div class="td-sum-total">
+                <span>{{ 'checkout.total' | translate }}</span>
+                <span>{{ totalWithShipping | currency }}</span>
+              </div>
+            </div>
+
+            <div class="td-sum-cta">
+              <p-button
+                [label]="'checkout.confirm' | translate"
+                severity="primary"
+                styleClass="td-sum-checkout"
+                [loading]="submitting()"
+                [disabled]="submitting() || redirecting() || shippingForm.invalid || items.length === 0"
+                (onClick)="submitOrder()"
+                data-testid="confirm-button"
+              ></p-button>
+            </div>
+          </div>
         </div>
       </div>
+    </ng-container>
 
-      <!-- Order Summary -->
-      <div class="lg:col-span-2">
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow p-6 sticky top-4">
-          <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100 mb-4">{{ 'checkout.summary' | translate }}</h2>
-
-          <div class="divide-y divide-gray-200 dark:divide-gray-700">
-            <div
-              *ngFor="let item of items"
-              class="flex justify-between items-center py-2"
-            >
-              <div class="flex-1 min-w-0">
-                <p class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
-                  {{ item.product_name }}
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                  {{ 'checkout.qty' | translate }}: {{ item.quantity }}
-                </p>
-              </div>
-              <span class="text-sm font-medium text-gray-900 dark:text-gray-100 ml-4">{{ item.subtotal | currency }}</span>
-            </div>
-          </div>
-
-          <div class="border-t border-gray-200 dark:border-gray-700 mt-4 pt-4">
-            <div class="flex justify-between items-center text-sm mb-1">
-              <span class="text-gray-600 dark:text-gray-400">{{ 'checkout.subtotal' | translate }}</span>
-              <span class="font-medium text-gray-900 dark:text-gray-100">{{ total | currency }}</span>
-            </div>
-            <div *ngIf="selectedShipping() && selectedShipping()!.price > 0" class="flex justify-between items-center text-sm mb-1">
-              <span class="text-gray-600 dark:text-gray-400">{{ 'checkout.shipping' | translate }}</span>
-              <span class="font-medium text-gray-900 dark:text-gray-100">{{ selectedShipping()!.price | currency }}</span>
-            </div>
-            <div *ngIf="selectedShipping() && selectedShipping()!.price === 0" class="flex justify-between items-center text-sm mb-1">
-              <span class="text-gray-600 dark:text-gray-400">{{ 'checkout.shipping' | translate }}</span>
-              <span class="font-medium text-emerald-600">{{ 'checkout.free' | translate }}</span>
-            </div>
-            <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-gray-700">
-              <span class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ 'checkout.total' | translate }}</span>
-              <span class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ totalWithShipping | currency }}</span>
-            </div>
-          </div>
-
-          <p-button
-            [label]="'checkout.confirm' | translate"
-            severity="primary"
-            styleClass="w-full mt-6 py-3 text-lg"
-            [loading]="submitting()"
-            [disabled]="submitting() || redirecting() || shippingForm.invalid || items.length === 0"
-            (onClick)="submitOrder()"
-            data-testid="confirm-button"
-          ></p-button>
-        </div>
-      </div>
-    </div>
-  </ng-container>
-
-  <p-toast position="bottom-right"></p-toast>
+    <p-toast position="bottom-right"></p-toast>
+  </div>
 </div>

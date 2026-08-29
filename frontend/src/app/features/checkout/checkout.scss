@@ -1,1 +1,314 @@
-/* Checkout page styles — uses Tailwind utility classes; scoped overrides here */
+.checkout-page {
+  max-width: var(--container);
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════════
+   Checkout — "Thrift Editorial"
+   Prioridad: legibilidad en ambos modos (dark incluido)
+   ═══════════════════════════════════════════════ */
+
+.td-checkout-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: 2rem;
+  align-items: start;
+}
+
+/* ── Form card ── */
+.td-card-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.6rem;
+  box-shadow: var(--shadow-sm);
+}
+.td-form-title {
+  margin: 0 0 1.2rem;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.35rem;
+  color: var(--ink);
+}
+:host ::ng-deep .p-floatlabel label {
+  color: var(--muted);
+  font-family: var(--font-body);
+}
+:host ::ng-deep .p-floatlabel input:focus ~ label,
+:host ::ng-deep .p-floatlabel input.p-filled ~ label {
+  color: var(--primary);
+}
+:host ::ng-deep .p-error {
+  color: var(--error);
+  font-size: 0.8rem;
+}
+
+/* ── Shipping methods ── */
+.td-ship-methods {
+  margin-top: 1.6rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--border);
+}
+.td-ship-methods h3,
+.td-pay-block h3 {
+  margin: 0 0 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.td-ship-opt {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  margin-bottom: 0.6rem;
+  transition: border-color var(--ease), background-color var(--ease), box-shadow var(--ease);
+}
+.td-ship-opt:hover {
+  border-color: var(--primary);
+}
+.td-ship-opt.is-on {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  box-shadow: 0 0 0 3px var(--primary-soft);
+}
+.td-ship-opt input[type="radio"] {
+  accent-color: var(--primary);
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+.td-ship-opt-name {
+  margin: 0;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink);
+}
+.td-ship-opt-sub {
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.td-ship-opt-price {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.td-ship-opt-price.is-free {
+  color: var(--success);
+}
+
+/* ── Payment methods ── */
+.td-pay-block {
+  margin-top: 2rem;
+}
+.td-pay-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+.td-pay-opt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.5rem;
+  border: 2px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--ink-2);
+  cursor: pointer;
+  transition: border-color var(--ease), color var(--ease), background-color var(--ease);
+}
+.td-pay-opt:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.td-pay-opt.is-on {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+/* ── Swish QR (mock) ── */
+.td-qr-box {
+  margin-top: 1.5rem;
+  padding: 1.1rem 1.25rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.td-qr-box h4 {
+  margin: 0 0 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--ink);
+}
+.td-qr-code {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  color: var(--ink-2);
+  font-family: ui-monospace, monospace;
+  word-break: break-all;
+}
+.td-qr-hint {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+/* ── Summary ── */
+.td-summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  padding: 1.6rem;
+  position: sticky;
+  top: 8.5rem;
+  box-shadow: var(--shadow-sm);
+}
+.td-sum-items {
+  border-top: 1px solid var(--border);
+}
+.td-sum-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-block: 0.75rem;
+  border-bottom: 1px solid var(--border);
+}
+.td-sum-item-name {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.td-sum-item-sub {
+  margin: 0.1rem 0 0;
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.td-sum-item-price {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-left: 1rem;
+  white-space: nowrap;
+}
+.td-sum-totals {
+  margin-top: 1rem;
+}
+.td-sum-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  padding-block: 0.45rem;
+}
+.td-sum-free {
+  color: var(--success);
+  font-weight: 600;
+}
+.td-sum-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-top: 1px solid var(--border);
+  margin-top: 0.8rem;
+  padding-top: 1rem;
+  font-weight: 700;
+  font-size: 1.15rem;
+  color: var(--ink);
+}
+.td-sum-cta {
+  margin-top: 1.2rem;
+}
+.td-sum-checkout {
+  width: 100%;
+  min-height: 52px;
+  border: none !important;
+  border-radius: var(--r-md) !important;
+  background: var(--primary) !important;
+  color: oklch(0.97 0.01 160) !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+  box-shadow: var(--shadow-sm) !important;
+  transition: background-color var(--ease), box-shadow var(--ease), transform var(--ease) !important;
+}
+.td-sum-checkout:hover:not(:disabled) {
+  background: var(--primary-hover) !important;
+  box-shadow: var(--shadow-md) !important;
+  transform: translateY(-1px);
+}
+.td-sum-checkout:disabled {
+  opacity: 0.5;
+}
+
+/* ── Error ── */
+.td-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 2.5rem 1rem;
+  color: var(--error);
+  background: oklch(0.95 0.03 20);
+  border: 1px solid oklch(0.88 0.05 20);
+  border-radius: var(--r-lg);
+  margin-bottom: 1.5rem;
+}
+.td-error svg {
+  width: 44px;
+  height: 44px;
+  opacity: 0.6;
+}
+.td-error p {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+}
+
+/* ── Redirect overlay card ── */
+.td-redirect-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+.td-redirect-card p {
+  margin: 0;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .td-checkout-grid {
+    grid-template-columns: 1fr;
+  }
+  .td-summary {
+    position: static;
+  }
+}
+@media (max-width: 560px) {
+  .td-pay-grid {
+    grid-template-columns: 1fr;
+  }
+}
