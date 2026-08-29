@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
@@ -31,8 +31,8 @@ export class Login {
     password: ['', Validators.required],
   });
 
-  submitting = false;
-  errorMessage: string | null = null;
+  readonly submitting = signal(false);
+  readonly errorMessage = signal<string | null>(null);
 
   googleLogin(): void {
     this.auth.initiateGoogleLogin();
@@ -41,22 +41,23 @@ export class Login {
   submit(): void {
     if (this.form.invalid) return;
 
-    this.submitting = true;
-    this.errorMessage = null;
+    this.submitting.set(true);
+    this.errorMessage.set(null);
     const { email, password } = this.form.value;
 
     this.auth.login(email ?? '', password ?? '').subscribe({
       next: () => {
-        this.submitting = false;
+        this.submitting.set(false);
         this.sessionExp.start();
         // Redirect admins to dashboard, customers to home
         const target = this.authState.isAdmin() ? '/admin' : '/';
         this.router.navigate([target]);
       },
       error: (err) => {
-        this.submitting = false;
-        this.errorMessage =
-          err?.error?.detail || err?.message || 'auth.loginFailed';
+        this.submitting.set(false);
+        this.errorMessage.set(
+          err?.error?.detail || err?.message || 'auth.loginFailed',
+        );
       },
     });
   }

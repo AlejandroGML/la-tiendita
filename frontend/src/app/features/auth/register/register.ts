@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -33,14 +33,14 @@ export class Register {
     { validators: this.passwordsMatch },
   );
 
-  errorMessage: string | null = null;
-  submitting = false;
+  readonly errorMessage = signal<string | null>(null);
+  readonly submitting = signal(false);
 
   submit(): void {
     if (this.form.invalid) return;
 
-    this.submitting = true;
-    this.errorMessage = null;
+    this.submitting.set(true);
+    this.errorMessage.set(null);
     const { name, email, password, acceptTerms, marketingConsent } = this.form.value;
 
     this.auth.register({
@@ -49,14 +49,13 @@ export class Register {
       marketing_consent: marketingConsent ?? false,
     }).subscribe({
       next: () => {
-        this.submitting = false;
+        this.submitting.set(false);
         this.sessionExp.start();
         this.router.navigate(['/registro-exitoso']);
       },
       error: (err) => {
-        this.submitting = false;
-        this.errorMessage =
-          err?.error?.detail || err?.message || 'auth.registrationFailed';
+        this.submitting.set(false);
+        this.errorMessage.set(err?.error?.detail || err?.message || 'auth.registrationFailed');
       },
     });
   }

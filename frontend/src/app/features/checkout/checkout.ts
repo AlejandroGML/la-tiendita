@@ -169,14 +169,20 @@ export class CheckoutComponent implements OnInit, OnDestroy {
               detail: 'Tu pedido ha sido confirmado.',
             });
             this.router.navigate(['/checkout/success'], {
-              queryParams: { order_id: orderId },
+              queryParams: {
+                order_id: orderId,
+                guest: this.isGuest() ? '1' : undefined,
+              },
             });
           },
           error: () => {
             // El mock-confirm puede fallar si la orden ya fue confirmada
             // (doble submit) — en ese caso navegamos igualmente a éxito.
             this.router.navigate(['/checkout/success'], {
-              queryParams: { order_id: orderId },
+              queryParams: {
+                order_id: orderId,
+                guest: this.isGuest() ? '1' : undefined,
+              },
             });
           },
         });

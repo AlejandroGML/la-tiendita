@@ -41,7 +41,7 @@
         </small>
       </div>
 
-      <div *ngIf="errorMessage" class="text-red-600 text-sm">{{ errorMessage | translate }}</div>
+      <div *ngIf="errorMessage()" class="text-red-600 text-sm border border-red-300 bg-red-50 dark:bg-red-900/20 dark:border-red-800 dark:text-red-300 px-3 py-2 rounded-lg">{{ errorMessage() }}</div>
 
       <!-- Terms acceptance -->
       <div class="flex items-start gap-3 py-2 -my-2">
@@ -67,8 +67,8 @@
         severity="primary"
         styleClass="w-full"
         type="submit"
-        [loading]="submitting"
-        [disabled]="form.invalid || submitting"
+        [loading]="submitting()"
+        [disabled]="form.invalid || submitting()"
       ></p-button>
     </form>
 
