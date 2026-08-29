@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { SharedPipesModule } from '../../shared-pipes.module';
 
@@ -16,7 +17,7 @@ interface RecentProduct {
 @Component({
   selector: 'app-recently-viewed',
   standalone: true,
-  imports: [CommonModule, RouterLink, SharedPipesModule],
+  imports: [CommonModule, RouterLink, SharedPipesModule, TranslateModule],
   templateUrl: './recently-viewed.html',
 })
 export class RecentlyViewedComponent implements OnInit {

@@ -1,171 +1,123 @@
 <div class="home-page">
-  <!-- HERO SECTION -->
-  <section class="hero relative overflow-hidden">
-    <div class="absolute inset-0 bg-green-800 lg:bg-gradient-to-br lg:from-green-900 lg:via-green-700 lg:to-emerald-600 dark:bg-gray-950 dark:lg:bg-gradient-to-br dark:lg:from-gray-950 dark:lg:via-emerald-950 dark:lg:to-teal-950">
-      <div class="absolute inset-0 opacity-20" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><circle cx=%2220%22 cy=%2230%22 r=%2215%22 fill=%22white%22 opacity=%220.15%22/><circle cx=%2280%22 cy=%2270%22 r=%2220%22 fill=%22white%22 opacity=%220.1%22/><circle cx=%2250%22 cy=%2220%22 r=%2210%22 fill=%22white%22 opacity=%220.12%22/></svg>')"></div>
-    </div>
-
-    <div class="relative container mx-auto px-4 sm:px-8 py-20 md:py-32 flex flex-col lg:flex-row items-center gap-12">
-      <div class="flex-1 text-white space-y-6 max-w-2xl">
-        <span class="inline-block px-4 py-2 bg-white/15 backdrop-blur-sm rounded-full text-sm font-medium tracking-wide">
-          <i class="pi pi-recycle mr-1"></i> {{ 'home.sustainable' | translate }}
-        </span>
-        <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold leading-tight">
-          {{ 'home.heroTitle' | translate }}<br>
-          <span class="text-emerald-200">{{ 'home.heroHighlight' | translate }}</span>
-        </h1>
-        <p class="text-lg md:text-xl text-green-100 max-w-xl leading-relaxed">
-          {{ 'home.heroDesc' | translate }}
-        </p>
-        <div class="flex flex-wrap gap-4 pt-4">
-          <a pButton severity="secondary" class="!bg-white !text-green-800 font-semibold !px-8 !py-3 !text-lg hover:!bg-green-50 transition-colors" routerLink="/productos">
-            <i class="pi pi-search mr-2"></i>
+  <!-- ═══════════ HERO EDITORIAL ═══════════ -->
+  <section class="td-hero">
+    <div class="container td-hero-grid">
+      <div>
+        <span class="eyebrow">{{ 'home.explore' | translate }}</span>
+        <h1 class="display">{{ 'home.heroTitle' | translate }}<br><em>{{ 'home.heroHighlight' | translate }}</em></h1>
+        <p class="lede">{{ 'home.heroDesc' | translate }}</p>
+        <div class="td-hero-ctas">
+          <a class="td-btn td-btn-primary td-btn-lg" routerLink="/productos">
+            <span [innerHTML]="'search' | svgIcon"></span>
             {{ 'home.browseCatalog' | translate }}
           </a>
-          <a pButton [outlined]="true" class="!border-white !text-white font-semibold !px-8 !py-3 !text-lg hover:!bg-white/10 transition-colors" routerLink="/register">
-            <i class="pi pi-user-plus mr-2"></i>
+          <a class="td-btn td-btn-outline td-btn-lg" routerLink="/register">
+            <span [innerHTML]="'userPlus' | svgIcon"></span>
             {{ 'home.joinCommunity' | translate }}
           </a>
         </div>
-        <div class="flex items-center gap-8 pt-8 text-green-200 text-sm">
-          <div class="flex items-center gap-2">
-            <i class="pi pi-check-circle text-lg"></i>
-            <span>{{ 'home.freeShipping' | translate }}</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <i class="pi pi-shield text-lg"></i>
-            <span>{{ 'home.securePay' | translate }}</span>
-          </div>
+        <div class="td-hero-trust">
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg> {{ 'home.freeShipping' | translate }}</span>
+          <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></svg> {{ 'home.securePay' | translate }}</span>
         </div>
       </div>
 
-      <!-- Decorative cards — real products -->
-       <div class="hidden lg:flex flex-col gap-4 flex-shrink-0">
-         <div *ngFor="let card of heroCards; let i = index"
-              class="bg-white/10 backdrop-blur-md rounded-2xl p-4 w-64 overflow-hidden"
-              [class.transform]="true"
-              [class.rotate-3]="i === 0"
-              [class.-rotate-2]="i === 1"
-              [class.self-end]="i === 1"
-              [class.rotate-1]="i === 2">
-           <span class="inline-block px-3 py-1 text-white text-xs font-bold rounded-full mb-2"
-                 [class.bg-emerald-500]="i === 0"
-                 [class.bg-amber-500]="i === 1"
-                 [class.bg-blue-500]="i === 2">
-             {{ i === 0 ? 'TOP VENTAS' : i === 1 ? 'NUEVO' : 'OFERTA' }}
-           </span>
-           <div class="w-full h-28 rounded-xl mb-2 overflow-hidden flex items-center justify-center bg-white/20">
-             <img *ngIf="card.image_urls && card.image_urls[0]"
-                  [src]="card.image_urls[0]"
-                  [alt]="card.name"
-                  class="w-full h-full object-cover"
-                  loading="lazy" />
-             <i *ngIf="!card.image_urls || !card.image_urls[0]"
-                class="pi pi-image text-3xl text-white/40"></i>
-           </div>
-           <p class="text-white font-semibold text-sm truncate">{{ getDisplayName(card) }}</p>
-           <p class="text-emerald-200 text-xs">{{ card.price | currency }}</p>
-         </div>
-       </div>
-    </div>
-
-    <!-- Wave bottom -->
-    <div class="absolute bottom-0 left-0 right-0">
-      <svg viewBox="0 0 1440 120" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full text-[var(--color-bg)]">
-        <path d="M0 60C240 120 480 0 720 60C960 120 1200 0 1440 60V120H0V60Z" fill="currentColor"/>
-      </svg>
+      <figure class="td-hero-figure">
+        <div class="frame">
+          <img src="assets/img/dress-1.webp" [alt]="'home.heroImageAlt' | translate" loading="eager">
+        </div>
+        <figcaption class="td-hero-caption" *ngIf="featuredProducts().length > 0">
+          <b>{{ featuredProducts()[0].price | currency }}</b> · {{ getDisplayName(featuredProducts()[0]) }}
+        </figcaption>
+      </figure>
     </div>
   </section>
 
-  <!-- CATEGORIES SECTION -->
-  <section class="categories py-16 bg-[var(--color-bg)]" *ngIf="categories().length > 0">
-    <div class="container mx-auto px-4 sm:px-8">
-      <div class="text-center mb-12">
-        <span class="text-sm font-bold text-[var(--color-primary)] uppercase tracking-widest">{{ 'home.explore' | translate }}</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-[var(--color-text)] mt-2">{{ 'home.categories' | translate }}</h2>
-        <p class="text-[var(--color-text-secondary)] mt-3 max-w-xl mx-auto">{{ 'home.categoriesDesc' | translate }}</p>
+  <!-- ═══════════ CATEGORÍAS ═══════════ -->
+  <section class="section" *ngIf="categories().length > 0">
+    <div class="container">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">{{ 'home.explore' | translate }}</span>
+          <h2 class="display">{{ 'home.categories' | translate }}</h2>
+        </div>
+        <a class="link-more" routerLink="/productos">
+          {{ 'home.viewAll' | translate }}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
       </div>
-      <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        <a *ngFor="let cat of categories() | slice:0:12"
+      <div class="td-cats">
+        <a *ngFor="let cat of categories() | slice:0:6"
+           class="td-cat-tile"
            [routerLink]="['/productos']"
-           [queryParams]="{ category_id: cat.id }"
-           class="group flex flex-col items-center p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 cursor-pointer border border-gray-100 dark:border-gray-700">
-          <div class="w-14 h-14 rounded-full bg-[var(--color-primary)]/10 flex items-center justify-center mb-3 group-hover:bg-[var(--color-primary)]/20 transition-colors text-2xl">
-            <i [ngClass]="'pi ' + getCategoryIcon(cat.slug)"></i>
-          </div>
-          <span class="text-sm font-semibold text-[var(--color-text)] text-center leading-tight">
-            {{ getCategoryName(cat) || cat.slug }}
-          </span>
+           [queryParams]="{ category_id: cat.id }">
+          <img [src]="categoryImage(cat.slug)" [alt]="getCategoryName(cat) || cat.slug" loading="lazy">
+          <span class="td-cat-label">{{ getCategoryName(cat) || cat.slug }}</span>
         </a>
       </div>
     </div>
   </section>
 
-  <!-- FEATURED PRODUCTS -->
-  <section class="featured py-16">
-    <div class="container mx-auto px-4 sm:px-8">
-      <div class="flex items-end justify-between mb-10">
+  <!-- ═══════════ DESTACADOS ═══════════ -->
+  <section class="section" style="padding-top: 0">
+    <div class="container">
+      <div class="section-head">
         <div>
-          <span class="text-sm font-bold text-[var(--color-primary)] uppercase tracking-widest">{{ 'home.trending' | translate }}</span>
-          <h2 class="text-3xl md:text-4xl font-extrabold text-[var(--color-text)] mt-2">{{ 'home.featured' | translate }}</h2>
+          <span class="eyebrow">{{ 'home.trending' | translate }}</span>
+          <h2 class="display">{{ 'home.featured' | translate }}</h2>
         </div>
-        <a pButton [text]="true" icon="pi pi-arrow-right" iconPos="right" routerLink="/productos" class="hidden sm:flex text-[var(--color-primary)] font-semibold">
+        <a class="link-more" routerLink="/productos">
           {{ 'home.viewAll' | translate }}
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
         </a>
       </div>
 
       <!-- Skeleton loading -->
-      <div *ngIf="loading()" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-        <div *ngFor="let _ of [1,2,3,4]" class="skeleton-card"></div>
+      <div *ngIf="loading()" class="td-grid">
+        <div *ngFor="let _ of [1,2,3,4,5]" class="skeleton-card" style="aspect-ratio: 3/4; height: auto"></div>
       </div>
 
       <!-- Error -->
-      <div *ngIf="error() && !loading()" class="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
-        <i class="pi pi-exclamation-circle text-5xl text-red-400 mb-4"></i>
-        <p class="text-lg text-[var(--color-text-secondary)] mb-6">{{ error() | translate }}</p>
-        <button pButton severity="primary" (click)="retry()" class="font-semibold">
-          <i class="pi pi-refresh mr-2"></i>{{ 'catalog.retry' | translate }}
+      <div *ngIf="error() && !loading()" class="td-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <p>{{ error() | translate }}</p>
+        <button type="button" class="td-btn td-btn-secondary" (click)="retry()">
+          <span [innerHTML]="'refresh' | svgIcon"></span>
+          {{ 'catalog.retry' | translate }}
         </button>
       </div>
 
       <!-- Product Grid -->
-      <div *ngIf="!loading() && !error() && featuredProducts().length > 0"
-           class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+      <div *ngIf="!loading() && !error() && featuredProducts().length > 0" class="td-grid">
         <app-product-card *ngFor="let product of featuredProducts()" [product]="product"></app-product-card>
       </div>
 
       <!-- Empty -->
-      <div *ngIf="!loading() && !error() && featuredProducts().length === 0"
-           class="text-center py-16 bg-white dark:bg-gray-800 rounded-2xl shadow-sm">
-        <i class="pi pi-inbox text-5xl text-gray-300 dark:text-gray-600 mb-4"></i>
-        <p class="text-lg text-[var(--color-text-secondary)]">{{ 'home.noProducts' | translate }}</p>
-      </div>
-
-      <div class="text-center mt-10 sm:hidden">
-        <a pButton severity="secondary" [outlined]="true" routerLink="/productos" class="font-semibold !px-10">
-          {{ 'home.viewAll' | translate }}
-          <i class="pi pi-arrow-right ml-2"></i>
-        </a>
+      <div *ngIf="!loading() && !error() && featuredProducts().length === 0" class="td-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+        <p>{{ 'home.noProducts' | translate }}</p>
       </div>
     </div>
   </section>
 
-  <!-- RECENTLY VIEWED -->
+  <!-- ═══════════ VISTOS RECIENTEMENTE ═══════════ -->
   <app-recently-viewed></app-recently-viewed>
 
-  <!-- PROMO BANNER -->
-  <section class="promo py-16 bg-gradient-to-r from-[var(--color-secondary)]/20 to-[var(--color-accent)]/20">
-    <div class="container mx-auto px-4 sm:px-8">
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md p-8 md:p-12 flex flex-col md:flex-row items-center gap-8 max-w-4xl mx-auto">
-        <div class="flex-shrink-0 w-24 h-24 bg-[var(--color-primary)]/10 rounded-full flex items-center justify-center">
-          <i class="pi pi-recycle text-4xl text-[var(--color-primary)]"></i>
-        </div>
-        <div class="flex-1 text-center md:text-left">
-          <h3 class="text-2xl font-extrabold text-[var(--color-text)] mb-2">{{ 'home.promoTitle' | translate }}</h3>
-          <p class="text-[var(--color-text-secondary)] leading-relaxed mb-4">{{ 'home.promoDesc' | translate }}</p>
-          <a pButton severity="primary" routerLink="/register" class="font-semibold !px-8">
-            <i class="pi pi-user-plus mr-2"></i>{{ 'home.promoCTA' | translate }}
+  <!-- ═══════════ BANDA PROMO ═══════════ -->
+  <section class="section td-promo">
+    <div class="container">
+      <div class="td-promo-inner">
+        <div>
+          <span class="eyebrow">{{ 'home.explore' | translate }}</span>
+          <h2 class="display">{{ 'home.promoTitle' | translate }}</h2>
+          <p class="lede">{{ 'home.promoDesc' | translate }}</p>
+          <a class="td-btn td-btn-primary" routerLink="/register">
+            <span [innerHTML]="'userPlus' | svgIcon"></span>
+            {{ 'home.promoCTA' | translate }}
           </a>
+        </div>
+        <div class="td-promo-media">
+          <img src="assets/img/jacket-3.webp" [alt]="'home.promoImageAlt' | translate" loading="lazy">
         </div>
       </div>
     </div>

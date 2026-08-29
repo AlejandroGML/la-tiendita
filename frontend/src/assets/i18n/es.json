@@ -59,7 +59,11 @@
     "trending": "Tendencias",
     "promoTitle": "¿Tienes ropa que ya no usas?",
     "promoDesc": "Conviértela en dinero extra. Publica tus prendas en minutos y llega a miles de compradores.",
-    "promoCTA": "Empieza a Vender"
+    "promoCTA": "Empieza a Vender",
+    "heroImageAlt": "Vestido de segunda mano en excelente estado",
+    "promoImageAlt": "Ropa de segunda mano cuidada",
+    "forYou": "Para ti",
+    "recentlyViewed": "Vistos recientemente"
   },
   "product": {
     "price": "Precio",

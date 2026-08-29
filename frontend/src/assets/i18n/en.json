@@ -59,7 +59,11 @@
     "trending": "Trending",
     "promoTitle": "Got clothes you no longer wear?",
     "promoDesc": "Turn them into extra cash. List your items in minutes and reach thousands of buyers.",
-    "promoCTA": "Start Selling"
+    "promoCTA": "Start Selling",
+    "heroImageAlt": "Second-hand dress in excellent condition",
+    "promoImageAlt": "Cared-for second-hand clothing",
+    "forYou": "For you",
+    "recentlyViewed": "Recently viewed"
   },
   "product": {
     "price": "Price",

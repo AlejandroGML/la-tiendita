@@ -59,7 +59,11 @@
     "trending": "Trendigt",
     "promoTitle": "Har du kläder du inte längre använder?",
     "promoDesc": "Gör dem till extra pengar. Lista dina plagg på några minuter och nå tusentals köpare.",
-    "promoCTA": "Börja Sälja"
+    "promoCTA": "Börja Sälja",
+    "heroImageAlt": "Andrahands klänning i utmärkt skick",
+    "promoImageAlt": "Vårdade second hand-kläder",
+    "forYou": "För dig",
+    "recentlyViewed": "Nyligen visade"
   },
   "product": {
     "price": "Pris",

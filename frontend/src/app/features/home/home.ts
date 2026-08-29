@@ -22,6 +22,16 @@ const CATEGORY_ICONS: Record<string, string> = {
   'tunic': 'pi-heart', 'vest': 'pi-box',
 };
 
+const CATEGORY_IMAGES: Record<string, string> = {
+  dress: 'assets/img/dress-2.webp',
+  sweater: 'assets/img/sweater-1.webp',
+  jeans: 'assets/img/jeans-1.webp',
+  jacket: 'assets/img/jacket-1.webp',
+  blazer: 'assets/img/blazer-1.webp',
+  't-shirt': 'assets/img/tshirt-1.webp',
+  tshirt: 'assets/img/tshirt-1.webp',
+};
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.html',
@@ -36,13 +46,12 @@ export class Home implements OnDestroy {
   readonly loading = signal(true);
   readonly error = signal<string | null>(null);
 
-  /** First 3 featured products for decorative hero cards */
-  get heroCards(): Product[] {
-    return this.featuredProducts().slice(0, 3);
-  }
-
   getCategoryIcon(slug: string): string {
     return CATEGORY_ICONS[slug] || 'pi-tag';
+  }
+
+  categoryImage(slug: string): string {
+    return CATEGORY_IMAGES[slug] || 'assets/img/dress-1.webp';
   }
 
   private readonly destroy$ = new Subject<void>();
