@@ -1,41 +1,398 @@
 .product-detail-page {
-  .variant-section {
-    margin-bottom: 0.75rem;
-  }
-
-  .size-btn {
-    min-width: 3rem;
-    transition:
-      background-color 0.15s ease,
-      color 0.15s ease,
-      border-color 0.15s ease;
-
-    &:not(:disabled):hover {
-      border-color: #111827;
-    }
-  }
-
-  .color-swatch {
-    cursor: pointer;
-
-    &:not(:disabled):hover {
-      transform: scale(1.1);
-    }
-
-    &.ring-2 {
-      box-shadow: 0 0 0 2px #fff, 0 0 0 4px #111827;
-    }
-  }
+  max-width: var(--container);
+  margin: 0 auto;
 }
 
-@keyframes heartBeat {
-  0% { transform: scale(1); }
-  25% { transform: scale(1.3); }
-  50% { transform: scale(1); }
-  75% { transform: scale(1.2); }
-  100% { transform: scale(1); }
+/* ═══════════════════════════════════════════════
+   Detalle — "Thrift Editorial"
+   ═══════════════════════════════════════════════ */
+
+.td-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: start;
 }
-.heart-animate {
-  animation: heartBeat 0.4s ease-out;
-  color: #EF4444 !important;
+
+/* ── Galería ── */
+.td-gallery {
+  min-width: 0;
+}
+:host ::ng-deep .p-galleria {
+  max-width: 100%;
+}
+:host ::ng-deep .p-galleria-item-wrapper {
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--surface-2);
+  aspect-ratio: 3 / 4;
+}
+:host ::ng-deep .p-galleria-item {
+  width: 100%;
+  height: 100%;
+}
+:host ::ng-deep .p-galleria-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+:host ::ng-deep .p-galleria-thumbnail-wrapper {
+  margin-top: 0.75rem;
+}
+:host ::ng-deep .p-galleria-thumbnail-item {
+  width: 76px !important;
+  border-radius: var(--r-sm);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: border-color var(--ease), box-shadow var(--ease);
+}
+:host ::ng-deep .p-galleria-thumbnail-item.p-galleria-thumbnail-item-current {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px var(--primary-soft);
+}
+:host ::ng-deep .p-galleria-thumbnail-item img {
+  aspect-ratio: 3 / 4;
+  object-fit: cover;
+}
+:host ::ng-deep .p-galleria-indicator {
+  background: var(--border) !important;
+}
+:host ::ng-deep .p-galleria-indicator.p-highlight {
+  background: var(--primary) !important;
+}
+
+/* ── Info ── */
+.td-detail-info h1 {
+  margin: 0.4rem 0 0.5rem;
+}
+.td-detail-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1.1rem;
+  color: var(--muted);
+  font-size: 0.88rem;
+}
+.td-detail-price {
+  display: flex;
+  align-items: baseline;
+  gap: 0.8rem;
+  margin: 0.6rem 0 0.2rem;
+}
+.td-detail-price .td-price {
+  font-size: 1.6rem;
+}
+.td-price {
+  font-weight: 700;
+  color: var(--ink);
+}
+.td-price-old {
+  font-size: 0.95rem;
+  color: var(--muted);
+  text-decoration: line-through;
+}
+.td-price-sale {
+  color: var(--sale);
+}
+.td-price-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin: 0 0 1.4rem;
+}
+.td-desc {
+  color: var(--ink-2);
+  margin: 0 0 1.4rem;
+}
+
+/* ── Condition details ── */
+.td-cond-details {
+  margin-bottom: 1.6rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.td-cond-label {
+  font-weight: 600;
+  color: var(--ink-2);
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.td-cond-key {
+  color: var(--muted);
+  min-width: 6rem;
+  font-size: 0.875rem;
+}
+.td-cond-value {
+  color: var(--ink-2);
+  font-size: 0.875rem;
+}
+.td-cond-stars {
+  color: var(--warning);
+  font-size: 0.875rem;
+}
+.td-cond-danger {
+  color: var(--error);
+  font-size: 0.875rem;
+}
+
+/* ── Opciones (talla/color) ── */
+.td-opt {
+  margin-bottom: 1.3rem;
+}
+.td-opt-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 0.6rem;
+}
+.td-opt-head h3 {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+}
+.td-opt-hint {
+  font-size: 0.82rem;
+  color: var(--muted);
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+.td-opt-hint:hover {
+  color: var(--primary);
+  text-decoration: underline;
+}
+.td-size-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.size-btn {
+  min-width: 48px;
+  height: 44px;
+  padding: 0 0.8rem;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color var(--ease), color var(--ease), background-color var(--ease);
+}
+.size-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.size-btn.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+}
+.td-swatch-row {
+  display: flex;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+.color-swatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid var(--surface);
+  box-shadow: 0 0 0 1px var(--border);
+  cursor: pointer;
+  padding: 0;
+  transition: box-shadow var(--ease);
+}
+.color-swatch.is-on {
+  box-shadow: 0 0 0 2px var(--primary);
+}
+.td-swatch-letter {
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+.td-stock-row {
+  margin-bottom: 1.4rem;
+}
+
+/* ── CTA ── */
+.td-detail-cta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  margin-top: 1.6rem;
+}
+:host ::ng-deep .td-btn-add {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 52px;
+  padding: 0 1.8rem;
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--primary);
+  color: oklch(0.97 0.01 160);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  transition: background-color var(--ease), box-shadow var(--ease), transform var(--ease);
+}
+:host ::ng-deep .td-btn-add:hover:not(:disabled) {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+:host ::ng-deep .td-btn-add:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Ship trust ── */
+.td-ship {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2rem;
+  margin-top: 1.4rem;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+.td-ship span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.td-ship svg {
+  width: 16px;
+  height: 16px;
+  color: var(--success);
+}
+.td-share {
+  margin-top: 1.2rem;
+}
+
+/* ── Sticky CTA (móvil) ── */
+.td-sticky-cta {
+  display: none;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 45;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 0.75rem var(--gutter) calc(0.75rem + env(safe-area-inset-bottom));
+  box-shadow: 0 -6px 20px oklch(0.29 0.008 60 / 0.08);
+}
+.td-sticky-cta .row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+.td-sticky-cta .price {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.td-sticky-cta .td-price {
+  font-weight: 800;
+  font-size: 1.1rem;
+}
+.td-sticky-cta small {
+  display: block;
+  color: var(--muted);
+  font-size: 0.8rem;
+  max-width: 200px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.td-sticky-cta .td-btn-add {
+  flex: 1;
+  max-width: 280px;
+  min-height: 44px;
+  font-size: 0.95rem;
+}
+.td-sticky-spacer {
+  display: none;
+  height: 5rem;
+}
+
+/* ── Chip condición (sistema) ── */
+:host ::ng-deep .td-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.18rem 0.6rem;
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: none;
+}
+:host ::ng-deep .td-chip.cond-new {
+  background: oklch(0.93 0.04 155);
+  color: var(--success);
+}
+:host ::ng-deep .td-chip.cond-like-new {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+:host ::ng-deep .td-chip.cond-good {
+  background: oklch(0.94 0.05 90);
+  color: oklch(0.5 0.09 60);
+}
+:host ::ng-deep .td-chip.cond-fair {
+  background: oklch(0.95 0.04 60);
+  color: oklch(0.52 0.13 40);
+}
+
+/* ── Attributes (filas del sistema) ── */
+:host ::ng-deep .td-atr-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  font-size: 0.9rem;
+  padding-block: 0.35rem;
+}
+:host ::ng-deep .td-atr-row .td-atr-key {
+  color: var(--muted);
+  min-width: 7rem;
+  font-size: 0.875rem;
+}
+:host ::ng-deep .td-atr-row .td-atr-val {
+  color: var(--ink-2);
+  font-size: 0.9rem;
+}
+
+/* ── Responsive ── */
+@media (max-width: 960px) {
+  .td-detail {
+    grid-template-columns: 1fr;
+  }
+}
+@media (max-width: 720px) {
+  .td-detail-cta {
+    grid-template-columns: 1fr;
+  }
+  .td-sticky-cta {
+    display: block;
+  }
+  .td-sticky-spacer {
+    display: block;
+  }
 }

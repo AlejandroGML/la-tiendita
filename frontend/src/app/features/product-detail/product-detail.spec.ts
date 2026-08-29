@@ -251,13 +251,13 @@ describe('ProductDetail', () => {
   });
 
   it('should render product price with currency pipe', () => {
-    const priceEl = fixture.nativeElement.querySelector('.text-2xl.font-bold');
+    const priceEl = fixture.nativeElement.querySelector('.td-detail-price .td-price');
     expect(priceEl).toBeTruthy();
     expect(priceEl.textContent).toContain('$');
   });
 
   it('should render condition chip', () => {
-    const chip = fixture.nativeElement.querySelector('span[class*="bg-green"]');
+    const chip = fixture.nativeElement.querySelector('.td-chip.cond-new');
     expect(chip).toBeTruthy();
   });
 

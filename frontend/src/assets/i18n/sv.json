@@ -103,7 +103,8 @@
     "sale": "REA",
     "savings": "Du sparar",
     "promoCode": "Kod",
-    "promoEnds": "Slutar"
+    "promoEnds": "Slutar",
+    "save": "Spara"
   },
   "catalog": {
     "title": "Katalog",
@@ -495,5 +496,10 @@
     "analyticsDesc": "Hjälper oss förbättra sidan och visa relevant innehåll. Vi använder för närvarande inga analysverktyg.",
     "essentialOnly": "Endast nödvändiga",
     "save": "Spara inställningar"
+  },
+  "detail": {
+    "shipping": "Skickas inom 2–4 dagar",
+    "returns": "14 dagars retur",
+    "protected": "Köpskydd"
   }
 }

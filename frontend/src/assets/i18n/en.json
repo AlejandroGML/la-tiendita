@@ -103,7 +103,8 @@
     "sale": "SALE",
     "savings": "You save",
     "promoCode": "Code",
-    "promoEnds": "Ends"
+    "promoEnds": "Ends",
+    "save": "Save"
   },
   "catalog": {
     "title": "Catalog",
@@ -495,5 +496,10 @@
     "analyticsDesc": "Help us improve the site and show you relevant content. We currently do not use any analytics tools.",
     "essentialOnly": "Essential only",
     "save": "Save preferences"
+  },
+  "detail": {
+    "shipping": "Ships in 2–4 days",
+    "returns": "14-day returns",
+    "protected": "Protected purchase"
   }
 }
