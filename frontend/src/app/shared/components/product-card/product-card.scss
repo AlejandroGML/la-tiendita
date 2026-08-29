@@ -2,33 +2,250 @@
   display: block;
 }
 
-.product-card-enhanced {
-  border-radius: 12px;
+/* ═══════════════════════════════════════════════
+   Product card — "Thrift Editorial"
+   Foto grande, nombre, precio, chip de condición.
+   Un badge destacado. Wishlist aparece en hover.
+   ═══════════════════════════════════════════════ */
+
+.td-card {
+  position: relative;
+  background: transparent;
+}
+
+/* ── Media ── */
+.td-card-media {
+  position: relative;
+  border-radius: var(--r-md);
   overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  aspect-ratio: 3 / 4;
+  background: var(--surface-2);
+  margin-bottom: 0.85rem;
+}
+.td-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms var(--ease), opacity var(--ease);
+}
+.td-card:hover .td-card-media img {
+  transform: scale(1.05);
+}
+.td-card-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px oklch(0.29 0.008 60 / 0.06);
+  border-radius: inherit;
+}
+.td-card-img.is-hidden {
+  opacity: 0;
+}
+.td-card-img-hover {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+}
+.td-card-img-hover.is-visible {
+  opacity: 1;
+}
+.td-card-empty {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.8125rem;
+}
+
+/* ── Badges ── */
+.td-badge-stack {
+  position: absolute;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.td-badge {
+  width: max-content;
+  padding: 0.32rem 0.7rem;
+  border-radius: var(--r-pill);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--sale);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+.td-badge.is-new {
+  background: var(--primary);
+}
+.td-badge.is-bestseller {
+  background: var(--warning);
+}
+
+/* ── Wishlist ── */
+.td-wish {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
   border: none;
-
+  border-radius: var(--r-pill);
+  background: oklch(1 0 0 / 0.9);
+  backdrop-filter: blur(4px);
+  color: var(--ink-2);
+  box-shadow: var(--shadow-sm);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--ease), transform var(--ease), color var(--ease);
   cursor: pointer;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-
-    :host-context(.dark-theme) & {
-      box-shadow: 0 12px 32px rgba(255, 255, 255, 0.06);
-    }
-  }
-
-  &:active {
-    transform: scale(0.97);
-  }
+}
+.td-card:hover .td-wish,
+.td-wish.is-active {
+  opacity: 1;
+  transform: none;
+}
+.td-wish:hover {
+  color: var(--error);
+}
+.td-wish.is-active {
+  color: var(--error);
+}
+.td-wish .pi {
+  font-size: 1.15rem;
+}
+.td-wish.is-active .pi {
+  color: var(--error);
 }
 
-// Smooth opacity transition for hover image swap
-.product-card-img {
-  transition: opacity 0.3s ease;
+/* ── Stock overlay ── */
+.td-stock-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: oklch(0 0 0 / 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.td-stock-pill {
+  background: var(--surface);
+  color: var(--ink);
+  padding: 0.5rem 1rem;
+  border-radius: var(--r-pill);
+  font-size: 0.875rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-sm);
 }
 
+/* ── Body ── */
+.td-card-body {
+  padding: 0;
+}
+.td-card-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  line-height: 1.35;
+  margin: 0 0 0.2rem;
+  color: var(--ink);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.td-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.35rem;
+}
+.td-card-brand {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+.td-card-variants {
+  margin: 0 0 0.35rem;
+}
+.td-card-extras {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+  min-height: 1.1rem;
+}
+
+/* ── Price ── */
+.td-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+}
+:host ::ng-deep .td-price {
+  font-weight: 700;
+  font-size: 1.09375rem;
+  color: var(--ink);
+  margin: 0;
+}
+:host ::ng-deep .td-price-old {
+  font-size: 0.85rem;
+  color: var(--muted);
+  text-decoration: line-through;
+  margin: 0;
+}
+:host ::ng-deep .td-price-sale {
+  color: var(--sale);
+}
+
+/* ── Condition chip (subcomponent) ── */
+:host ::ng-deep .td-chip-pos {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  z-index: 2;
+}
+:host ::ng-deep .td-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  padding: 0.18rem 0.6rem;
+  border-radius: var(--r-pill);
+  background: var(--primary-soft);
+  color: var(--primary);
+  border: none;
+}
+:host ::ng-deep .td-chip.cond-new {
+  background: oklch(0.93 0.04 155);
+  color: var(--success);
+}
+:host ::ng-deep .td-chip.cond-like-new {
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+:host ::ng-deep .td-chip.cond-good {
+  background: oklch(0.94 0.05 90);
+  color: oklch(0.5 0.09 60);
+}
+:host ::ng-deep .td-chip.cond-fair {
+  background: oklch(0.95 0.04 60);
+  color: oklch(0.52 0.13 40);
+}
+
+/* ── Heart animation (legacy) ── */
 @keyframes heartBeat {
   0% { transform: scale(1); }
   25% { transform: scale(1.3); }
@@ -38,5 +255,4 @@
 }
 .heart-animate {
   animation: heartBeat 0.4s ease-out;
-  color: #EF4444 !important;
 }

@@ -121,28 +121,28 @@ describe('ProductCardComponent', () => {
 
   it('should render condition chip with correct color class', () => {
     createComponent(mockProduct);
-    const chip = fixture.nativeElement.querySelector('span[class*="bg-emerald"]');
+    const chip = fixture.nativeElement.querySelector('.td-chip.cond-new');
     expect(chip).toBeTruthy();
   });
 
-  it('should apply blue classes for like_new condition', () => {
+  it('should apply system classes for like_new condition', () => {
     const product: Product = { ...mockProduct, condition: 'like_new' };
     createComponent(product);
-    const chip = fixture.nativeElement.querySelector('span[class*="bg-blue"]');
+    const chip = fixture.nativeElement.querySelector('.td-chip.cond-like-new');
     expect(chip).toBeTruthy();
   });
 
   it('should apply amber classes for good condition', () => {
     const product: Product = { ...mockProduct, condition: 'good' };
     createComponent(product);
-    const chip = fixture.nativeElement.querySelector('span[class*="bg-amber"]');
+    const chip = fixture.nativeElement.querySelector('.td-chip.cond-good');
     expect(chip).toBeTruthy();
   });
 
   it('should apply red classes for fair condition', () => {
     const product: Product = { ...mockProduct, condition: 'fair' };
     createComponent(product);
-    const chip = fixture.nativeElement.querySelector('span[class*="bg-red"]');
+    const chip = fixture.nativeElement.querySelector('.td-chip.cond-fair');
     expect(chip).toBeTruthy();
   });
 
@@ -184,13 +184,13 @@ describe('ProductCardComponent', () => {
     component.product = mockProduct;
     component.isBestseller = true;
     fixture.detectChanges();
-    const badge = fixture.nativeElement.querySelector('.flex-col.gap-1 span[class*="bg-amber"]');
+    const badge = fixture.nativeElement.querySelector('.td-badge-stack .td-badge.is-bestseller');
     expect(badge).toBeTruthy();
   });
 
   it('should not show bestseller badge when isBestseller is false', () => {
     createComponent(mockProduct);
-    const badge = fixture.nativeElement.querySelector('.flex-col.gap-1 span[class*="bg-amber"]');
+    const badge = fixture.nativeElement.querySelector('.td-badge-stack .td-badge.is-bestseller');
     expect(badge).toBeFalsy();
   });
 
@@ -201,7 +201,7 @@ describe('ProductCardComponent', () => {
       created_at: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     };
     createComponent(recentProduct);
-    const badge = fixture.nativeElement.querySelector('.flex-col.gap-1 span[class*="bg-emerald"]');
+    const badge = fixture.nativeElement.querySelector('.td-badge-stack .td-badge.is-new');
     expect(badge).toBeTruthy();
   });
 
@@ -212,7 +212,7 @@ describe('ProductCardComponent', () => {
       created_at: '2026-01-01T00:00:00Z',
     };
     createComponent(oldProduct);
-    const badge = fixture.nativeElement.querySelector('.flex-col.gap-1 span[class*="bg-emerald"]');
+    const badge = fixture.nativeElement.querySelector('.td-badge-stack .td-badge.is-new');
     expect(badge).toBeFalsy();
   });
 
@@ -226,7 +226,7 @@ describe('ProductCardComponent', () => {
     component.product = saleProduct;
     component.isBestseller = true;
     fixture.detectChanges();
-    const badges = fixture.nativeElement.querySelectorAll('.flex.flex-col.gap-1 > span');
+    const badges = fixture.nativeElement.querySelectorAll('.td-badge-stack > .td-badge');
     expect(badges.length).toBe(2);
     // discount_label is no longer sent by the backend; frontend falls back to translate
     expect(badges[0]?.textContent).toContain('product.sale');

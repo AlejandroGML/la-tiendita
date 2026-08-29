@@ -1,134 +1,123 @@
-<p-card styleClass="product-card-enhanced block w-full cursor-pointer group" (click)="navigateToDetail($event)">
-  <ng-template pTemplate="header">
-    <div
-      class="relative overflow-hidden aspect-[3/4] bg-gray-100 dark:bg-gray-800"
-      (mouseenter)="onMouseEnter()"
-      (mouseleave)="onMouseLeave()"
-    >
-      <!-- Primary image or placeholder -->
-      <ng-container *ngIf="imageUrl; else noImage">
-        <img
-          [src]="imageUrl"
-          [alt]="displayName"
-          class="w-full h-full object-cover product-card-img transition-transform duration-500 group-hover:scale-110"
-          [class.opacity-0]="isHovered() && hoverImage !== imageUrl"
-          loading="lazy"
-        />
-        <!-- Hover image (absolutely positioned over primary) -->
-        <img
-          *ngIf="hoverImage !== imageUrl"
-          [src]="hoverImage"
-          [alt]="displayName"
-          class="absolute inset-0 w-full h-full object-cover product-card-img transition-transform duration-500 group-hover:scale-110"
-          [class.opacity-100]="isHovered()"
-          [class.opacity-0]="!isHovered()"
-          loading="lazy"
-        />
-      </ng-container>
-      <ng-template #noImage>
-        <div class="w-full h-full flex flex-col items-center justify-center bg-gray-100 dark:bg-gray-700 text-gray-400 dark:text-gray-500 p-4 text-center">
-          <svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21zm16.5-13.5h-3.75M21 12l-2.25-3.75" />
-          </svg>
-          <span class="text-xs font-medium">{{ 'common.noImage' | translate }}</span>
-        </div>
-      </ng-template>
-      <!-- Badge stack: SALE > Bestseller > Nuevo (top-left) -->
-      <div class="absolute top-3 left-3 flex flex-col gap-1 z-10">
-        <span
-          *ngIf="product.sale_price != null"
-          class="px-2.5 py-1 rounded-full text-xs font-bold shadow-sm bg-red-500 text-white"
-        >
-          {{ product.discount_label || ('product.sale' | translate) }}
-        </span>
-        <span
-          *ngIf="isBestseller"
-          class="px-2.5 py-1 rounded-full text-xs font-bold shadow-sm bg-amber-500 text-white"
-        >
-          {{ 'product.bestseller' | translate }}
-        </span>
-        <span
-          *ngIf="isNewArrival"
-          class="px-2.5 py-1 rounded-full text-xs font-bold shadow-sm bg-emerald-500/90 text-white backdrop-blur-sm"
-        >
-          {{ 'product.newArrival' | translate }}
-        </span>
+<article class="td-card cursor-pointer" (click)="navigateToDetail($event)">
+  <!-- Media -->
+  <div
+    class="td-card-media"
+    (mouseenter)="onMouseEnter()"
+    (mouseleave)="onMouseLeave()"
+  >
+    <!-- Primary image or placeholder -->
+    <ng-container *ngIf="imageUrl; else noImage">
+      <img
+        [src]="imageUrl"
+        [alt]="displayName"
+        class="td-card-img"
+        [class.is-hidden]="isHovered() && hoverImage !== imageUrl"
+        loading="lazy"
+      />
+      <!-- Hover image (absolutely positioned over primary) -->
+      <img
+        *ngIf="hoverImage !== imageUrl"
+        [src]="hoverImage"
+        [alt]="displayName"
+        class="td-card-img td-card-img-hover"
+        [class.is-visible]="isHovered()"
+        loading="lazy"
+      />
+    </ng-container>
+    <ng-template #noImage>
+      <div class="td-card-empty">
+        <svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21zm16.5-13.5h-3.75M21 12l-2.25-3.75" />
+        </svg>
+        <span>{{ 'common.noImage' | translate }}</span>
       </div>
-      <!-- Wishlist heart button (top-right) -->
-      <button
-        type="button"
-        class="absolute top-11 right-3 z-10 w-11 h-11 flex items-center justify-center rounded-full bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm shadow-sm hover:bg-white dark:hover:bg-gray-700 transition-colors"
-        [class.heart-animate]="animateHeart"
-        (click)="toggleWishlist($event)"
-        aria-label="Add to wishlist"
+    </ng-template>
+
+    <!-- Badge stack: SALE > Bestseller > Nuevo (top-left, max 1 destacado) -->
+    <div class="td-badge-stack">
+      <span
+        *ngIf="product.sale_price != null"
+        class="td-badge"
       >
-        <i class="pi pi-heart text-lg" [class.pi-heart-fill]="isWishlisted()" [style.color]="isWishlisted() ? '#EF4444' : ''"></i>
-      </button>
-      <!-- Condition badge (top-right) -->
+        {{ product.discount_label || ('product.sale' | translate) }}
+      </span>
+      <span
+        *ngIf="isBestseller"
+        class="td-badge is-bestseller"
+      >
+        {{ 'product.bestseller' | translate }}
+      </span>
+      <span
+        *ngIf="isNewArrival"
+        class="td-badge is-new"
+      >
+        {{ 'product.newArrival' | translate }}
+      </span>
+    </div>
+
+    <!-- Wishlist heart button (top-right, reveal on hover) -->
+    <button
+      type="button"
+      class="td-wish"
+      [class.heart-animate]="animateHeart"
+      [class.is-active]="isWishlisted()"
+      (click)="toggleWishlist($event)"
+      aria-label="Add to wishlist"
+    >
+      <i class="pi pi-heart" [class.pi-heart-fill]="isWishlisted()"></i>
+    </button>
+
+    <!-- Stock overlay -->
+    <span
+      *ngIf="isOutOfStock"
+      class="td-stock-overlay"
+    >
+      <span class="td-stock-pill">{{ 'product.outOfStock' | translate }}</span>
+    </span>
+  </div>
+
+  <!-- Body -->
+  <div class="td-card-body">
+    <h3 class="td-card-name">{{ displayName }}</h3>
+
+    <div class="td-card-meta">
       <app-product-condition-badge
         *ngIf="product.condition"
         [condition]="product.condition"
-        variant="badge"
+        variant="chip"
       />
-      <!-- Stock badge -->
-      <span
-        *ngIf="isOutOfStock"
-        class="absolute inset-0 bg-black/50 flex items-center justify-center"
-      >
-        <span class="bg-white dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-full text-sm font-bold">
-          {{ 'product.outOfStock' | translate }}
-        </span>
+      <span class="td-card-brand">
+        {{ product.brand || ('common.notApplicable' | translate) }}
       </span>
     </div>
-  </ng-template>
-  <ng-template pTemplate="content">
-    <div class="p-0 space-y-2">
-      <h3 class="text-sm font-bold text-gray-900 dark:text-gray-100 line-clamp-2 leading-snug group-hover:text-[var(--color-primary)] dark:group-hover:text-[var(--color-primary)] transition-colors">
-        {{ displayName }}
-      </h3>
 
-      <!-- Color swatches row (below product name) -->
+    <!-- Variant summary -->
+    <p *ngIf="hasVariants" class="td-card-variants text-xs text-gray-500 dark:text-gray-400">
+      {{ sizeRange }}
+      <ng-container *ngIf="colorCount > 0">
+        · {{ colorCount }} {{ 'product.colors' | translate }}
+      </ng-container>
+    </p>
+
+    <!-- Color swatches + rating -->
+    <div class="td-card-extras">
       <app-product-color-swatches
         *ngIf="displayColors.length > 0"
         [colors]="displayColors"
         [maxVisible]="5"
       />
-
-      <!-- Rating display -->
       <app-product-rating
         [avgRating]="avgRating()"
         [totalReviews]="totalReviews()"
       />
-
-      <!-- Variant summary -->
-      <p *ngIf="hasVariants" class="text-xs text-gray-500 dark:text-gray-400">
-        {{ sizeRange }}
-        <ng-container *ngIf="colorCount > 0">
-          · {{ colorCount }} {{ 'product.colors' | translate }}
-        </ng-container>
-      </p>
-
-      <!-- Condition rating stars -->
-      <div *ngIf="product.condition_rating" class="flex items-center gap-1">
-        <span class="text-yellow-500 text-xs">
-          {{ '★'.repeat(product.condition_rating) }}{{ '☆'.repeat(5 - product.condition_rating) }}
-        </span>
-      </div>
-
-      <div class="flex items-end justify-between gap-2">
-        <div>
-          <app-product-price
-            [price]="product.price"
-            [salePrice]="product.sale_price ?? null"
-          />
-          <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate hidden sm:block">
-            {{ product.material || 'Material variado' }} &middot; {{ (product.condition | translate) || 'Buen estado' }}
-          </p>
-        </div>
-        <span class="text-xs text-gray-400 dark:text-gray-500 font-medium">
-          {{ product.brand || ('common.notApplicable' | translate) }}
-        </span>
-      </div>
     </div>
-  </ng-template>
-</p-card>
+
+    <!-- Price -->
+    <div class="td-price-row">
+      <app-product-price
+        [price]="product.price"
+        [salePrice]="product.sale_price ?? null"
+      />
+    </div>
+  </div>
+</article>
