@@ -1,78 +1,71 @@
-<div class="product-list-page min-h-screen pb-16">
-  <!-- Header: title + sort -->
-  <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-    <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ 'catalog.title' | translate }}</h1>
-    <div class="flex items-center gap-3">
-      <div class="flex items-center gap-2">
-        <label class="text-sm text-gray-600 dark:text-gray-400 whitespace-nowrap">{{ 'catalog.sort' | translate }}:</label>
-        <p-select
-          class="w-48"
-          [options]="sortOptions()"
-          [ngModel]="filters().sort"
-          (onChange)="onFilterChange('sort', $event.value)"
-        ></p-select>
+<div class="product-list-page">
+  <div class="container section" style="padding-top: 2rem">
+    <!-- Breadcrumb -->
+    <nav class="td-breadcrumb" aria-label="Miga de pan">
+      <a routerLink="/">{{ 'nav.home' | translate }}</a>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      <span class="here">{{ 'catalog.title' | translate }}</span>
+    </nav>
+
+    <!-- Toolbar -->
+    <div class="td-toolbar">
+      <div>
+        <h1 class="display">{{ 'catalog.title' | translate }}</h1>
+        <p *ngIf="!loading() && !error()" class="count">{{ 'catalog.resultsCount' | translate:{ total: total() } }}</p>
       </div>
+      <label class="td-sort">
+        <span>{{ 'catalog.sort' | translate }}</span>
+        <select class="td-select" [attr.aria-label]="'catalog.sort' | translate"
+                [ngModel]="filters().sort"
+                (ngModelChange)="onFilterChange('sort', $event)">
+          <option *ngFor="let opt of sortOptions()" [ngValue]="opt.value">{{ opt.label }}</option>
+        </select>
+      </label>
     </div>
-  </div>
 
-  <!-- Mobile filter toggle button — WCAG 2.2 touch target ≥44px -->
-  <button (click)="showFilters = !showFilters" class="lg:hidden w-full mb-4 p-3 min-h-[44px] bg-gray-100 dark:bg-gray-800 rounded-lg text-left font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
-    <i class="pi" [ngClass]="showFilters ? 'pi-times' : 'pi-filter'"></i>
-    {{ 'catalog.filters' | translate }}
-  </button>
+    <!-- Mobile filter toggle -->
+    <button class="td-filter-toggle" (click)="showFilters = !showFilters">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 3H2l8 9.46V19l4 2v-8.54Z"/></svg>
+      {{ 'catalog.filters' | translate }}
+    </button>
 
-  <div class="flex flex-col lg:flex-row gap-6">
-    <!-- Mobile overlay backdrop -->
-    <div [class.hidden]="!showFilters" class="fixed inset-0 z-20 bg-black/40 lg:hidden" (click)="showFilters = false"></div>
+    <div class="td-layout">
+      <!-- Mobile overlay backdrop -->
+      <div [class.hidden]="!showFilters" class="fixed inset-0 z-20 bg-black/40 lg:hidden" (click)="showFilters = false"></div>
 
-    <!-- Sidebar -->
-    <aside
-      [class.hidden]="!showFilters"
-      class="fixed lg:static inset-y-0 left-0 z-40 lg:z-auto w-72 lg:w-64 lg:block bg-white dark:bg-gray-900 overflow-y-auto transition-transform duration-300 lg:transform-none lg:translate-x-0 shadow-xl lg:shadow-none rounded-r-2xl lg:rounded-none"
-      [class.translate-x-0]="showFilters"
-      [class.-translate-x-full]="!showFilters"
-    >
-      <div class="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800 lg:hidden">
-        <span class="font-bold text-gray-900 dark:text-gray-100">{{ 'catalog.filters' | translate }}</span>
-        <button (click)="showFilters = false" class="p-1 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">&times;</button>
-      </div>
-      <div class="p-4">
-        <app-product-filter-sidebar
-          [filters]="filters()"
-          [categories]="categories()"
-          (filterChange)="onFilterChange($event.key, $event.value)"
-          (clearAll)="clearFilters()"
+      <!-- Sidebar -->
+      <aside class="td-filters"
+             [class.open]="showFilters"
+             [attr.aria-label]="'catalog.filters' | translate">
+        <div class="td-filters-inner">
+          <app-product-filter-sidebar
+            [filters]="filters()"
+            [categories]="categories()"
+            (filterChange)="onFilterChange($event.key, $event.value)"
+            (clearAll)="clearFilters()"
+          />
+        </div>
+      </aside>
+
+      <!-- Results -->
+      <div class="td-catalog-results">
+        <app-product-grid
+          [products]="products()"
+          [loading]="loading()"
+          [error]="error()"
+          (retry)="loadProducts()"
         />
-      </div>
-    </aside>
 
-    <!-- Main Content -->
-    <div class="flex-1 min-w-0">
-      <div class="mb-4">
-        <app-search-bar (search)="onSearch($event)"></app-search-bar>
-      </div>
-
-      <!-- Results count -->
-      <div *ngIf="!loading() && !error()" class="mb-4 text-sm text-gray-500 dark:text-gray-400">
-        {{ 'catalog.resultsCount' | translate:{ total: total() } }}
-      </div>
-
-      <app-product-grid
-        [products]="products()"
-        [loading]="loading()"
-        [error]="error()"
-        (retry)="loadProducts()"
-      />
-
-      <!-- Pagination -->
-      <div *ngIf="total() > 0" class="mt-8">
-        <app-pagination
-          [page]="page()"
-          [perPage]="perPage()"
-          [total]="total()"
-          (pageChange)="onPageChange($event)"
-          (perPageChange)="onPerPageChange($event)"
-        ></app-pagination>
+        <!-- Pagination -->
+        <div *ngIf="total() > 0" class="mt-8">
+          <app-pagination
+            [page]="page()"
+            [perPage]="perPage()"
+            [total]="total()"
+            (pageChange)="onPageChange($event)"
+            (perPageChange)="onPerPageChange($event)"
+          ></app-pagination>
+        </div>
       </div>
     </div>
   </div>

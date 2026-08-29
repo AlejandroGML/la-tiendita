@@ -1,18 +1,13 @@
 <!-- Loading state -->
-<div *ngIf="loading" class="flex justify-center py-16">
-  <p-progressSpinner
-    strokeWidth="4"
-    [style]="{ width: '48px', height: '48px' }"
-  ></p-progressSpinner>
+<div *ngIf="loading" class="td-grid">
+  <div *ngFor="let _ of [1,2,3,4,5,6,7,8]" class="skeleton-card" style="aspect-ratio: 3/4; height: auto"></div>
 </div>
 
 <!-- Error state -->
-<div *ngIf="error" class="text-center py-16">
-  <p class="text-red-600 dark:text-red-400 text-lg">{{ error | translate }}</p>
-  <button
-    class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-    (click)="onRetry()"
-  >
+<div *ngIf="error" class="td-empty">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+  <p>{{ error | translate }}</p>
+  <button type="button" class="td-btn td-btn-secondary" (click)="onRetry()">
     {{ 'catalog.retry' | translate }}
   </button>
 </div>
@@ -20,7 +15,7 @@
 <!-- Product Grid -->
 <div
   *ngIf="!loading && !error"
-  class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+  class="td-grid"
 >
   <a
     *ngFor="let product of products"
@@ -34,7 +29,8 @@
 <!-- Empty state -->
 <div
   *ngIf="!loading && !error && products.length === 0"
-  class="text-center py-16"
+  class="td-empty"
 >
-  <p class="text-gray-500 dark:text-gray-400 text-lg">{{ 'catalog.noResults' | translate }}</p>
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+  <p>{{ 'catalog.noResults' | translate }}</p>
 </div>

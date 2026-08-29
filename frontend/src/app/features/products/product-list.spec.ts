@@ -274,7 +274,7 @@ describe('ProductList', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const noResults = fixture.nativeElement.querySelector('.text-gray-500');
+    const noResults = fixture.nativeElement.querySelector('.td-empty');
     expect(noResults).toBeTruthy();
   });
 
@@ -287,18 +287,13 @@ describe('ProductList', () => {
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const errorEl = fixture.nativeElement.querySelector('.text-red-600');
+    const errorEl = fixture.nativeElement.querySelector('.td-empty');
     expect(errorEl).toBeTruthy();
   });
 
   it('should render sidebar filter dropdowns', () => {
     const selects = fixture.nativeElement.querySelectorAll('p-select');
     expect(selects.length).toBeGreaterThanOrEqual(3);
-  });
-
-  it('should render search bar component', () => {
-    const searchBar = fixture.nativeElement.querySelector('app-search-bar');
-    expect(searchBar).toBeTruthy();
   });
 
   it('should link each product card to detail route', () => {
