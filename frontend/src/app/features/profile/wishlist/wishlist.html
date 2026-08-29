@@ -1,132 +1,141 @@
-<div class="wishlist-container max-w-6xl mx-auto p-6">
-  <header class="mb-6">
-    <h1 class="text-2xl font-bold">{{ 'wishlist.title' | translate }}</h1>
-  </header>
+<div class="wishlist-container">
+  <div class="container section" style="padding-top: 2rem">
 
-  <!-- Guest Login Prompt -->
-  <div
-    *ngIf="isGuest()"
-    class="text-center py-16"
-    data-testid="wishlist-login-prompt"
-  >
-    <div class="max-w-md mx-auto bg-white rounded-lg shadow border border-gray-200 p-8">
-      <i class="pi pi-heart text-5xl text-primary mb-4 block"></i>
-      <h2 class="text-xl font-semibold mb-2">
-        {{ 'wishlist.loginTitle' | translate }}
-      </h2>
-      <p class="text-gray-500 mb-6">
-        {{ 'wishlist.loginDescription' | translate }}
-      </p>
-      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+    <div class="td-toolbar">
+      <div>
+        <h1 class="display">{{ 'wishlist.title' | translate }}</h1>
+      </div>
+    </div>
+
+    <!-- Guest Login Prompt -->
+    <div
+      *ngIf="isGuest()"
+      class="td-empty"
+      data-testid="wishlist-login-prompt"
+    >
+      <div class="td-auth-card" style="margin: 0 auto; box-shadow: var(--shadow-sm)">
+        <i class="pi pi-heart text-5xl td-wishlist-heart mb-4 block"></i>
+        <h2 class="display" style="font-size: 1.35rem; margin-bottom: 0.5rem">
+          {{ 'wishlist.loginTitle' | translate }}
+        </h2>
+        <p class="td-wishlist-desc mb-6">
+          {{ 'wishlist.loginDescription' | translate }}
+        </p>
+        <div class="flex flex-col sm:flex-row gap-3 justify-center">
+          <a
+            pButton
+            severity="primary"
+            styleClass="td-auth-submit"
+            [routerLink]="'/login'"
+            data-testid="btn-wishlist-login"
+          >
+            {{ 'wishlist.loginButton' | translate }}
+          </a>
+          <a
+            pButton
+            severity="secondary"
+            [outlined]="true"
+            styleClass="td-auth-google"
+            [routerLink]="'/register'"
+            data-testid="btn-wishlist-register"
+          >
+            {{ 'wishlist.registerButton' | translate }}
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <ng-container *ngIf="!isGuest()">
+      <p-progressBar
+        *ngIf="loading()"
+        mode="indeterminate"
+        styleClass="mb-4"
+      ></p-progressBar>
+
+      <!-- Empty State -->
+      <div
+        *ngIf="!loading() && !error() && items().length === 0"
+        class="td-empty"
+        data-testid="wishlist-empty"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+        <p class="text-lg mb-4">{{ 'wishlist.empty' | translate }}</p>
         <a
           pButton
           severity="primary"
-          [routerLink]="'/login'"
-          data-testid="btn-wishlist-login"
+          styleClass="td-auth-submit"
+          style="width: auto; padding-inline: 2rem"
+          [routerLink]="'/productos'"
+          data-testid="btn-browse"
         >
-          {{ 'wishlist.loginButton' | translate }}
-        </a>
-        <a
-          pButton
-          severity="secondary"
-          [outlined]="true"
-          [routerLink]="'/register'"
-          data-testid="btn-wishlist-register"
-        >
-          {{ 'wishlist.registerButton' | translate }}
+          {{ 'wishlist.browse' | translate }}
         </a>
       </div>
-    </div>
-  </div>
 
-  <ng-container *ngIf="!isGuest()">
-  <p-progressBar
-    *ngIf="loading()"
-    mode="indeterminate"
-    styleClass="mb-4"
-  ></p-progressBar>
-
-  <!-- Empty State -->
-  <div
-    *ngIf="!loading() && !error() && items().length === 0"
-    class="text-center text-gray-500 py-16"
-    data-testid="wishlist-empty"
-  >
-    <i class="pi pi-heart text-6xl mb-4 block"></i>
-    <p class="text-lg mb-4">{{ 'wishlist.empty' | translate }}</p>
-    <a
-      pButton
-      severity="primary"
-      [routerLink]="'/productos'"
-      data-testid="btn-browse"
-    >
-      {{ 'wishlist.browse' | translate }}
-    </a>
-  </div>
-
-  <!-- Error State -->
-  <div
-    *ngIf="!loading() && error()"
-    class="text-center text-gray-500 py-16"
-    data-testid="wishlist-error"
-  >
-    <i class="pi pi-exclamation-circle text-6xl mb-4 block"></i>
-    <p class="text-lg mb-4">{{ 'wishlist.error' | translate }}</p>
-    <p-button
-      [label]="'catalog.retry' | translate"
-      severity="primary"
-      (onClick)="loadWishlist()"
-      data-testid="btn-retry"
-    ></p-button>
-  </div>
-
-  <!-- Grid -->
-  <div
-    *ngIf="items().length > 0"
-    class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-    data-testid="wishlist-grid"
-  >
-    <div
-      *ngFor="let item of items(); trackBy: trackByProductId"
-      class="wishlist-card bg-white rounded-lg shadow border border-gray-200 overflow-hidden"
-    >
+      <!-- Error State -->
       <div
-        class="cursor-pointer"
-        (click)="navigateToProduct(item.slug)"
+        *ngIf="!loading() && error()"
+        class="td-empty"
+        data-testid="wishlist-error"
       >
-        <img
-          *ngIf="item.image_url"
-          [src]="item.image_url"
-          [alt]="item.name"
-          class="w-full h-48 object-cover"
-          loading="lazy"
-        />
-        <div
-          *ngIf="!item.image_url"
-          class="w-full h-48 bg-gray-100 flex items-center justify-center"
-        >
-          <i class="pi pi-image text-gray-300 text-6xl"></i>
-        </div>
-        <div class="p-3">
-          <h3 class="text-sm font-semibold line-clamp-2 mb-1">{{ item.name }}</h3>
-          <p class="text-lg font-bold text-gray-900">{{ item.price }}</p>
-        </div>
-      </div>
-      <div class="px-3 pb-3">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <p class="text-lg mb-4">{{ 'wishlist.error' | translate }}</p>
         <p-button
-          [label]="'wishlist.remove' | translate"
-          icon="pi pi-trash"
-          severity="danger"
-          [outlined]="true"
-          styleClass="w-full"
-          [attr.aria-label]="'wishlist.removeAria' | translate: { name: item.name }"
-          (onClick)="removeItem(item)"
-          data-testid="btn-remove"
+          [label]="'catalog.retry' | translate"
+          severity="primary"
+          (onClick)="loadWishlist()"
+          data-testid="btn-retry"
         ></p-button>
       </div>
-    </div>
-  </div>
 
-  <p-toast position="bottom-right"></p-toast>
-  </ng-container>
+      <!-- Grid -->
+      <div
+        *ngIf="items().length > 0"
+        class="td-grid"
+        data-testid="wishlist-grid"
+      >
+        <div
+          *ngFor="let item of items(); trackBy: trackByProductId"
+          class="wishlist-card"
+        >
+          <div
+            class="cursor-pointer"
+            (click)="navigateToProduct(item.slug)"
+          >
+            <img
+              *ngIf="item.image_url"
+              [src]="item.image_url"
+              [alt]="item.name"
+              class="w-full h-48 object-cover"
+              loading="lazy"
+            />
+            <div
+              *ngIf="!item.image_url"
+              class="w-full h-48 bg-gray-100 flex items-center justify-center"
+            >
+              <i class="pi pi-image text-gray-300 text-6xl"></i>
+            </div>
+            <div class="p-3">
+              <h3 class="text-sm font-semibold line-clamp-2 mb-1">{{ item.name }}</h3>
+              <p class="text-lg font-bold text-gray-900 dark:text-gray-100">{{ item.price | currency }}</p>
+            </div>
+          </div>
+          <div class="px-3 pb-3">
+            <p-button
+              [label]="'wishlist.remove' | translate"
+              icon="pi pi-trash"
+              severity="danger"
+              [outlined]="true"
+              styleClass="w-full"
+              [attr.aria-label]="'wishlist.removeAria' | translate: { name: item.name }"
+              (onClick)="removeItem(item)"
+              data-testid="btn-remove"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+
+      <p-toast position="bottom-right"></p-toast>
+    </ng-container>
+  </div>
 </div>

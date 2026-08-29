@@ -1,11 +1,25 @@
 .wishlist-container {
-  padding: 1.5rem;
+  max-width: var(--container);
+  margin: 0 auto;
 }
 
 .wishlist-card {
-  transition: box-shadow 0.2s ease;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: box-shadow var(--ease), transform var(--ease);
 
   &:hover {
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
   }
+}
+
+.td-wishlist-heart {
+  color: var(--primary);
+}
+.td-wishlist-desc {
+  color: var(--muted);
+  margin: 0;
 }

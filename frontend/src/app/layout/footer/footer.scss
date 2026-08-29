@@ -1,1 +1,59 @@
-/* Footer styles */
+/* ═══════════════════════════════════════════════
+   Footer — "Thrift Editorial"
+   ═══════════════════════════════════════════════ */
+
+.td-footer {
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  margin-top: clamp(3rem, 6vw, 5rem);
+}
+.td-footer-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr 1fr;
+  gap: 2.5rem;
+  padding-block: 3rem;
+}
+.td-footer h4 {
+  margin: 0 0 0.9rem;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.td-footer a {
+  display: block;
+  padding-block: 0.35rem;
+  font-size: 0.92rem;
+  color: var(--ink-2);
+  transition: color var(--ease);
+}
+.td-footer a:hover {
+  color: var(--primary);
+}
+.td-footer .td-logo-name {
+  font-size: 1.3rem;
+  margin-bottom: 0.6rem;
+}
+.td-footer .about {
+  color: var(--muted);
+  font-size: 0.9rem;
+  max-width: 34ch;
+  margin: 0;
+}
+.td-footer-bottom {
+  border-top: 1px solid var(--border);
+  padding-block: 1.2rem;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.75rem;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+@media (max-width: 960px) {
+  .td-footer-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

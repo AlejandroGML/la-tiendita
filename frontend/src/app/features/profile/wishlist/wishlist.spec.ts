@@ -104,9 +104,11 @@ describe('WishlistComponent', () => {
     expect(names[1].textContent).toContain('Chaqueta');
   });
 
-  it('should display product prices', () => {
+  it('should display product prices via currency pipe', () => {
     const prices = fixture.nativeElement.querySelectorAll('.text-lg.font-bold');
-    expect(prices[0].textContent).toContain('29990');
+    // CurrencyPipe formats SEK with grouping (29990 -> "29 990 kr")
+    expect(prices[0].textContent).toContain('29');
+    expect(prices[0].textContent).toContain('990');
   });
 
   it('should show image when image_url exists', () => {
