@@ -255,6 +255,16 @@ body {
    Contrato visual: assets/tiendita.css del prototipo
    ============================================ */
 
+/* ── Layout container (el prototipo lo define global) ── */
+.container {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+.section {
+  padding-block: clamp(3rem, 6vw, 4.5rem);
+}
+
 /* ── Tipografía editorial ── */
 .display {
   font-family: var(--font-display);
@@ -1106,6 +1116,9 @@ body.td-cookie-open {
   .td-filter-toggle { display: inline-flex; }
 }
 @media (max-width: 720px) {
+  :root {
+    --gutter: 18px;
+  }
   .td-grid { grid-template-columns: repeat(2, 1fr); gap: 1rem; }
   .td-cats { grid-template-columns: repeat(2, 1fr); }
   .td-promo-inner { padding: 1.5rem; }
