@@ -16,6 +16,7 @@ import { Subscription } from 'rxjs';
 import { type CategoryItem } from '../../../core/services/category.service';
 import { ThemeService, type ThemeMode } from '../../../core/services/theme.service';
 import { CurrencyService, type CurrencyCode } from '../../../core/services/currency.service';
+import { UIStore } from '../../../core/stores/ui.store';
 
 const CATEGORY_ICONS: Record<string, string> = {
   accessories: 'pi-box',
@@ -71,6 +72,7 @@ export class MobileMenuComponent implements OnDestroy {
 
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
+  private readonly uiStore = inject(UIStore);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly langSub: Subscription;
 
@@ -95,7 +97,7 @@ export class MobileMenuComponent implements OnDestroy {
   }
 
   protected setLang(lang: string): void {
-    this.translate.use(lang);
+    this.uiStore.setLanguage(lang);
   }
 
   protected setTheme(mode: ThemeMode): void {

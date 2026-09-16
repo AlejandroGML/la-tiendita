@@ -1,6 +1,7 @@
 import { Component, inject, ChangeDetectionStrategy, ChangeDetectorRef, ElementRef, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { UIStore } from '../../../core/stores/ui.store';
 
 @Component({
   selector: 'app-language-switcher',
@@ -10,6 +11,7 @@ import { Subscription } from 'rxjs';
 })
 export class LanguageSwitcherComponent implements OnInit, OnDestroy {
   private readonly translate = inject(TranslateService);
+  private readonly uiStore = inject(UIStore);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly elementRef = inject(ElementRef);
 
@@ -36,7 +38,7 @@ export class LanguageSwitcherComponent implements OnInit, OnDestroy {
   }
 
   protected setLang(lang: string): void {
-    this.translate.use(lang);
+    this.uiStore.setLanguage(lang);
     this.langOpen = false;
     this.cdr.markForCheck();
   }

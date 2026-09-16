@@ -1,6 +1,9 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 
+const STORAGE_KEY = 'language-preference';
+const SUPPORTED_LANGS = ['es', 'en', 'sv'];
+
 /**
  * Centralized UI preferences store.
  *
@@ -17,11 +20,17 @@ export class UIStore {
 
   // ── Language ──────────────────────────────────────────────────────────
 
-  readonly language = signal<string>(this.translate.currentLang || 'es');
+  readonly language = signal<string>(this.loadLanguage());
 
-  /** Switch the application language via TranslateService. */
+  /** Switch the application language (persisted across reloads). */
   setLanguage(lang: string): void {
     this.language.set(lang);
+    localStorage.setItem(STORAGE_KEY, lang);
     this.translate.use(lang);
+  }
+
+  private loadLanguage(): string {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored && SUPPORTED_LANGS.includes(stored) ? stored : 'es';
   }
 }
