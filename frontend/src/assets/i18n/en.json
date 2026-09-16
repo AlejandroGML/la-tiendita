@@ -17,7 +17,9 @@
     "wishlist": "Wishlist",
     "categorias": "Categories",
     "search": "Search",
-    "home": "Home"
+    "home": "Home",
+    "signIn": "Sign In",
+    "profile": "Profile"
   },
   "header": {
     "title": "La Tiendita",

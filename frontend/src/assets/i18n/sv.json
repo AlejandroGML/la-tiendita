@@ -17,7 +17,9 @@
     "wishlist": "Favoriter",
     "categorias": "Kategorier",
     "search": "Sök",
-    "home": "Hem"
+    "home": "Hem",
+    "signIn": "Logga In",
+    "profile": "Profil"
   },
   "header": {
     "title": "La Tiendita",

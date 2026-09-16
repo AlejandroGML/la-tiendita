@@ -1,5 +1,6 @@
 import { Component, inject, computed } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { CartStore } from '../../core/stores/cart.store';
 import { AuthStateService } from '../../core/services/auth-state.service';
 import { WishlistService } from '../../core/services/wishlist.service';
@@ -7,7 +8,7 @@ import { WishlistService } from '../../core/services/wishlist.service';
 @Component({
   selector: 'app-mobile-nav',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [RouterLink, RouterLinkActive, TranslateModule],
   templateUrl: './mobile-nav.html'
 })
 export class MobileNavComponent {
