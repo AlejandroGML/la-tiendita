@@ -1,0 +1,26 @@
+# VPS deployment (Vultr) — Caddy owns :80 and fronts the edge nginx.
+# Usage:
+#   docker compose -p la-tiendita \
+#     -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.vps.yml \
+#     up -d --build
+#
+# Ports: the dev compose publishes db/redis/backend/frontend to the host;
+# on a public VPS only the edge nginx (behind Caddy) may be reachable.
+services:
+  db:
+    ports: !reset []
+  redis:
+    ports: !reset []
+  backend:
+    ports: !reset []
+    environment:
+      # The dev compose forces tiendita_dev; production DB is tiendita_prod
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@db:5432/tiendita_prod
+  worker:
+    environment:
+      DATABASE_URL: postgresql+asyncpg://postgres:${POSTGRES_PASSWORD}@db:5432/tiendita_prod
+  frontend:
+    ports: !reset []
+  nginx:
+    ports: !override
+      - '127.0.0.1:8083:80'
