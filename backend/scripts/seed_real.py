@@ -247,14 +247,17 @@ async def seed(limit: int = 25):
 
                 # ── Save image from dataset ────────────────────────────────
                 img_data = row.get("bytes") or row.get("image")
+                # HuggingFace parquet stores image columns as {bytes, path}
+                if isinstance(img_data, dict):
+                    img_data = img_data.get("bytes")
                 if img_data is not None and len(img_data) > 0:
                     img_path = upload_dir / f"{product.id.hex}.webp"
                     try:
                         img = PILImage.open(io.BytesIO(img_data))
                         img.convert("RGB").save(str(img_path), "WEBP", quality=85)
                         product.image_urls = [f"/uploads/products/{product.id.hex}.webp"]
-                    except Exception:
-                        logger.warning(f"  ⚠️ Image save failed for {slug}")
+                    except Exception as exc:
+                        logger.warning(f"  ⚠️ Image save failed for {slug}: {exc}")
                 else:
                     logger.warning(f"  ⚠️ No image for {slug}")
 
