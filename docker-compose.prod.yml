@@ -26,6 +26,10 @@ services:
 
   # ── Frontend: build Angular app → serve with nginx ──
   frontend:
+    # Own image name — without it, compose tags the built image with the
+    # base-compose dev image name (node:24-slim), overwriting the stock
+    # node image for every other build on the host.
+    image: la-tiendita-frontend
     build:
       context: .
       dockerfile: frontend/Dockerfile
