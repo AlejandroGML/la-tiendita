@@ -41,4 +41,49 @@
     <span [innerHTML]="'trendingUp' | svgIcon:'w-4 h-4'"></span>
     {{ 'nav.popular' | translate }}
   </a>
+
+  <div class="td-dropdown-sep" style="margin: 0.4rem 0.4rem 0.2rem"></div>
+
+  <!-- Ajustes: tema / idioma / moneda -->
+  <p class="td-mobile-section-label">{{ 'header.tema' | translate }}</p>
+  <div class="td-mobile-chips">
+    <button type="button"
+            class="td-mobile-chip"
+            [class.is-on]="!themeService.isDark()"
+            [attr.aria-pressed]="!themeService.isDark()"
+            (click)="setTheme('light')">
+      {{ 'header.claro' | translate }}
+    </button>
+    <button type="button"
+            class="td-mobile-chip"
+            [class.is-on]="themeService.isDark()"
+            [attr.aria-pressed]="themeService.isDark()"
+            (click)="setTheme('dark')">
+      {{ 'header.oscuro' | translate }}
+    </button>
+  </div>
+
+  <p class="td-mobile-section-label">{{ 'header.idioma' | translate }}</p>
+  <div class="td-mobile-chips">
+    <button *ngFor="let lang of LANGS"
+            type="button"
+            class="td-mobile-chip"
+            [class.is-on]="lang === currentLang"
+            [attr.aria-pressed]="lang === currentLang"
+            (click)="setLang(lang)">
+      {{ langName(lang) }}
+    </button>
+  </div>
+
+  <p class="td-mobile-section-label">{{ 'header.moneda' | translate }}</p>
+  <div class="td-mobile-chips">
+    <button *ngFor="let c of currencyService.availableCurrencies"
+            type="button"
+            class="td-mobile-chip"
+            [class.is-on]="c.code === currencyService.currency()"
+            [attr.aria-pressed]="c.code === currencyService.currency()"
+            (click)="setCurrency(c.code)">
+      {{ c.code }}
+    </button>
+  </div>
 </div>

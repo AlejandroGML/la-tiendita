@@ -13,10 +13,13 @@ export class ThemeService {
   }
 
   toggle(): void {
-    const next: ThemeMode = this.theme() === 'light' ? 'dark' : 'light';
-    this.theme.set(next);
-    localStorage.setItem(STORAGE_KEY, next);
-    this.applyTheme(next);
+    this.setTheme(this.theme() === 'light' ? 'dark' : 'light');
+  }
+
+  setTheme(mode: ThemeMode): void {
+    this.theme.set(mode);
+    localStorage.setItem(STORAGE_KEY, mode);
+    this.applyTheme(mode);
   }
 
   isDark(): boolean {

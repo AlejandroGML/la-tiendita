@@ -5,11 +5,17 @@ import {
   Output,
   EventEmitter,
   ChangeDetectionStrategy,
+  ChangeDetectorRef,
   HostListener,
+  OnDestroy,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 
 import { type CategoryItem } from '../../../core/services/category.service';
+import { ThemeService, type ThemeMode } from '../../../core/services/theme.service';
+import { CurrencyService, type CurrencyCode } from '../../../core/services/currency.service';
 
 const CATEGORY_ICONS: Record<string, string> = {
   accessories: 'pi-box',
@@ -44,20 +50,61 @@ const CATEGORY_ICONS: Record<string, string> = {
   vest: 'pi-box',
 };
 
+const LANG_CYCLE = ['es', 'en', 'sv'];
+
+const LANG_NAMES: Record<string, string> = {
+  es: 'Español',
+  en: 'English',
+  sv: 'Svenska',
+};
+
 @Component({
   selector: 'app-mobile-menu',
   templateUrl: './mobile-menu.component.html',
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MobileMenuComponent {
+export class MobileMenuComponent implements OnDestroy {
   @Input() isOpen = false;
   @Input() categories: CategoryItem[] = [];
   @Output() closed = new EventEmitter<void>();
 
   private readonly router = inject(Router);
+  private readonly translate = inject(TranslateService);
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly langSub: Subscription;
+
+  protected readonly themeService = inject(ThemeService);
+  protected readonly currencyService = inject(CurrencyService);
+  protected readonly LANGS = LANG_CYCLE;
 
   searchTerm = '';
+
+  constructor() {
+    this.langSub = this.translate.onLangChange.subscribe(() => {
+      this.cdr.markForCheck();
+    });
+  }
+
+  protected get currentLang(): string {
+    return this.translate.currentLang || 'es';
+  }
+
+  protected langName(lang: string): string {
+    return LANG_NAMES[lang] ?? lang;
+  }
+
+  protected setLang(lang: string): void {
+    this.translate.use(lang);
+  }
+
+  protected setTheme(mode: ThemeMode): void {
+    this.themeService.setTheme(mode);
+  }
+
+  protected setCurrency(code: CurrencyCode): void {
+    this.currencyService.setCurrency(code);
+  }
 
   protected onSearch(term: string): void {
     if (term.trim()) {
@@ -79,5 +126,9 @@ export class MobileMenuComponent {
         this.closed.emit();
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    this.langSub.unsubscribe();
   }
 }

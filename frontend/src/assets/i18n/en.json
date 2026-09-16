@@ -39,6 +39,11 @@
     "modoClaro": "Light mode",
     "modoOscuro": "Dark mode",
     "menu": "Menu",
+    "tema": "Theme",
+    "claro": "Light",
+    "oscuro": "Dark",
+    "idioma": "Language",
+    "moneda": "Currency",
     "coleccionPrimavera": "Spring<br/>Collection",
     "renuevaEstilo": "Renew your style with the best finds of the season.",
     "hasta40": "Up to 40% OFF"

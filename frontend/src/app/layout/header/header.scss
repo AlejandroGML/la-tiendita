@@ -485,14 +485,27 @@
   border: 1px solid var(--border);
   border-radius: var(--r-pill);
   background: var(--surface);
+  font-family: inherit;
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ink-2);
-  transition: border-color var(--ease), color var(--ease);
+  cursor: pointer;
+  transition: border-color var(--ease), color var(--ease), background-color var(--ease);
 }
 :host ::ng-deep .td-mobile-chip:hover {
   border-color: var(--primary);
   color: var(--primary);
+}
+:host ::ng-deep .td-mobile-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0 0.35rem 0.25rem;
+}
+:host ::ng-deep .td-mobile-chip.is-on {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: oklch(0.97 0.01 160);
 }
 
 /* ── Animaciones existentes ── */
