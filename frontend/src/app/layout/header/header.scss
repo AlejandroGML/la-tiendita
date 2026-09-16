@@ -570,6 +570,25 @@
   }
 }
 
+/* Móvil: el wordmark cede espacio a los accesos (idioma/moneda/tema).
+   Con el logo completo la barra necesita ~398px; los iconos requieren 300px. */
+@media (max-width: 480px) {
+  .td-logo-name {
+    display: none;
+  }
+}
+
+/* Pantallas muy angostas (≤360px): comprimir gaps para conservar el gutter.
+   Sin esto, a 320px los 5 accesos consumen los 18px de padding lateral. */
+@media (max-width: 360px) {
+  .td-header-bar {
+    gap: 0.75rem;
+  }
+  .td-header-actions {
+    gap: 0.125rem;
+  }
+}
+
 /* Móvil compacto: ocultar nav secundaria (el hamburger abre el mobile menu) */
 @media (max-width: 720px) {
   :host ::ng-deep .td-nav {
