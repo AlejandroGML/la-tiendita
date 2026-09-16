@@ -94,7 +94,7 @@ html.dark-theme :host ::ng-deep .td-cookie-btn {
   border: none !important;
   border-radius: var(--r-md) !important;
   background: var(--primary) !important;
-  color: oklch(0.97 0.01 160) !important;
+  color: var(--on-primary) !important;
   font-weight: 600 !important;
   min-height: 44px;
   box-shadow: var(--shadow-sm) !important;

@@ -23,7 +23,7 @@
 }
 .ad-brand {
   background: var(--primary);
-  color: oklch(0.97 0.01 160);
+  color: var(--on-primary);
   padding: 1.3rem 1.25rem 1.05rem;
 }
 :host-context(.dark-theme) .ad-brand {

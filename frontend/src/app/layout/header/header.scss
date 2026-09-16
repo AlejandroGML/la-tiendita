@@ -28,7 +28,7 @@
   height: 36px;
   border-radius: var(--r-sm);
   background: var(--primary);
-  color: oklch(0.97 0.01 160);
+  color: var(--on-primary);
   display: grid;
   place-items: center;
   font-family: var(--font-display);
@@ -200,7 +200,7 @@
   border: none;
   border-radius: var(--r-pill);
   background: var(--primary);
-  color: oklch(0.97 0.01 160);
+  color: var(--on-primary);
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 0.875rem;
@@ -505,7 +505,7 @@
 :host ::ng-deep .td-mobile-chip.is-on {
   background: var(--primary);
   border-color: var(--primary);
-  color: oklch(0.97 0.01 160);
+  color: var(--on-primary);
 }
 
 /* ── Animaciones existentes ── */

@@ -21,6 +21,7 @@
   --primary: oklch(0.40 0.055 162);
   --primary-hover: oklch(0.34 0.05 162);
   --primary-soft: oklch(0.93 0.02 160);
+  --on-primary: oklch(0.97 0.01 160);
   --accent: oklch(0.72 0.075 72);
   --sale: oklch(0.55 0.16 40);
   --success: oklch(0.55 0.13 155);
@@ -207,7 +208,7 @@ body {
   }
   .btn-primary {
     background-color: var(--primary);
-    color: oklch(0.97 0.01 160);
+    color: var(--on-primary);
     &:hover {
       background-color: var(--primary-hover);
     }
@@ -335,7 +336,7 @@ h3.display { font-size: clamp(1.15rem, 1.8vw, 1.35rem); }
 .td-btn svg { width: 18px; height: 18px; }
 .td-btn-primary {
   background: var(--primary);
-  color: oklch(0.97 0.01 160);
+  color: var(--on-primary);
   box-shadow: var(--shadow-sm);
 }
 .td-btn-primary:hover {
@@ -755,7 +756,7 @@ h3.display { font-size: clamp(1.15rem, 1.8vw, 1.35rem); }
   margin: 0 auto 0.9rem;
   border-radius: var(--r-sm);
   background: var(--primary);
-  color: oklch(0.97 0.01 160);
+  color: var(--on-primary);
   display: grid;
   place-items: center;
   font-family: var(--font-display);
@@ -879,7 +880,7 @@ h3.display { font-size: clamp(1.15rem, 1.8vw, 1.35rem); }
   border: none !important;
   border-radius: var(--r-md) !important;
   background: var(--primary) !important;
-  color: oklch(0.97 0.01 160) !important;
+  color: var(--on-primary) !important;
   font-weight: 600 !important;
   font-size: 0.95rem !important;
   box-shadow: var(--shadow-sm) !important;
